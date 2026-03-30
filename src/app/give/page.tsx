@@ -50,16 +50,37 @@ export default function GivePage() {
 
     setIsLoading(true);
     try {
-      const response = await giving.initializePaystack({
-        amount: parseFloat(amount),
-        email,
-        recurring: isRecurring,
-      });
+      const parsedAmount = parseFloat(amount);
+      const isInternational = currency !== "NGN";
 
-      if (response.authorization_url) {
-        window.location.href = response.authorization_url;
+      if (isInternational) {
+        // PayPal for international
+        const response = await giving.initializePaypal({
+          amount: parsedAmount,
+          currency,
+          category,
+          email,
+          name,
+        });
+        success("Payment initiated via PayPal. Redirecting...");
+        if (response.orderId) {
+          window.location.href = `https://www.paypal.com/checkoutnow?token=${response.orderId}`;
+        }
       } else {
-        success("Payment initiated. Redirecting...");
+        // Paystack for Nigeria
+        const response = await giving.initializePaystack({
+          amount: parsedAmount,
+          currency,
+          category,
+          email,
+          name,
+          isRecurring,
+        });
+        if (response.authorization_url) {
+          window.location.href = response.authorization_url;
+        } else {
+          success("Payment initiated. Redirecting...");
+        }
       }
     } catch (err) {
       error(

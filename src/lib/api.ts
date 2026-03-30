@@ -242,22 +242,25 @@ export const firstTimer = {
 // PRAYER ENDPOINTS
 export const prayer = {
   submitPrayer: (data: {
-    title: string;
-    description: string;
-    category: string;
+    name: string;
+    email: string;
+    request: string;
+    isPublic?: boolean;
   }) =>
-    fetchAPI<Prayer>("/prayer", {
+    fetchAPI<{ message: string; id: string }>("/prayer-requests", {
       method: "POST",
       body: JSON.stringify(data),
+      noAuth: true,
     }),
 
-  getMyPrayers: () => fetchAPI<Prayer[]>("/prayer/my"),
+  getMyPrayers: () => fetchAPI<Prayer[]>("/prayer-requests/mine"),
 
-  getAdminPrayers: () => fetchAPI<Prayer[]>("/prayer/admin"),
+  getAdminPrayers: (status?: string) =>
+    fetchAPI<Prayer[]>(`/prayer-requests/admin${status ? `?status=${status}` : ""}`),
 
   updatePrayerStatus: (id: string, status: string) =>
-    fetchAPI<Prayer>(`/prayer/${id}/status`, {
-      method: "PATCH",
+    fetchAPI<Prayer>(`/prayer-requests/admin/${id}`, {
+      method: "PUT",
       body: JSON.stringify({ status }),
     }),
 };
@@ -277,11 +280,11 @@ export const testimonies = {
   getTestimonies: () => fetchAPI<Testimony[]>("/testimonies"),
 
   getPendingTestimonies: () =>
-    fetchAPI<Testimony[]>("/testimonies/pending"),
+    fetchAPI<Testimony[]>("/testimonies/admin/pending"),
 
   updateTestimonyStatus: (id: string, status: string) =>
-    fetchAPI<Testimony>(`/testimonies/${id}/status`, {
-      method: "PATCH",
+    fetchAPI<Testimony>(`/testimonies/admin/${id}`, {
+      method: "PUT",
       body: JSON.stringify({ status }),
     }),
 };
@@ -290,40 +293,52 @@ export const testimonies = {
 export const giving = {
   initializePaystack: (data: {
     amount: number;
+    currency: string;
+    category: string;
     email: string;
-    recurring?: boolean;
+    name?: string;
+    isRecurring?: boolean;
   }) =>
-    fetchAPI<{ authorization_url: string }>("/giving/paystack/initialize", {
+    fetchAPI<{ authorization_url: string; reference: string }>("/giving/initialize-paystack", {
       method: "POST",
       body: JSON.stringify(data),
+      noAuth: true,
     }),
 
   verifyPaystack: (reference: string) =>
-    fetchAPI<{ success: boolean }>("/giving/paystack/verify", {
+    fetchAPI<{ message: string; status: string }>("/giving/verify-paystack", {
       method: "POST",
       body: JSON.stringify({ reference }),
+      noAuth: true,
     }),
 
-  initializePaypal: (data: { amount: number; currency?: string }) =>
-    fetchAPI<{ id: string }>("/giving/paypal/initialize", {
+  initializePaypal: (data: {
+    amount: number;
+    currency: string;
+    category: string;
+    email: string;
+    name?: string;
+  }) =>
+    fetchAPI<{ orderId: string; reference: string }>("/giving/initialize-paypal", {
       method: "POST",
       body: JSON.stringify(data),
+      noAuth: true,
     }),
 
   capturePaypal: (orderId: string) =>
-    fetchAPI<{ success: boolean }>("/giving/paypal/capture", {
+    fetchAPI<{ message: string; status: string }>("/giving/capture-paypal", {
       method: "POST",
       body: JSON.stringify({ orderId }),
+      noAuth: true,
     }),
 
   getHistory: () => fetchAPI<any[]>("/giving/history"),
 
   getRecurring: () => fetchAPI<any[]>("/giving/recurring"),
 
-  cancelRecurring: (subscriptionId: string) =>
-    fetchAPI<{ success: boolean }>("/giving/recurring/cancel", {
-      method: "POST",
-      body: JSON.stringify({ subscriptionId }),
+  cancelRecurring: (id: string) =>
+    fetchAPI<{ message: string }>(`/giving/recurring/${id}`, {
+      method: "DELETE",
     }),
 };
 
@@ -525,28 +540,28 @@ export const intentionalityClass = {
 // BLOG ENDPOINTS
 export const blog = {
   getPosts: (limit = 10, offset = 0) =>
-    fetchAPI<any[]>(`/blog/posts?limit=${limit}&offset=${offset}`),
+    fetchAPI<any[]>(`/blog?limit=${limit}&offset=${offset}`),
 
-  getPost: (id: string) =>
-    fetchAPI<any>(`/blog/posts/${id}`),
+  getPost: (slug: string) =>
+    fetchAPI<any>(`/blog/${slug}`),
 
   createBlogPost: (data: {
     title: string;
     content: string;
     imageUrl?: string;
   }) =>
-    fetchAPI<any>("/blog/posts", {
+    fetchAPI<any>("/blog", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   publishPost: (id: string) =>
-    fetchAPI<any>(`/blog/posts/${id}/publish`, {
-      method: "PATCH",
+    fetchAPI<any>(`/blog/${id}/publish`, {
+      method: "PUT",
     }),
 
   addBlogComment: (postId: string, content: string) =>
-    fetchAPI<any>(`/blog/posts/${postId}/comments`, {
+    fetchAPI<any>(`/blog/${postId}/comments`, {
       method: "POST",
       body: JSON.stringify({ content }),
     }),
@@ -554,17 +569,21 @@ export const blog = {
 
 // MEDIA ENDPOINTS
 export const media = {
-  getAudioSermons: (limit = 20, offset = 0) =>
-    fetchAPI<any[]>(`/media/audio?limit=${limit}&offset=${offset}`),
+  getAudioSermons: (search?: string, topic?: string, series?: string) =>
+    fetchAPI<any[]>(`/sermons/audio?${new URLSearchParams({
+      ...(search ? { search } : {}),
+      ...(topic ? { topic } : {}),
+      ...(series ? { series } : {}),
+    }).toString()}`),
 
   getLatestSermon: () =>
-    fetchAPI<any>("/media/audio/latest"),
+    fetchAPI<any>("/sermons/audio/latest"),
 
   downloadSermon: (id: string) =>
-    fetchAPI<{ downloadUrl: string }>(`/media/audio/${id}/download`),
+    fetchAPI<{ downloadUrl: string }>(`/sermons/audio/${id}/download`),
 
-  getVideoMessages: (limit = 20, offset = 0) =>
-    fetchAPI<any[]>(`/media/video?limit=${limit}&offset=${offset}`),
+  getVideoMessages: (series?: string) =>
+    fetchAPI<any[]>(`/sermons/video${series ? `?series=${series}` : ""}`),
 
   createAudioSermon: (data: {
     title: string;
@@ -572,7 +591,7 @@ export const media = {
     audioUrl: string;
     description?: string;
   }) =>
-    fetchAPI<any>("/media/audio", {
+    fetchAPI<any>("/sermons/audio", {
       method: "POST",
       body: JSON.stringify(data),
     }),
@@ -583,13 +602,13 @@ export const media = {
     videoUrl: string;
     description?: string;
   }) =>
-    fetchAPI<any>("/media/video", {
+    fetchAPI<any>("/sermons/video", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   getLibrary: () =>
-    fetchAPI<any[]>("/media/library"),
+    fetchAPI<any[]>("/library"),
 
   createLibraryResource: (data: {
     title: string;
@@ -597,16 +616,16 @@ export const media = {
     fileUrl: string;
     description?: string;
   }) =>
-    fetchAPI<any>("/media/library", {
+    fetchAPI<any>("/library", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   downloadLibraryResource: (id: string) =>
-    fetchAPI<{ downloadUrl: string }>(`/media/library/${id}/download`),
+    fetchAPI<{ downloadUrl: string }>(`/library/${id}/download`),
 
   getMusic: () =>
-    fetchAPI<any[]>("/media/music"),
+    fetchAPI<any[]>("/music"),
 
   createMusic: (data: {
     title: string;
@@ -614,7 +633,7 @@ export const media = {
     musicUrl: string;
     imageUrl?: string;
   }) =>
-    fetchAPI<any>("/media/music", {
+    fetchAPI<any>("/music", {
       method: "POST",
       body: JSON.stringify(data),
     }),

@@ -13,6 +13,7 @@ import { useState } from 'react'
 export default function PrayerPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [isPublic, setIsPublic] = useState(false)
   const { success, error } = useToast()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -22,9 +23,10 @@ export default function PrayerPage() {
     try {
       const formData = new FormData(e.currentTarget)
       await prayer.submitPrayer({
-        title: formData.get('fullName') as string,
-        description: (formData.get('request') as string) || '',
-        category: formData.get('category') as string,
+        name: formData.get('name') as string,
+        email: formData.get('email') as string,
+        request: formData.get('request') as string,
+        isPublic,
       })
       success('Your prayer request has been received.')
       setSubmitted(true)

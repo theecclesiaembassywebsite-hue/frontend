@@ -31,8 +31,8 @@ function AdminResourcesContent() {
     const fetchResources = async () => {
       try {
         const [audio, video, library, music] = await Promise.all([
-          media.getAudioSermons(20, 0),
-          media.getVideoMessages(20, 0),
+          media.getAudioSermons(),
+          media.getVideoMessages(),
           media.getLibrary(),
           media.getMusic(),
         ]);
