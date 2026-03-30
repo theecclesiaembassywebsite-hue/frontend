@@ -15,6 +15,11 @@
   --color-purple-hover: #3A1558;
   --color-purple-pressed: #2E1046;
 
+  /* ---- Accent Gold (from existing branding) ---- */
+  --color-gold: #D4A843;
+  --color-gold-light: #E8C96A;
+  --color-gold-dark: #B8922E;
+
   /* ---- Neutral Colors (Section 2.2) ---- */
   --color-slate: #2A2438;
   --color-charcoal: #1E1A2B;

@@ -50,14 +50,14 @@ export default function ServiceSchedule() {
         <div className="space-y-4 max-w-3xl mx-auto">
           {services.map((service, i) => (
             <StaggerItem key={i}>
-              <div className="group flex items-stretch rounded-lg overflow-hidden bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-purple-vivid/30 transition-all duration-300">
+              <div className="group flex items-stretch rounded-lg overflow-hidden bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] hover:border-gold/40 transition-all duration-300">
                 {/* Left: Day column */}
-                <div className="w-28 sm:w-36 shrink-0 flex flex-col items-center justify-center py-6 px-3 border-r border-white/[0.08]">
+                <div className="w-28 sm:w-36 shrink-0 flex flex-col items-center justify-center py-6 px-3 border-r border-white/[0.10]">
                   <span className="font-heading text-xl sm:text-2xl font-bold text-white leading-tight">
                     {service.day}
                   </span>
                   {service.label && (
-                    <span className="font-body text-[10px] text-white/50 mt-0.5">
+                    <span className="font-body text-[10px] text-white/60 mt-0.5">
                       {service.label}
                     </span>
                   )}
@@ -65,10 +65,10 @@ export default function ServiceSchedule() {
 
                 {/* Middle: Name + Description */}
                 <div className="flex-1 py-6 px-5 sm:px-6 min-w-0">
-                  <h3 className="font-heading text-lg sm:text-xl font-bold text-white">
+                  <h3 className="font-heading text-lg sm:text-xl font-bold text-gold">
                     {service.name}
                   </h3>
-                  <p className="font-body text-sm text-white/60 mt-1.5 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                  <p className="font-body text-sm text-white/80 mt-1.5 line-clamp-2 sm:line-clamp-none leading-relaxed">
                     {service.description}
                   </p>
                 </div>
@@ -76,7 +76,7 @@ export default function ServiceSchedule() {
                 {/* Right: Time */}
                 <div className="shrink-0 flex items-center px-5 sm:px-6">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-purple-vivid hidden sm:block" />
+                    <Clock className="h-4 w-4 text-gold hidden sm:block" />
                     <span className="font-heading text-sm font-bold text-white whitespace-nowrap">
                       {service.time}
                     </span>
