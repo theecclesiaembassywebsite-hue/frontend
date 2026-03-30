@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await auth.login(email, password);
-      setToken(response.token);
+      setToken(response.access_token || response.token || '');
       setUser(response.user);
     } catch (error) {
       removeToken();
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }) => {
     try {
       const response = await auth.register(data);
-      setToken(response.token);
+      setToken(response.access_token || response.token || '');
       setUser(response.user);
     } catch (error) {
       removeToken();

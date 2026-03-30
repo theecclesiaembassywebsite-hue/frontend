@@ -44,7 +44,7 @@ export default function LoginPage() {
 
       const response = await auth.login(data.email, data.password);
 
-      setToken(response.token);
+      setToken((response as any).access_token || response.token);
 
       if (data.rememberMe) {
         localStorage.setItem("rememberEmail", data.email);
