@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FadeIn, StaggerContainer, StaggerItem, ShimmerLine } from "@/components/ui/Motion";
+import { FadeIn, ShimmerLine } from "@/components/ui/Motion";
 import { Heart } from "lucide-react";
 
 const siteLinks = [
@@ -38,12 +38,12 @@ export default function Footer() {
               <h3 className="font-heading text-lg font-bold text-white mb-4">
                 The Ecclesia Embassy
               </h3>
-              <p className="font-serif text-sm italic text-white/60 leading-relaxed">
+              <p className="font-serif text-sm italic text-white/70 leading-relaxed">
                 Word, Kingdom and Worship.
                 <br />
                 Raising Word-cultured Ambassadors.
               </p>
-              <div className="mt-6 flex items-center gap-1 text-white/40">
+              <div className="mt-6 flex items-center gap-1 text-white/50">
                 <span className="font-body text-xs">Built with</span>
                 <Heart className="h-3 w-3 text-error" fill="currentColor" />
                 <span className="font-body text-xs">for the Kingdom</span>
@@ -62,7 +62,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="font-body text-sm text-white/50 hover:text-white transition-colors duration-200"
+                      className="font-body text-sm text-white/80 hover:text-white transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -83,7 +83,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="font-body text-sm text-white/50 hover:text-white transition-colors duration-200"
+                      className="font-body text-sm text-white/80 hover:text-white transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -99,7 +99,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <FadeIn direction="none" delay={0.3}>
-          <p className="font-body text-xs text-white/40 text-center">
+          <p className="font-body text-xs text-white/50 text-center">
             &copy; {year} The Ecclesia Embassy. All rights reserved.
           </p>
         </FadeIn>
