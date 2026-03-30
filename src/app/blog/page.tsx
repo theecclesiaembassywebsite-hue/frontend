@@ -1,31 +1,58 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Search, Calendar, User } from "lucide-react";
 import { blog } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
+import {
+  FadeIn,
+  StaggerContainer,
+  StaggerItem,
+  HoverLift,
+} from "@/components/ui/Motion";
+import { Search, Calendar, User, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-const categories = ["All", "Devotional", "Teaching", "Testimony", "Announcement"];
+type BlogPost = {
+  id: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  author: string;
+  category: "Teaching" | "Devotional" | "Testimony" | "Update";
+  imageUrl?: string;
+  slug: string;
+};
+
+type Category = "All" | "Teaching" | "Devotional" | "Testimony" | "Update";
 
 export default function BlogPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+
+  const categories: Category[] = [
+    "All",
+    "Teaching",
+    "Devotional",
+    "Testimony",
+    "Update",
+  ];
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
+        const data = await blog.getPosts();
+        setPosts(data);
         setError(null);
-        const data = await blog.getPosts(100, 0);
-        setPosts(data || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch posts");
+        setError(
+          err instanceof Error ? err.message : "Failed to load blog posts"
+        );
         setPosts([]);
       } finally {
         setLoading(false);
@@ -35,133 +62,187 @@ export default function BlogPage() {
     fetchPosts();
   }, []);
 
-  const filtered = posts.filter((p) => {
+  const filteredPosts = posts.filter((post) => {
     const matchesSearch =
-      !searchQuery ||
-      p.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat =
-      selectedCategory === "All" || (p.category === selectedCategory);
-    return matchesSearch && matchesCat;
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      activeCategory === "All" || post.category === activeCategory;
+
+    return matchesSearch && matchesCategory;
   });
 
   return (
-    <>
-      {/* Hero */}
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-            Blog
+    <main>
+      {/* Hero Section */}
+      <section
+        className="relative h-96 flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=1920&q=80)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50"></div>
+
+        {/* Content */}
+        <FadeIn className="relative z-10 text-center px-4 max-w-2xl">
+          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">
+            Blog & Insights
           </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Articles, devotionals, and thought pieces
-          </h6>
-        </div>
+          <p className="font-body text-lg md:text-xl text-gray-100 mb-6">
+            Thoughts, teachings, and testimonials
+          </p>
+          <div className="h-1 w-16 bg-gradient-to-r from-purple to-purple-vivid mx-auto"></div>
+        </FadeIn>
       </section>
 
-      {/* Search & Filter */}
-      <SectionWrapper variant="off-white" className="!py-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="relative max-w-md flex-1">
-            <Input
-              id="search"
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search
-              size={18}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-text pointer-events-none"
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`rounded-full px-4 py-1.5 text-xs font-heading font-semibold transition-colors ${
-                  selectedCategory === cat
-                    ? "bg-purple text-white"
-                    : "bg-white text-gray-text border border-gray-border hover:border-purple-vivid"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-      </SectionWrapper>
+      {/* Content Section */}
+      <SectionWrapper variant="white">
+        <StaggerContainer>
+          {/* Search Bar */}
+          <StaggerItem>
+            <div className="w-full max-w-md mx-auto mb-10">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-text w-5 h-5" />
+                <Input
+                  type="text"
+                  placeholder="Search blog posts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-off-white border border-lavender rounded-lg focus:outline-none focus:ring-2 focus:ring-purple transition-all"
+                />
+              </div>
+            </div>
+          </StaggerItem>
 
-      {/* Blog Grid */}
-      <SectionWrapper variant="white" className="!pt-4">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {loading ? (
-            <>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex flex-col overflow-hidden rounded-[8px] border border-gray-border bg-white"
+          {/* Category Filter Chips */}
+          <StaggerItem>
+            <div className="flex flex-wrap gap-3 justify-center mb-12">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`px-4 py-2 rounded-full font-body font-medium transition-all ${
+                    activeCategory === category
+                      ? "bg-purple text-white shadow-md"
+                      : "bg-off-white text-slate hover:bg-lavender"
+                  }`}
                 >
-                  <Skeleton variant="card" className="h-40" />
-                  <div className="p-5 space-y-3">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                </div>
+                  {category}
+                </button>
               ))}
-            </>
-          ) : error ? (
-            <div className="col-span-full py-12 text-center">
-              <p className="font-body text-base text-error">{error}</p>
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="col-span-full py-12 text-center">
-              <p className="font-body text-base text-gray-text">
-                No articles found.
-              </p>
-            </div>
-          ) : (
-            filtered.map((post) => (
-              <Link
-                key={post.id || post.slug}
-                href={`/blog/${post.slug || post.id}`}
-                className="group flex flex-col overflow-hidden rounded-[8px] border border-gray-border bg-white shadow-sm transition-shadow hover:shadow-md"
-              >
-                {/* Featured image placeholder 3:2 */}
-                <div className="aspect-[3/2] bg-purple-dark flex items-center justify-center">
-                  <span className="font-body text-sm text-white/20">
-                    Featured Image
-                  </span>
-                </div>
+          </StaggerItem>
 
-                <div className="flex flex-col flex-1 p-5">
-                  <span className="inline-block self-start rounded-full bg-purple-light px-2.5 py-0.5 text-[11px] font-heading font-semibold text-purple">
-                    {post.category || "Article"}
-                  </span>
-                  <h3 className="mt-2 font-heading text-lg font-bold text-slate group-hover:text-purple-vivid transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="mt-2 font-body text-sm text-gray-text leading-relaxed line-clamp-3 flex-1">
-                    {post.excerpt || post.content?.substring(0, 150)}
-                  </p>
-                  <div className="mt-4 flex items-center gap-4 text-body-small">
-                    <span className="flex items-center gap-1">
-                      <User size={12} /> {post.author || "The Ecclesia Embassy"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} />{" "}
-                      {new Date(post.createdAt || post.date).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))
+          {/* Loading State */}
+          {loading && (
+            <StaggerItem>
+              <div className="mb-12">
+                <SkeletonGroup count={3} variant="card" />
+              </div>
+            </StaggerItem>
           )}
-        </div>
+
+          {/* Error State */}
+          {error && !loading && (
+            <StaggerItem>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-12">
+                <p className="font-body text-red-700">
+                  {error}. Please try again later.
+                </p>
+              </div>
+            </StaggerItem>
+          )}
+
+          {/* Blog Cards Grid */}
+          {!loading && filteredPosts.length > 0 && (
+            <StaggerItem>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {filteredPosts.map((post) => (
+                  <HoverLift
+                    key={post.id}
+                    className="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white"
+                  >
+                    {/* Image Placeholder */}
+                    <div className="h-48 bg-gradient-to-br from-purple-dark to-purple relative overflow-hidden">
+                      {post.imageUrl ? (
+                        <img
+                          src={post.imageUrl}
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : null}
+
+                      {/* Category Badge */}
+                      <div className="absolute top-3 left-3 bg-purple-vivid text-white text-xs px-3 py-1 rounded-full">
+                        {post.category}
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5">
+                      {/* Date and Author Row */}
+                      <div className="flex items-center gap-4 text-sm text-gray-text mb-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{post.date}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          <span>{post.author}</span>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="font-heading text-lg font-bold text-slate mb-2 line-clamp-2">
+                        {post.title}
+                      </h3>
+
+                      {/* Excerpt */}
+                      <p className="font-body text-gray-text text-sm mb-4 line-clamp-2">
+                        {post.excerpt}
+                      </p>
+
+                      {/* Read More Link */}
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="inline-flex items-center gap-2 font-body font-medium text-purple hover:text-purple-vivid transition-colors group"
+                      >
+                        Read More
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
+                  </HoverLift>
+                ))}
+              </div>
+            </StaggerItem>
+          )}
+
+          {/* Empty State */}
+          {!loading && filteredPosts.length === 0 && !error && (
+            <StaggerItem>
+              <div className="text-center py-12">
+                <p className="font-body text-gray-text text-lg mb-4">
+                  No posts found matching your search.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setActiveCategory("All");
+                  }}
+                  className="font-body font-medium text-purple hover:text-purple-vivid transition-colors"
+                >
+                  Clear filters and try again
+                </button>
+              </div>
+            </StaggerItem>
+          )}
+        </StaggerContainer>
       </SectionWrapper>
-    </>
+    </main>
   );
 }

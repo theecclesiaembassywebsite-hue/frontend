@@ -1,119 +1,167 @@
-"use client";
+'use client';
 
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import Button from "@/components/ui/Button";
-import { BookOpen, Download } from "lucide-react";
-import { useState, useEffect } from "react";
-import { media } from "@/lib/api";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { useEffect, useState } from 'react';
+import SectionWrapper from '@/components/ui/SectionWrapper';
+import { media } from '@/lib/api';
+import { SkeletonGroup } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/Motion';
+import { StaggerContainer, StaggerItem } from '@/components/ui/Motion';
+import { BookOpen, Download, Search } from 'lucide-react';
 
-export default function LibraryPage() {
-  const [resources, setResources] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface LibraryItem {
+  id: string;
+  title: string;
+  author: string;
+  type: 'book' | 'pdf' | 'guide' | 'study';
+  url: string;
+  cover?: string;
+  description?: string;
+}
+
+export default function EcclesialibraryPage() {
+  const [items, setItems] = useState<LibraryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchLibrary = async () => {
+    const fetchItems = async () => {
       try {
-        setLoading(true);
-        setError(null);
         const data = await media.getLibrary();
-        setResources(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch library");
-        setResources([]);
+        setItems(data);
+      } catch (error) {
+        console.error('Failed to fetch library items:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchLibrary();
+    fetchItems();
   }, []);
+
+  const filteredItems = items.filter((item) =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getTypeBadgeColor = (type: string) => {
+    switch (type) {
+      case 'book':
+        return 'bg-[#4A1D6E] text-white';
+      case 'pdf':
+        return 'bg-[#771996] text-white';
+      case 'guide':
+        return 'bg-[#E4E0EF] text-[#241A42]';
+      case 'study':
+        return 'bg-[#lavender] text-[#241A42]';
+      default:
+        return 'bg-[#F5F5F5] text-[#31333B]';
+    }
+  };
+
   return (
-    <>
-      {/* Hero */}
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-            Ecclesia Library
-          </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Books, bulletins, and ministry materials
-          </h6>
+    <main className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative h-80 flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#241A42] to-[#4A1D6E]"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-black/35" aria-hidden="true" />
+        <div className="relative z-10 text-center px-4">
+          <div className="flex justify-center mb-4">
+            <BookOpen className="w-16 h-16 text-[#E4E0EF]" />
+          </div>
+          <h1 className="text-5xl font-bold font-heading text-white mb-4">Ecclesia Library</h1>
+          <p className="text-xl text-[#E4E0EF]">Books and resources for your growth</p>
         </div>
       </section>
 
-      {/* Resource Grid */}
+      {/* Library Content */}
       <SectionWrapper variant="white">
-        {loading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex flex-col rounded-[8px] border border-gray-border bg-white overflow-hidden"
-              >
-                <Skeleton variant="card" className="h-48 rounded-b-none" />
-                <div className="p-4 space-y-3">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
+        <FadeIn>
+          <div className="max-w-6xl mx-auto">
+            {/* Search Bar */}
+            <div className="mb-12">
+              <div className="relative">
+                <Search className="absolute left-4 top-3.5 w-5 h-5 text-[#8A8A8E]" />
+                <input
+                  type="text"
+                  placeholder="Search by title or author..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors"
+                />
               </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-error">{error}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {resources.map((res) => (
-              <div
-                key={res.id}
-                className="flex flex-col rounded-[8px] border border-gray-border bg-white overflow-hidden shadow-sm transition-shadow hover:shadow-md"
-              >
-                {/* Cover placeholder */}
-                <div className="flex aspect-[3/4] items-center justify-center bg-purple-dark">
-                  <BookOpen className="h-16 w-16 text-white/20" />
-                </div>
+            </div>
 
-                <div className="flex flex-col flex-1 p-4">
-                  <h3 className="font-heading text-base font-semibold text-slate line-clamp-2">
-                    {res.title}
-                  </h3>
-                  <p className="text-body-small mt-0.5">{res.author || "Author"}</p>
-                  <span className="mt-2 inline-block self-start rounded-full bg-off-white px-2.5 py-0.5 text-[11px] font-heading font-semibold text-gray-text">
-                    {res.category || res.type || "Resource"}
-                  </span>
-
-                  <div className="mt-auto pt-4">
-                    {!res.price ? (
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading text-sm font-bold text-success">
-                          Free
-                        </span>
-                        <Button variant="primary" className="text-xs py-2 px-3 min-w-0">
-                          <Download size={14} className="mr-1" /> Download
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading text-sm font-bold text-slate">
-                          &#8358;{(res.price || 0).toLocaleString()}
-                        </span>
-                        <Button variant="giving" className="text-xs py-2 px-3 min-w-0">
-                          Purchase
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            {/* Items Grid */}
+            {isLoading ? (
+              <SkeletonGroup count={6} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" />
+            ) : filteredItems.length === 0 ? (
+              <div className="text-center py-16">
+                <BookOpen className="w-12 h-12 text-[#E4E0EF] mx-auto mb-4" />
+                <p className="text-lg text-[#8A8A8E] font-body">No resources found matching your search.</p>
               </div>
-            ))}
+            ) : (
+              <StaggerContainer>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredItems.map((item) => (
+                    <StaggerItem key={item.id}>
+                      <div className="bg-[#F5F5F5] rounded-lg overflow-hidden hover:shadow-lg transition-shadow group h-full flex flex-col">
+                        {/* Cover Area */}
+                        <div className="bg-gradient-to-br from-[#E4E0EF] to-[#lavender] h-40 flex items-center justify-center group-hover:from-[#771996] group-hover:to-[#4A1D6E] transition-colors">
+                          {item.cover ? (
+                            <img
+                              src={item.cover}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <BookOpen className="w-16 h-16 text-[#8A8A8E]" />
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 flex flex-col flex-1">
+                          <div className="mb-3">
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-heading font-semibold ${getTypeBadgeColor(item.type)}`}>
+                              {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                            </span>
+                          </div>
+
+                          <h3 className="text-lg font-heading font-bold text-[#241A42] mb-2">
+                            {item.title}
+                          </h3>
+
+                          <p className="text-sm text-[#8A8A8E] font-body mb-3">
+                            By {item.author}
+                          </p>
+
+                          {item.description && (
+                            <p className="text-sm text-[#8A8A8E] font-body mb-4 line-clamp-2">
+                              {item.description}
+                            </p>
+                          )}
+
+                          {/* Download Button */}
+                          <a
+                            href={item.url}
+                            download
+                            className="mt-auto inline-flex items-center justify-center gap-2 bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-2 px-4 rounded-lg transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                            Download
+                          </a>
+                        </div>
+                      </div>
+                    </StaggerItem>
+                  ))}
+                </div>
+              </StaggerContainer>
+            )}
           </div>
-        )}
+        </FadeIn>
       </SectionWrapper>
-    </>
+    </main>
   );
 }

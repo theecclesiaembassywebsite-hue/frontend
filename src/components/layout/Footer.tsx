@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { FadeIn, StaggerContainer, StaggerItem, ShimmerLine } from "@/components/ui/Motion";
+import { Heart } from "lucide-react";
 
 const siteLinks = [
   { label: "Home", href: "/" },
@@ -25,66 +29,80 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-charcoal py-12">
+    <footer className="bg-charcoal py-16">
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 md:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
           {/* Brand */}
-          <div>
-            <h3 className="font-heading text-base font-bold text-white mb-4">
-              The Ecclesia Embassy
-            </h3>
-            <p className="font-serif text-sm italic text-white/50 leading-relaxed">
-              Word, Kingdom and Worship.
-              <br />
-              Raising Word-cultured Ambassadors.
-            </p>
-          </div>
+          <FadeIn direction="up" delay={0}>
+            <div>
+              <h3 className="font-heading text-lg font-bold text-white mb-4">
+                The Ecclesia Embassy
+              </h3>
+              <p className="font-serif text-sm italic text-white/60 leading-relaxed">
+                Word, Kingdom and Worship.
+                <br />
+                Raising Word-cultured Ambassadors.
+              </p>
+              <div className="mt-6 flex items-center gap-1 text-white/40">
+                <span className="font-body text-xs">Built with</span>
+                <Heart className="h-3 w-3 text-error" fill="currentColor" />
+                <span className="font-body text-xs">for the Kingdom</span>
+              </div>
+            </div>
+          </FadeIn>
 
           {/* Site Links */}
-          <div>
-            <h4 className="font-heading text-base font-bold text-white mb-4">
-              Quick Links
-            </h4>
-            <ul className="flex flex-col gap-2">
-              {siteLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="font-body text-sm text-white/20 hover:text-white/60 transition-colors duration-150"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <FadeIn direction="up" delay={0.1}>
+            <div>
+              <h4 className="font-heading text-base font-bold text-white mb-4">
+                Quick Links
+              </h4>
+              <ul className="flex flex-col gap-2.5">
+                {siteLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="font-body text-sm text-white/50 hover:text-white transition-colors duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FadeIn>
 
           {/* Join Us Today */}
-          <div>
-            <h4 className="font-heading text-base font-bold text-white mb-4">
-              Join Us Today
-            </h4>
-            <ul className="flex flex-col gap-2">
-              {joinLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="font-body text-sm text-white/20 hover:text-white/60 transition-colors duration-150"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <FadeIn direction="up" delay={0.2}>
+            <div>
+              <h4 className="font-heading text-base font-bold text-white mb-4">
+                Join Us Today
+              </h4>
+              <ul className="flex flex-col gap-2.5">
+                {joinLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="font-body text-sm text-white/50 hover:text-white transition-colors duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FadeIn>
         </div>
 
+        {/* Divider */}
+        <ShimmerLine className="mt-12 mb-6 w-full max-w-xs mx-auto" />
+
         {/* Bottom bar */}
-        <div className="mt-12 border-t border-white/10 pt-6">
-          <p className="font-body text-xs text-white/20 text-center">
+        <FadeIn direction="none" delay={0.3}>
+          <p className="font-body text-xs text-white/40 text-center">
             &copy; {year} The Ecclesia Embassy. All rights reserved.
           </p>
-        </div>
+        </FadeIn>
       </div>
     </footer>
   );

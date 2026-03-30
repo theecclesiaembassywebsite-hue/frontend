@@ -1,32 +1,50 @@
-"use client";
+'use client';
 
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import Button from "@/components/ui/Button";
-import { Users, Calendar, User } from "lucide-react";
-import { useState, useEffect } from "react";
-import { squads as squadsAPI } from "@/lib/api";
-import { useToast } from "@/components/ui/Toast";
-import { SkeletonGroup } from "@/components/ui/Skeleton";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Users, Shield, Music, BookOpen, Heart, ArrowRight } from 'lucide-react';
+import SectionWrapper from '@/components/ui/SectionWrapper';
+import Button from '@/components/ui/Button';
+import { squads as squadsAPI } from '@/lib/api';
+import { FadeIn, StaggerContainer, StaggerItem, HoverLift } from '@/components/ui/Motion';
+import { SkeletonGroup } from '@/components/ui/Skeleton';
+
+interface Squad {
+  id: string;
+  name: string;
+  description?: string;
+  desc?: string;
+  leader?: string;
+  memberCount?: number;
+  members?: number;
+  day?: string;
+  time?: string;
+  activities?: string;
+}
+
+const squadIconMap: Record<string, React.ReactNode> = {
+  worship: <Music className="w-5 h-5" />,
+  prayer: <Heart className="w-5 h-5" />,
+  teaching: <BookOpen className="w-5 h-5" />,
+  security: <Shield className="w-5 h-5" />,
+};
 
 export default function SquadsPage() {
-  const [squads, setSquads] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [squads, setSquads] = useState<Squad[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [joining, setJoining] = useState<string | null>(null);
-  const { success, error: showError } = useToast();
 
   useEffect(() => {
     const fetchSquads = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setIsLoading(true);
         const data = await squadsAPI.getSquads();
         setSquads(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch squads");
+      } catch (error) {
+        console.error('Failed to fetch squads:', error);
         setSquads([]);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -37,72 +55,105 @@ export default function SquadsPage() {
     setJoining(squadId);
     try {
       await squadsAPI.joinSquad(squadId);
-      success("Successfully joined the squad!");
     } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to join squad");
+      console.error('Failed to join squad:', err);
     } finally {
       setJoining(null);
     }
-  }
+  };
+
   return (
-    <>
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-            Kingdom Life Squads
-          </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Find your place of service and connect with your team
-          </h6>
-        </div>
+    <main className="min-h-screen bg-[#F5F5F5]">
+      {/* Hero Section */}
+      <section
+        className="relative h-screen min-h-96 flex items-center justify-center overflow-hidden bg-cover bg-center"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920&q=80')`,
+          backgroundAttachment: 'fixed',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/40"></div>
+        <FadeIn>
+          <div className="relative z-10 text-center px-4 max-w-3xl">
+            <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">
+              Kingdom Life Squads
+            </h1>
+            <p className="font-body text-xl md:text-2xl text-[#F5F5F5]">
+              Find your place. Serve with purpose.
+            </p>
+          </div>
+        </FadeIn>
       </section>
 
+      {/* Squads List Section */}
       <SectionWrapper variant="white">
-        {loading ? (
-          <SkeletonGroup count={4} variant="card" className="space-y-6" />
-        ) : error ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-error">{error}</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {squads.map((squad) => (
-              <div key={squad.id} className="rounded-[8px] border border-gray-border bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-light">
-                        <Users className="h-5 w-5 text-purple" />
-                      </div>
-                      <div>
-                        <h3 className="font-heading text-lg font-bold text-slate">{squad.name}</h3>
-                        <div className="flex items-center gap-3 text-body-small">
-                          <span className="flex items-center gap-1"><User size={12} /> {squad.leader || "Leader"}</span>
-                          <span className="flex items-center gap-1"><Calendar size={12} /> {squad.day || "TBA"} at {squad.time || "TBA"}</span>
+        <div className="max-w-6xl mx-auto">
+          {isLoading ? (
+            <SkeletonGroup count={4} variant="card" />
+          ) : squads.length > 0 ? (
+            <StaggerContainer>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {squads.map(squad => (
+                  <StaggerItem key={squad.id}>
+                    <HoverLift>
+                      <div className="bg-white rounded-xl border border-[#E4E0EF] shadow-sm p-6 h-full flex flex-col hover:shadow-lg transition-all">
+                        <div className="flex items-start justify-between mb-4">
+                          <h3 className="font-heading text-lg font-bold text-[#241A42] flex-1">
+                            {squad.name}
+                          </h3>
+                          <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-[#E4E0EF] text-[#771996]">
+                            {squadIconMap[squad.name?.toLowerCase()] || <Users className="w-5 h-5" />}
+                          </div>
                         </div>
+
+                        <p className="font-body text-sm text-[#8A8A8E] mb-4 flex-grow">
+                          {squad.description || squad.desc || 'Join this squad to serve and grow with your team.'}
+                        </p>
+
+                        <div className="space-y-2 mb-6 border-t border-[#E4E0EF] pt-4">
+                          <div className="flex items-center gap-2 text-[#31333B] text-sm">
+                            <Users className="w-4 h-4 text-[#771996]" />
+                            <span>Led by {squad.leader || 'TBA'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[#31333B] text-sm">
+                            <Users className="w-4 h-4 text-[#771996]" />
+                            <span>{squad.memberCount || squad.members || 0} members</span>
+                          </div>
+                        </div>
+
+                        <Link href={`/kingdom/squads/${squad.id}`} className="w-full">
+                          <Button
+                            variant="primary"
+                            className="w-full bg-[#771996] hover:bg-[#4A1D6E] flex items-center justify-center gap-2"
+                            disabled={joining === squad.id}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleJoinSquad(squad.id);
+                            }}
+                          >
+                            {joining === squad.id ? 'Joining...' : 'Join Squad'}
+                            {joining !== squad.id && <ArrowRight className="w-4 h-4" />}
+                          </Button>
+                        </Link>
                       </div>
-                    </div>
-                    <p className="font-body text-sm text-gray-text leading-relaxed mt-2">{squad.description || squad.desc}</p>
-                    <p className="mt-2 text-xs text-gray-text">
-                      <span className="font-heading font-semibold text-slate">Activities:</span> {squad.activities || "See details"}
-                    </p>
-                  </div>
-                  <Button
-                    variant="primary"
-                    className="text-xs py-2 px-5 min-w-0 shrink-0 self-start"
-                    disabled={joining === squad.id}
-                    onClick={() => handleJoinSquad(squad.id)}
-                  >
-                    {joining === squad.id ? "Joining..." : "Request to Join"}
-                  </Button>
-                </div>
+                    </HoverLift>
+                  </StaggerItem>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            </StaggerContainer>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 text-[#E4E0EF] mx-auto mb-4" />
+              <h3 className="font-heading text-xl font-bold text-[#241A42] mb-2">
+                No squads available
+              </h3>
+              <p className="text-[#8A8A8E]">
+                Check back soon for new Kingdom Life squads.
+              </p>
+            </div>
+          )}
+        </div>
       </SectionWrapper>
-    </>
+    </main>
   );
 }

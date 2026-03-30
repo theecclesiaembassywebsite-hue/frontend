@@ -1,19 +1,46 @@
 "use client";
 
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import EventCard from "@/components/ui/EventCard";
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import SectionWrapper from "@/components/ui/SectionWrapper";
 import { events as eventsAPI } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
+import {
+  FadeIn,
+  StaggerContainer,
+  StaggerItem,
+  HoverLift,
+} from "@/components/ui/Motion";
+import { ChevronLeft, ChevronRight, Calendar, MapPin, Clock } from "lucide-react";
+import Link from "next/link";
+import EventCard from "@/components/ui/EventCard";
 
-const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+type Event = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location?: string;
+};
 
 export default function EventsPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear] = useState(new Date().getFullYear());
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,11 +48,13 @@ export default function EventsPage() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
+        const data = await eventsAPI.getEvents();
+        setEvents(data);
         setError(null);
-        const data = await eventsAPI.getEvents(100, 0);
-        setEvents(data || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch events");
+        setError(
+          err instanceof Error ? err.message : "Failed to load events"
+        );
         setEvents([]);
       } finally {
         setLoading(false);
@@ -35,81 +64,180 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
+  const featuredEvents = [
+    {
+      id: "feast",
+      title: "Feast of Tabernacles",
+      description: "Join us for our annual spiritual celebration and communion gathering.",
+      href: "/events/feast-of-tabernacles",
+    },
+    {
+      id: "gilgal",
+      title: "Gilgal Camp Meetings",
+      description: "An immersive retreat experience for spiritual renewal and growth.",
+      href: "/events/gilgal",
+    },
+  ];
+
   return (
-    <>
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-            Programs & Events
+    <main>
+      {/* Hero Section */}
+      <section
+        className="relative h-96 flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&q=80)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50"></div>
+
+        {/* Content */}
+        <FadeIn className="relative z-10 text-center px-4 max-w-2xl">
+          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">
+            Events & Programs
           </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Discover what is happening at The Ecclesia Embassy
-          </h6>
-        </div>
+          <p className="font-body text-lg md:text-xl text-gray-100 mb-6">
+            What's happening at the Embassy
+          </p>
+          <div className="h-1 w-16 bg-gradient-to-r from-purple to-purple-vivid mx-auto"></div>
+        </FadeIn>
       </section>
 
-      {/* Featured Events */}
-      <SectionWrapper variant="lavender" className="!py-8">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {[
-            { title: "Feast of Tabernacles", href: "/events/feast-of-tabernacles", desc: "Annual Anniversary" },
-            { title: "Gilgal Camp Meetings", href: "/events/gilgal", desc: "Tri-annual Retreat" },
-            { title: "As Unto The Lord", href: "/events/as-unto-the-lord", desc: "Monthly Consecration" },
-          ].map((e) => (
-            <Link key={e.title} href={e.href} className="rounded-[8px] bg-white p-4 shadow-sm hover:shadow-md transition-shadow text-center">
-              <h3 className="font-heading text-sm font-bold text-purple">{e.title}</h3>
-              <p className="text-[11px] text-gray-text">{e.desc}</p>
-            </Link>
-          ))}
-        </div>
+      {/* Featured Events Section */}
+      <SectionWrapper variant="white">
+        <StaggerContainer>
+          <StaggerItem>
+            <h2 className="font-heading text-3xl font-bold text-slate mb-8">
+              Featured
+            </h2>
+          </StaggerItem>
+
+          <StaggerItem>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+              {featuredEvents.map((event) => (
+                <HoverLift
+                  key={event.id}
+                  className="bg-gradient-to-r from-purple-dark to-purple rounded-xl p-8 text-white shadow-lg"
+                >
+                  <Link
+                    href={event.href}
+                    className="block group"
+                  >
+                    <h3 className="font-heading text-2xl font-bold mb-3 group-hover:text-lavender transition-colors">
+                      {event.title}
+                    </h3>
+                    <p className="font-body text-gray-100 mb-6">
+                      {event.description}
+                    </p>
+                    <div className="inline-flex items-center gap-2 font-body font-medium text-lavender group-hover:text-white transition-colors">
+                      Learn More
+                      <svg
+                        className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
+                  </Link>
+                </HoverLift>
+              ))}
+            </div>
+          </StaggerItem>
+        </StaggerContainer>
       </SectionWrapper>
 
-      {/* Calendar Month Selector */}
-      <SectionWrapper variant="white" className="!py-6">
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <button onClick={() => setCurrentMonth((m) => (m === 0 ? 11 : m - 1))} className="text-gray-text hover:text-purple transition-colors">
-            <ChevronLeft size={24} />
-          </button>
-          <h2 className="font-heading text-xl font-bold text-slate w-48 text-center">
-            {months[currentMonth]} {currentYear}
-          </h2>
-          <button onClick={() => setCurrentMonth((m) => (m === 11 ? 0 : m + 1))} className="text-gray-text hover:text-purple transition-colors">
-            <ChevronRight size={24} />
-          </button>
-        </div>
-      </SectionWrapper>
+      {/* All Events Section */}
+      <SectionWrapper variant="off-white">
+        <StaggerContainer>
+          {/* Month Picker */}
+          <StaggerItem>
+            <div className="flex items-center justify-center gap-6 mb-12">
+              <button
+                onClick={() =>
+                  setCurrentMonth((m) => (m === 0 ? 11 : m - 1))
+                }
+                className="text-gray-text hover:text-purple transition-colors p-2"
+              >
+                <ChevronLeft size={28} />
+              </button>
+              <h2 className="font-heading text-2xl font-bold text-slate w-64 text-center">
+                {months[currentMonth]} {currentYear}
+              </h2>
+              <button
+                onClick={() =>
+                  setCurrentMonth((m) => (m === 11 ? 0 : m + 1))
+                }
+                className="text-gray-text hover:text-purple transition-colors p-2"
+              >
+                <ChevronRight size={28} />
+              </button>
+            </div>
+          </StaggerItem>
 
-      {/* Event List */}
-      <SectionWrapper variant="off-white" className="!pt-0">
-        {loading ? (
-          <SkeletonGroup count={5} variant="table-row" />
-        ) : error ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-error">{error}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {events.map((e) => {
-              const eventDate = new Date(e.date || e.createdAt);
-              const day = String(eventDate.getDate()).padStart(2, "0");
-              const month = months[eventDate.getMonth()].substring(0, 3).toUpperCase();
-              return (
-                <EventCard
-                  key={e.id}
-                  title={e.title}
-                  description={e.description}
-                  date={eventDate.toLocaleDateString()}
-                  day={day}
-                  month={month}
-                  href={`/events/${e.id}`}
-                />
-              );
-            })}
-          </div>
-        )}
+          {/* Loading State */}
+          {loading && (
+            <StaggerItem>
+              <SkeletonGroup count={3} variant="card" />
+            </StaggerItem>
+          )}
+
+          {/* Error State */}
+          {error && !loading && (
+            <StaggerItem>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-12">
+                <p className="font-body text-red-700">
+                  {error}. Please try again later.
+                </p>
+              </div>
+            </StaggerItem>
+          )}
+
+          {/* Events Grid */}
+          {!loading && events.length > 0 && (
+            <StaggerItem>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {events.map((event) => {
+                  const eventDate = new Date(event.date);
+                  const day = eventDate.getDate().toString();
+                  const month = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                  return (
+                    <EventCard
+                      key={event.id}
+                      title={event.title}
+                      description={event.description}
+                      date={event.date}
+                      day={day}
+                      month={month}
+                      href={`/events/${event.id}`}
+                    />
+                  );
+                })}
+              </div>
+            </StaggerItem>
+          )}
+
+          {/* Empty State */}
+          {!loading && events.length === 0 && !error && (
+            <StaggerItem>
+              <div className="text-center py-12">
+                <p className="font-body text-gray-text text-lg">
+                  No events scheduled for this month.
+                </p>
+              </div>
+            </StaggerItem>
+          )}
+        </StaggerContainer>
       </SectionWrapper>
-    </>
+    </main>
   );
 }

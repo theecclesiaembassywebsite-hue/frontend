@@ -1,135 +1,133 @@
-"use client";
+'use client';
 
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import AudioPlayer from "@/components/media/AudioPlayer";
-import Button from "@/components/ui/Button";
-import { useState, useEffect } from "react";
-import { Music, Play } from "lucide-react";
-import { media } from "@/lib/api";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { useEffect, useState } from 'react';
+import SectionWrapper from '@/components/ui/SectionWrapper';
+import { media } from '@/lib/api';
+import { SkeletonGroup } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/Motion';
+import { StaggerContainer, StaggerItem } from '@/components/ui/Motion';
+import { Music, Play, Clock } from 'lucide-react';
 
-export default function MusicPage() {
-  const [activeTrack, setActiveTrack] = useState<string | null>(null);
-  const [tracks, setTracks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface MusicTrack {
+  id: string;
+  title: string;
+  artist: string;
+  duration: string;
+  albumArt?: string;
+  url: string;
+}
+
+export default function EcclesiaMusicPage() {
+  const [tracks, setTracks] = useState<MusicTrack[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMusic = async () => {
+    const fetchTracks = async () => {
       try {
-        setLoading(true);
-        setError(null);
         const data = await media.getMusic();
-        setTracks(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch music");
-        setTracks([]);
+        setTracks(data);
+      } catch (error) {
+        console.error('Failed to fetch music tracks:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchMusic();
+    fetchTracks();
   }, []);
 
   return (
-    <>
-      {/* Hero */}
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-            Ecclesia Music
-          </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Original worship music from The Ecclesia Embassy
-          </h6>
+    <main className="min-h-screen">
+      {/* Hero Section with Unsplash Background */}
+      <section
+        className="relative h-96 flex items-center justify-center overflow-hidden bg-cover bg-center"
+        style={{
+          backgroundImage:
+            'url(https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80)',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
+        <div className="relative z-10 text-center px-4">
+          <div className="flex justify-center mb-4">
+            <Music className="w-16 h-16 text-[#E4E0EF]" />
+          </div>
+          <h1 className="text-5xl font-bold font-heading text-white mb-4">Ecclesia Music</h1>
+          <p className="text-xl text-[#E4E0EF]">Worship in spirit and truth</p>
         </div>
       </section>
 
-      {/* Album Art + Track List */}
+      {/* Music Content */}
       <SectionWrapper variant="white">
-        {loading ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <Skeleton variant="card" className="aspect-square rounded-[16px]" />
-            <div className="md:col-span-2 space-y-6">
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-4 w-40" />
+        <FadeIn>
+          <div className="max-w-4xl mx-auto">
+            {isLoading ? (
+              <SkeletonGroup
+                count={6}
+                className="space-y-4"
+              />
+            ) : tracks.length === 0 ? (
+              <div className="text-center py-16">
+                <Music className="w-12 h-12 text-[#E4E0EF] mx-auto mb-4" />
+                <p className="text-lg text-[#8A8A8E] font-body">No music tracks available yet.</p>
               </div>
-              <div className="space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
+            ) : (
+              <div>
+                <h2 className="text-3xl font-bold font-heading text-[#241A42] mb-8 text-center">
+                  Worship Tracks
+                </h2>
+                <StaggerContainer>
+                  <div className="space-y-4">
+                    {tracks.map((track) => (
+                      <StaggerItem key={track.id}>
+                        <div className="bg-[#F5F5F5] rounded-lg p-6 hover:shadow-lg transition-shadow group flex items-center gap-6">
+                          {/* Album Art */}
+                          <div className="flex-shrink-0">
+                            {track.albumArt ? (
+                              <img
+                                src={track.albumArt}
+                                alt={track.title}
+                                className="w-24 h-24 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="w-24 h-24 bg-gradient-to-br from-[#E4E0EF] to-[#lavender] rounded-lg flex items-center justify-center">
+                                <Music className="w-10 h-10 text-[#771996]" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Track Info */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-heading font-bold text-[#241A42] truncate">
+                              {track.title}
+                            </h3>
+                            <p className="text-[#8A8A8E] font-body text-sm mb-2">
+                              {track.artist}
+                            </p>
+                            <div className="flex items-center gap-1 text-[#8A8A8E] font-body text-sm">
+                              <Clock className="w-4 h-4" />
+                              {track.duration}
+                            </div>
+                          </div>
+
+                          {/* Play Button */}
+                          <a
+                            href={track.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-[#771996] hover:bg-[#4A1D6E] text-white rounded-full transition-colors group-hover:scale-110 transform"
+                          >
+                            <Play className="w-5 h-5 ml-0.5" />
+                          </a>
+                        </div>
+                      </StaggerItem>
+                    ))}
+                  </div>
+                </StaggerContainer>
               </div>
-            </div>
+            )}
           </div>
-        ) : error ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-error">{error}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {/* Album artwork placeholder */}
-            <div className="flex aspect-square items-center justify-center rounded-[16px] bg-purple-dark shadow-lg">
-              <Music className="h-24 w-24 text-white/20" />
-            </div>
-
-            {/* Track listing */}
-            <div className="md:col-span-2">
-              <h2 className="font-heading text-[28px] font-bold text-slate mb-1">
-                Worship Sessions
-              </h2>
-              <p className="text-body-small mb-6">The Ecclesia Embassy Music Ministry</p>
-
-              {tracks.length === 0 ? (
-                <p className="text-body-small text-gray-text">No music tracks available.</p>
-              ) : (
-                <div className="flex flex-col divide-y divide-gray-border">
-                  {tracks.map((track, i) => (
-                    <div key={track.id}>
-                      <div className="flex items-center gap-4 py-3">
-                        <span className="font-heading text-sm text-gray-text w-6 text-right">
-                          {i + 1}
-                        </span>
-                        <button
-                          onClick={() => setActiveTrack(activeTrack === track.id ? null : track.id)}
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-light hover:bg-purple hover:text-white text-purple transition-colors"
-                        >
-                          <Play size={14} className="ml-0.5" />
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-heading text-sm font-semibold text-slate truncate">
-                            {track.title}
-                          </p>
-                          <p className="text-[12px] font-body text-gray-text">{track.album || "Album"}</p>
-                        </div>
-                        <span className="text-body-small shrink-0">{track.duration || "—"}</span>
-                        {track.price ? (
-                          <Button variant="ghost" className="text-[11px] py-1 px-2 min-w-0">
-                            &#8358;{track.price}
-                          </Button>
-                        ) : (
-                          <span className="text-[11px] font-heading font-semibold text-success">
-                            Free
-                          </span>
-                        )}
-                      </div>
-
-                      {activeTrack === track.id && (
-                        <div className="pb-3 pl-14">
-                          <AudioPlayer src={track.musicUrl || track.audioUrl} title={track.title} />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        </FadeIn>
       </SectionWrapper>
-    </>
+    </main>
   );
 }

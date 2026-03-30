@@ -1,70 +1,89 @@
-import SectionWrapper from "@/components/ui/SectionWrapper";
+"use client";
+
 import Link from "next/link";
 import { MapPin, Globe, Home } from "lucide-react";
-
-const cithCards = [
-  {
-    icon: MapPin,
-    title: "Find a Hub Near You",
-    description:
-      "Search for a Church-in-the-Home fellowship gathering in your area and join a local community.",
-    href: "/cith",
-    cta: "Find a Hub",
-  },
-  {
-    icon: Globe,
-    title: "Join the e-Hub",
-    description:
-      "No physical hub nearby? Join our online fellowship community and connect from anywhere in the world.",
-    href: "/cith/ehub",
-    cta: "Join Online",
-  },
-  {
-    icon: Home,
-    title: "Register Your Home as a Hub",
-    description:
-      "Open your home for fellowship. Apply to become a hub host and extend the church into your community.",
-    href: "/cith/register",
-    cta: "Apply Now",
-  },
-];
+import SectionWrapper from "@/components/ui/SectionWrapper";
+import { FadeIn, StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/Motion";
 
 export default function CITHSection() {
-  return (
-    <SectionWrapper variant="white" id="cith">
-      <div className="text-center mb-10">
-        <h2 className="font-heading text-[28px] font-bold text-slate leading-9">
-          Church in the Home
-        </h2>
-        <p className="mt-2 font-serif text-lg italic text-gray-text">
-          Extending fellowship beyond the building
-        </p>
-      </div>
+  const cards = [
+    {
+      icon: MapPin,
+      title: "Find a Hub Near You",
+      description: "Discover Church in the Home gatherings in your community",
+      cta: "Find a Hub",
+      href: "/cith",
+    },
+    {
+      icon: Globe,
+      title: "Join the e-Hub",
+      description: "Connect with our online Church in the Home community",
+      cta: "Join Online",
+      href: "/cith/ehub",
+    },
+    {
+      icon: Home,
+      title: "Register Your Home as a Hub",
+      description: "Open your home for fellowship and spiritual growth",
+      cta: "Apply Now",
+      href: "/cith/register",
+    },
+  ];
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {cithCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="group flex flex-col items-center rounded-[8px] border border-gray-border p-8 text-center transition-shadow duration-200 hover:shadow-md"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-light">
-                <Icon className="h-6 w-6 text-purple" />
-              </div>
-              <h3 className="mt-4 font-heading text-lg font-bold text-slate">
-                {card.title}
-              </h3>
-              <p className="mt-2 font-body text-sm text-gray-text leading-relaxed">
-                {card.description}
-              </p>
-              <span className="mt-4 text-button text-purple-vivid group-hover:underline">
-                {card.cta}
-              </span>
-            </Link>
-          );
-        })}
+  return (
+    <SectionWrapper variant="white">
+      <div className="max-w-6xl mx-auto px-4 py-12 md:py-20">
+        {/* Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <FadeIn>
+            <h2 className="font-heading text-4xl md:text-5xl font-bold text-slate mb-4">
+              Church in the Home
+            </h2>
+          </FadeIn>
+          <FadeIn delay={0.2}>
+            <p className="font-body text-lg text-gray-text max-w-2xl mx-auto">
+              Extending fellowship beyond the building
+            </p>
+          </FadeIn>
+        </div>
+
+        {/* Cards Grid */}
+        <StaggerContainer>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {cards.map((card, index) => {
+              const IconComponent = card.icon;
+              return (
+                <StaggerItem key={index}>
+                  <HoverLift>
+                    <Link href={card.href}>
+                      <div className="rounded-lg border border-gray-border p-8 text-center h-full flex flex-col items-center justify-center hover:shadow-md transition-shadow duration-300">
+                        {/* Icon */}
+                        <div className="h-16 w-16 rounded-full bg-purple-light flex items-center justify-center mb-6 mx-auto">
+                          <IconComponent className="h-8 w-8 text-purple" />
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="font-heading text-xl font-semibold text-slate mb-3">
+                          {card.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="font-body text-gray-text mb-6 flex-grow">
+                          {card.description}
+                        </p>
+
+                        {/* CTA */}
+                        <span className="font-body font-semibold text-purple-vivid hover:underline transition-all duration-300">
+                          {card.cta}
+                        </span>
+                      </div>
+                    </Link>
+                  </HoverLift>
+                </StaggerItem>
+              );
+            })}
+          </div>
+        </StaggerContainer>
       </div>
     </SectionWrapper>
   );

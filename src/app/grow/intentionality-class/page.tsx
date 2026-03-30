@@ -1,318 +1,195 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import Button from "@/components/ui/Button";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { useToast } from "@/components/ui/Toast";
-import { intentionalityClass } from "@/lib/api";
-import { SkeletonGroup } from "@/components/ui/Skeleton";
-import {
-  GraduationCap, PlayCircle, FileText, CheckCircle, Lock, Award, Calendar,
-} from "lucide-react";
-
-interface Module {
-  id: string;
-  title: string;
-  videoUrl?: string;
-  completed: boolean;
-}
-
-interface LiveSession {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-}
+import { useState } from 'react';
+import SectionWrapper from '@/components/ui/SectionWrapper';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { intentionalityClass } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
+import { FadeIn } from '@/components/ui/Motion';
+import { GraduationCap, CheckCircle, BookOpen, Clock, Users } from 'lucide-react';
 
 export default function IntentionalityClassPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    preferredFormat: 'hybrid',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { success, error } = useToast();
-  const [enrolled, setEnrolled] = useState(false);
-  const [modules, setModules] = useState<Module[]>([]);
-  const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
-  const [activeModule, setActiveModule] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [courseId, setCourseId] = useState<string | null>(null);
-  const [completingModule, setCompletingModule] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadCourses();
-  }, []);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-  async function loadCourses() {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
     try {
-      setLoading(true);
-      const courses = await intentionalityClass.getMyCourses();
-      if (courses.length > 0) {
-        const course = courses[0];
-        setEnrolled(true);
-        setCourseId(course.id);
-        loadModules(course.id);
-        loadLiveSessions(course.id);
-      }
+      const courseId = 'intentionality-class';
+      await intentionalityClass.enroll(courseId);
+      setIsSuccess(true);
+      setFormData({ name: '', email: '', phone: '', preferredFormat: 'hybrid' });
+      success('Thank you for enrolling in the Intentionality Class.');
     } catch (err) {
-      error("Failed to load courses");
+      error('Failed to enroll. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
-
-  async function loadModules(id: string) {
-    try {
-      const modulesData = await intentionalityClass.getModules(id);
-      setModules(modulesData);
-    } catch (err) {
-      error("Failed to load modules");
-    }
-  }
-
-  async function loadLiveSessions(id: string) {
-    try {
-      const sessions = await intentionalityClass.getLiveSessions(id);
-      setLiveSessions(sessions);
-    } catch (err) {
-      console.error("Failed to load live sessions");
-    }
-  }
-
-  async function handleEnroll() {
-    try {
-      setLoading(true);
-      await intentionalityClass.enroll("intentionality-class");
-      setEnrolled(true);
-      success("Enrolled successfully!");
-      loadCourses();
-    } catch (err) {
-      error("Failed to enroll");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleCompleteModule(moduleId: string) {
-    try {
-      setCompletingModule(moduleId);
-      await intentionalityClass.completeModule(moduleId);
-      success("Module marked as complete!");
-      if (courseId) {
-        loadModules(courseId);
-      }
-    } catch (err) {
-      error("Failed to complete module");
-    } finally {
-      setCompletingModule(null);
-    }
-  }
-
-  const completedCount = modules.filter((m) => m.completed).length;
-  const progress = modules.length > 0 ? Math.round((completedCount / modules.length) * 100) : 0;
+  };
 
   return (
-    <ProtectedRoute>
-      <>
-        <section className="relative flex items-center justify-center py-24 md:py-32">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-          <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-          <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-            <GraduationCap className="mx-auto h-12 w-12 text-white/80 mb-3" />
-            <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-              Intentionality Class
-            </h1>
-            <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-              Service Readiness — Prepare to serve in the church
-            </h6>
+    <main className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative h-96 flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#241A42] to-[#4A1D6E]"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
+        <div className="relative z-10 text-center px-4">
+          <div className="flex justify-center mb-4">
+            <GraduationCap className="w-16 h-16 text-[#E4E0EF]" />
           </div>
-        </section>
+          <h1 className="text-5xl font-bold font-heading text-white mb-4">Intentionality Class</h1>
+          <p className="text-xl text-[#E4E0EF]">A foundational journey into kingdom living</p>
+        </div>
+      </section>
 
-        {!enrolled ? (
-          <SectionWrapper variant="white">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="font-heading text-[28px] font-bold text-slate">
-                About the Course
-              </h2>
-              <p className="mt-4 font-body text-base text-gray-text leading-relaxed">
-                The Intentionality Class is a 6-module course designed for members
-                who want to serve actively in The Ecclesia Embassy. You will learn
-                about your identity, the church&apos;s vision, ministry ethics, and
-                practical service skills through video lessons, written materials,
-                and live teaching sessions.
-              </p>
-              <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-                <div className="rounded-[8px] bg-off-white p-4">
-                  <p className="font-heading text-2xl font-bold text-purple">6</p>
-                  <p className="text-[11px] text-gray-text">Modules</p>
+      {/* About the Class */}
+      <SectionWrapper variant="white">
+        <FadeIn>
+          <div className="mb-12">
+            <h2 className="text-4xl font-bold font-heading text-[#241A42] mb-8 text-center">
+              About the Class
+            </h2>
+            <p className="text-lg text-[#8A8A8E] font-body max-w-3xl mx-auto mb-12 text-center">
+              The Intentionality Class is a foundational journey designed to help you live with purpose
+              and clarity. Over six weeks, we explore what it means to align your daily decisions with
+              kingdom values, deepen your spiritual foundation, and build meaningful community with
+              others on the same journey.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Duration Card */}
+              <FadeIn delay={0.1}>
+                <div className="bg-[#F5F5F5] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                  <Clock className="w-12 h-12 text-[#771996] mx-auto mb-4" />
+                  <h3 className="text-xl font-heading font-semibold text-[#241A42] mb-2">Duration</h3>
+                  <p className="text-[#8A8A8E] font-body">6 weeks of transformative learning</p>
                 </div>
-                <div className="rounded-[8px] bg-off-white p-4">
-                  <p className="font-heading text-2xl font-bold text-purple">1</p>
-                  <p className="text-[11px] text-gray-text">Final Exam</p>
+              </FadeIn>
+
+              {/* Format Card */}
+              <FadeIn delay={0.2}>
+                <div className="bg-[#F5F5F5] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                  <BookOpen className="w-12 h-12 text-[#771996] mx-auto mb-4" />
+                  <h3 className="text-xl font-heading font-semibold text-[#241A42] mb-2">Format</h3>
+                  <p className="text-[#8A8A8E] font-body">In-person and online options available</p>
                 </div>
-                <div className="rounded-[8px] bg-off-white p-4">
-                  <p className="font-heading text-2xl font-bold text-purple">1</p>
-                  <p className="text-[11px] text-gray-text">Certificate</p>
+              </FadeIn>
+
+              {/* Community Card */}
+              <FadeIn delay={0.3}>
+                <div className="bg-[#F5F5F5] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                  <Users className="w-12 h-12 text-[#771996] mx-auto mb-4" />
+                  <h3 className="text-xl font-heading font-semibold text-[#241A42] mb-2">Community</h3>
+                  <p className="text-[#8A8A8E] font-body">Small groups for meaningful connection</p>
                 </div>
-              </div>
-              <Button
-                variant="giving"
-                className="mt-8"
-                onClick={handleEnroll}
-                disabled={loading}
-              >
-                {loading ? "Enrolling..." : "Enroll in the Intentionality Class"}
-              </Button>
+              </FadeIn>
             </div>
-          </SectionWrapper>
-        ) : (
-          <>
-            {/* Progress */}
-            <SectionWrapper variant="white" className="!py-8">
-              <div className="mx-auto max-w-3xl">
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="font-heading text-lg font-bold text-slate">
-                    Your Progress
-                  </h2>
-                  <span className="font-heading text-sm font-bold text-purple">
-                    {progress}% Complete
-                  </span>
-                </div>
-                <div className="h-3 rounded-full bg-off-white overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-purple to-purple-vivid transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-body-small">
-                  {completedCount} of {modules.length} modules completed
+          </div>
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* Enrollment Form */}
+      <SectionWrapper variant="off-white">
+        <FadeIn>
+          <div className="max-w-xl mx-auto">
+            <h2 className="text-4xl font-bold font-heading text-[#241A42] mb-2 text-center">
+              Enroll Now
+            </h2>
+            <p className="text-[#8A8A8E] font-body text-center mb-8">
+              Join us on this transformative journey
+            </p>
+
+            {isSuccess ? (
+              <div className="bg-[#E4E0EF] border-2 border-[#27AE60] rounded-lg p-8 text-center">
+                <CheckCircle className="w-16 h-16 text-[#27AE60] mx-auto mb-4" />
+                <h3 className="text-2xl font-heading font-bold text-[#241A42] mb-2">
+                  Thank you for enrolling!
+                </h3>
+                <p className="text-[#8A8A8E] font-body">
+                  We'll be in touch soon with more details about the Intentionality Class.
                 </p>
               </div>
-            </SectionWrapper>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <Input
+                  label="Full Name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Your full name"
+                  required
+                />
 
-            {/* Module List */}
-            <SectionWrapper variant="off-white" className="!pt-4">
-              <div className="mx-auto max-w-3xl space-y-3">
-                {loading ? (
-                  <SkeletonGroup count={3} variant="card" />
-                ) : modules.length > 0 ? (
-                  modules.map((mod, i) => {
-                    const isUnlocked = i === 0 || modules[i - 1]?.completed;
-                    const isActive = activeModule === mod.id;
+                <Input
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="your@email.com"
+                  required
+                />
 
-                    return (
-                      <div key={mod.id}>
-                        <button
-                          onClick={() => isUnlocked && setActiveModule(isActive ? null : mod.id)}
-                          disabled={!isUnlocked}
-                          className={`w-full flex items-center gap-4 rounded-[8px] border bg-white p-4 text-left transition-shadow ${
-                            isUnlocked ? "border-gray-border shadow-sm hover:shadow-md cursor-pointer" : "border-gray-border/50 opacity-60 cursor-not-allowed"
-                          }`}
-                        >
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                            mod.completed ? "bg-success" : isUnlocked ? "bg-purple" : "bg-gray-text/30"
-                          }`}>
-                            {mod.completed ? (
-                              <CheckCircle className="h-5 w-5 text-white" />
-                            ) : isUnlocked ? (
-                              <PlayCircle className="h-5 w-5 text-white" />
-                            ) : (
-                              <Lock className="h-5 w-5 text-white" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-heading text-sm font-bold text-slate">
-                              {mod.title}
-                            </p>
-                            <p className="text-[11px] text-gray-text">
-                              {mod.completed ? "Completed" : isUnlocked ? "In Progress" : "Locked"}
-                            </p>
-                          </div>
-                        </button>
+                <Input
+                  label="Phone"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="(123) 456-7890"
+                  required
+                />
 
-                        {/* Expanded module content */}
-                        {isActive && isUnlocked && (
-                          <div className="mt-2 ml-14 space-y-4 rounded-[8px] border border-gray-border bg-white p-5">
-                            {mod.videoUrl && (
-                              <div className="aspect-video overflow-hidden rounded-[8px] bg-near-black">
-                                <iframe
-                                  src={`https://www.youtube.com/embed/${mod.videoUrl}`}
-                                  title={mod.title}
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                  className="h-full w-full"
-                                />
-                              </div>
-                            )}
-                            <div className="flex items-center gap-3">
-                              <button className="flex items-center gap-1 text-xs font-heading font-semibold text-purple-vivid hover:underline">
-                                <FileText size={14} /> Download PDF Materials
-                              </button>
-                            </div>
-                            {!mod.completed && (
-                              <Button
-                                variant="primary"
-                                className="text-xs py-2 min-w-0"
-                                disabled={completingModule === mod.id}
-                                onClick={() => handleCompleteModule(mod.id)}
-                              >
-                                <CheckCircle size={14} className="mr-1" />
-                                {completingModule === mod.id ? "Marking..." : "Mark as Complete"}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })
-                ) : null}
-
-                {/* Exam */}
-                <div className={`flex items-center gap-4 rounded-[8px] border bg-white p-4 ${
-                  completedCount === modules.length ? "border-purple shadow-sm" : "border-gray-border/50 opacity-60"
-                }`}>
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                    completedCount === modules.length ? "bg-purple" : "bg-gray-text/30"
-                  }`}>
-                    <Award className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-heading text-sm font-bold text-slate">Final Examination</p>
-                    <p className="text-[11px] text-gray-text">
-                      {completedCount === modules.length
-                        ? "All modules complete — you may now take the exam"
-                        : "Complete all modules to unlock the exam"}
-                    </p>
-                  </div>
-                  {completedCount === modules.length && (
-                    <Button variant="giving" className="text-xs py-2 px-4 min-w-0">
-                      Take Exam
-                    </Button>
-                  )}
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
+                    Preferred Format
+                  </label>
+                  <select
+                    name="preferredFormat"
+                    value={formData.preferredFormat}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white"
+                  >
+                    <option value="in-person">In-Person</option>
+                    <option value="online">Online</option>
+                    <option value="hybrid">Hybrid</option>
+                  </select>
                 </div>
-              </div>
-            </SectionWrapper>
 
-            {/* Live Sessions */}
-            {liveSessions.length > 0 && (
-              <SectionWrapper variant="white">
-                <div className="mx-auto max-w-3xl">
-                  <h2 className="font-heading text-xl font-bold text-slate mb-4">
-                    Upcoming Live Sessions
-                  </h2>
-                  <div className="space-y-3">
-                    {liveSessions.map((s) => (
-                      <div key={s.id} className="flex items-center gap-4 rounded-[8px] border border-gray-border bg-off-white p-4">
-                        <Calendar className="h-5 w-5 text-purple shrink-0" />
-                        <div>
-                          <p className="font-heading text-sm font-bold text-slate">{s.title}</p>
-                          <p className="text-[11px] text-gray-text">{s.date} at {s.time}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </SectionWrapper>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Enrolling...' : 'Enroll Now'}
+                </Button>
+              </form>
             )}
-          </>
-        )}
-      </>
-    </ProtectedRoute>
+          </div>
+        </FadeIn>
+      </SectionWrapper>
+    </main>
   );
 }

@@ -1,24 +1,21 @@
-"use client";
+'use client';
 
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import Select from "@/components/ui/Select";
-import { useState, useEffect } from "react";
-import { media } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { useState, useEffect } from 'react';
+import SectionWrapper from '@/components/ui/SectionWrapper';
+import { media } from '@/lib/api';
+import { SkeletonGroup } from '@/components/ui/Skeleton';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/Motion';
 
 function extractYoutubeId(url?: string): string {
-  if (!url) return "dQw4w9WgXcQ";
-  const match = url.match(/(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([^&\n?#]+)/);
-  return match?.[1] || "dQw4w9WgXcQ";
+  if (!url) return 'dQw4w9WgXcQ';
+  const match = url.match(
+    /(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([^&\n?#]+)/
+  );
+  return match?.[1] || 'dQw4w9WgXcQ';
 }
 
-const seriesOptions = [
-  { value: "", label: "All Series" },
-];
-
 export default function VideoMessagesPage() {
-  const [selectedSeries, setSelectedSeries] = useState("");
-  const [videos, setVideos] = useState<any[]>([]);
+  const [videoMessages, setVideoMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,11 +24,13 @@ export default function VideoMessagesPage() {
       try {
         setLoading(true);
         setError(null);
-        const data = await media.getVideoMessages(100, 0);
-        setVideos(data || []);
+        const data = await media.getVideoMessages();
+        setVideoMessages(data || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch videos");
-        setVideos([]);
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch video messages'
+        );
+        setVideoMessages([]);
       } finally {
         setLoading(false);
       }
@@ -40,100 +39,125 @@ export default function VideoMessagesPage() {
     fetchVideos();
   }, []);
 
-  const filtered = videos.filter(
-    (v) => !selectedSeries || v.series === selectedSeries,
-  );
-
   return (
-    <>
-      {/* Hero */}
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
-            Video Messages
-          </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Watch teachings from The Ecclesia Embassy
-          </h6>
+    <div>
+      {/* Hero Section */}
+      <section
+        className="relative h-96 flex items-center justify-center text-center text-white overflow-hidden"
+        style={{
+          backgroundImage: 'url(https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1920&q=80)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4">
+          <FadeIn>
+            <h1 className="font-heading text-5xl md:text-6xl font-bold mb-4">
+              Video Messages
+            </h1>
+            <p className="font-body text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">
+              Watch and be transformed
+            </p>
+          </FadeIn>
         </div>
       </section>
 
-      {/* Filter */}
-      <SectionWrapper variant="off-white" className="!py-6">
-        <div className="flex items-end gap-4 max-w-xs">
-          <Select
-            id="series"
-            label="Filter by Series"
-            options={seriesOptions}
-            value={selectedSeries}
-            onChange={(e) => setSelectedSeries(e.target.value)}
-          />
-        </div>
-      </SectionWrapper>
-
-      {/* Video Grid */}
-      <SectionWrapper variant="white" className="!pt-4">
+      {/* Video Grid Section */}
+      <SectionWrapper variant="white" className="py-12">
         {loading ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="overflow-hidden rounded-[8px] border border-gray-border bg-white"
-              >
-                <Skeleton variant="card" className="h-40 rounded-b-none" />
-                <div className="p-4 space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <SkeletonGroup count={6} variant="card" />
           </div>
         ) : error ? (
           <div className="py-12 text-center">
-            <p className="font-body text-base text-error">{error}</p>
+            <p className="font-body text-base" style={{ color: '#8A8A8E' }}>
+              {error}
+            </p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : videoMessages.length === 0 ? (
           <div className="py-12 text-center">
-            <p className="font-body text-base text-gray-text">
-              No videos found matching your filters.
+            <p className="font-body text-base" style={{ color: '#8A8A8E' }}>
+              No video messages available yet.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((video) => (
-              <div
-                key={video.id}
-                className="overflow-hidden rounded-[8px] border border-gray-border bg-white shadow-sm transition-shadow hover:shadow-md"
-              >
-                {/* 16:9 YouTube embed */}
-                <div className="relative aspect-video bg-near-black">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${video.youtubeId || video.videoUrl?.includes("youtube") ? extractYoutubeId(video.videoUrl) : "dQw4w9WgXcQ"}`}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 h-full w-full"
-                    loading="lazy"
-                  />
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {videoMessages.map((video) => (
+              <StaggerItem key={video.id}>
+                <div
+                  className="rounded-lg overflow-hidden border transition-all duration-300 hover:shadow-lg"
+                  style={{
+                    backgroundColor: '#F5F5F5',
+                    borderColor: '#E4E0EF',
+                  }}
+                >
+                  {/* Video Thumbnail */}
+                  <div className="relative w-full aspect-video bg-black overflow-hidden">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${
+                        video.youtubeId ||
+                        (video.videoUrl?.includes('youtube')
+                          ? extractYoutubeId(video.videoUrl)
+                          : 'dQw4w9WgXcQ')
+                      }`}
+                      title={video.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  {/* Card Content */}
+                  <div className="p-6">
+                    <h3
+                      className="font-heading text-lg font-semibold mb-3 line-clamp-2"
+                      style={{ color: '#31333B' }}
+                    >
+                      {video.title}
+                    </h3>
+
+                    <div className="flex flex-col gap-2">
+                      {video.speaker && (
+                        <p
+                          className="font-body text-sm"
+                          style={{ color: '#8A8A8E' }}
+                        >
+                          {video.speaker}
+                        </p>
+                      )}
+
+                      <p
+                        className="font-body text-sm"
+                        style={{ color: '#8A8A8E' }}
+                      >
+                        {new Date(
+                          video.createdAt || video.date || 0
+                        ).toLocaleDateString()}
+                      </p>
+
+                      {video.series && (
+                        <div className="mt-3">
+                          <span
+                            className="inline-block px-3 py-1 rounded-full text-xs font-heading font-semibold"
+                            style={{
+                              backgroundColor: '#E4E0EF',
+                              color: '#4A1D6E',
+                            }}
+                          >
+                            {video.series}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-heading text-base font-semibold text-slate line-clamp-2">
-                    {video.title}
-                  </h3>
-                  <p className="text-body-small mt-1">
-                    {new Date(video.createdAt || video.date).toLocaleDateString()}
-                  </p>
-                  <span className="mt-2 inline-block rounded-full bg-purple-light px-2.5 py-0.5 text-[11px] font-heading font-semibold text-purple">
-                    {video.series || "Series"}
-                  </span>
-                </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         )}
       </SectionWrapper>
-    </>
+    </div>
   );
 }

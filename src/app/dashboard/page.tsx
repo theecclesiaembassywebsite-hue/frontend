@@ -1,216 +1,246 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useAuth } from '@/lib/auth-context'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { profile as profileAPI, giving, prayer } from '@/lib/api'
+import {
+  FadeIn,
+  StaggerContainer,
+  StaggerItem,
+  ScaleIn,
+} from '@/components/ui/Motion'
+import Link from 'next/link'
+import Button from '@/components/ui/Button'
 import {
   User,
-  Gift,
-  Calendar,
+  Heart,
   BookOpen,
-  HandHeart,
   Users,
-  MapPin,
-  GraduationCap,
-  Flame,
-  Star,
-  Award,
-} from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
-import { engagement, profile } from "@/lib/api";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+  Clock,
+  Gift,
+  ChevronRight,
+} from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Skeleton } from '@/components/ui/Skeleton'
 
-const dashboardCards = [
-  { title: "My Profile", icon: User, href: "/dashboard/profile", desc: "View and update your bio-data" },
-  { title: "Giving History", icon: Gift, href: "/dashboard/giving", desc: "View transactions and receipts" },
-  { title: "My Events", icon: Calendar, href: "/events", desc: "Registered events and upcoming" },
-  { title: "My Resources", icon: BookOpen, href: "/resources/audio", desc: "Downloaded resources and watch history" },
-  { title: "Prayer Requests", icon: HandHeart, href: "/dashboard/prayer", desc: "Track your prayer requests" },
-  { title: "My Squad", icon: Users, href: "/kingdom/squads", desc: "Squad info and activities" },
-  { title: "My Hub", icon: MapPin, href: "/dashboard/hub", desc: "Church-in-the-Home details" },
-  { title: "Intentionality Class", icon: GraduationCap, href: "/grow/intentionality-class", desc: "Course progress and certificates" },
-];
-
-const badges = [
-  { name: "7-Day Streak", icon: Flame, threshold: 7 },
-  { name: "30-Day Streak", icon: Star, threshold: 30 },
-  { name: "90-Day Streak", icon: Award, threshold: 90 },
-];
-
-interface StreakData {
-  currentStreak: number;
-  longestStreak: number;
-}
-
-interface ProfileData {
-  firstName?: string;
-  lastName?: string;
-}
-
-function DashboardContent() {
-  const { user } = useAuth();
-  const [streakData, setStreakData] = useState<StreakData | null>(null);
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [streakRes, profileRes] = await Promise.all([
-          engagement.getStreak().catch(() => null),
-          profile.getProfile(user?.id || "").catch(() => null),
-        ]);
-        setStreakData(streakRes);
-        setProfileData(profileRes as ProfileData | null);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user?.id) {
-      fetchData();
-    }
-  }, [user?.id]);
-
-  const userName = profileData?.firstName
-    ? `${profileData.firstName}${profileData.lastName ? ` ${profileData.lastName}` : ""}`
-    : user?.profile?.firstName || "Member";
-
-  const currentStreak = streakData?.currentStreak || 0;
-  const longestStreak = streakData?.longestStreak || 0;
-
-  const earnedBadges = badges.map((b) => ({
-    ...b,
-    earned: currentStreak >= b.threshold,
-  }));
-
-  if (loading) {
-    return (
-      <div className="bg-off-white min-h-screen">
-        <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 md:px-8">
-          <div className="flex items-center gap-4 mb-8">
-            <Skeleton variant="circle" />
-            <div className="flex-1">
-              <Skeleton className="h-6 w-40 mb-2" />
-              <Skeleton className="h-4 w-60" />
-            </div>
-          </div>
-          <SkeletonGroup count={4} variant="card" className="grid grid-cols-2 gap-4 md:grid-cols-4" />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-off-white min-h-screen">
-      <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 md:px-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-light">
-            <User className="h-8 w-8 text-purple/50" />
-          </div>
-          <div>
-            <h1 className="font-heading text-2xl font-bold text-slate">
-              Welcome Back, {userName}
-            </h1>
-            <p className="font-body text-sm text-gray-text">
-              Your personal dashboard
-            </p>
-          </div>
-        </div>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-4 mb-8 md:grid-cols-4">
-          <div className="rounded-[8px] bg-white border border-gray-border p-4 text-center shadow-sm">
-            <Flame className="mx-auto h-6 w-6 text-warning mb-1" />
-            <p className="font-heading text-2xl font-bold text-purple">
-              {currentStreak}
-            </p>
-            <p className="text-[11px] text-gray-text">Day Streak</p>
-          </div>
-          <div className="rounded-[8px] bg-white border border-gray-border p-4 text-center shadow-sm">
-            <Star className="mx-auto h-6 w-6 text-purple-vivid mb-1" />
-            <p className="font-heading text-2xl font-bold text-purple">
-              {longestStreak}
-            </p>
-            <p className="text-[11px] text-gray-text">Longest Streak</p>
-          </div>
-          <div className="rounded-[8px] bg-white border border-gray-border p-4 text-center shadow-sm">
-            <Gift className="mx-auto h-6 w-6 text-success mb-1" />
-            <p className="font-heading text-2xl font-bold text-purple">
-              —
-            </p>
-            <p className="text-[11px] text-gray-text">Total Giving</p>
-          </div>
-          <div className="rounded-[8px] bg-white border border-gray-border p-4 text-center shadow-sm">
-            <Calendar className="mx-auto h-6 w-6 text-info mb-1" />
-            <p className="font-heading text-2xl font-bold text-purple">
-              —
-            </p>
-            <p className="text-[11px] text-gray-text">Events Registered</p>
-          </div>
-        </div>
-
-        {/* Badges */}
-        <div className="mb-8 rounded-[8px] bg-white border border-gray-border p-5 shadow-sm">
-          <h3 className="font-heading text-base font-bold text-slate mb-3">
-            Engagement Badges
-          </h3>
-          <div className="flex gap-4">
-            {earnedBadges.map((b) => {
-              const Icon = b.icon;
-              return (
-                <div
-                  key={b.name}
-                  className={`flex flex-col items-center gap-1 rounded-[8px] border p-3 text-center ${
-                    b.earned
-                      ? "border-purple bg-purple-light/30"
-                      : "border-gray-border opacity-40"
-                  }`}
-                >
-                  <Icon className={`h-6 w-6 ${b.earned ? "text-purple" : "text-gray-text"}`} />
-                  <span className="text-[10px] font-heading font-semibold text-slate">
-                    {b.name}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {dashboardCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link
-                key={card.title}
-                href={card.href}
-                className="group flex flex-col rounded-[8px] border border-gray-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <Icon className="h-6 w-6 text-purple mb-2" />
-                <h3 className="font-heading text-sm font-bold text-slate group-hover:text-purple-vivid transition-colors">
-                  {card.title}
-                </h3>
-                <p className="mt-1 font-body text-xs text-gray-text">
-                  {card.desc}
-                </p>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+interface DashboardStats {
+  totalGiving: number
+  prayerRequestsCount: number
+  hubStatus: string
+  enrolledClassesCount: number
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth()
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const [profileData, givingData] = await Promise.all([
+          profileAPI.getProfile(user?.id || ''),
+          giving.getHistory(),
+        ])
+
+        setStats({
+          totalGiving: givingData.length > 0 ? givingData.length : 0,
+          prayerRequestsCount: 0,
+          hubStatus: 'Not Joined',
+          enrolledClassesCount: 0,
+        })
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  const firstName = user?.profile?.firstName || 'Friend'
+  const today = new Date()
+  const formattedDate = today.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+
+  const quickActions = [
+    {
+      label: 'Edit Profile',
+      href: '/dashboard/profile',
+      icon: User,
+    },
+    {
+      label: 'My Giving History',
+      href: '/dashboard/giving',
+      icon: Gift,
+    },
+    {
+      label: 'My Prayer Requests',
+      href: '/dashboard/prayer',
+      icon: Heart,
+    },
+    {
+      label: 'My Hub',
+      href: '/dashboard/hub',
+      icon: Users,
+    },
+    {
+      label: 'Ecclesia Nation',
+      href: '/nation',
+      icon: BookOpen,
+    },
+    {
+      label: 'Submit Testimony',
+      href: '/testimonies',
+      icon: Clock,
+    },
+  ]
+
   return (
     <ProtectedRoute>
-      <DashboardContent />
+      <div className="bg-[#F5F5F5] min-h-screen pt-8 pb-16">
+        <div className="max-w-[1200px] mx-auto px-4">
+          {/* Welcome Header */}
+          <FadeIn>
+            <div className="mb-12">
+              <h1 className="text-4xl md:text-5xl font-bold text-[#241A42] mb-2">
+                Welcome back, {firstName}
+              </h1>
+              <p className="text-[#8A8A8E] text-lg">{formattedDate}</p>
+            </div>
+          </FadeIn>
+
+          {/* Quick Stats */}
+          <div className="mb-12">
+            <StaggerContainer>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                {/* My Giving Card */}
+                <StaggerItem>
+                  <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 bg-[#4A1D6E] rounded-full flex items-center justify-center">
+                        <Gift className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                      My Giving
+                    </h3>
+                    {loading ? (
+                      <Skeleton className="h-8 w-24" />
+                    ) : (
+                      <p className="text-2xl font-bold text-[#241A42]">
+                        ${stats?.totalGiving || 0}
+                      </p>
+                    )}
+                  </div>
+                </StaggerItem>
+
+                {/* Prayer Requests Card */}
+                <StaggerItem>
+                  <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 bg-[#771996] rounded-full flex items-center justify-center">
+                        <Heart className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                      Prayer Requests
+                    </h3>
+                    {loading ? (
+                      <Skeleton className="h-8 w-24" />
+                    ) : (
+                      <p className="text-2xl font-bold text-[#241A42]">
+                        {stats?.prayerRequestsCount || 0}
+                      </p>
+                    )}
+                  </div>
+                </StaggerItem>
+
+                {/* Hub Status Card */}
+                <StaggerItem>
+                  <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 bg-[#4A1D6E] rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                      Hub Status
+                    </h3>
+                    {loading ? (
+                      <Skeleton className="h-8 w-32" />
+                    ) : (
+                      <p className="text-lg font-bold text-[#241A42]">
+                        {stats?.hubStatus || 'Not Joined'}
+                      </p>
+                    )}
+                  </div>
+                </StaggerItem>
+
+                {/* Classes Card */}
+                <StaggerItem>
+                  <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 bg-[#771996] rounded-full flex items-center justify-center">
+                        <BookOpen className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                      Classes
+                    </h3>
+                    {loading ? (
+                      <Skeleton className="h-8 w-24" />
+                    ) : (
+                      <p className="text-2xl font-bold text-[#241A42]">
+                        {stats?.enrolledClassesCount || 0}
+                      </p>
+                    )}
+                  </div>
+                </StaggerItem>
+              </div>
+            </StaggerContainer>
+          </div>
+
+          {/* Quick Actions */}
+          <div>
+            <h2 className="text-2xl font-bold text-[#241A42] mb-6">
+              Quick Actions
+            </h2>
+            <StaggerContainer>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {quickActions.map((action) => {
+                  const IconComponent = action.icon
+                  return (
+                    <StaggerItem key={action.href}>
+                      <Link href={action.href}>
+                        <div className="bg-white rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-[#E4E0EF] rounded-lg flex items-center justify-center">
+                                <IconComponent className="w-5 h-5 text-[#4A1D6E]" />
+                              </div>
+                              <span className="font-semibold text-[#241A42]">
+                                {action.label}
+                              </span>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-[#8A8A8E]" />
+                          </div>
+                        </div>
+                      </Link>
+                    </StaggerItem>
+                  )
+                })}
+              </div>
+            </StaggerContainer>
+          </div>
+        </div>
+      </div>
     </ProtectedRoute>
-  );
+  )
 }

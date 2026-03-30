@@ -1,146 +1,198 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import SectionWrapper from "@/components/ui/SectionWrapper";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
-import { useState, useEffect } from "react";
-import { Home, Check } from "lucide-react";
-import { cith } from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
-import { useToast } from "@/components/ui/Toast";
-
-const dayOptions = [
-  { value: "Monday", label: "Monday" },
-  { value: "Tuesday", label: "Tuesday" },
-  { value: "Wednesday", label: "Wednesday" },
-  { value: "Thursday", label: "Thursday" },
-  { value: "Friday", label: "Friday" },
-  { value: "Saturday", label: "Saturday" },
-];
+import { useState } from 'react';
+import SectionWrapper from '@/components/ui/SectionWrapper';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { cith } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
+import { FadeIn } from '@/components/ui/Motion';
+import { Home, CheckCircle } from 'lucide-react';
 
 export default function RegisterHubPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    capacity: '',
+    why: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { success, error } = useToast();
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/auth/login");
-    }
-  }, [isAuthenticated, authLoading, router]);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
     try {
-      const formData = new FormData(e.currentTarget);
-      const preferredDay = formData.get("day") as string;
-      const preferredTime = formData.get("time") as string;
-
-      await cith.applyHub({
-        name: (formData.get("address") as string) || "Hub",
-        email: "contact@hub.local",
-        phone: "0000000000",
+      await cith.registerEhub({
+        name: formData.name,
+        location: `${formData.address}, ${formData.city}`,
       });
-
-      success("Application submitted! Our team will review it shortly.");
-      setSubmitted(true);
-      (e.target as HTMLFormElement).reset();
+      setIsSuccess(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        capacity: '',
+        why: '',
+      });
+      success('Thank you for registering your home as a CITH Hub!');
     } catch (err) {
-      error(err instanceof Error ? err.message : "Failed to submit application. Please try again.");
+      error('Failed to register. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <>
-      <section className="relative flex items-center justify-center py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-dark to-purple" />
-        <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
-        <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
+    <main className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative h-80 flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#4A1D6E] to-[#771996]"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+        <div className="relative z-10 text-center px-4">
+          <div className="flex justify-center mb-4">
+            <Home className="w-16 h-16 text-[#E4E0EF]" />
+          </div>
+          <h1 className="text-5xl font-bold font-heading text-white mb-4">
             Register Your Home as a Hub
           </h1>
-          <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Open your home for fellowship and extend the church into your community
-          </h6>
+          <p className="text-xl text-[#E4E0EF]">
+            Open your home to build kingdom community
+          </p>
         </div>
       </section>
 
-      <SectionWrapper variant="white">
-        <div className="mx-auto max-w-lg">
-          <div className="text-center mb-8">
-            <Home className="mx-auto h-12 w-12 text-purple mb-3" />
-            <h2 className="font-heading text-[28px] font-bold text-slate">
-              Hub Application
-            </h2>
-            <p className="mt-2 font-body text-sm text-gray-text">
-              Your application will be reviewed by the admin team. Once approved,
-              you will receive onboarding resources and training materials.
-            </p>
-          </div>
+      {/* Registration Form */}
+      <SectionWrapper variant="off-white">
+        <FadeIn>
+          <div className="max-w-2xl mx-auto">
+            {isSuccess ? (
+              <div className="bg-[#E4E0EF] border-2 border-[#27AE60] rounded-lg p-12 text-center">
+                <CheckCircle className="w-16 h-16 text-[#27AE60] mx-auto mb-4" />
+                <h2 className="text-3xl font-heading font-bold text-[#241A42] mb-2">
+                  Thank you for registering!
+                </h2>
+                <p className="text-[#8A8A8E] font-body">
+                  We're excited to have your home as part of the Ecclesia community. 
+                  Our team will reach out soon to discuss next steps.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-bold font-heading text-[#241A42] mb-8 text-center">
+                    Hub Registration Form
+                  </h2>
+                </div>
 
-          {authLoading ? (
-            <div className="text-center py-8">
-              <p className="font-body text-sm text-gray-text">Loading...</p>
-            </div>
-          ) : !isAuthenticated ? (
-            <div className="rounded-[8px] bg-warning/10 border border-warning/30 p-6 text-center">
-              <p className="font-body text-sm text-gray-text mb-4">
-                You must be logged in to register a hub.
-              </p>
-              <a href="/auth/login" className="text-purple-vivid font-heading font-semibold hover:underline">
-                Log in to continue
-              </a>
-            </div>
-          ) : submitted ? (
-            <div className="rounded-[8px] bg-success/10 border border-success/30 p-8 text-center">
-              <Check className="mx-auto h-10 w-10 text-success mb-3" />
-              <h3 className="font-heading text-lg font-bold text-success">
-                Application Submitted!
-              </h3>
-              <p className="mt-2 font-body text-sm text-gray-text">
-                Your application is pending review. You will be notified once it
-                has been approved or if additional information is needed.
-              </p>
-              <Button
-                variant="primary"
-                className="mt-4"
-                onClick={() => setSubmitted(false)}
-              >
-                Submit Another Application
-              </Button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <Input id="address" name="address" label="Home Address" placeholder="Full street address" required />
-              <Input id="area" name="area" label="Area / Neighbourhood" placeholder="e.g. Wuse 2" required />
-              <Input id="city" name="city" label="City" placeholder="e.g. Abuja" required />
-              <Input id="state" name="state" label="State" placeholder="e.g. FCT" required />
-              <Select
-                id="day"
-                name="day"
-                label="Preferred Meeting Day"
-                options={dayOptions}
-                placeholder="Select a day"
-                defaultValue=""
-                required
-              />
-              <Input id="time" name="time" label="Preferred Meeting Time" type="time" required />
-              <Input id="capacity" name="capacity" label="Estimated Capacity (persons)" type="number" min="3" placeholder="e.g. 10" required />
-              <Button type="submit" variant="primary" className="w-full mt-2" disabled={loading}>
-                {loading ? "Submitting..." : "Submit Application"}
-              </Button>
-            </form>
-          )}
-        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    label="Full Name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Your full name"
+                    required
+                  />
+
+                  <Input
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    label="Phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="(123) 456-7890"
+                    required
+                  />
+
+                  <Input
+                    label="City"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    placeholder="Your city"
+                    required
+                  />
+                </div>
+
+                <Input
+                  label="Street Address"
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="123 Main Street"
+                  required
+                />
+
+                <Input
+                  label="Hub Capacity (number of people)"
+                  name="capacity"
+                  type="number"
+                  value={formData.capacity}
+                  onChange={handleInputChange}
+                  placeholder="10"
+                  required
+                />
+
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
+                    Why do you want to host a CITH Hub?
+                  </label>
+                  <textarea
+                    name="why"
+                    value={formData.why}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about your vision for community in your home..."
+                    className="w-full px-4 py-3 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white resize-none h-32"
+                    required
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Registering...' : 'Register Hub'}
+                </Button>
+              </form>
+            )}
+          </div>
+        </FadeIn>
       </SectionWrapper>
-    </>
+    </main>
   );
 }
