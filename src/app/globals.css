@@ -17,7 +17,7 @@
 
   /* ---- Neutral Colors (Section 2.2) ---- */
   --color-slate: #31333B;
-  --color-charcoal: #3B3D4A;
+  --color-charcoal: #1E1A2B;
   --color-near-black: #222222;
   --color-white: #FFFFFF;
   --color-off-white: #F5F5F5;
@@ -63,7 +63,7 @@
   --color-text-inverse: #FFFFFF;
   --color-text-body: #2B2B2B;
   --color-nav-bg: #31333B;
-  --color-footer-bg: #3B3D4A;
+  --color-footer-bg: #1E1A2B;
 
   /* Overlay Colors (Section 2.4) */
   --overlay-hero: rgba(14, 0, 22, 0.84);
@@ -128,12 +128,18 @@ h3 {
 }
 
 h4 {
-  font-family: var(--font-serif);
+  font-family: var(--font-heading);
   font-size: 20px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 24px;
   color: var(--color-text-primary);
+}
+
+/* Use .text-serif-accent for the old h4 italic style where needed */
+.text-serif-accent {
+  font-family: var(--font-serif);
   font-style: italic;
+  font-weight: 400;
 }
 
 h5 {
@@ -145,11 +151,13 @@ h5 {
 }
 
 h6 {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 200;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
   line-height: 20px;
-  color: var(--color-off-white);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
 }
 
 p {

@@ -19,7 +19,11 @@ export default function EISPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
-      await training.enrollTraining("EIS");
+      await training.enrollTraining("EIS", {
+        name: formData.get("parentName") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+      });
       success("Inquiry submitted! Our admissions team will contact you shortly.");
       setSubmitted(true);
       (e.target as HTMLFormElement).reset();

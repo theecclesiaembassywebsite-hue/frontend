@@ -42,14 +42,8 @@ function AdminGivingContent() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const result = await admin.exportGiving("csv");
-      const link = document.createElement("a");
-      link.href = result.downloadUrl;
-      link.download = `giving-report-${period}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      success("Giving report exported");
+      admin.exportGiving(period);
+      success("Giving report download started");
     } catch (err) {
       error("Failed to export giving report");
       console.error(err);

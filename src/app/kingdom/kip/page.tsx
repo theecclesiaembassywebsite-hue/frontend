@@ -33,7 +33,6 @@ export default function KIPPage() {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
         phone: formData.get("phone") as string,
-        sphere: formData.get("sphere") as string,
       });
       success("Welcome to the Kingdom Influencing Platform!");
       setRegistered(true);

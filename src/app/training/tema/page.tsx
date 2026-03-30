@@ -27,7 +27,11 @@ export default function TEMAPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
-      await training.enrollTraining("TEMA");
+      await training.enrollTraining("TEMA", {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+      });
       success("Enrollment successful! Welcome to TEMA.");
       setEnrolled(true);
       (e.target as HTMLFormElement).reset();

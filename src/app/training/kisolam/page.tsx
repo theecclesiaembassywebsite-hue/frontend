@@ -28,7 +28,11 @@ export default function KISOLAMPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
-      await training.enrollTraining("KISOLAM");
+      await training.enrollTraining("KISOLAM", {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+      });
       success("Registration successful! Welcome to KISOLAM.");
       setRegistered(true);
       (e.target as HTMLFormElement).reset();

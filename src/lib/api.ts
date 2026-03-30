@@ -684,8 +684,8 @@ export const squads = {
   getMySquad: () =>
     fetchAPI<any>("/squads/my-squad"),
 
-  registerKIP: (data: any) =>
-    fetchAPI<{ success: boolean }>("/squads/kip/register", {
+  registerKIP: (data: { name: string; email: string; phone: string }) =>
+    fetchAPI<{ success: boolean }>("/kip/register", {
       method: "POST",
       body: JSON.stringify(data),
     }),
@@ -704,7 +704,7 @@ export const announcements = {
 
   updateAnnouncement: (id: string, data: any) =>
     fetchAPI<any>(`/announcements/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify(data),
     }),
 
@@ -728,30 +728,31 @@ export const livestream = {
 
 // ENGAGEMENT ENDPOINTS
 export const engagement = {
-  recordWatch: (contentId: string, duration: number) =>
-    fetchAPI<{ success: boolean }>("/engagement/watch", {
+  recordWatch: () =>
+    fetchAPI<any>("/engagement/watch", {
       method: "POST",
-      body: JSON.stringify({ contentId, duration }),
     }),
 
   getStreak: () =>
-    fetchAPI<{ currentStreak: number; longestStreak: number }>("/engagement/streak"),
+    fetchAPI<{ currentStreak: number; longestStreak: number; badges: any[] }>("/engagement/streak"),
 
-  submitFeedback: (data: { rating: number; comment?: string }) =>
-    fetchAPI<{ success: boolean }>("/engagement/feedback", {
+  submitFeedback: (sermonId: string, data: { rating: number; comment?: string }) =>
+    fetchAPI<any>(`/engagement/sermons/${sermonId}/feedback`, {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  getAdminFeedback: () =>
-    fetchAPI<any[]>("/engagement/admin/feedback"),
+  getAdminFeedback: (sermonId: string) =>
+    fetchAPI<any>(`/engagement/admin/sermons/${sermonId}/feedback`),
 };
 
 // TRAINING ENDPOINTS
 export const training = {
-  enrollTraining: (trainingId: string) =>
-    fetchAPI<{ success: boolean }>(`/training/${trainingId}/enroll`, {
+  enrollTraining: (program: string, data: { name: string; email: string; phone: string }) =>
+    fetchAPI<{ message: string; id: string }>(`/training/${program}/enroll`, {
       method: "POST",
+      body: JSON.stringify(data),
+      noAuth: true,
     }),
 
   getAdminEnrollments: () =>
@@ -761,10 +762,10 @@ export const training = {
 // ADMIN ENDPOINTS
 export const admin = {
   getOverview: () =>
-    fetchAPI<any>("/admin/overview"),
+    fetchAPI<any>("/admin/analytics/overview"),
 
-  getGivingAnalytics: () =>
-    fetchAPI<any>("/admin/analytics/giving"),
+  getGivingAnalytics: (period?: string) =>
+    fetchAPI<any>(`/admin/analytics/giving${period ? `?period=${period}` : ""}`),
 
   getEngagementAnalytics: () =>
     fetchAPI<any>("/admin/analytics/engagement"),
@@ -772,15 +773,20 @@ export const admin = {
   getGrowthAnalytics: () =>
     fetchAPI<any>("/admin/analytics/growth"),
 
-  exportGiving: (format = "csv") =>
-    fetchAPI<{ downloadUrl: string }>(`/admin/export/giving?format=${format}`),
+  exportGiving: (period?: string) => {
+    const token = getToken();
+    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+    window.open(`${base}/admin/giving/export${period ? `?period=${period}` : ""}${token ? `&token=${token}` : ""}`, "_blank");
+  },
 
-  getMembers: (limit = 50, offset = 0) =>
-    fetchAPI<User[]>(`/admin/members?limit=${limit}&offset=${offset}`),
+  getMembers: (page = 1, search?: string, role?: string) =>
+    fetchAPI<{ members: User[]; total: number; page: number; totalPages: number }>(
+      `/admin/members?page=${page}${search ? `&search=${search}` : ""}${role ? `&role=${role}` : ""}`
+    ),
 
   updateMemberRole: (userId: string, role: string) =>
     fetchAPI<User>(`/admin/members/${userId}/role`, {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify({ role }),
     }),
 };

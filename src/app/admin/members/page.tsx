@@ -29,9 +29,9 @@ function AdminMembersContent() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const data = await admin.getMembers(50, 0);
-        setMembers(data);
-        setFilteredMembers(data);
+        const result = await admin.getMembers(1);
+        setMembers(result.members || result as any);
+        setFilteredMembers(result.members || result as any);
       } catch (err) {
         error("Failed to load members");
         console.error(err);

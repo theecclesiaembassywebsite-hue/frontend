@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
+import { engagement } from "@/lib/api";
 
 interface AudioPlayerProps {
   src: string;
@@ -36,6 +37,10 @@ export default function AudioPlayer({ src, title, speaker }: AudioPlayerProps) {
     };
   }, []);
 
+  const recordWatch = useCallback(() => {
+    engagement.recordWatch().catch(() => {});
+  }, []);
+
   function togglePlay() {
     const audio = audioRef.current;
     if (!audio) return;
@@ -43,6 +48,7 @@ export default function AudioPlayer({ src, title, speaker }: AudioPlayerProps) {
       audio.pause();
     } else {
       audio.play();
+      recordWatch();
     }
     setPlaying(!playing);
   }
