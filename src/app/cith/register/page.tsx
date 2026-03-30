@@ -63,18 +63,18 @@ export default function RegisterHubPage() {
       {/* Hero Section */}
       <section className="relative h-80 flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[#4A1D6E] to-[#771996]"
+          className="absolute inset-0 bg-gradient-to-br from-purple-dark via-purple to-purple-vivid"
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+        <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
         <div className="relative z-10 text-center px-4">
           <div className="flex justify-center mb-4">
-            <Home className="w-16 h-16 text-[#E4E0EF]" />
+            <Home className="w-16 h-16 text-white drop-shadow-lg" />
           </div>
-          <h1 className="text-5xl font-bold font-heading text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold font-heading text-white drop-shadow-md mb-4">
             Register Your Home as a Hub
           </h1>
-          <p className="text-xl text-[#E4E0EF]">
+          <p className="text-lg md:text-xl text-white/90 font-body">
             Open your home to build kingdom community
           </p>
         </div>
