@@ -126,12 +126,12 @@ export default function AboutPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/about/lead-brother">
+            <Link href="/about/leadership">
               <Button variant="secondary" onDark>
                 Meet the Lead Brother
               </Button>
             </Link>
-            <Link href="/experience">
+            <Link href="/about/experience">
               <Button variant="secondary" onDark>
                 The Ecclesia Experience
               </Button>

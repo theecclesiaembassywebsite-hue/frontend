@@ -103,7 +103,7 @@ const HeroSection: React.FC = () => {
               className="animate-in fade-in slide-in-from-bottom-4 duration-700"
               style={{ animationDelay: '0.8s' }}
             >
-              <Link href="/messages">
+              <Link href="/resources/video">
                 <Button
                   variant="secondary"
                   onDark
