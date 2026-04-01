@@ -510,9 +510,10 @@ export const intentionalityClass = {
   getModules: (courseId: string) =>
     fetchAPI<any[]>(`/class/courses/${courseId}/modules`),
 
-  completeModule: (moduleId: string) =>
+  completeModule: (moduleId: string, enrollmentId: string) =>
     fetchAPI<{ success: boolean }>(`/class/modules/${moduleId}/complete`, {
       method: "POST",
+      body: JSON.stringify({ enrollmentId }),
     }),
 
   getLiveSessions: (courseId: string) =>
@@ -608,21 +609,33 @@ export const media = {
     speaker: string;
     audioUrl: string;
     description?: string;
+    series?: string;
+    topic?: string;
+    duration?: number;
+    date?: string;
   }) =>
     fetchAPI<any>("/sermons/audio", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        date: data.date || new Date().toISOString(),
+      }),
     }),
 
   createVideoMessage: (data: {
     title: string;
-    speaker: string;
-    videoUrl: string;
+    youtubeUrl: string;
     description?: string;
+    series?: string;
+    topic?: string;
+    date?: string;
   }) =>
     fetchAPI<any>("/sermons/video", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        date: data.date || new Date().toISOString(),
+      }),
     }),
 
   getLibrary: () =>
@@ -630,13 +643,21 @@ export const media = {
 
   createLibraryResource: (data: {
     title: string;
-    category: string;
+    author: string;
     fileUrl: string;
     description?: string;
+    coverUrl?: string;
+    type?: string;
+    price?: number;
+    isFree?: boolean;
   }) =>
     fetchAPI<any>("/library", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        type: data.type || "BOOK",
+        isFree: data.isFree ?? true,
+      }),
     }),
 
   downloadLibraryResource: (id: string) =>
@@ -647,9 +668,11 @@ export const media = {
 
   createMusic: (data: {
     title: string;
-    artist: string;
-    musicUrl: string;
-    imageUrl?: string;
+    audioUrl: string;
+    album?: string;
+    artworkUrl?: string;
+    duration?: number;
+    price?: number;
   }) =>
     fetchAPI<any>("/music", {
       method: "POST",

@@ -37,8 +37,10 @@ function AdminEventsContent() {
     title: "",
     description: "",
     date: "",
+    time: "9:00 AM",
     location: "",
     capacity: "",
+    eventType: "GENERAL",
   });
   const { success, error } = useToast();
 
@@ -76,12 +78,17 @@ function AdminEventsContent() {
 
     try {
       const newEvent = await eventsAPI.createEvent({
-        ...formData,
-        capacity: parseInt(formData.capacity) || 100,
+        title: formData.title,
+        description: formData.description,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        maxCapacity: parseInt(formData.capacity) || 100,
+        eventType: formData.eventType,
       });
       setEventList([newEvent, ...eventList]);
       setShowCreateModal(false);
-      setFormData({ title: "", description: "", date: "", location: "", capacity: "" });
+      setFormData({ title: "", description: "", date: "", time: "9:00 AM", location: "", capacity: "", eventType: "GENERAL" });
       success("Event created successfully");
     } catch (err) {
       error("Failed to create event");
@@ -254,6 +261,16 @@ function AdminEventsContent() {
             />
           </div>
           <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Time</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="e.g., 9:00 AM"
+              value={formData.time}
+              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+            />
+          </div>
+          <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Location</label>
             <input
               type="text"
@@ -262,6 +279,19 @@ function AdminEventsContent() {
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Type</label>
+            <select
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              value={formData.eventType}
+              onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+            >
+              <option value="GENERAL">General</option>
+              <option value="FEAST_OF_TABERNACLES">Feast of Tabernacles</option>
+              <option value="GILGAL_CAMP_MEETING">Gilgal Camp Meeting</option>
+              <option value="AS_UNTO_THE_LORD">As Unto The Lord</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Capacity</label>

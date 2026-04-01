@@ -72,8 +72,7 @@ function AdminResourcesContent() {
         case "video":
           newResource = await media.createVideoMessage({
             title: formData.title,
-            speaker: formData.speaker || "Unknown",
-            videoUrl: formData.url,
+            youtubeUrl: formData.url,
             description: formData.description,
           });
           setVideoMessages([newResource, ...videoMessages]);
@@ -81,17 +80,18 @@ function AdminResourcesContent() {
         case "library":
           newResource = await media.createLibraryResource({
             title: formData.title,
-            category: formData.speaker || "General",
+            author: formData.speaker || "Unknown",
             fileUrl: formData.url,
             description: formData.description,
+            type: "BOOK",
           });
           setLibraryResources([newResource, ...libraryResources]);
           break;
         case "music":
           newResource = await media.createMusic({
             title: formData.title,
-            artist: formData.speaker || "Unknown",
-            musicUrl: formData.url,
+            audioUrl: formData.url,
+            album: formData.speaker || undefined,
           });
           setMusicTracks([newResource, ...musicTracks]);
           break;
@@ -263,12 +263,12 @@ function AdminResourcesContent() {
 
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">
-              {activeTab === "audio" || activeTab === "video" ? "Speaker" : activeTab === "library" ? "Category" : "Artist"}
+              {activeTab === "audio" ? "Speaker" : activeTab === "video" ? "Speaker (optional)" : activeTab === "library" ? "Author" : "Album (optional)"}
             </label>
             <input
               type="text"
               className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
-              placeholder={activeTab === "audio" || activeTab === "video" ? "Speaker name" : activeTab === "library" ? "Category" : "Artist name"}
+              placeholder={activeTab === "audio" ? "Speaker name" : activeTab === "video" ? "Speaker name" : activeTab === "library" ? "Author name" : "Album name"}
               value={formData.speaker}
               onChange={(e) => setFormData({ ...formData, speaker: e.target.value })}
             />
@@ -276,7 +276,7 @@ function AdminResourcesContent() {
 
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">
-              {activeTab === "audio" ? "Audio URL" : activeTab === "video" ? "Video URL" : activeTab === "library" ? "File URL" : "Music URL"} *
+              {activeTab === "audio" ? "Audio URL" : activeTab === "video" ? "YouTube URL" : activeTab === "library" ? "File URL" : "Audio URL"} *
             </label>
             <input
               type="url"

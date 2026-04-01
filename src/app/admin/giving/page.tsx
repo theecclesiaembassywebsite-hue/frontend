@@ -26,7 +26,8 @@ function AdminGivingContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await admin.getGivingAnalytics();
+        setLoading(true);
+        const data = await admin.getGivingAnalytics(period);
         setAnalytics(data);
       } catch (err) {
         error("Failed to load giving analytics");
@@ -37,7 +38,7 @@ function AdminGivingContent() {
     };
 
     fetchData();
-  }, [error]);
+  }, [error, period]);
 
   const handleExport = async () => {
     setExporting(true);
