@@ -374,20 +374,20 @@ export const cith = {
     }),
 
   getAdminApplications: () =>
-    fetchAPI<any[]>("/cith/admin/applications"),
+    fetchAPI<any[]>("/admin/cith/applications"),
 
   processApplication: (id: string, approved: boolean) =>
-    fetchAPI<{ success: boolean }>(`/cith/admin/applications/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ approved }),
+    fetchAPI<any>(`/admin/cith/applications/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: approved ? "APPROVED" : "REJECTED" }),
     }),
 
-  getAdminHubs: () => fetchAPI<any[]>("/cith/admin/hubs"),
+  getAdminHubs: () => fetchAPI<any[]>("/admin/cith/hubs"),
 
-  reassignLeader: (hubId: string, leaderId: string) =>
-    fetchAPI<any>("/cith/admin/reassign-leader", {
-      method: "POST",
-      body: JSON.stringify({ hubId, leaderId }),
+  reassignLeader: (hubId: string, newLeaderId: string) =>
+    fetchAPI<any>(`/admin/cith/hubs/${hubId}/leader`, {
+      method: "PUT",
+      body: JSON.stringify({ newLeaderId }),
     }),
 };
 
