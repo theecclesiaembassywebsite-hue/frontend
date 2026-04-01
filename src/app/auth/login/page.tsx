@@ -48,8 +48,9 @@ export default function LoginPage() {
         data.password,
       ) as any;
 
-      if (response.token) {
-        setToken(response.token);
+      const token = response.access_token || response.token;
+      if (token) {
+        setToken(token);
         reset();
         router.push('/dashboard');
       }
