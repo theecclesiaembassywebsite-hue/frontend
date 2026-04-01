@@ -82,7 +82,11 @@ export default function FeastOfTabernaclesPage() {
               e.preventDefault();
               setLoading(true);
               try {
-                await eventsAPI.registerForEvent(EVENT_ID);
+                await eventsAPI.registerForEvent(EVENT_ID, {
+                  name: formData.name,
+                  email: formData.email,
+                  phone: formData.phone,
+                });
                 setRegistered(true);
                 success("Registration successful!");
               } catch (err) {

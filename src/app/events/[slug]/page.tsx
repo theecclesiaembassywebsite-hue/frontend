@@ -100,7 +100,11 @@ export default function EventDetailPage({ params }: { params: { slug: string } }
     try {
       setSubmitting(true);
       if (eventData?.isFree) {
-        await events.registerForEvent(eventData.id);
+        await events.registerForEvent(eventData.id, {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+        });
       } else {
         await events.registerAndPay(eventData?.id || params.slug, {
           name: formData.name,

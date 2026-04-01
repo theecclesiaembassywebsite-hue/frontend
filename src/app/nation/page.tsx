@@ -29,7 +29,7 @@ export default function NationPage() {
   async function loadFeed() {
     try {
       setLoading(true);
-      const feed = await nation.getFeed(20, page * 20);
+      const feed = await nation.getFeed(page + 1);
       setPosts(feed);
     } catch (err) {
       error("Failed to load feed");

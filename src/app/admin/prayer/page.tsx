@@ -12,15 +12,15 @@ import { useToast } from "@/components/ui/Toast";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
-  { value: "pending", label: "New" },
-  { value: "approved", label: "Being Prayed For" },
-  { value: "rejected", label: "Closed" },
+  { value: "RECEIVED", label: "New" },
+  { value: "BEING_PRAYED_FOR", label: "Being Prayed For" },
+  { value: "ANSWERED", label: "Answered" },
 ];
 
 const statusBadge: Record<string, string> = {
-  pending: "bg-info/10 text-info",
-  approved: "bg-purple/10 text-purple",
-  rejected: "bg-gray-text/10 text-gray-text",
+  RECEIVED: "bg-info/10 text-info",
+  BEING_PRAYED_FOR: "bg-purple/10 text-purple",
+  ANSWERED: "bg-success/10 text-success",
 };
 
 function AdminPrayerContent() {
@@ -83,9 +83,9 @@ function AdminPrayerContent() {
     );
   }
 
-  const newCount = requests.filter((r) => r.status === "pending").length;
-  const prayingCount = requests.filter((r) => r.status === "approved").length;
-  const answeredCount = requests.filter((r) => r.status === "rejected").length;
+  const newCount = requests.filter((r) => r.status === "RECEIVED").length;
+  const prayingCount = requests.filter((r) => r.status === "BEING_PRAYED_FOR").length;
+  const answeredCount = requests.filter((r) => r.status === "ANSWERED").length;
 
   return (
     <div className="p-6 md:p-8">
@@ -118,7 +118,7 @@ function AdminPrayerContent() {
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <CheckCircle size={16} className="text-success" />
-            <p className="text-[11px] text-gray-text">Closed</p>
+            <p className="text-[11px] text-gray-text">Answered</p>
           </div>
           <p className="font-heading text-xl font-bold text-success">{answeredCount}</p>
         </div>
@@ -159,9 +159,9 @@ function AdminPrayerContent() {
                   onChange={(e) => handleStatusChange(r.id, e.target.value)}
                   disabled={updatingStatus === r.id}
                 >
-                  <option value="pending">New</option>
-                  <option value="approved">Praying</option>
-                  <option value="rejected">Closed</option>
+                  <option value="RECEIVED">New</option>
+                  <option value="BEING_PRAYED_FOR">Praying</option>
+                  <option value="ANSWERED">Answered</option>
                 </select>
                 <button className="inline-flex items-center gap-1 rounded-[4px] border border-gray-border bg-off-white px-3 py-1.5 text-[11px] font-heading font-semibold text-slate hover:bg-gray-border/30 transition-colors">
                   <Eye size={12} /> View

@@ -25,6 +25,8 @@ export default function EHubPage() {
 
       await cith.registerEhub({
         name: formData.get('name') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
         location: location,
       });
       setSubmitted(true);

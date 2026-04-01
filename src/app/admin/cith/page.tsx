@@ -90,7 +90,7 @@ function AdminCITHContent() {
     }
 
     try {
-      await cith.processApplication(appId, false);
+      await cith.processApplication(appId, false, rejectionReason);
       setApplications(applications.filter((a) => a.id !== appId));
       setShowRejectModal(false);
       setRejectingApp(null);

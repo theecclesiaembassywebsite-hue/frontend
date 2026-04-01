@@ -32,11 +32,10 @@ export default function NewHerePage() {
 
     try {
       await firstTimer.submitFirstTimer({
-        firstName: formData.fullName.split(' ')[0],
-        lastName: formData.fullName.split(' ')[1] || '',
+        name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        address: '',
+        source: formData.source || 'website',
       });
       setIsSuccess(true);
       success('Welcome! Thank you for sharing your details. We look forward to meeting you!');

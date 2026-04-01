@@ -38,6 +38,8 @@ export default function RegisterHubPage() {
     try {
       await cith.registerEhub({
         name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
         location: `${formData.address}, ${formData.city}`,
       });
       setIsSuccess(true);

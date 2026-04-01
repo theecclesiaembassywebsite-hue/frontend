@@ -37,10 +37,15 @@ function AdminLiveStreamContent() {
   }, [error]);
 
   const handleToggleLive = async () => {
+    const newLiveState = !isLive;
     setSaving(true);
     try {
-      await livestream.toggleLivestream(!isLive);
-      setIsLive(!isLive);
+      await livestream.updateLivestream({
+        isLive: newLiveState,
+        ...(embedUrl ? { embedUrl } : {}),
+        ...(nextService ? { nextService } : {}),
+      });
+      setIsLive(newLiveState);
       success(isLive ? "Livestream turned off" : "Livestream turned on");
     } catch (err) {
       error("Failed to toggle livestream");
@@ -58,7 +63,11 @@ function AdminLiveStreamContent() {
 
     setSaving(true);
     try {
-      await livestream.toggleLivestream(isLive);
+      await livestream.updateLivestream({
+        isLive,
+        embedUrl: embedUrl || undefined,
+        nextService: nextService || undefined,
+      });
       success("Livestream configuration updated");
     } catch (err) {
       error("Failed to update configuration");

@@ -34,7 +34,7 @@ function AdminTestimoniesContent() {
 
   const handleApprove = async (testimonyId: string) => {
     try {
-      await testimonies.updateTestimonyStatus(testimonyId, "approved");
+      await testimonies.updateTestimonyStatus(testimonyId, "APPROVED");
       setPendingTestimonies(pendingTestimonies.filter((t) => t.id !== testimonyId));
       setShowConfirmModal(false);
       setConfirmAction(null);
@@ -47,7 +47,7 @@ function AdminTestimoniesContent() {
 
   const handleReject = async (testimonyId: string) => {
     try {
-      await testimonies.updateTestimonyStatus(testimonyId, "rejected");
+      await testimonies.updateTestimonyStatus(testimonyId, "REJECTED");
       setPendingTestimonies(pendingTestimonies.filter((t) => t.id !== testimonyId));
       setShowConfirmModal(false);
       setConfirmAction(null);

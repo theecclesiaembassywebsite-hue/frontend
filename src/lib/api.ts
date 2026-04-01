@@ -187,10 +187,19 @@ export const profile = {
   updateProfile: (data: {
     firstName?: string;
     lastName?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    occupation?: string;
+    maritalStatus?: string;
     photoUrl?: string;
+    ministryInvolvement?: string;
   }) =>
     fetchAPI<User>("/profile", {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify(data),
     }),
 };
@@ -213,11 +222,10 @@ export const contact = {
 // FIRST TIMER / NEW CONVERT ENDPOINTS
 export const firstTimer = {
   submitFirstTimer: (data: {
-    firstName: string;
-    lastName: string;
+    name: string;
     email: string;
     phone: string;
-    address: string;
+    source: string;
   }) =>
     fetchAPI<{ success: boolean }>("/first-timer", {
       method: "POST",
@@ -226,13 +234,11 @@ export const firstTimer = {
     }),
 
   submitNewConvert: (data: {
-    firstName: string;
-    lastName: string;
+    name: string;
     email: string;
     phone: string;
-    testimony: string;
   }) =>
-    fetchAPI<{ success: boolean }>("/new-convert", {
+    fetchAPI<{ success: boolean }>("/first-timer/new-convert", {
       method: "POST",
       body: JSON.stringify(data),
       noAuth: true,
@@ -258,10 +264,10 @@ export const prayer = {
   getAdminPrayers: (status?: string) =>
     fetchAPI<Prayer[]>(`/prayer-requests/admin${status ? `?status=${status}` : ""}`),
 
-  updatePrayerStatus: (id: string, status: string) =>
+  updatePrayerStatus: (id: string, status: string, adminNotes?: string) =>
     fetchAPI<Prayer>(`/prayer-requests/admin/${id}`, {
       method: "PUT",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, ...(adminNotes ? { adminNotes } : {}) }),
     }),
 };
 
@@ -282,7 +288,7 @@ export const testimonies = {
   getPendingTestimonies: () =>
     fetchAPI<Testimony[]>("/testimonies/admin/pending"),
 
-  updateTestimonyStatus: (id: string, status: string) =>
+  updateTestimonyStatus: (id: string, status: "APPROVED" | "REJECTED") =>
     fetchAPI<Testimony>(`/testimonies/admin/${id}`, {
       method: "PUT",
       body: JSON.stringify({ status }),
@@ -353,13 +359,22 @@ export const cith = {
       method: "POST",
     }),
 
-  registerEhub: (data: { name: string; location: string }) =>
+  registerEhub: (data: { name: string; email: string; phone: string; location: string }) =>
     fetchAPI<any>("/cith/ehub/register", {
       method: "POST",
       body: JSON.stringify(data),
+      noAuth: true,
     }),
 
-  applyHub: (data: { name: string; email: string; phone: string }) =>
+  applyHub: (data: {
+    address: string;
+    area: string;
+    city: string;
+    state: string;
+    preferredDay: string;
+    preferredTime: string;
+    capacity?: number;
+  }) =>
     fetchAPI<{ success: boolean }>("/cith/apply", {
       method: "POST",
       body: JSON.stringify(data),
@@ -367,19 +382,22 @@ export const cith = {
 
   getMyHub: () => fetchAPI<any>("/cith/my-hub"),
 
-  updateMyHub: (data: any) =>
+  updateMyHub: (data: { meetingDay?: string; meetingTime?: string }) =>
     fetchAPI<any>("/cith/my-hub", {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify(data),
     }),
 
   getAdminApplications: () =>
     fetchAPI<any[]>("/admin/cith/applications"),
 
-  processApplication: (id: string, approved: boolean) =>
+  processApplication: (id: string, approved: boolean, reason?: string) =>
     fetchAPI<any>(`/admin/cith/applications/${id}`, {
       method: "PUT",
-      body: JSON.stringify({ status: approved ? "APPROVED" : "REJECTED" }),
+      body: JSON.stringify({
+        status: approved ? "APPROVED" : "REJECTED",
+        ...(reason ? { reason } : {}),
+      }),
     }),
 
   getAdminHubs: () => fetchAPI<any[]>("/admin/cith/hubs"),
@@ -399,8 +417,8 @@ export const nation = {
       body: JSON.stringify(data),
     }),
 
-  getFeed: (limit = 20, offset = 0) =>
-    fetchAPI<Post[]>(`/nation/feed?limit=${limit}&offset=${offset}`),
+  getFeed: (page = 1) =>
+    fetchAPI<Post[]>(`/nation/feed?page=${page}`),
 
   likePost: (postId: string) =>
     fetchAPI<{ success: boolean }>(`/nation/posts/${postId}/like`, {
@@ -423,21 +441,21 @@ export const nation = {
     }),
 
   getConversations: () =>
-    fetchAPI<any[]>("/nation/conversations"),
+    fetchAPI<any[]>("/nation/messages/conversations"),
 
-  getMessages: (conversationId: string) =>
-    fetchAPI<Message[]>(`/nation/conversations/${conversationId}/messages`),
+  getMessages: (userId: string) =>
+    fetchAPI<Message[]>(`/nation/messages/${userId}`),
 
-  sendMessage: (conversationId: string, content: string, attachmentUrl?: string) =>
-    fetchAPI<Message>(`/nation/conversations/${conversationId}/messages`, {
+  sendMessage: (userId: string, content: string) =>
+    fetchAPI<Message>(`/nation/messages/${userId}`, {
       method: "POST",
-      body: JSON.stringify({ content, attachmentUrl }),
+      body: JSON.stringify({ content }),
     }),
 
   getGroups: () => fetchAPI<Group[]>("/nation/groups"),
 
-  getGroupFeed: (groupId: string, limit = 20, offset = 0) =>
-    fetchAPI<Post[]>(`/nation/groups/${groupId}/feed?limit=${limit}&offset=${offset}`),
+  getGroupFeed: (groupId: string, page = 1) =>
+    fetchAPI<Post[]>(`/nation/groups/${groupId}/feed?page=${page}`),
 
   joinGroup: (groupId: string) =>
     fetchAPI<{ success: boolean }>(`/nation/groups/${groupId}/join`, {
@@ -446,7 +464,7 @@ export const nation = {
 
   leaveGroup: (groupId: string) =>
     fetchAPI<{ success: boolean }>(`/nation/groups/${groupId}/leave`, {
-      method: "POST",
+      method: "DELETE",
     }),
 
   getNationProfile: (userId: string) =>
@@ -647,9 +665,10 @@ export const events = {
   getEvent: (id: string) =>
     fetchAPI<Event>(`/events/${id}`),
 
-  registerForEvent: (id: string) =>
+  registerForEvent: (id: string, data: { name: string; email: string; phone?: string }) =>
     fetchAPI<{ success: boolean }>(`/events/${id}/register`, {
       method: "POST",
+      body: JSON.stringify(data),
     }),
 
   registerAndPay: (id: string, data: any) =>
@@ -719,10 +738,14 @@ export const livestream = {
   getConfig: () =>
     fetchAPI<any>("/livestream/config"),
 
-  toggleLivestream: (active: boolean) =>
+  updateLivestream: (data: {
+    isLive: boolean;
+    embedUrl?: string;
+    nextService?: string;
+  }) =>
     fetchAPI<{ success: boolean }>("/livestream/toggle", {
-      method: "POST",
-      body: JSON.stringify({ active }),
+      method: "PUT",
+      body: JSON.stringify(data),
     }),
 };
 
