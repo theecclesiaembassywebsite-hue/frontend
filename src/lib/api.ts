@@ -57,7 +57,7 @@ export const fetchAPI = async <T>(
 export interface User {
   id: string;
   email: string;
-  role: "user" | "admin" | "leader" | "organizer";
+  role: string;
   emailVerified: boolean;
   profile: {
     firstName?: string;

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Search, ChevronDown, User, LogOut, LayoutDashboard, Settings } from "lucide-react";
+import { Menu, X, Search, ChevronDown, User, LogOut, LayoutDashboard, Settings, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 
@@ -112,12 +112,21 @@ export default function Navbar() {
                         </p>
                         <p className="font-body text-[11px] text-gray-text truncate">{user.email}</p>
                       </div>
+                      {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2.5 font-body text-sm text-purple font-semibold hover:bg-lavender transition-colors"
+                        >
+                          <Shield size={14} /> Admin Dashboard
+                        </Link>
+                      )}
                       <Link
                         href="/dashboard"
                         onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2 px-4 py-2.5 font-body text-sm text-slate hover:bg-lavender transition-colors"
                       >
-                        <LayoutDashboard size={14} /> Dashboard
+                        <LayoutDashboard size={14} /> My Dashboard
                       </Link>
                       <Link
                         href="/dashboard/profile"

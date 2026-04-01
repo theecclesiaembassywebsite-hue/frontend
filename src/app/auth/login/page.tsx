@@ -52,7 +52,12 @@ export default function LoginPage() {
       if (token) {
         setToken(token);
         reset();
-        window.location.href = '/dashboard';
+        const role = response.user?.role;
+        if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         setErrorMessage('Login succeeded but no token received. Please try again.');
       }
