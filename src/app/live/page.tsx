@@ -142,8 +142,8 @@ export default function LivePage() {
     const checkLiveStatus = async () => {
       try {
         const data = await livestream.getConfig();
-        setIsLive(data.active || false);
-        setYoutubeId(data.youtubeId || null);
+        setIsLive(data.isLive || false);
+        setYoutubeId(data.embedUrl || null);
       } catch (error) {
         console.error("Failed to fetch livestream status:", error);
         setIsLive(false);
@@ -177,7 +177,7 @@ export default function LivePage() {
                 <iframe
                   width="100%"
                   height="600"
-                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+                  src={youtubeId?.includes('http') ? youtubeId : `https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
                   className="rounded-xl shadow-2xl aspect-video"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

@@ -23,6 +23,10 @@ export default function EISPage() {
         name: formData.get("parentName") as string,
         email: formData.get("email") as string,
         phone: formData.get("phone") as string,
+        additionalInfo: {
+          childName: formData.get("childName") as string,
+          childAge: parseInt(formData.get("childAge") as string) || undefined,
+        },
       });
       success("Inquiry submitted! Our admissions team will contact you shortly.");
       setSubmitted(true);

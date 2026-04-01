@@ -31,6 +31,9 @@ export default function TEMAPage() {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
         phone: formData.get("phone") as string,
+        additionalInfo: {
+          course: formData.get("course") as string,
+        },
       });
       success("Enrollment successful! Welcome to TEMA.");
       setEnrolled(true);

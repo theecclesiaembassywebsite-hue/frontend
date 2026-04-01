@@ -54,6 +54,19 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
           return;
         }
         setPost(data);
+        // Load comments from the backend response if included
+        if (data.comments && Array.isArray(data.comments)) {
+          setComments(
+            data.comments.map((c: any) => ({
+              id: c.id,
+              author: c.user?.profile
+                ? `${c.user.profile.firstName || ''} ${c.user.profile.lastName || ''}`.trim()
+                : 'Anonymous',
+              content: c.content,
+              createdAt: c.createdAt,
+            }))
+          );
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Failed to fetch post";
         if (message.includes("404") || message.includes("not found")) {
@@ -79,7 +92,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
 
     try {
       setSubmittingComment(true);
-      await blog.addBlogComment(post?.id || params.slug, commentContent);
+      await blog.addBlogComment(post!.id, commentContent);
       success("Comment posted successfully!");
       setCommentContent("");
       // Reload comments

@@ -32,6 +32,9 @@ export default function KISOLAMPage() {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
         phone: formData.get("phone") as string,
+        additionalInfo: {
+          program: formData.get("program") as string,
+        },
       });
       success("Registration successful! Welcome to KISOLAM.");
       setRegistered(true);

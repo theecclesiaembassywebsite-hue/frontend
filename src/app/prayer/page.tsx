@@ -22,11 +22,12 @@ export default function PrayerPage() {
 
     try {
       const formData = new FormData(e.currentTarget)
+      const privacyValue = formData.get('privacy') as string
       await prayer.submitPrayer({
-        name: formData.get('name') as string,
+        name: formData.get('fullName') as string,
         email: formData.get('email') as string,
         request: formData.get('request') as string,
-        isPublic,
+        isPublic: privacyValue === 'public',
       })
       success('Your prayer request has been received.')
       setSubmitted(true)

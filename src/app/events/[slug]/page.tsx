@@ -176,7 +176,7 @@ export default function EventDetailPage({ params }: { params: { slug: string } }
   if (!eventData) return null;
 
   const eventDate = new Date(eventData.date);
-  const isFree = eventData.isFree || !eventData.fee;
+  const isFree = eventData.isFree || !eventData.fee || (eventData as any).hasFee === false;
 
   return (
     <div className="bg-off-white min-h-screen">

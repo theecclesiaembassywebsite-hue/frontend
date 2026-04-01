@@ -310,14 +310,14 @@ export const testimonies = {
   submitTestimony: (data: {
     title: string;
     content: string;
-    videoUrl?: string;
+    photoUrl?: string;
   }) =>
     fetchAPI<Testimony>("/testimonies", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  getTestimonies: () => fetchAPI<Testimony[]>("/testimonies"),
+  getTestimonies: () => fetchAPI<Testimony[]>("/testimonies", { noAuth: true }),
 
   getPendingTestimonies: () =>
     fetchAPI<Testimony[]>("/testimonies/admin/pending"),
@@ -593,10 +593,10 @@ export const intentionalityClass = {
 // BLOG ENDPOINTS
 export const blog = {
   getPosts: (limit = 10, offset = 0) =>
-    fetchAPI<any[]>(`/blog?limit=${limit}&offset=${offset}`),
+    fetchAPI<any[]>(`/blog?limit=${limit}&offset=${offset}`, { noAuth: true }),
 
   getPost: (slug: string) =>
-    fetchAPI<any>(`/blog/${slug}`),
+    fetchAPI<any>(`/blog/${slug}`, { noAuth: true }),
 
   createBlogPost: (data: {
     title: string;
@@ -627,16 +627,16 @@ export const media = {
       ...(search ? { search } : {}),
       ...(topic ? { topic } : {}),
       ...(series ? { series } : {}),
-    }).toString()}`),
+    }).toString()}`, { noAuth: true }),
 
   getLatestSermon: () =>
-    fetchAPI<any>("/sermons/audio/latest"),
+    fetchAPI<any>("/sermons/audio/latest", { noAuth: true }),
 
   downloadSermon: (id: string) =>
-    fetchAPI<{ downloadUrl: string }>(`/sermons/audio/${id}/download`),
+    fetchAPI<{ downloadUrl: string }>(`/sermons/audio/${id}/download`, { noAuth: true }),
 
   getVideoMessages: (series?: string) =>
-    fetchAPI<any[]>(`/sermons/video${series ? `?series=${series}` : ""}`),
+    fetchAPI<any[]>(`/sermons/video${series ? `?series=${series}` : ""}`, { noAuth: true }),
 
   createAudioSermon: (data: {
     title: string;
@@ -673,7 +673,7 @@ export const media = {
     }),
 
   getLibrary: () =>
-    fetchAPI<any[]>("/library"),
+    fetchAPI<any[]>("/library", { noAuth: true }),
 
   createLibraryResource: (data: {
     title: string;
@@ -695,10 +695,10 @@ export const media = {
     }),
 
   downloadLibraryResource: (id: string) =>
-    fetchAPI<{ downloadUrl: string }>(`/library/${id}/download`),
+    fetchAPI<{ downloadUrl: string }>(`/library/${id}/download`, { noAuth: true }),
 
   getMusic: () =>
-    fetchAPI<any[]>("/music"),
+    fetchAPI<any[]>("/music", { noAuth: true }),
 
   createMusic: (data: {
     title: string;
@@ -717,21 +717,23 @@ export const media = {
 // EVENTS ENDPOINTS
 export const events = {
   getEvents: (limit = 20, offset = 0) =>
-    fetchAPI<Event[]>(`/events?limit=${limit}&offset=${offset}`),
+    fetchAPI<Event[]>(`/events?limit=${limit}&offset=${offset}`, { noAuth: true }),
 
   getEvent: (id: string) =>
-    fetchAPI<Event>(`/events/${id}`),
+    fetchAPI<Event>(`/events/${id}`, { noAuth: true }),
 
   registerForEvent: (id: string, data: { name: string; email: string; phone?: string }) =>
     fetchAPI<{ success: boolean }>(`/events/${id}/register`, {
       method: "POST",
       body: JSON.stringify(data),
+      noAuth: true,
     }),
 
-  registerAndPay: (id: string, data: any) =>
+  registerAndPay: (id: string, data: { name: string; email: string; phone?: string }) =>
     fetchAPI<any>(`/events/${id}/register-and-pay`, {
       method: "POST",
       body: JSON.stringify(data),
+      noAuth: true,
     }),
 
   createEvent: (data: any) =>
@@ -793,7 +795,7 @@ export const announcements = {
 // LIVESTREAM ENDPOINTS
 export const livestream = {
   getConfig: () =>
-    fetchAPI<any>("/livestream/config"),
+    fetchAPI<any>("/livestream/config", { noAuth: true }),
 
   updateLivestream: (data: {
     isLive: boolean;
@@ -828,7 +830,7 @@ export const engagement = {
 
 // TRAINING ENDPOINTS
 export const training = {
-  enrollTraining: (program: string, data: { name: string; email: string; phone: string }) =>
+  enrollTraining: (program: string, data: { name: string; email: string; phone: string; additionalInfo?: Record<string, unknown> }) =>
     fetchAPI<{ message: string; id: string }>(`/training/${program}/enroll`, {
       method: "POST",
       body: JSON.stringify(data),

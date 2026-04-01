@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import SectionWrapper from '@/components/ui/SectionWrapper';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { intentionalityClass } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/ui/Toast';
 import { FadeIn } from '@/components/ui/Motion';
 import { GraduationCap, CheckCircle, BookOpen, Clock, Users } from 'lucide-react';
@@ -18,6 +20,7 @@ export default function IntentionalityClassPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { isAuthenticated } = useAuth();
   const { success, error } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -32,6 +35,11 @@ export default function IntentionalityClassPage() {
     e.preventDefault();
     setIsLoading(true);
 
+    if (!isAuthenticated) {
+      error('Please sign in to enroll in the Intentionality Class.');
+      return;
+    }
+
     try {
       const courseId = 'intentionality-class';
       await intentionalityClass.enroll(courseId);
@@ -39,7 +47,7 @@ export default function IntentionalityClassPage() {
       setFormData({ name: '', email: '', phone: '', preferredFormat: 'hybrid' });
       success('Thank you for enrolling in the Intentionality Class.');
     } catch (err) {
-      error('Failed to enroll. Please try again.');
+      error(err instanceof Error ? err.message : 'Failed to enroll. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -185,6 +193,16 @@ export default function IntentionalityClassPage() {
                 >
                   {isLoading ? 'Enrolling...' : 'Enroll Now'}
                 </Button>
+
+                {!isAuthenticated && (
+                  <p className="text-center text-sm text-[#8A8A8E] font-body mt-4">
+                    You need to{' '}
+                    <Link href="/auth/login" className="text-[#771996] hover:underline font-semibold">
+                      sign in
+                    </Link>{' '}
+                    to enroll in this class.
+                  </p>
+                )}
               </form>
             )}
           </div>

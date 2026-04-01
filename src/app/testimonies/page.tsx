@@ -6,8 +6,10 @@ import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Checkbox from '@/components/ui/Checkbox'
 import { testimonies } from '@/lib/api'
+import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { FadeIn } from '@/components/ui/Motion'
+import Link from 'next/link'
 import { Sparkles, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 
@@ -15,10 +17,16 @@ export default function TestimoniesPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [agreeToShare, setAgreeToShare] = useState(false)
+  const { isAuthenticated } = useAuth()
   const { success, error } = useToast()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    if (!isAuthenticated) {
+      error('Please sign in to submit a testimony.')
+      return
+    }
 
     if (!agreeToShare) {
       error('Please agree to share your testimony publicly.')
@@ -162,6 +170,16 @@ export default function TestimoniesPage() {
                   >
                     {loading ? 'Submitting...' : 'Submit Testimony'}
                   </Button>
+
+                  {!isAuthenticated && (
+                    <p className="text-center font-body text-sm text-[#8A8A8E] mt-4">
+                      Please{' '}
+                      <Link href="/auth/login" className="text-[#771996] hover:underline font-semibold">
+                        sign in
+                      </Link>{' '}
+                      to submit your testimony.
+                    </p>
+                  )}
                 </form>
               </>
             )}
