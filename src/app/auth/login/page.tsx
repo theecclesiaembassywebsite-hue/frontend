@@ -52,7 +52,9 @@ export default function LoginPage() {
       if (token) {
         setToken(token);
         reset();
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
+      } else {
+        setErrorMessage('Login succeeded but no token received. Please try again.');
       }
     } catch (error: any) {
       const statusCode = error?.response?.status;
