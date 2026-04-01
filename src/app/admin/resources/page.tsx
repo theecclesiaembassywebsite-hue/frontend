@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Music, Video, BookOpen, Headphones } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { media } from "@/lib/api";
+import { media, upload } from "@/lib/api";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
@@ -276,15 +276,45 @@ function AdminResourcesContent() {
 
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">
-              {activeTab === "audio" ? "Audio URL" : activeTab === "video" ? "YouTube URL" : activeTab === "library" ? "File URL" : "Audio URL"} *
+              {activeTab === "video" ? "YouTube URL *" : "File Upload or URL *"}
             </label>
-            <input
-              type="url"
-              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
-              placeholder="https://..."
-              value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-            />
+            {activeTab === "video" ? (
+              <input
+                type="url"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="https://youtube.com/watch?v=..."
+                value={formData.url}
+                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+              />
+            ) : (
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept={activeTab === "audio" || activeTab === "music" ? "audio/*" : activeTab === "library" ? "application/pdf" : "*"}
+                  className="w-full font-body text-sm text-gray-text file:mr-3 file:rounded-[4px] file:border-0 file:bg-purple file:px-3 file:py-1.5 file:text-xs file:font-heading file:font-semibold file:text-white file:cursor-pointer hover:file:bg-purple-hover"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const uploadFn = activeTab === "audio" ? upload.audio : activeTab === "library" ? upload.pdf : upload.music;
+                      const { url } = await uploadFn(file);
+                      setFormData({ ...formData, url });
+                      success("File uploaded!");
+                    } catch (err) {
+                      error(err instanceof Error ? err.message : "Upload failed");
+                    }
+                  }}
+                />
+                <p className="text-[10px] text-gray-text">Or enter URL manually:</p>
+                <input
+                  type="url"
+                  className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                  placeholder="https://..."
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                />
+              </div>
+            )}
           </div>
 
           {(activeTab === "audio" || activeTab === "video" || activeTab === "library") && (

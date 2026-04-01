@@ -56,9 +56,9 @@ export default function NationPage() {
     }
   }
 
-  async function handleCreatePost(content: string) {
+  async function handleCreatePost(content: string, imageUrl?: string) {
     try {
-      await nation.createPost({ content });
+      await nation.createPost({ content, imageUrl });
       success("Post created successfully!");
       setPosts([]);
       setPage(0);

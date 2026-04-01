@@ -6,7 +6,7 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import { profile as profileApi } from "@/lib/api";
+import { profile as profileApi, upload } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
@@ -276,14 +276,29 @@ function ProfileEditContent() {
                   value={formData.occupation || ""}
                   onChange={handleInputChange}
                 />
-                <Input
-                  id="photoUrl"
-                  name="photoUrl"
-                  label="Photo URL"
-                  placeholder="https://..."
-                  value={formData.photoUrl || ""}
-                  onChange={handleInputChange}
-                />
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-body text-sm font-medium text-slate">Profile Photo</label>
+                  {formData.photoUrl && (
+                    <img src={formData.photoUrl} alt="Profile" className="h-20 w-20 rounded-full object-cover border border-gray-border" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="font-body text-sm text-gray-text file:mr-3 file:rounded-[4px] file:border-0 file:bg-purple file:px-3 file:py-1.5 file:text-xs file:font-heading file:font-semibold file:text-white file:cursor-pointer hover:file:bg-purple-hover"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const { url } = await upload.profilePhoto(file);
+                        setFormData((prev) => ({ ...prev, photoUrl: url }));
+                        success("Photo uploaded!");
+                      } catch (err) {
+                        showError(err instanceof Error ? err.message : "Upload failed");
+                      }
+                    }}
+                  />
+                  <p className="font-body text-[11px] text-gray-text">JPG, PNG, or WebP. Max 5MB.</p>
+                </div>
               </div>
             </div>
 

@@ -53,6 +53,40 @@ export const fetchAPI = async <T>(
   return response.json() as Promise<T>;
 };
 
+// File upload helper (multipart/form-data, no JSON content-type)
+export const uploadFile = async (
+  endpoint: string,
+  file: File,
+): Promise<{ url: string }> => {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Upload failed: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+// Upload endpoints
+export const upload = {
+  profilePhoto: (file: File) => uploadFile("/upload/profile-photo", file),
+  image: (file: File) => uploadFile("/upload/image", file),
+  audio: (file: File) => uploadFile("/upload/audio", file),
+  pdf: (file: File) => uploadFile("/upload/pdf", file),
+  music: (file: File) => uploadFile("/upload/music", file),
+};
+
 // Types
 export interface User {
   id: string;
