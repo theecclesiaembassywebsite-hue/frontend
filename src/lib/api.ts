@@ -456,25 +456,25 @@ export const nation = {
     fetchAPI<any[]>("/nation/notifications"),
 
   markNotificationRead: (notificationId: string) =>
-    fetchAPI<{ success: boolean }>(`/nation/notifications/${notificationId}/read`, {
-      method: "PATCH",
+    fetchAPI<any>(`/nation/notifications/${notificationId}/read`, {
+      method: "PUT",
     }),
 
   markAllRead: () =>
-    fetchAPI<{ success: boolean }>("/nation/notifications/mark-all-read", {
-      method: "PATCH",
+    fetchAPI<any>("/nation/notifications/read-all", {
+      method: "PUT",
     }),
 
   getFlaggedPosts: () =>
-    fetchAPI<Post[]>("/nation/admin/flagged-posts"),
+    fetchAPI<Post[]>("/admin/nation/flagged"),
 
   hidePost: (postId: string) =>
-    fetchAPI<{ success: boolean }>(`/nation/admin/posts/${postId}/hide`, {
-      method: "PATCH",
+    fetchAPI<any>(`/admin/nation/posts/${postId}/hide`, {
+      method: "PUT",
     }),
 
   deletePost: (postId: string) =>
-    fetchAPI<{ success: boolean }>(`/nation/admin/posts/${postId}`, {
+    fetchAPI<any>(`/admin/nation/posts/${postId}`, {
       method: "DELETE",
     }),
 };
@@ -503,36 +503,36 @@ export const intentionalityClass = {
   getExam: (courseId: string) =>
     fetchAPI<any>(`/class/courses/${courseId}/exam`),
 
-  submitExam: (examId: string, answers: Record<string, string>) =>
-    fetchAPI<{ success: boolean; score: number }>(`/class/exams/${examId}/submit`, {
+  submitExam: (courseId: string, data: { enrollmentId: string; answers: Record<string, string> }) =>
+    fetchAPI<any>(`/class/courses/${courseId}/exam`, {
       method: "POST",
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify(data),
     }),
 
   adminCreateCourse: (data: any) =>
-    fetchAPI<any>("/class/admin/courses", {
+    fetchAPI<any>("/admin/class/courses", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  adminCreateModule: (courseId: string, data: any) =>
-    fetchAPI<any>(`/class/admin/courses/${courseId}/modules`, {
+  adminCreateModule: (data: any) =>
+    fetchAPI<any>("/admin/class/modules", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  adminCreateQuestion: (examId: string, data: any) =>
-    fetchAPI<any>(`/class/admin/exams/${examId}/questions`, {
+  adminCreateQuestion: (data: any) =>
+    fetchAPI<any>("/admin/class/questions", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   adminGetStats: () =>
-    fetchAPI<any>("/class/admin/stats"),
+    fetchAPI<any>("/admin/class/stats"),
 
-  adminGradeExam: (examId: string, data: any) =>
-    fetchAPI<any>(`/class/admin/exams/${examId}/grade`, {
-      method: "POST",
+  adminGradeExam: (submissionId: string, data: { manualScore: number }) =>
+    fetchAPI<any>(`/admin/class/exam/${submissionId}/grade`, {
+      method: "PUT",
       body: JSON.stringify(data),
     }),
 };
