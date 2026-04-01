@@ -533,6 +533,9 @@ export const nation = {
 
 // INTENTIONALITY CLASS ENDPOINTS
 export const intentionalityClass = {
+  getAvailableCourses: () =>
+    fetchAPI<any[]>("/class/courses", { noAuth: true }),
+
   enroll: (courseId: string) =>
     fetchAPI<{ success: boolean }>(`/class/enroll/${courseId}`, {
       method: "POST",
@@ -766,6 +769,27 @@ export const squads = {
     fetchAPI<{ success: boolean }>("/kip/register", {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+
+  // Admin
+  createSquad: (data: {
+    name: string; description: string; leaderId: string;
+    meetingDay?: string; meetingTime?: string; activities?: string;
+  }) =>
+    fetchAPI<any>("/admin/squads", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateSquad: (id: string, data: any) =>
+    fetchAPI<any>(`/admin/squads/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deleteSquad: (id: string) =>
+    fetchAPI<any>(`/admin/squads/${id}`, {
+      method: "DELETE",
     }),
 };
 

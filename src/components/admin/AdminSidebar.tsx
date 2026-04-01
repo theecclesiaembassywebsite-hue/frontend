@@ -17,6 +17,7 @@ const navItems = [
   { label: "Content", href: "/admin/content", icon: FileText },
   { label: "Events", href: "/admin/events", icon: Calendar },
   { label: "CITH Hubs", href: "/admin/cith", icon: MapPin },
+  { label: "Squads", href: "/admin/squads", icon: Users },
   { label: "Intentionality Class", href: "/admin/class", icon: GraduationCap },
   { label: "Ecclesia Nation", href: "/admin/nation", icon: MessageCircle },
   { label: "Resources", href: "/admin/resources", icon: BookOpen },

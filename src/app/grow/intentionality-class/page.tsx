@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SectionWrapper from '@/components/ui/SectionWrapper';
 import Input from '@/components/ui/Input';
@@ -12,6 +12,14 @@ import { FadeIn } from '@/components/ui/Motion';
 import { GraduationCap, CheckCircle, BookOpen, Clock, Users } from 'lucide-react';
 
 export default function IntentionalityClassPage() {
+  const [courses, setCourses] = useState<any[]>([]);
+
+  useEffect(() => {
+    intentionalityClass.getAvailableCourses()
+      .then((data) => setCourses(data || []))
+      .catch(() => {});
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -41,7 +49,12 @@ export default function IntentionalityClassPage() {
     }
 
     try {
-      const courseId = 'intentionality-class';
+      const courseId = courses.length > 0 ? courses[0].id : null;
+      if (!courseId) {
+        error('No courses available at this time. Please check back later.');
+        setIsLoading(false);
+        return;
+      }
       await intentionalityClass.enroll(courseId);
       setIsSuccess(true);
       setFormData({ name: '', email: '', phone: '', preferredFormat: 'hybrid' });
