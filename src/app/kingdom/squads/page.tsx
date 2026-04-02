@@ -13,12 +13,14 @@ interface Squad {
   id: string;
   name: string;
   description?: string;
-  desc?: string;
-  leader?: string;
-  memberCount?: number;
-  members?: number;
-  day?: string;
-  time?: string;
+  leader?: {
+    id: string;
+    email: string;
+    profile?: { firstName?: string; lastName?: string; photoUrl?: string };
+  } | null;
+  _count?: { members: number };
+  meetingDay?: string;
+  meetingTime?: string;
   activities?: string;
 }
 
@@ -107,17 +109,17 @@ export default function SquadsPage() {
                         </div>
 
                         <p className="font-body text-sm text-[#8A8A8E] mb-4 flex-grow">
-                          {squad.description || squad.desc || 'Join this squad to serve and grow with your team.'}
+                          {squad.description || 'Join this squad to serve and grow with your team.'}
                         </p>
 
                         <div className="space-y-2 mb-6 border-t border-[#E4E0EF] pt-4">
                           <div className="flex items-center gap-2 text-[#31333B] text-sm">
                             <Users className="w-4 h-4 text-[#771996]" />
-                            <span>Led by {squad.leader || 'TBA'}</span>
+                            <span>Led by {squad.leader?.profile ? `${squad.leader.profile.firstName || ''} ${squad.leader.profile.lastName || ''}`.trim() : 'TBA'}</span>
                           </div>
                           <div className="flex items-center gap-2 text-[#31333B] text-sm">
                             <Users className="w-4 h-4 text-[#771996]" />
-                            <span>{squad.memberCount || squad.members || 0} members</span>
+                            <span>{squad._count?.members || 0} members</span>
                           </div>
                         </div>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Users, Calendar, Clock, MapPin, Activity, Check } from "lucide-react";
+import { ArrowLeft, Users, Calendar, Clock, Activity, Check } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import Button from "@/components/ui/Button";
 import { squads as squadsAPI } from "@/lib/api";
@@ -14,15 +14,15 @@ interface Squad {
   id: string;
   name: string;
   description?: string;
-  desc?: string;
-  leader?: string;
-  leaderTitle?: string;
-  leaderBio?: string;
-  memberCount?: number;
-  members?: number;
-  day?: string;
-  time?: string;
-  location?: string;
+  leader?: {
+    id: string;
+    email: string;
+    profile?: { firstName?: string; lastName?: string; photoUrl?: string; phone?: string; bio?: string };
+  } | null;
+  members?: Array<{ user: { profile?: { firstName?: string; lastName?: string } } }>;
+  _count?: { members: number };
+  meetingDay?: string;
+  meetingTime?: string;
   activities?: string;
 }
 
@@ -106,7 +106,11 @@ export default function SquadDetailPage({ params }: { params: { id: string } }) 
     );
   }
 
-  const description = squad.description || squad.desc || "";
+  const description = squad.description || "";
+  const leaderName = squad.leader?.profile
+    ? `${squad.leader.profile.firstName || ""} ${squad.leader.profile.lastName || ""}`.trim()
+    : null;
+  const memberCount = squad._count?.members ?? squad.members?.length ?? 0;
 
   return (
     <main className="min-h-screen bg-off-white">
@@ -140,44 +144,35 @@ export default function SquadDetailPage({ params }: { params: { id: string } }) 
               <div className="flex items-start gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-vivid flex-shrink-0">
                   <span className="font-heading text-lg font-bold text-white">
-                    {(squad.leader || "?").charAt(0)}
+                    {(leaderName || "?").charAt(0)}
                   </span>
                 </div>
                 <div>
                   <p className="font-heading text-base font-semibold text-slate">
-                    {squad.leader || "To Be Announced"}
+                    {leaderName || "To Be Announced"}
                   </p>
-                  {squad.leaderTitle && (
-                    <p className="font-body text-sm text-gray-text">{squad.leaderTitle}</p>
-                  )}
-                  {squad.leaderBio && (
-                    <p className="mt-2 font-body text-sm text-slate leading-relaxed">{squad.leaderBio}</p>
+                  {squad.leader?.profile?.bio && (
+                    <p className="mt-2 font-body text-sm text-slate leading-relaxed">{squad.leader.profile.bio}</p>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Meeting Schedule */}
-            {(squad.day || squad.time || squad.location) && (
+            {(squad.meetingDay || squad.meetingTime) && (
               <div className="rounded-[8px] border border-gray-border bg-white p-6 shadow-sm">
                 <h2 className="font-heading text-xl font-bold text-slate mb-4">Meeting Schedule</h2>
                 <div className="space-y-3">
-                  {squad.day && (
+                  {squad.meetingDay && (
                     <div className="flex items-center gap-3 font-body text-sm text-slate">
                       <Calendar size={18} className="text-purple flex-shrink-0" />
-                      <span>{squad.day}</span>
+                      <span>{squad.meetingDay}</span>
                     </div>
                   )}
-                  {squad.time && (
+                  {squad.meetingTime && (
                     <div className="flex items-center gap-3 font-body text-sm text-slate">
                       <Clock size={18} className="text-purple flex-shrink-0" />
-                      <span>{squad.time}</span>
-                    </div>
-                  )}
-                  {squad.location && (
-                    <div className="flex items-center gap-3 font-body text-sm text-slate">
-                      <MapPin size={18} className="text-purple flex-shrink-0" />
-                      <span>{squad.location}</span>
+                      <span>{squad.meetingTime}</span>
                     </div>
                   )}
                 </div>
@@ -204,7 +199,7 @@ export default function SquadDetailPage({ params }: { params: { id: string } }) 
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2 text-gray-text font-body text-sm mb-4">
                   <Users size={18} className="text-purple" />
-                  <span>{squad.memberCount || squad.members || 0} members</span>
+                  <span>{memberCount} members</span>
                 </div>
               </div>
 
