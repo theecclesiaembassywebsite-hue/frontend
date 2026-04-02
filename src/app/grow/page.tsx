@@ -15,7 +15,7 @@ const growthPaths = [
   },
   {
     icon: Users,
-    title: "Church in the Home",
+    title: "Church in the House",
     desc: "Join a local fellowship group to build meaningful relationships and grow spiritually within your community.",
     href: "/cith",
   },

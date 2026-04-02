@@ -121,20 +121,17 @@ export default function SquadsPage() {
                           </div>
                         </div>
 
-                        <Link href={`/kingdom/squads/${squad.id}`} className="w-full">
-                          <Button
-                            variant="primary"
-                            className="w-full bg-[#771996] hover:bg-[#4A1D6E] flex items-center justify-center gap-2"
-                            disabled={joining === squad.id}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleJoinSquad(squad.id);
-                            }}
-                          >
-                            {joining === squad.id ? 'Joining...' : 'Join Squad'}
-                            {joining !== squad.id && <ArrowRight className="w-4 h-4" />}
-                          </Button>
-                        </Link>
+                        <div className="flex gap-2">
+                          <Link href={`/kingdom/squads/${squad.id}`} className="flex-1">
+                            <Button
+                              variant="primary"
+                              className="w-full bg-[#771996] hover:bg-[#4A1D6E] flex items-center justify-center gap-2"
+                            >
+                              View Details
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </HoverLift>
                   </StaggerItem>

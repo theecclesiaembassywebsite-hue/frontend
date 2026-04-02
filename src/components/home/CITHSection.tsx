@@ -10,14 +10,14 @@ export default function CITHSection() {
     {
       icon: MapPin,
       title: "Find a Hub Near You",
-      description: "Discover Church in the Home gatherings in your community",
+      description: "Discover Church in the House gatherings in your community",
       cta: "Find a Hub",
       href: "/cith",
     },
     {
       icon: Globe,
       title: "Join the e-Hub",
-      description: "Connect with our online Church in the Home community",
+      description: "Connect with our online Church in the House community",
       cta: "Join Online",
       href: "/cith/ehub",
     },
@@ -37,7 +37,7 @@ export default function CITHSection() {
         <div className="text-center mb-12 md:mb-16">
           <FadeIn>
             <h2 className="font-heading text-4xl md:text-5xl font-bold text-slate mb-4">
-              Church in the Home
+              Church in the House
             </h2>
           </FadeIn>
           <FadeIn delay={0.2}>

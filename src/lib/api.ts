@@ -382,7 +382,7 @@ export const giving = {
     }),
 };
 
-// CITH (CHURCH IN THE HOME) ENDPOINTS
+// CITH (CHURCH IN THE HOUSE) ENDPOINTS
 export const cith = {
   getHubs: () => fetchAPI<any[]>("/cith/hubs"),
 

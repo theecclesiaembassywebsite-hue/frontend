@@ -46,9 +46,16 @@ const navLinks = [
     href: "/grow",
     children: [
       { label: "Grow with Us", href: "/grow" },
-      { label: "Church in the Home", href: "/cith" },
-      { label: "Kingdom Life Squads", href: "/kingdom/squads" },
+      { label: "Church in the House", href: "/cith" },
       { label: "Intentionality Class", href: "/grow/intentionality-class" },
+    ],
+  },
+  {
+    label: "KINGDOM",
+    href: "/kingdom",
+    children: [
+      { label: "Kingdom Life Squads", href: "/kingdom/squads" },
+      { label: "Kingdom Influencing Platform", href: "/kingdom/kip" },
     ],
   },
   {
@@ -97,7 +104,7 @@ export default function Navbar() {
           </Link>
           <div className="flex items-center gap-4">
             {user ? (
-              <div className="relative" ref={userMenuRef}>
+              <div className="relative z-[60]" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
