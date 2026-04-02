@@ -29,10 +29,12 @@ function AdminClassContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsData = await intentionalityClass.adminGetStats();
+        const [statsData, coursesData] = await Promise.all([
+          intentionalityClass.adminGetStats(),
+          intentionalityClass.adminGetCourses(),
+        ]);
         setStats(statsData);
-        // In a real scenario, you'd also fetch courses here
-        setCourses(statsData.courses || []);
+        setCourses(coursesData || []);
       } catch (err) {
         error("Failed to load class data");
         console.error(err);
@@ -133,25 +135,32 @@ function AdminClassContent() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-border">
-            {(courses || []).map((c) => (
-              <tr key={c.id} className="hover:bg-off-white/50 transition-colors">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap size={14} className="text-purple/50" />
-                    <span className="font-heading text-sm font-semibold text-slate">{c.title || c.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{c.enrolled || 0}</td>
-                <td className="px-4 py-3 font-heading text-sm font-semibold text-success">{c.completed || 0}</td>
-                <td className="px-4 py-3 font-heading text-sm font-semibold text-warning">{c.inProgress || 0}</td>
-                <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{c.avgScore || 0}%</td>
-                <td className="px-4 py-3">
-                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-heading font-semibold text-success">
-                    {c.status || "ACTIVE"}
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {(courses || []).map((c) => {
+              const enrolled = c._count?.enrollments ?? c.enrolled ?? 0;
+              const completedCount = c.enrollments?.filter((e: any) => e.status === "PASSED").length ?? c.completed ?? 0;
+              const inProgressCount = c.enrollments?.filter((e: any) => e.status === "IN_PROGRESS").length ?? c.inProgress ?? 0;
+              const scores = c.enrollments?.filter((e: any) => e.examScore != null).map((e: any) => e.examScore) ?? [];
+              const avg = scores.length ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
+              return (
+                <tr key={c.id} className="hover:bg-off-white/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <GraduationCap size={14} className="text-purple/50" />
+                      <span className="font-heading text-sm font-semibold text-slate">{c.title || c.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{enrolled}</td>
+                  <td className="px-4 py-3 font-heading text-sm font-semibold text-success">{completedCount}</td>
+                  <td className="px-4 py-3 font-heading text-sm font-semibold text-warning">{inProgressCount}</td>
+                  <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{avg}%</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${c.published ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                      {c.published ? "ACTIVE" : "DRAFT"}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

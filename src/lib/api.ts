@@ -565,6 +565,9 @@ export const intentionalityClass = {
       body: JSON.stringify(data),
     }),
 
+  adminGetCourses: () =>
+    fetchAPI<any[]>("/admin/class/courses"),
+
   adminCreateCourse: (data: any) =>
     fetchAPI<any>("/admin/class/courses", {
       method: "POST",
