@@ -51,6 +51,15 @@ const navLinks = [
       { label: "Intentionality Class", href: "/grow/intentionality-class" },
     ],
   },
+  {
+    label: "TRAINING",
+    href: "/training",
+    children: [
+      { label: "TEMA", href: "/training/tema" },
+      { label: "KISOLAM", href: "/training/kisolam" },
+      { label: "EIS", href: "/training/eis" },
+    ],
+  },
   { label: "CONTACT", href: "/contact" },
 ];
 
