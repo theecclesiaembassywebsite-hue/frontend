@@ -59,8 +59,13 @@ function ProfileEditContent() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const data = await profileApi.getProfile("");
-        setFormData(data || {});
+        const data = await profileApi.getMyProfile();
+        setFormData({
+          ...data,
+          dateOfBirth: data.dateOfBirth
+            ? new Date(data.dateOfBirth).toISOString().split("T")[0]
+            : "",
+        });
         setErrors({});
       } catch (err) {
         showError(err instanceof Error ? err.message : "Failed to load profile");
@@ -110,7 +115,16 @@ function ProfileEditContent() {
       await profileApi.updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
+        phone: formData.phone,
+        dateOfBirth: formData.dateOfBirth || undefined,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        occupation: formData.occupation,
+        maritalStatus: formData.maritalStatus,
         photoUrl: formData.photoUrl,
+        ministryInvolvement: formData.ministryInvolvement,
       });
       success("Profile updated successfully!");
     } catch (err) {

@@ -2,12 +2,11 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { profile as profileAPI, giving, prayer } from '@/lib/api'
+import { giving, prayer, cith, intentionalityClass } from '@/lib/api'
 import {
   FadeIn,
   StaggerContainer,
   StaggerItem,
-  ScaleIn,
 } from '@/components/ui/Motion'
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
@@ -39,16 +38,28 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        const [profileData, givingData] = await Promise.all([
-          profileAPI.getProfile(user?.id || ''),
-          giving.getHistory(),
+
+        // Fetch all stats in parallel, catching individual failures
+        const [givingData, prayerData, hubData, coursesData] = await Promise.all([
+          giving.getHistory().catch(() => []),
+          prayer.getMyPrayers().catch(() => []),
+          cith.getMyHub().catch(() => null),
+          intentionalityClass.getMyCourses().catch(() => []),
         ])
 
+        // Determine hub status
+        let hubStatus = 'Not Joined'
+        if (hubData && hubData.id) {
+          hubStatus = hubData.status === 'ACTIVE' ? 'Hub Leader' : hubData.status || 'Joined'
+        }
+
         setStats({
-          totalGiving: givingData.length > 0 ? givingData.length : 0,
-          prayerRequestsCount: 0,
-          hubStatus: 'Not Joined',
-          enrolledClassesCount: 0,
+          totalGiving: Array.isArray(givingData)
+            ? givingData.reduce((sum: number, g: any) => sum + (g.amount || 0), 0)
+            : 0,
+          prayerRequestsCount: Array.isArray(prayerData) ? prayerData.length : 0,
+          hubStatus,
+          enrolledClassesCount: Array.isArray(coursesData) ? coursesData.length : 0,
         })
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error)
@@ -57,8 +68,8 @@ export default function DashboardPage() {
       }
     }
 
-    fetchStats()
-  }, [])
+    if (user?.id) fetchStats()
+  }, [user?.id])
 
   const firstName = user?.profile?.firstName || 'Friend'
   const today = new Date()
@@ -70,41 +81,13 @@ export default function DashboardPage() {
   })
 
   const quickActions = [
-    {
-      label: 'Edit Profile',
-      href: '/dashboard/profile',
-      icon: User,
-    },
-    {
-      label: 'My Courses',
-      href: '/dashboard/class',
-      icon: BookOpen,
-    },
-    {
-      label: 'My Giving History',
-      href: '/dashboard/giving',
-      icon: Gift,
-    },
-    {
-      label: 'My Prayer Requests',
-      href: '/dashboard/prayer',
-      icon: Heart,
-    },
-    {
-      label: 'My Hub',
-      href: '/dashboard/hub',
-      icon: Users,
-    },
-    {
-      label: 'Ecclesia Nation',
-      href: '/nation',
-      icon: BookOpen,
-    },
-    {
-      label: 'Submit Testimony',
-      href: '/testimonies',
-      icon: Clock,
-    },
+    { label: 'Edit Profile', href: '/dashboard/profile', icon: User },
+    { label: 'My Courses', href: '/dashboard/class', icon: BookOpen },
+    { label: 'My Giving History', href: '/dashboard/giving', icon: Gift },
+    { label: 'My Prayer Requests', href: '/dashboard/prayer', icon: Heart },
+    { label: 'My Hub', href: '/dashboard/hub', icon: Users },
+    { label: 'Ecclesia Nation', href: '/nation', icon: BookOpen },
+    { label: 'Submit Testimony', href: '/testimonies', icon: Clock },
   ]
 
   return (

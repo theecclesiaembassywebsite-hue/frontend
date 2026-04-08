@@ -8,18 +8,8 @@ import { cith } from "@/lib/api";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 
-interface Hub {
-  id: string;
-  name: string;
-  location?: string;
-  area?: string;
-  dayOfWeek?: string;
-  time?: string;
-  members?: any[];
-}
-
 function HubDashboardContent() {
-  const [hubData, setHubData] = useState<Hub | null>(null);
+  const [hubData, setHubData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
@@ -46,6 +36,7 @@ function HubDashboardContent() {
   function handleSend(e: React.FormEvent) {
     e.preventDefault();
     if (!announcement.trim()) return;
+    // TODO: wire to backend when hub announcement endpoint exists
     setSent(true);
     setAnnouncement("");
     setTimeout(() => setSent(false), 3000);
@@ -59,7 +50,7 @@ function HubDashboardContent() {
             <Skeleton className="h-5 w-5" />
             <Skeleton className="h-8 w-48" />
           </div>
-          <SkeletonGroup count={3} variant="card" className="grid grid-cols-1 gap-6 lg:grid-cols-3" />
+          <SkeletonGroup count={3} variant="card" />
         </div>
       </div>
     );
@@ -73,9 +64,7 @@ function HubDashboardContent() {
             <Link href="/dashboard" className="text-gray-text hover:text-purple transition-colors">
               <ArrowLeft size={20} />
             </Link>
-            <h1 className="font-heading text-2xl font-bold text-slate">
-              My Hub
-            </h1>
+            <h1 className="font-heading text-2xl font-bold text-slate">My Hub</h1>
           </div>
           <div className="rounded-[8px] border border-gray-border bg-white p-12 text-center shadow-sm">
             <p className="font-body text-base text-gray-text">
@@ -90,6 +79,8 @@ function HubDashboardContent() {
     );
   }
 
+  const location = [hubData.area, hubData.city, hubData.state].filter(Boolean).join(", ");
+
   return (
     <div className="bg-off-white min-h-screen">
       <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 md:px-8">
@@ -97,9 +88,7 @@ function HubDashboardContent() {
           <Link href="/dashboard" className="text-gray-text hover:text-purple transition-colors">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="font-heading text-2xl font-bold text-slate">
-            My Hub
-          </h1>
+          <h1 className="font-heading text-2xl font-bold text-slate">My Hub</h1>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -109,20 +98,15 @@ function HubDashboardContent() {
               {hubData.name}
             </h3>
             <div className="space-y-2 text-sm font-body text-gray-text">
-              {hubData.location && (
+              {location && (
                 <div className="flex items-center gap-2">
-                  <MapPin size={14} /> {hubData.location}
+                  <MapPin size={14} /> {location}
                 </div>
               )}
-              {hubData.area && (
+              {hubData.meetingDay && (
                 <div className="flex items-center gap-2">
-                  <MapPin size={14} /> {hubData.area}
-                </div>
-              )}
-              {hubData.dayOfWeek && (
-                <div className="flex items-center gap-2">
-                  <Clock size={14} /> {hubData.dayOfWeek}
-                  {hubData.time && ` at ${hubData.time}`}
+                  <Clock size={14} /> {hubData.meetingDay}
+                  {hubData.meetingTime && ` at ${hubData.meetingTime}`}
                 </div>
               )}
               <div className="flex items-center gap-2">
@@ -133,30 +117,29 @@ function HubDashboardContent() {
 
           {/* Members */}
           <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
-            <h3 className="font-heading text-base font-bold text-slate mb-3">
-              Members
-            </h3>
+            <h3 className="font-heading text-base font-bold text-slate mb-3">Members</h3>
             <div className="space-y-2">
               {hubData.members && hubData.members.length > 0 ? (
-                hubData.members.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between rounded-[4px] bg-off-white px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-light">
-                        <User className="h-3.5 w-3.5 text-purple/50" />
+                hubData.members.map((m: any) => {
+                  const name = [m.user?.profile?.firstName, m.user?.profile?.lastName].filter(Boolean).join(" ");
+                  return (
+                    <div key={m.id} className="flex items-center justify-between rounded-[4px] bg-off-white px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-light">
+                          <User className="h-3.5 w-3.5 text-purple/50" />
+                        </div>
+                        <span className="font-body text-sm text-slate truncate">
+                          {name || m.user?.email || "Member"}
+                        </span>
                       </div>
-                      <span className="font-body text-sm text-slate truncate">
-                        {m.firstName && m.lastName
-                          ? `${m.firstName} ${m.lastName}`
-                          : m.name || m.email}
-                      </span>
+                      {m.joinedAt && (
+                        <span className="text-[10px] text-gray-text shrink-0">
+                          {new Date(m.joinedAt).toLocaleDateString()}
+                        </span>
+                      )}
                     </div>
-                    {m.joinedAt && (
-                      <span className="text-[10px] text-gray-text shrink-0">
-                        {new Date(m.joinedAt).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="font-body text-xs text-gray-text">No members yet.</p>
               )}
@@ -165,9 +148,7 @@ function HubDashboardContent() {
 
           {/* Send Announcement */}
           <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
-            <h3 className="font-heading text-base font-bold text-slate mb-3">
-              Send Announcement
-            </h3>
+            <h3 className="font-heading text-base font-bold text-slate mb-3">Send Announcement</h3>
             <form onSubmit={handleSend} className="flex flex-col gap-3">
               <textarea
                 value={announcement}
@@ -180,9 +161,7 @@ function HubDashboardContent() {
                 <Send size={14} className="mr-1" /> Send to Members
               </Button>
               {sent && (
-                <p className="text-xs font-heading font-semibold text-success">
-                  Announcement sent!
-                </p>
+                <p className="text-xs font-heading font-semibold text-success">Announcement sent!</p>
               )}
             </form>
           </div>

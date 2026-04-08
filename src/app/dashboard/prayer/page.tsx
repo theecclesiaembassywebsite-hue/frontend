@@ -6,19 +6,15 @@ import { useEffect, useState } from "react";
 import { prayer } from "@/lib/api";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
-import type { Prayer } from "@/lib/api";
 
 const statusColors: Record<string, { bg: string; text: string; label: string }> = {
-  pending: { bg: "bg-warning/10", text: "text-warning", label: "Pending" },
-  approved: { bg: "bg-info/10", text: "text-info", label: "Being Prayed For" },
-  rejected: { bg: "bg-error/10", text: "text-error", label: "Received" },
   RECEIVED: { bg: "bg-warning/10", text: "text-warning", label: "Received" },
   BEING_PRAYED_FOR: { bg: "bg-info/10", text: "text-info", label: "Being Prayed For" },
   ANSWERED: { bg: "bg-success/10", text: "text-success", label: "Answered" },
 };
 
 function PrayerTrackingContent() {
-  const [requests, setRequests] = useState<Prayer[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +44,7 @@ function PrayerTrackingContent() {
             <div className="h-5 w-5 rounded bg-gray-border animate-pulse" />
             <div className="h-8 w-48 rounded bg-gray-border animate-pulse" />
           </div>
-          <SkeletonGroup count={4} variant="card" className="space-y-4" />
+          <SkeletonGroup count={4} variant="card" />
         </div>
       </div>
     );
@@ -61,9 +57,7 @@ function PrayerTrackingContent() {
           <Link href="/dashboard" className="text-gray-text hover:text-purple transition-colors">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="font-heading text-2xl font-bold text-slate">
-            My Prayer Requests
-          </h1>
+          <h1 className="font-heading text-2xl font-bold text-slate">My Prayer Requests</h1>
         </div>
 
         {error ? (
@@ -73,11 +67,14 @@ function PrayerTrackingContent() {
         ) : requests.length === 0 ? (
           <div className="rounded-[8px] border border-gray-border bg-white p-12 text-center shadow-sm">
             <p className="font-body text-base text-gray-text">No prayer requests yet.</p>
+            <Link href="/prayer" className="mt-3 inline-block text-purple-vivid hover:underline text-sm">
+              Submit a Prayer Request
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
-            {requests.map((r) => {
-              const status = statusColors[r.status] || statusColors.pending;
+            {requests.map((r: any) => {
+              const status = statusColors[r.status] || statusColors.RECEIVED;
               return (
                 <div
                   key={r.id}
@@ -86,10 +83,10 @@ function PrayerTrackingContent() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <h3 className="font-heading text-base font-bold text-slate mb-1">
-                        {r.title}
+                        {r.name || "Prayer Request"}
                       </h3>
                       <p className="font-body text-sm text-slate leading-relaxed">
-                        {r.description}
+                        {r.request}
                       </p>
                       <p className="mt-2 font-body text-xs text-gray-text">
                         {new Date(r.createdAt).toLocaleDateString()}

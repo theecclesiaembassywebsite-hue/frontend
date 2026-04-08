@@ -218,6 +218,9 @@ export const profile = {
   getProfile: (userId: string) =>
     fetchAPI<User>(`/profile/${userId}`),
 
+  getMyProfile: () =>
+    fetchAPI<any>("/profile"),
+
   updateProfile: (data: {
     firstName?: string;
     lastName?: string;
