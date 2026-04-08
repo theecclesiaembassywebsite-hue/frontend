@@ -62,15 +62,16 @@ function AdminGivingContent() {
     );
   }
 
-  const summaryData = analytics || {
-    totalMonth: "0",
-    paystack: "0",
-    paypal: "0",
-    tithes: "0",
-    offerings: "0",
-    seeds: "0",
-    projects: "0",
-  };
+  const fmt = (n: number) => `₦${(n || 0).toLocaleString()}`;
+
+  const totalAmount = analytics?.total?.amount || 0;
+  const paystackTotal = analytics?.paystackTotal || 0;
+  const paypalTotal = analytics?.paypalTotal || 0;
+
+  const categoryMap: Record<string, number> = {};
+  (analytics?.byCategory || []).forEach((c: any) => {
+    categoryMap[c.category] = c._sum?.amount || 0;
+  });
 
   return (
     <div className="p-6 md:p-8">
@@ -95,30 +96,30 @@ function AdminGivingContent() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-8">
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
-          <p className="text-[11px] text-gray-text">Total (Month)</p>
-          <p className="font-heading text-xl font-bold text-slate">{summaryData.totalMonth}</p>
+          <p className="text-[11px] text-gray-text">Total</p>
+          <p className="font-heading text-xl font-bold text-slate">{fmt(totalAmount)}</p>
         </div>
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">Paystack</p>
-          <p className="font-heading text-xl font-bold text-purple">{summaryData.paystack}</p>
+          <p className="font-heading text-xl font-bold text-purple">{fmt(paystackTotal)}</p>
         </div>
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">PayPal</p>
-          <p className="font-heading text-xl font-bold text-info">{summaryData.paypal}</p>
+          <p className="font-heading text-xl font-bold text-info">{fmt(paypalTotal)}</p>
         </div>
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">Tithes</p>
-          <p className="font-heading text-xl font-bold text-success">{summaryData.tithes}</p>
+          <p className="font-heading text-xl font-bold text-success">{fmt(categoryMap["TITHE"] || 0)}</p>
         </div>
       </div>
 
       {/* By Category */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-8">
         {[
-          { label: "Offerings", value: summaryData.offerings },
-          { label: "Sow a Seed", value: summaryData.seeds },
-          { label: "Project Giving", value: summaryData.projects },
-          { label: "Special", value: "0" },
+          { label: "Offerings", value: fmt(categoryMap["OFFERING"] || 0) },
+          { label: "Sow a Seed", value: fmt(categoryMap["SOW_A_SEED"] || 0) },
+          { label: "Project Giving", value: fmt(categoryMap["PROJECT_GIVING"] || 0) },
+          { label: "Special Offering", value: fmt(categoryMap["SPECIAL_OFFERING"] || 0) },
         ].map((c) => (
           <div key={c.label} className="rounded-[8px] bg-white border border-gray-border p-3 shadow-sm">
             <p className="text-[10px] text-gray-text">{c.label}</p>
@@ -127,31 +128,23 @@ function AdminGivingContent() {
         ))}
       </div>
 
-      {/* Transaction Table */}
-      <h2 className="font-heading text-lg font-bold text-slate mb-3">Recent Transactions</h2>
-      <div className="overflow-x-auto rounded-[8px] border border-gray-border bg-white shadow-sm">
-        <table className="w-full min-w-[650px]">
+      {/* By Payment Method */}
+      <h2 className="font-heading text-lg font-bold text-slate mb-3">By Payment Method</h2>
+      <div className="overflow-x-auto rounded-[8px] border border-gray-border bg-white shadow-sm mb-8">
+        <table className="w-full min-w-[400px]">
           <thead>
             <tr className="border-b border-gray-border bg-off-white">
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Date</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Name</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Amount</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Category</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Method</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Transactions</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-border">
-            {(analytics?.transactions || []).map((t: any) => (
-              <tr key={t.id} className="hover:bg-off-white/50">
-                <td className="px-4 py-3 font-body text-sm text-slate">{t.date}</td>
-                <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{t.name}</td>
-                <td className="px-4 py-3 font-heading text-sm font-bold text-slate">{t.amount}</td>
-                <td className="px-4 py-3 font-body text-sm text-gray-text">{t.category}</td>
-                <td className="px-4 py-3 font-body text-sm text-gray-text">{t.method}</td>
-                <td className="px-4 py-3">
-                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-heading font-semibold text-success">{t.status}</span>
-                </td>
+            {(analytics?.byMethod || []).map((m: any) => (
+              <tr key={m.paymentMethod} className="hover:bg-off-white/50">
+                <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{m.paymentMethod?.replace(/_/g, " ")}</td>
+                <td className="px-4 py-3 font-body text-sm text-gray-text">{m._count}</td>
+                <td className="px-4 py-3 font-heading text-sm font-bold text-slate">{fmt(m._sum?.amount || 0)}</td>
               </tr>
             ))}
           </tbody>

@@ -28,11 +28,6 @@ export default function TestimoniesPage() {
       return
     }
 
-    if (!agreeToShare) {
-      error('Please agree to share your testimony publicly.')
-      return
-    }
-
     setLoading(true)
 
     try {
@@ -40,6 +35,7 @@ export default function TestimoniesPage() {
       await testimonies.submitTestimony({
         title: formData.get('title') as string,
         content: formData.get('testimony') as string,
+        isPublic: agreeToShare,
       })
       success('Your testimony has been received.')
       setSubmitted(true)
@@ -158,7 +154,7 @@ export default function TestimoniesPage() {
                   </div>
                   <Checkbox
                     id="agreeToShare"
-                    label="I agree to share publicly"
+                    label="Share my testimony publicly (optional)"
                     checked={agreeToShare}
                     onChange={() => setAgreeToShare(!agreeToShare)}
                   />

@@ -147,9 +147,15 @@ export default function IntentionalityClassPage() {
                 <h3 className="text-2xl font-heading font-bold text-[#241A42] mb-2">
                   Thank you for enrolling!
                 </h3>
-                <p className="text-[#8A8A8E] font-body">
-                  We'll be in touch soon with more details about the Intentionality Class.
+                <p className="text-[#8A8A8E] font-body mb-6">
+                  You can now access your course materials from your dashboard.
                 </p>
+                <Link
+                  href="/dashboard/class"
+                  className="inline-block bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 px-6 rounded-lg transition-colors"
+                >
+                  Go to My Courses
+                </Link>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">

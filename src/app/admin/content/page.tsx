@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Search, Plus, Pencil, Trash2, BookOpen } from "lucide-react";
+import { Search, Plus, Trash2, BookOpen } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { blog, announcements } from "@/lib/api";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
@@ -53,12 +53,12 @@ function AdminContentContent() {
       try {
         const [blogPosts, announcementsList] = await Promise.all([
           blog.getPosts(50, 0),
-          announcements.getAnnouncements(),
+          announcements.getAll(),
         ]);
 
         const items = [
-          ...blogPosts.map((p: any) => ({ ...p, type: "BLOG", status: "PUBLISHED" })),
-          ...announcementsList.map((a: any) => ({ ...a, type: "ANNOUNCEMENT", status: "PUBLISHED" })),
+          ...blogPosts.map((p: any) => ({ ...p, type: "BLOG", status: p.status || "PUBLISHED" })),
+          ...announcementsList.map((a: any) => ({ ...a, type: "ANNOUNCEMENT", status: a.published ? "PUBLISHED" : "DRAFT" })),
         ];
         setContentItems(items);
         setFilteredContent(items);
@@ -181,10 +181,21 @@ function AdminContentContent() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <button className="rounded-[4px] p-1.5 text-purple-vivid hover:bg-purple/10 transition-colors" title="Edit">
-                      <Pencil size={14} />
-                    </button>
-                    <button className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors" title="Delete">
+                    <button
+                      className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
+                      title="Delete"
+                      onClick={async () => {
+                        if (c.type !== "ANNOUNCEMENT") return;
+                        try {
+                          await announcements.deleteAnnouncement(c.id);
+                          setContentItems(contentItems.filter((item) => item.id !== c.id));
+                          success("Content deleted");
+                        } catch (err) {
+                          error("Failed to delete content");
+                        }
+                      }}
+                      disabled={c.type !== "ANNOUNCEMENT"}
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>

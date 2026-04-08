@@ -76,6 +76,11 @@ export default function DashboardPage() {
       icon: User,
     },
     {
+      label: 'My Courses',
+      href: '/dashboard/class',
+      icon: BookOpen,
+    },
+    {
       label: 'My Giving History',
       href: '/dashboard/giving',
       icon: Gift,

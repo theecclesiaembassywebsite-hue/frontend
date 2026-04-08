@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Music, Video, BookOpen, Headphones } from "lucide-react";
+import { Plus, Music, Video, BookOpen, Headphones, Trash2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { media, upload } from "@/lib/api";
@@ -25,6 +25,9 @@ function AdminResourcesContent() {
     url: "",
     description: "",
   });
+  const [editingResource, setEditingResource] = useState<any | null>(null);
+  const [editFormData, setEditFormData] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -105,6 +108,108 @@ function AdminResourcesContent() {
     }
   };
 
+  const openEditModal = (resource: any) => {
+    setEditingResource(resource);
+    switch (activeTab) {
+      case "video":
+        setEditFormData({
+          title: resource.title || "",
+          youtubeUrl: resource.youtubeUrl || "",
+          series: resource.series || "",
+          description: resource.description || "",
+        });
+        break;
+      case "audio":
+        setEditFormData({
+          title: resource.title || "",
+          speaker: resource.speaker || "",
+          audioUrl: resource.audioUrl || "",
+          description: resource.description || "",
+        });
+        break;
+      case "library":
+        setEditFormData({
+          title: resource.title || "",
+          author: resource.author || "",
+          fileUrl: resource.fileUrl || "",
+          type: resource.type || "BOOK",
+          description: resource.description || "",
+        });
+        break;
+      case "music":
+        setEditFormData({
+          title: resource.title || "",
+          audioUrl: resource.audioUrl || "",
+          album: resource.album || "",
+        });
+        break;
+    }
+  };
+
+  const handleUpdateResource = async () => {
+    if (!editingResource) return;
+    try {
+      let updated: any;
+      switch (activeTab) {
+        case "video":
+          updated = await media.updateVideoMessage(editingResource.id, editFormData);
+          setVideoMessages(videoMessages.map((r) => (r.id === editingResource.id ? updated : r)));
+          break;
+        case "audio":
+          updated = await media.updateAudioSermon(editingResource.id, editFormData);
+          setAudioSermons(audioSermons.map((r) => (r.id === editingResource.id ? updated : r)));
+          break;
+        case "library":
+          updated = await media.updateLibraryResource(editingResource.id, editFormData);
+          setLibraryResources(libraryResources.map((r) => (r.id === editingResource.id ? updated : r)));
+          break;
+        case "music":
+          updated = await media.updateMusicTrack(editingResource.id, editFormData);
+          setMusicTracks(musicTracks.map((r) => (r.id === editingResource.id ? updated : r)));
+          break;
+      }
+      setEditingResource(null);
+      setEditFormData({});
+      success("Resource updated successfully");
+    } catch (err) {
+      error("Failed to update resource");
+      console.error(err);
+    }
+  };
+
+  const handleDeleteResource = async (resourceId: string) => {
+    if (!window.confirm("Are you sure you want to delete this resource? This action cannot be undone.")) {
+      return;
+    }
+    setDeletingId(resourceId);
+    try {
+      switch (activeTab) {
+        case "video":
+          await media.deleteVideoMessage(resourceId);
+          setVideoMessages(videoMessages.filter((r) => r.id !== resourceId));
+          break;
+        case "audio":
+          await media.deleteAudioSermon(resourceId);
+          setAudioSermons(audioSermons.filter((r) => r.id !== resourceId));
+          break;
+        case "library":
+          await media.deleteLibraryResource(resourceId);
+          setLibraryResources(libraryResources.filter((r) => r.id !== resourceId));
+          break;
+        case "music":
+          await media.deleteMusicTrack(resourceId);
+          setMusicTracks(musicTracks.filter((r) => r.id !== resourceId));
+          break;
+      }
+      success("Resource deleted successfully");
+    } catch (err) {
+      error("Failed to delete resource");
+      console.error(err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 md:p-8">
@@ -137,8 +242,21 @@ function AdminResourcesContent() {
                   {new Date(resource.createdAt || Date.now()).toLocaleDateString()}
                 </td>
               )}
-              <td className="px-4 py-3">
-                <button className="text-xs font-heading font-semibold text-purple-vivid hover:underline">Edit</button>
+              <td className="px-4 py-3 flex items-center gap-2">
+                <button
+                  className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                  onClick={() => openEditModal(resource)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-xs font-heading font-semibold text-red-600 hover:underline flex items-center gap-1"
+                  onClick={() => handleDeleteResource(resource.id)}
+                  disabled={deletingId === resource.id}
+                >
+                  <Trash2 size={12} />
+                  {deletingId === resource.id ? "Deleting..." : "Delete"}
+                </button>
               </td>
             </tr>
           ))}
@@ -246,6 +364,144 @@ function AdminResourcesContent() {
           )}
         </div>
       )}
+
+      {/* Edit Resource Modal */}
+      <Modal isOpen={!!editingResource} onClose={() => setEditingResource(null)} title="Edit Resource">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Title *</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Resource title"
+              value={editFormData.title || ""}
+              onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+            />
+          </div>
+
+          {activeTab === "video" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">YouTube URL *</label>
+              <input
+                type="url"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="https://youtube.com/watch?v=..."
+                value={editFormData.youtubeUrl || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, youtubeUrl: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "video" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Series</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="Series name"
+                value={editFormData.series || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, series: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "audio" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Speaker</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="Speaker name"
+                value={editFormData.speaker || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, speaker: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "audio" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Audio URL</label>
+              <input
+                type="url"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="https://..."
+                value={editFormData.audioUrl || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, audioUrl: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "library" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Author</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="Author name"
+                value={editFormData.author || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, author: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "library" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">File URL</label>
+              <input
+                type="url"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="https://..."
+                value={editFormData.fileUrl || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, fileUrl: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "music" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Audio URL</label>
+              <input
+                type="url"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="https://..."
+                value={editFormData.audioUrl || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, audioUrl: e.target.value })}
+              />
+            </div>
+          )}
+
+          {activeTab === "music" && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Album</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="Album name"
+                value={editFormData.album || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, album: e.target.value })}
+              />
+            </div>
+          )}
+
+          {(activeTab === "audio" || activeTab === "video" || activeTab === "library") && (
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Description</label>
+              <textarea
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="Add a description..."
+                rows={3}
+                value={editFormData.description || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+              />
+            </div>
+          )}
+
+          <div className="flex gap-2 pt-4">
+            <Button variant="primary" className="flex-1" onClick={handleUpdateResource}>Save Changes</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setEditingResource(null)}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Create Resource Modal */}
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Add New Resource">

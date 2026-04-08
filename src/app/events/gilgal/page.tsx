@@ -9,7 +9,6 @@ import { events as eventsAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 
 const EVENT_ID = "gilgal";
-const RETREAT_FEE = 25000;
 
 export default function GilgalPage() {
   const [registered, setRegistered] = useState(false);
@@ -43,8 +42,8 @@ export default function GilgalPage() {
 
       <SectionWrapper variant="dark-purple">
         <div className="mx-auto max-w-md text-center">
-          <h2 className="font-heading text-[28px] font-bold text-white mb-2">Register & Pay</h2>
-          <p className="font-body text-sm text-white/60 mb-6">Registration includes accommodation and meals.</p>
+          <h2 className="font-heading text-[28px] font-bold text-white mb-2">Register</h2>
+          <p className="font-body text-sm text-white/60 mb-6">Registration is free and includes accommodation and meals.</p>
           {registered ? (
             <div className="rounded-[8px] bg-white/10 p-8">
               <Check className="mx-auto h-10 w-10 text-success mb-3" />
@@ -56,9 +55,9 @@ export default function GilgalPage() {
               e.preventDefault();
               setLoading(true);
               try {
-                await eventsAPI.registerAndPay(EVENT_ID, formData);
+                await eventsAPI.registerForEvent(EVENT_ID, formData);
                 setRegistered(true);
-                success("Registration and payment initiated!");
+                success("Registration successful!");
               } catch (err) {
                 error(err instanceof Error ? err.message : "Registration failed");
               } finally {
@@ -88,15 +87,9 @@ export default function GilgalPage() {
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
               />
-              <div className="rounded-[8px] bg-white/10 p-4 text-left">
-                <p className="font-heading text-sm font-bold text-white">Retreat Fee</p>
-                <p className="font-heading text-2xl font-bold text-white mt-1">&#8358;{RETREAT_FEE.toLocaleString()}</p>
-                <p className="text-[11px] text-white/50">Includes accommodation & meals</p>
-              </div>
               <Button type="submit" variant="giving" className="w-full" disabled={loading}>
-                {loading ? "Processing..." : "Register & Pay with Paystack"}
+                {loading ? "Registering..." : "Register for Gilgal"}
               </Button>
-              <p className="text-[11px] text-white/40">PayPal option available for international registrants</p>
             </form>
           )}
         </div>

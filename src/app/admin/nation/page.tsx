@@ -64,7 +64,8 @@ function AdminNationContent() {
   useEffect(() => {
     const filtered = flaggedPosts.filter((c) => {
       const matchesSearch = !search || c.content.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = !statusFilter || c.status === statusFilter;
+      const derivedStatus = c.hidden ? "ACTIONED" : "PENDING";
+      const matchesStatus = !statusFilter || derivedStatus === statusFilter;
       return matchesSearch && matchesStatus;
     });
     setFilteredPosts(filtered);
@@ -105,7 +106,7 @@ function AdminNationContent() {
     );
   }
 
-  const pendingCount = flaggedPosts.filter((p) => p.status === "PENDING").length;
+  const pendingCount = flaggedPosts.filter((p) => !p.hidden).length;
   const totalFlags = flaggedPosts.length;
 
   return (
@@ -157,11 +158,12 @@ function AdminNationContent() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="font-heading text-sm font-semibold text-slate">Post by User</span>
-                  <span className="rounded-full bg-slate/10 px-2 py-0.5 text-[10px] font-heading font-semibold text-slate">Post</span>
-                  <span className="text-[10px] text-gray-text">
-                    <Flag size={10} className="inline mr-0.5" />{item.likes || 0} flags
+                  <span className="font-heading text-sm font-semibold text-slate">
+                    Post by {item.author?.profile?.firstName ? `${item.author.profile.firstName} ${item.author.profile.lastName || ""}`.trim() : item.author?.email || "Unknown"}
                   </span>
+                  {item.hidden && (
+                    <span className="rounded-full bg-error/10 px-2 py-0.5 text-[10px] font-heading font-semibold text-error">Hidden</span>
+                  )}
                 </div>
                 <p className="font-body text-sm text-gray-text mb-1">{item.content.substring(0, 150)}...</p>
                 <p className="text-[10px] text-gray-text">{new Date(item.createdAt || Date.now()).toLocaleDateString()}</p>

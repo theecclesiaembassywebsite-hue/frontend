@@ -1,20 +1,7 @@
-"use client";
-
 import SectionWrapper from "@/components/ui/SectionWrapper";
-import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
-import { useState } from "react";
-import { Calendar, MapPin, Mic, Check } from "lucide-react";
-import { events as eventsAPI } from "@/lib/api";
-import { useToast } from "@/components/ui/Toast";
-
-const EVENT_ID = "feast-of-tabernacles";
+import { Calendar, MapPin, Mic } from "lucide-react";
 
 export default function FeastOfTabernaclesPage() {
-  const [registered, setRegistered] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
-  const { success, error } = useToast();
 
   return (
     <>
@@ -70,59 +57,13 @@ export default function FeastOfTabernaclesPage() {
 
       <SectionWrapper variant="dark-purple">
         <div className="mx-auto max-w-md text-center">
-          <h2 className="font-heading text-[28px] font-bold text-white mb-6">Register Now</h2>
-          {registered ? (
-            <div className="rounded-[8px] bg-white/10 p-8">
-              <Check className="mx-auto h-10 w-10 text-success mb-3" />
-              <h3 className="font-heading text-lg font-bold text-white">Registered!</h3>
-              <p className="mt-2 font-body text-sm text-white/70">A confirmation email has been sent.</p>
-            </div>
-          ) : (
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              setLoading(true);
-              try {
-                await eventsAPI.registerForEvent(EVENT_ID, {
-                  name: formData.name,
-                  email: formData.email,
-                  phone: formData.phone,
-                });
-                setRegistered(true);
-                success("Registration successful!");
-              } catch (err) {
-                error(err instanceof Error ? err.message : "Registration failed");
-              } finally {
-                setLoading(false);
-              }
-            }} className="flex flex-col gap-4">
-              <Input
-                id="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-              <Input
-                id="email"
-                type="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
-              <Button type="submit" variant="giving" className="w-full" disabled={loading}>
-                {loading ? "Registering..." : "Register for Feast of Tabernacles"}
-              </Button>
-            </form>
-          )}
+          <h2 className="font-heading text-[28px] font-bold text-white mb-4">Join Us</h2>
+          <p className="font-body text-sm text-white/70 mb-4">
+            The Feast of Tabernacles is open to all. No registration required — simply come and be part of this glorious celebration.
+          </p>
+          <p className="font-body text-sm text-white/70">
+            For more information, contact us at <a href="/contact" className="text-purple-light hover:underline">our contact page</a>.
+          </p>
         </div>
       </SectionWrapper>
     </>

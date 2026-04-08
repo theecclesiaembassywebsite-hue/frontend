@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { prayer } from "@/lib/api";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -32,6 +33,7 @@ function AdminPrayerContent() {
   const [editingNote, setEditingNote] = useState<string | null>(null);
   const [noteText, setNoteText] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [viewingRequest, setViewingRequest] = useState<any | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -53,7 +55,8 @@ function AdminPrayerContent() {
 
   useEffect(() => {
     const filtered = requests.filter((r) => {
-      const matchesSearch = !search || r.title.toLowerCase().includes(search.toLowerCase());
+      const searchText = (r.name || r.title || "").toLowerCase() + " " + (r.request || r.description || "").toLowerCase();
+      const matchesSearch = !search || searchText.includes(search.toLowerCase());
       const matchesStatus = !statusFilter || r.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -142,14 +145,17 @@ function AdminPrayerContent() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="font-heading text-sm font-semibold text-slate">{r.title}</span>
+                  <span className="font-heading text-sm font-semibold text-slate">{r.name}</span>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-heading font-semibold ${statusBadge[r.status]}`}>
                     {statusOptions.find((s) => s.value === r.status)?.label || r.status}
                   </span>
                 </div>
-                <p className="font-body text-sm text-gray-text mb-1">{r.description}</p>
+                <p className="font-body text-sm text-gray-text mb-1">{r.request}</p>
                 <div className="flex items-center gap-3 text-[10px] text-gray-text">
+                  <span>{r.email}</span>
+                  <span>&middot;</span>
                   <span>{new Date(r.createdAt || Date.now()).toLocaleDateString()}</span>
+                  {r.isPublic && <span className="rounded-full bg-info/10 text-info px-1.5 py-0.5">Public</span>}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0 flex-wrap">
@@ -163,7 +169,10 @@ function AdminPrayerContent() {
                   <option value="BEING_PRAYED_FOR">Praying</option>
                   <option value="ANSWERED">Answered</option>
                 </select>
-                <button className="inline-flex items-center gap-1 rounded-[4px] border border-gray-border bg-off-white px-3 py-1.5 text-[11px] font-heading font-semibold text-slate hover:bg-gray-border/30 transition-colors">
+                <button
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-gray-border bg-off-white px-3 py-1.5 text-[11px] font-heading font-semibold text-slate hover:bg-gray-border/30 transition-colors"
+                  onClick={() => setViewingRequest(r)}
+                >
                   <Eye size={12} /> View
                 </button>
               </div>
@@ -172,6 +181,45 @@ function AdminPrayerContent() {
         ))}
       </div>
       <p className="mt-3 text-body-small">{filteredRequests.length} request{filteredRequests.length !== 1 ? "s" : ""}</p>
+
+      {/* View Prayer Request Modal */}
+      <Modal isOpen={!!viewingRequest} onClose={() => setViewingRequest(null)} title="Prayer Request Details">
+        {viewingRequest && (
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Name</p>
+              <p className="font-body text-sm text-gray-text">{viewingRequest.name}</p>
+            </div>
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Email</p>
+              <p className="font-body text-sm text-gray-text">{viewingRequest.email}</p>
+            </div>
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Prayer Request</p>
+              <p className="font-body text-sm text-gray-text whitespace-pre-wrap">{viewingRequest.request}</p>
+            </div>
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Status</p>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-heading font-semibold ${statusBadge[viewingRequest.status]}`}>
+                {statusOptions.find((s) => s.value === viewingRequest.status)?.label || viewingRequest.status}
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Admin Notes</p>
+              <p className="font-body text-sm text-gray-text">{viewingRequest.adminNotes || "No notes yet"}</p>
+            </div>
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Submitted</p>
+              <p className="font-body text-sm text-gray-text">{new Date(viewingRequest.createdAt || Date.now()).toLocaleString()}</p>
+            </div>
+            {viewingRequest.isPublic && (
+              <div>
+                <span className="rounded-full bg-info/10 text-info px-2 py-0.5 text-[10px] font-heading font-semibold">Public Request</span>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

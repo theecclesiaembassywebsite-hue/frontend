@@ -1,22 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronRight } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
-import Link from "next/link";
 import { announcements as announcementsAPI } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { FadeIn, StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/Motion";
 
 interface Announcement {
   id: string;
-  date: string;
   title: string;
-  excerpt: string;
-  slug?: string;
-  createdAt?: string;
-  content?: string;
-  description?: string;
+  content: string;
+  imageUrl?: string;
+  published: boolean;
+  publishDate?: string;
+  createdAt: string;
 }
 
 export default function Announcements() {
@@ -43,23 +40,17 @@ export default function Announcements() {
   }, []);
 
   const formatDate = (announcement: Announcement) => {
-    if (announcement.date) return announcement.date;
-    if (announcement.createdAt) {
-      return new Date(announcement.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
-    }
-    return "";
+    const dateStr = announcement.publishDate || announcement.createdAt;
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const getExcerpt = (announcement: Announcement) => {
-    return announcement.excerpt || announcement.content?.substring(0, 150) || announcement.description || "";
-  };
-
-  const getSlug = (announcement: Announcement) => {
-    return announcement.slug || announcement.id;
+    return announcement.content?.substring(0, 150) || "";
   };
 
   return (
@@ -107,19 +98,10 @@ export default function Announcements() {
                         {announcement.title}
                       </h3>
 
-                      {/* Excerpt */}
-                      <p className="mt-2 flex-grow line-clamp-3 font-body text-sm text-gray-text leading-relaxed">
+                      {/* Content */}
+                      <p className="mt-2 flex-grow line-clamp-4 font-body text-sm text-gray-text leading-relaxed">
                         {getExcerpt(announcement)}
                       </p>
-
-                      {/* Read More Link */}
-                      <Link
-                        href={`/announcements/${getSlug(announcement)}`}
-                        className="mt-4 inline-flex items-center gap-1 font-semibold text-purple-vivid transition-colors hover:text-purple"
-                      >
-                        Read More
-                        <ChevronRight size={18} />
-                      </Link>
                     </div>
                   </HoverLift>
                 </StaggerItem>

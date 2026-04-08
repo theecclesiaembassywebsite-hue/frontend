@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Search, MapPin, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Search, MapPin, CheckCircle, XCircle, Clock, Plus } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { cith } from "@/lib/api";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
@@ -40,6 +40,18 @@ function AdminCITHContent() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectingApp, setRejectingApp] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [hubFormData, setHubFormData] = useState({
+    name: "",
+    leaderId: "",
+    area: "",
+    city: "",
+    state: "",
+    meetingDay: "",
+    meetingTime: "",
+    capacity: "",
+  });
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -65,7 +77,8 @@ function AdminCITHContent() {
 
   useEffect(() => {
     const filtered = hubs.filter((h) => {
-      const matchesSearch = !search || h.name.toLowerCase().includes(search.toLowerCase()) || (h.leader?.name || "").toLowerCase().includes(search.toLowerCase());
+      const leaderName = [h.leader?.profile?.firstName, h.leader?.profile?.lastName].filter(Boolean).join(' ');
+      const matchesSearch = !search || h.name.toLowerCase().includes(search.toLowerCase()) || leaderName.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = !statusFilter || h.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -102,6 +115,35 @@ function AdminCITHContent() {
     }
   };
 
+  const handleCreateHub = async () => {
+    try {
+      setCreating(true);
+      const payload = {
+        ...hubFormData,
+        capacity: hubFormData.capacity ? Number(hubFormData.capacity) : undefined,
+      };
+      const newHub = await cith.createHub(payload);
+      setHubs([newHub, ...hubs]);
+      success("Hub created successfully");
+      setShowCreateModal(false);
+      setHubFormData({
+        name: "",
+        leaderId: "",
+        area: "",
+        city: "",
+        state: "",
+        meetingDay: "",
+        meetingTime: "",
+        capacity: "",
+      });
+    } catch (err) {
+      error("Failed to create hub");
+      console.error(err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 md:p-8">
@@ -111,11 +153,16 @@ function AdminCITHContent() {
     );
   }
 
-  const totalMembers = hubs.reduce((sum, h) => sum + (h.memberCount || 0), 0);
+  const totalMembers = hubs.reduce((sum, h) => sum + (h._count?.members || 0), 0);
 
   return (
     <div className="p-6 md:p-8">
-      <h1 className="font-heading text-2xl font-bold text-slate mb-1">CITH Hub Management</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="font-heading text-2xl font-bold text-slate">CITH Hub Management</h1>
+        <Button variant="primary" className="text-sm" onClick={() => setShowCreateModal(true)}>
+          <Plus size={16} className="mr-1" /> Create Hub
+        </Button>
+      </div>
       <p className="text-body-small mb-6">Church In The House hub oversight and applications</p>
 
       {/* Summary Cards */}
@@ -174,9 +221,9 @@ function AdminCITHContent() {
                       <span className="font-heading text-sm font-semibold text-slate">{h.name}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-body text-sm text-gray-text">{h.leader?.name || h.leader || "Unassigned"}</td>
-                  <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{h.memberCount || 0}</td>
-                  <td className="px-4 py-3 font-body text-sm text-gray-text">{h.location}</td>
+                  <td className="px-4 py-3 font-body text-sm text-gray-text">{h.leader ? [h.leader.profile?.firstName, h.leader.profile?.lastName].filter(Boolean).join(' ') : "Unassigned"}</td>
+                  <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{h._count?.members || 0}</td>
+                  <td className="px-4 py-3 font-body text-sm text-gray-text">{[h.area, h.city].filter(Boolean).join(', ')}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${statusBadge[h.status]}`}>
                       <StatusIcon size={10} /> {h.status}
@@ -200,13 +247,13 @@ function AdminCITHContent() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-heading text-sm font-semibold text-slate">{app.name}</span>
+                  <span className="font-heading text-sm font-semibold text-slate">{[app.applicant?.profile?.firstName, app.applicant?.profile?.lastName].filter(Boolean).join(' ') || app.applicant?.email || "Unknown"}</span>
                   <span className="rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-heading font-semibold text-warning">Pending</span>
                 </div>
                 <p className="font-body text-sm text-gray-text mb-1">
-                  <MapPin size={12} className="inline mr-1" />{app.location} &middot; Applied {new Date(app.createdAt || Date.now()).toLocaleDateString()}
+                  <MapPin size={12} className="inline mr-1" />{app.hub?.name || "Unknown Hub"} &middot; Applied {new Date(app.createdAt || Date.now()).toLocaleDateString()}
                 </p>
-                <p className="font-body text-sm text-slate">{app.email}</p>
+                <p className="font-body text-sm text-slate">{app.applicant?.email}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Button
@@ -256,6 +303,120 @@ function AdminCITHContent() {
               onClick={() => rejectingApp && handleRejectApplication(rejectingApp)}
             >
               Reject Application
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Create Hub Modal */}
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Hub">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Hub Name</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Hub name"
+              value={hubFormData.name}
+              onChange={(e) => setHubFormData({ ...hubFormData, name: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Leader ID</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Enter user ID"
+              value={hubFormData.leaderId}
+              onChange={(e) => setHubFormData({ ...hubFormData, leaderId: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Area</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Area"
+              value={hubFormData.area}
+              onChange={(e) => setHubFormData({ ...hubFormData, area: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">City</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="City"
+                value={hubFormData.city}
+                onChange={(e) => setHubFormData({ ...hubFormData, city: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">State</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="State"
+                value={hubFormData.state}
+                onChange={(e) => setHubFormData({ ...hubFormData, state: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Meeting Day</label>
+              <select
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                value={hubFormData.meetingDay}
+                onChange={(e) => setHubFormData({ ...hubFormData, meetingDay: e.target.value })}
+              >
+                <option value="">Select day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Meeting Time</label>
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="e.g. 6:00 PM"
+                value={hubFormData.meetingTime}
+                onChange={(e) => setHubFormData({ ...hubFormData, meetingTime: e.target.value })}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Capacity <span className="text-gray-text font-normal">(optional)</span></label>
+            <input
+              type="number"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Max members"
+              value={hubFormData.capacity}
+              onChange={(e) => setHubFormData({ ...hubFormData, capacity: e.target.value })}
+            />
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setShowCreateModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              className="flex-1"
+              onClick={handleCreateHub}
+              disabled={creating || !hubFormData.name}
+            >
+              {creating ? "Creating..." : "Create Hub"}
             </Button>
           </div>
         </div>

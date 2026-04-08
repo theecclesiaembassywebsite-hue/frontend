@@ -93,10 +93,10 @@ function AdminTestimoniesContent() {
                 <div className="flex-1">
                   <h3 className="font-heading text-sm font-semibold text-slate mb-1">{t.title}</h3>
                   <p className="font-body text-sm text-gray-text mb-2">{t.content}</p>
-                  {t.videoUrl && (
+                  {t.photoUrl && (
                     <div className="mb-2">
-                      <a href={t.videoUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] font-heading font-semibold text-purple-vivid hover:underline">
-                        Watch Video
+                      <a href={t.photoUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] font-heading font-semibold text-purple-vivid hover:underline">
+                        View Photo
                       </a>
                     </div>
                   )}

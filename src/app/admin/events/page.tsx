@@ -26,6 +26,14 @@ const statusBadge: Record<string, string> = {
   CANCELLED: "bg-error/10 text-error",
 };
 
+function deriveStatus(dateStr: string): string {
+  if (!dateStr) return "UPCOMING";
+  const eventDate = new Date(dateStr);
+  const now = new Date();
+  if (eventDate.toDateString() === now.toDateString()) return "ONGOING";
+  return eventDate < now ? "COMPLETED" : "UPCOMING";
+}
+
 function AdminEventsContent() {
   const [eventList, setEventList] = useState<any[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
@@ -33,6 +41,16 @@ function AdminEventsContent() {
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [viewingEvent, setViewingEvent] = useState<any>(null);
+  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+    location: "",
+    maxCapacity: "",
+  });
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -64,7 +82,7 @@ function AdminEventsContent() {
   useEffect(() => {
     const filtered = eventList.filter((e) => {
       const matchesSearch = !search || e.title.toLowerCase().includes(search.toLowerCase()) || e.location.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = !statusFilter || e.status === statusFilter;
+      const matchesStatus = !statusFilter || deriveStatus(e.date) === statusFilter;
       return matchesSearch && matchesStatus;
     });
     setFilteredEvents(filtered);
@@ -96,6 +114,26 @@ function AdminEventsContent() {
     }
   };
 
+  const handleUpdateEvent = async () => {
+    if (!editingEvent) return;
+    try {
+      const updated = await eventsAPI.updateEvent(editingEvent.id, {
+        title: editFormData.title,
+        description: editFormData.description,
+        date: editFormData.date,
+        time: editFormData.time,
+        location: editFormData.location,
+        maxCapacity: parseInt(editFormData.maxCapacity) || undefined,
+      });
+      setEventList(eventList.map((e) => (e.id === editingEvent.id ? { ...e, ...updated } : e)));
+      setEditingEvent(null);
+      success("Event updated successfully");
+    } catch (err) {
+      error("Failed to update event");
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 md:p-8">
@@ -105,8 +143,8 @@ function AdminEventsContent() {
     );
   }
 
-  const totalRegistrations = eventList.reduce((s, e) => s + (e.registered || 0), 0);
-  const upcomingCount = eventList.filter((e) => e.status === "UPCOMING").length;
+  const totalRegistrations = eventList.reduce((s, e) => s + (e._count?.registrations || 0), 0);
+  const upcomingCount = eventList.filter((e) => deriveStatus(e.date) === "UPCOMING").length;
 
   return (
     <div className="p-6 md:p-8">
@@ -148,7 +186,7 @@ function AdminEventsContent() {
             <Calendar size={16} className="text-warning" />
             <p className="text-[11px] text-gray-text">Ongoing Now</p>
           </div>
-          <p className="font-heading text-xl font-bold text-warning">{eventList.filter((e) => e.status === "ONGOING").length}</p>
+          <p className="font-heading text-xl font-bold text-warning">{eventList.filter((e) => deriveStatus(e.date) === "ONGOING").length}</p>
         </div>
       </div>
 
@@ -178,7 +216,10 @@ function AdminEventsContent() {
           </thead>
           <tbody className="divide-y divide-gray-border">
             {filteredEvents.map((e) => {
-              const fillPercent = Math.round(((e.registered || 0) / (e.capacity || 100)) * 100);
+              const registered = e._count?.registrations || 0;
+              const capacity = e.maxCapacity || 100;
+              const status = deriveStatus(e.date);
+              const fillPercent = Math.round((registered / capacity) * 100);
               return (
                 <tr key={e.id} className="hover:bg-off-white/50 transition-colors">
                   <td className="px-4 py-3">
@@ -204,20 +245,37 @@ function AdminEventsContent() {
                           style={{ width: `${Math.min(fillPercent, 100)}%` }}
                         />
                       </div>
-                      <span className="font-heading text-xs font-semibold text-slate">{e.registered || 0}/{e.capacity || 100}</span>
+                      <span className="font-heading text-xs font-semibold text-slate">{registered}/{capacity}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${statusBadge[e.status] || "bg-slate/10 text-slate"}`}>
-                      {e.status || "UPCOMING"}
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${statusBadge[status] || "bg-slate/10 text-slate"}`}>
+                      {status}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button className="rounded-[4px] p-1.5 text-purple-vivid hover:bg-purple/10 transition-colors" title="Edit">
+                      <button
+                        className="rounded-[4px] p-1.5 text-purple-vivid hover:bg-purple/10 transition-colors"
+                        title="Edit"
+                        onClick={() => {
+                          setEditingEvent(e);
+                          setEditFormData({
+                            title: e.title || "",
+                            description: e.description || "",
+                            date: e.date ? e.date.split("T")[0] : "",
+                            time: e.time || "",
+                            location: e.location || "",
+                            maxCapacity: e.maxCapacity ? String(e.maxCapacity) : "",
+                          });
+                        }}
+                      >
                         <Pencil size={14} />
                       </button>
-                      <button className="text-xs font-heading font-semibold text-purple-vivid hover:underline">View</button>
+                      <button
+                        className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                        onClick={() => setViewingEvent(e)}
+                      >View</button>
                     </div>
                   </td>
                 </tr>
@@ -227,6 +285,120 @@ function AdminEventsContent() {
         </table>
       </div>
       <p className="mt-3 text-body-small">{filteredEvents.length} event{filteredEvents.length !== 1 ? "s" : ""}</p>
+
+      {/* View Event Modal */}
+      <Modal isOpen={!!viewingEvent} onClose={() => setViewingEvent(null)} title="Event Details">
+        {viewingEvent && (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Title</p>
+              <p className="font-body text-sm text-slate">{viewingEvent.title}</p>
+            </div>
+            <div>
+              <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Description</p>
+              <p className="font-body text-sm text-slate">{viewingEvent.description || "No description"}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Date</p>
+                <p className="font-body text-sm text-slate">{viewingEvent.date ? new Date(viewingEvent.date).toLocaleDateString() : "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Time</p>
+                <p className="font-body text-sm text-slate">{viewingEvent.time || "N/A"}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Location</p>
+              <p className="font-body text-sm text-slate">{viewingEvent.location || "N/A"}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Registrations</p>
+                <p className="font-body text-sm text-slate">{viewingEvent._count?.registrations || 0} / {viewingEvent.maxCapacity || 100}</p>
+              </div>
+              <div>
+                <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Status</p>
+                <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${statusBadge[deriveStatus(viewingEvent.date)] || "bg-slate/10 text-slate"}`}>
+                  {deriveStatus(viewingEvent.date)}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="secondary" className="flex-1" onClick={() => setViewingEvent(null)}>Close</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Edit Event Modal */}
+      <Modal isOpen={!!editingEvent} onClose={() => setEditingEvent(null)} title="Edit Event">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Title</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="e.g., Easter Celebration"
+              value={editFormData.title}
+              onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Description</label>
+            <textarea
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Event details..."
+              rows={3}
+              value={editFormData.description}
+              onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Date</label>
+            <input
+              type="date"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              value={editFormData.date}
+              onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Time</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="e.g., 9:00 AM"
+              value={editFormData.time}
+              onChange={(e) => setEditFormData({ ...editFormData, time: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Location</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="e.g., Main Auditorium"
+              value={editFormData.location}
+              onChange={(e) => setEditFormData({ ...editFormData, location: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Capacity</label>
+            <input
+              type="number"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="e.g., 200"
+              value={editFormData.maxCapacity}
+              onChange={(e) => setEditFormData({ ...editFormData, maxCapacity: e.target.value })}
+            />
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button variant="primary" className="flex-1" onClick={handleUpdateEvent}>Save Changes</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setEditingEvent(null)}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Create Event Modal */}
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Event">

@@ -311,6 +311,7 @@ export const testimonies = {
     title: string;
     content: string;
     photoUrl?: string;
+    isPublic?: boolean;
   }) =>
     fetchAPI<Testimony>("/testimonies", {
       method: "POST",
@@ -435,6 +436,15 @@ export const cith = {
     }),
 
   getAdminHubs: () => fetchAPI<any[]>("/admin/cith/hubs"),
+
+  createHub: (data: {
+    name: string; leaderId: string; area: string; city: string;
+    state: string; meetingDay: string; meetingTime: string; capacity?: number;
+  }) =>
+    fetchAPI<any>("/admin/cith/hubs", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
   reassignLeader: (hubId: string, newLeaderId: string) =>
     fetchAPI<any>(`/admin/cith/hubs/${hubId}/leader`, {
@@ -718,6 +728,30 @@ export const media = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  updateVideoMessage: (id: string, data: any) =>
+    fetchAPI<any>(`/sermons/video/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+
+  deleteVideoMessage: (id: string) =>
+    fetchAPI<any>(`/sermons/video/${id}`, { method: "DELETE" }),
+
+  updateAudioSermon: (id: string, data: any) =>
+    fetchAPI<any>(`/sermons/audio/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+
+  deleteAudioSermon: (id: string) =>
+    fetchAPI<any>(`/sermons/audio/${id}`, { method: "DELETE" }),
+
+  updateLibraryResource: (id: string, data: any) =>
+    fetchAPI<any>(`/library/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+
+  deleteLibraryResource: (id: string) =>
+    fetchAPI<any>(`/library/${id}`, { method: "DELETE" }),
+
+  updateMusicTrack: (id: string, data: any) =>
+    fetchAPI<any>(`/music/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+
+  deleteMusicTrack: (id: string) =>
+    fetchAPI<any>(`/music/${id}`, { method: "DELETE" }),
 };
 
 // EVENTS ENDPOINTS
@@ -747,6 +781,9 @@ export const events = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  updateEvent: (id: string, data: any) =>
+    fetchAPI<any>(`/events/${id}`, { method: "PUT", body: JSON.stringify(data) }),
 
   getEventRegistrations: (eventId: string) =>
     fetchAPI<any[]>(`/events/${eventId}/registrations`),
@@ -801,7 +838,10 @@ export const announcements = {
   getAnnouncements: () =>
     fetchAPI<any[]>("/announcements"),
 
-  createAnnouncement: (data: { title: string; content: string }) =>
+  getAll: () =>
+    fetchAPI<any[]>("/announcements/admin/all"),
+
+  createAnnouncement: (data: { title: string; content: string; published?: boolean }) =>
     fetchAPI<any>("/announcements", {
       method: "POST",
       body: JSON.stringify(data),

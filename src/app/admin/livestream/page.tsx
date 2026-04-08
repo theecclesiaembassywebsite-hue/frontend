@@ -128,7 +128,6 @@ function AdminLiveStreamContent() {
               placeholder="https://... (YouTube, Vimeo, or custom embed URL)"
               value={embedUrl}
               onChange={(e) => setEmbedUrl(e.target.value)}
-              disabled={!isLive}
             />
             <p className="text-[11px] text-gray-text mt-2">
               Enter the embed URL for your livestream. This will be displayed to users watching the service.
@@ -160,11 +159,14 @@ function AdminLiveStreamContent() {
         {embedUrl && (
           <div className="rounded-[8px] border border-gray-border bg-white p-6 shadow-sm">
             <h3 className="font-heading text-lg font-bold text-slate mb-4">Preview</h3>
-            <div className="bg-off-white rounded-[8px] p-4 aspect-video flex items-center justify-center border border-gray-border">
-              <div className="text-center">
-                <p className="text-sm text-gray-text font-body">Embed Preview</p>
-                <p className="text-[11px] text-gray-text mt-1">The stream will appear here when live</p>
-              </div>
+            <div className="aspect-video rounded-[8px] overflow-hidden border border-gray-border bg-black">
+              <iframe
+                src={embedUrl}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Livestream Preview"
+              />
             </div>
           </div>
         )}
