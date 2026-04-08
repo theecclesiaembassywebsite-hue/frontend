@@ -35,6 +35,7 @@ type Event = {
   description: string;
   date: string;
   location?: string;
+  slug?: string;
 };
 
 export default function EventsPage() {
@@ -218,7 +219,7 @@ export default function EventsPage() {
                       date={event.date}
                       day={day}
                       month={month}
-                      href={`/events/${event.id}`}
+                      href={`/events/${event.slug || event.id}`}
                     />
                   );
                 })}

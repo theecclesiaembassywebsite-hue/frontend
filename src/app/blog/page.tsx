@@ -17,11 +17,14 @@ import Link from "next/link";
 type BlogPost = {
   id: string;
   title: string;
-  excerpt: string;
-  date: string;
-  author: string;
-  category: "Teaching" | "Devotional" | "Testimony" | "Update";
+  excerpt?: string;
+  content?: string;
+  publishedAt?: string;
+  createdAt: string;
+  author?: { profile?: { firstName?: string; lastName?: string } };
+  category?: string;
   imageUrl?: string;
+  featuredImg?: string;
   slug: string;
 };
 
@@ -63,9 +66,10 @@ export default function BlogPage() {
   }, []);
 
   const filteredPosts = posts.filter((post) => {
+    const excerpt = post.excerpt || post.content?.substring(0, 150) || "";
     const matchesSearch =
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      excerpt.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
       activeCategory === "All" || post.category === activeCategory;
@@ -189,11 +193,11 @@ export default function BlogPage() {
                       <div className="flex items-center gap-4 text-sm text-gray-text mb-3">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          <span>{post.date}</span>
+                          <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <User className="w-4 h-4" />
-                          <span>{post.author}</span>
+                          <span>{[post.author?.profile?.firstName, post.author?.profile?.lastName].filter(Boolean).join(" ") || "Admin"}</span>
                         </div>
                       </div>
 
@@ -204,7 +208,7 @@ export default function BlogPage() {
 
                       {/* Excerpt */}
                       <p className="font-body text-gray-text text-sm mb-4 line-clamp-2">
-                        {post.excerpt}
+                        {post.excerpt || post.content?.substring(0, 150)}
                       </p>
 
                       {/* Read More Link */}

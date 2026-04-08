@@ -8,53 +8,51 @@ import { cith } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 import { FadeIn } from '@/components/ui/Motion';
 import { Home, CheckCircle } from 'lucide-react';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-export default function RegisterHubPage() {
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function RegisterHubContent() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
     address: '',
+    area: '',
     city: '',
+    state: '',
     capacity: '',
-    why: '',
+    preferredDay: '',
+    preferredTime: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { success, error } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.address || !formData.area || !formData.city || !formData.state || !formData.preferredDay || !formData.preferredTime) {
+      error('Please fill in all required fields');
+      return;
+    }
     setIsLoading(true);
 
     try {
-      await cith.registerEhub({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        location: `${formData.address}, ${formData.city}`,
+      await cith.applyHub({
+        address: formData.address,
+        area: formData.area,
+        city: formData.city,
+        state: formData.state,
+        preferredDay: formData.preferredDay,
+        preferredTime: formData.preferredTime,
+        capacity: formData.capacity ? Number(formData.capacity) : undefined,
       });
       setIsSuccess(true);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        capacity: '',
-        why: '',
-      });
-      success('Thank you for registering your home as a CITH Hub!');
+      success('Your hub application has been submitted!');
     } catch (err) {
-      error('Failed to register. Please try again.');
+      error('Failed to submit application. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -90,63 +88,18 @@ export default function RegisterHubPage() {
               <div className="bg-[#E4E0EF] border-2 border-[#27AE60] rounded-lg p-12 text-center">
                 <CheckCircle className="w-16 h-16 text-[#27AE60] mx-auto mb-4" />
                 <h2 className="text-3xl font-heading font-bold text-[#241A42] mb-2">
-                  Thank you for registering!
+                  Application Submitted!
                 </h2>
                 <p className="text-[#8A8A8E] font-body">
-                  We're excited to have your home as part of the Ecclesia community. 
-                  Our team will reach out soon to discuss next steps.
+                  We've received your hub application. Our team will review it and reach out soon to discuss next steps.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <h2 className="text-3xl font-bold font-heading text-[#241A42] mb-8 text-center">
-                    Hub Registration Form
+                    Hub Application Form
                   </h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    label="Full Name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Your full name"
-                    required
-                  />
-
-                  <Input
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    label="Phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="(123) 456-7890"
-                    required
-                  />
-
-                  <Input
-                    label="City"
-                    name="city"
-                    type="text"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    placeholder="Your city"
-                    required
-                  />
                 </div>
 
                 <Input
@@ -159,26 +112,70 @@ export default function RegisterHubPage() {
                   required
                 />
 
-                <Input
-                  label="Hub Capacity (number of people)"
-                  name="capacity"
-                  type="number"
-                  value={formData.capacity}
-                  onChange={handleInputChange}
-                  placeholder="10"
-                  required
-                />
-
-                <div>
-                  <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
-                    Why do you want to host a CITH Hub?
-                  </label>
-                  <textarea
-                    name="why"
-                    value={formData.why}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    label="Area / Neighbourhood"
+                    name="area"
+                    type="text"
+                    value={formData.area}
                     onChange={handleInputChange}
-                    placeholder="Tell us about your vision for community in your home..."
-                    className="w-full px-4 py-3 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white resize-none h-32"
+                    placeholder="e.g. Lekki Phase 1"
+                    required
+                  />
+                  <Input
+                    label="City"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    placeholder="Your city"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    label="State"
+                    name="state"
+                    type="text"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    placeholder="Your state"
+                    required
+                  />
+                  <Input
+                    label="Capacity (optional)"
+                    name="capacity"
+                    type="number"
+                    value={formData.capacity}
+                    onChange={handleInputChange}
+                    placeholder="Max number of people"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
+                      Preferred Meeting Day <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="preferredDay"
+                      value={formData.preferredDay}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white"
+                    >
+                      <option value="">Select a day</option>
+                      {days.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <Input
+                    label="Preferred Meeting Time"
+                    name="preferredTime"
+                    type="text"
+                    value={formData.preferredTime}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 6:00 PM"
                     required
                   />
                 </div>
@@ -188,7 +185,7 @@ export default function RegisterHubPage() {
                   disabled={isLoading}
                   className="w-full bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? 'Registering...' : 'Register Hub'}
+                  {isLoading ? 'Submitting...' : 'Submit Application'}
                 </Button>
               </form>
             )}
@@ -196,5 +193,13 @@ export default function RegisterHubPage() {
         </FadeIn>
       </SectionWrapper>
     </main>
+  );
+}
+
+export default function RegisterHubPage() {
+  return (
+    <ProtectedRoute>
+      <RegisterHubContent />
+    </ProtectedRoute>
   );
 }

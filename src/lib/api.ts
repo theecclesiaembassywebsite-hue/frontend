@@ -904,8 +904,21 @@ export const training = {
       noAuth: true,
     }),
 
-  getAdminEnrollments: () =>
-    fetchAPI<any[]>("/training/admin/enrollments"),
+  getEnrollment: (id: string) =>
+    fetchAPI<any>(`/training/enrollment/${id}`, { noAuth: true }),
+
+  initializePayment: (data: { enrollmentId: string; amount: number; email: string; name: string; program: string }) =>
+    fetchAPI<{ reference: string; authorization_url: string; enrollmentId: string }>("/training/payment/initialize", {
+      method: "POST",
+      body: JSON.stringify(data),
+      noAuth: true,
+    }),
+
+  verifyPayment: (reference: string) =>
+    fetchAPI<{ message: string; status: string; enrollmentId: string }>(`/training/payment/verify/${reference}`, { noAuth: true }),
+
+  getAdminEnrollments: (program?: string) =>
+    fetchAPI<any[]>(`/training/admin/enrollments${program ? `?program=${program}` : ""}`),
 };
 
 // ADMIN ENDPOINTS
