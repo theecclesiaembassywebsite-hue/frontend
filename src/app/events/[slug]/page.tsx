@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, Users, Check } from "lucide-react";
 import { events } from "@/lib/api";
@@ -32,7 +32,8 @@ interface RegistrationData {
   phone: string;
 }
 
-export default function EventDetailPage({ params }: { params: { slug: string } }) {
+export default function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [eventData, setEventData] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export default function EventDetailPage({ params }: { params: { slug: string } }
         setLoading(true);
         setError(null);
         setNotFound(false);
-        const data = await events.getEvent(params.slug);
+        const data = await events.getEvent(slug);
         if (!data) {
           setNotFound(true);
           return;
@@ -80,7 +81,7 @@ export default function EventDetailPage({ params }: { params: { slug: string } }
     };
 
     fetchEvent();
-  }, [params.slug, isAuthenticated, user]);
+  }, [slug, isAuthenticated, user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -106,7 +107,7 @@ export default function EventDetailPage({ params }: { params: { slug: string } }
           phone: formData.phone,
         });
       } else {
-        await events.registerAndPay(eventData?.id || params.slug, {
+        await events.registerAndPay(eventData?.id || slug, {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
@@ -147,7 +148,7 @@ export default function EventDetailPage({ params }: { params: { slug: string } }
               Event Not Found
             </h1>
             <p className="font-body text-base text-gray-text mb-6">
-              The event you're looking for doesn't exist or has been removed.
+              The event you&apos;re looking for doesn&apos;t exist or has been removed.
             </p>
             <Link href="/events">
               <Button variant="primary">Back to Events</Button>

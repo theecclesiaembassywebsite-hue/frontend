@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { ArrowLeft, Users, Calendar, Clock, Activity, Check } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
@@ -26,7 +26,8 @@ interface Squad {
   activities?: string;
 }
 
-export default function SquadDetailPage({ params }: { params: { id: string } }) {
+export default function SquadDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [squad, setSquad] = useState<Squad | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -39,7 +40,7 @@ export default function SquadDetailPage({ params }: { params: { id: string } }) 
     const fetchSquad = async () => {
       try {
         setLoading(true);
-        const data = await squadsAPI.getSquad(params.id);
+        const data = await squadsAPI.getSquad(id);
         if (!data) {
           setNotFound(true);
           return;
@@ -56,7 +57,7 @@ export default function SquadDetailPage({ params }: { params: { id: string } }) 
     };
 
     fetchSquad();
-  }, [params.id]);
+  }, [id]);
 
   const handleJoin = async () => {
     if (!isAuthenticated) {
@@ -65,7 +66,7 @@ export default function SquadDetailPage({ params }: { params: { id: string } }) 
     }
     setJoining(true);
     try {
-      await squadsAPI.joinSquad(params.id);
+      await squadsAPI.joinSquad(id);
       success("You have joined the squad!");
       setJoined(true);
     } catch (err) {

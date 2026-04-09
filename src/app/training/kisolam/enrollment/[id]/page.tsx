@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { CheckCircle, Clock, AlertCircle, ArrowLeft, CreditCard, BookOpen } from "lucide-react";
 import { training } from "@/lib/api";
@@ -19,7 +19,8 @@ interface Enrollment {
   createdAt: string;
 }
 
-export default function EnrollmentStatusPage({ params }: { params: { id: string } }) {
+export default function EnrollmentStatusPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: enrollmentParamId } = use(params);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
@@ -33,7 +34,7 @@ export default function EnrollmentStatusPage({ params }: { params: { id: string 
 
     const load = async () => {
       try {
-        const data = await training.getEnrollment(params.id);
+        const data = await training.getEnrollment(enrollmentParamId);
         setEnrollment(data);
 
         // If ref is present in URL and payment is still pending, verify it
@@ -41,7 +42,7 @@ export default function EnrollmentStatusPage({ params }: { params: { id: string 
           setVerifying(true);
           try {
             await training.verifyPayment(ref);
-            const updated = await training.getEnrollment(params.id);
+            const updated = await training.getEnrollment(enrollmentParamId);
             setEnrollment(updated);
             success("Payment verified! Your enrolment is confirmed.");
           } catch {
@@ -58,7 +59,7 @@ export default function EnrollmentStatusPage({ params }: { params: { id: string 
     };
 
     load();
-  }, [params.id]);
+  }, [enrollmentParamId]);
 
   const handlePayNow = async () => {
     if (!enrollment) return;

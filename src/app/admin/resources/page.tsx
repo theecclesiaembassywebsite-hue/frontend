@@ -24,6 +24,8 @@ function AdminResourcesContent() {
     speaker: "",
     url: "",
     description: "",
+    price: "",
+    isFree: false,
   });
   const [editingResource, setEditingResource] = useState<any | null>(null);
   const [editFormData, setEditFormData] = useState<Record<string, string>>({});
@@ -87,6 +89,8 @@ function AdminResourcesContent() {
             fileUrl: formData.url,
             description: formData.description,
             type: "BOOK",
+            isFree: formData.isFree,
+            price: formData.isFree ? undefined : parseFloat(formData.price) || undefined,
           });
           setLibraryResources([newResource, ...libraryResources]);
           break;
@@ -100,7 +104,7 @@ function AdminResourcesContent() {
           break;
       }
       setShowCreateModal(false);
-      setFormData({ title: "", speaker: "", url: "", description: "" });
+      setFormData({ title: "", speaker: "", url: "", description: "", price: "", isFree: false });
       success("Resource created successfully");
     } catch (err) {
       error("Failed to create resource");
@@ -134,6 +138,8 @@ function AdminResourcesContent() {
           fileUrl: resource.fileUrl || "",
           type: resource.type || "BOOK",
           description: resource.description || "",
+          price: resource.price?.toString() || "",
+          isFree: resource.isFree ? "true" : "false",
         });
         break;
       case "music":
@@ -347,7 +353,55 @@ function AdminResourcesContent() {
               <p className="font-body text-sm text-gray-text">No library resources yet</p>
             </div>
           ) : (
-            renderResourceTable(libraryResources, ["speaker", "date"])
+            <div className="overflow-x-auto rounded-[8px] border border-gray-border bg-white shadow-sm mb-8">
+              <table className="w-full min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-gray-border bg-off-white">
+                    <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Title</th>
+                    <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Author</th>
+                    <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Price</th>
+                    <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Date Added</th>
+                    <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-border">
+                  {libraryResources.map((resource) => (
+                    <tr key={resource.id} className="hover:bg-off-white/50 transition-colors">
+                      <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{resource.title}</td>
+                      <td className="px-4 py-3 font-body text-sm text-gray-text">{resource.author || "-"}</td>
+                      <td className="px-4 py-3">
+                        {resource.isFree ? (
+                          <span className="rounded-full bg-success/10 text-success px-2 py-0.5 text-[11px] font-heading font-semibold">FREE</span>
+                        ) : (
+                          <span className="font-heading text-sm font-semibold text-slate">
+                            {resource.price ? `₦${Number(resource.price).toLocaleString()}` : "No price set"}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 font-body text-sm text-gray-text">
+                        {new Date(resource.createdAt || Date.now()).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 flex items-center gap-2">
+                        <button
+                          className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                          onClick={() => openEditModal(resource)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="text-xs font-heading font-semibold text-red-600 hover:underline flex items-center gap-1"
+                          onClick={() => handleDeleteResource(resource.id)}
+                          disabled={deletingId === resource.id}
+                        >
+                          <Trash2 size={12} />
+                          {deletingId === resource.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
@@ -496,6 +550,37 @@ function AdminResourcesContent() {
             </div>
           )}
 
+          {activeTab === "library" && (
+            <>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="edit-isFree"
+                  checked={editFormData.isFree === "true"}
+                  onChange={(e) => setEditFormData({ ...editFormData, isFree: e.target.checked ? "true" : "false", price: e.target.checked ? "" : editFormData.price })}
+                  className="accent-purple-vivid h-4 w-4"
+                />
+                <label htmlFor="edit-isFree" className="text-sm font-heading font-semibold text-slate">
+                  Free resource (no payment required)
+                </label>
+              </div>
+              {editFormData.isFree !== "true" && (
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-slate mb-1">Price (NGN)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    placeholder="e.g., 2500"
+                    value={editFormData.price || ""}
+                    onChange={(e) => setEditFormData({ ...editFormData, price: e.target.value })}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
           <div className="flex gap-2 pt-4">
             <Button variant="primary" className="flex-1" onClick={handleUpdateResource}>Save Changes</Button>
             <Button variant="secondary" className="flex-1" onClick={() => setEditingResource(null)}>Cancel</Button>
@@ -584,6 +669,37 @@ function AdminResourcesContent() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
+          )}
+
+          {activeTab === "library" && (
+            <>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="create-isFree"
+                  checked={formData.isFree}
+                  onChange={(e) => setFormData({ ...formData, isFree: e.target.checked, price: e.target.checked ? "" : formData.price })}
+                  className="accent-purple-vivid h-4 w-4"
+                />
+                <label htmlFor="create-isFree" className="text-sm font-heading font-semibold text-slate">
+                  Free resource (no payment required)
+                </label>
+              </div>
+              {!formData.isFree && (
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-slate mb-1">Price (NGN) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    placeholder="e.g., 2500"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  />
+                </div>
+              )}
+            </>
           )}
 
           <div className="flex gap-2 pt-4">

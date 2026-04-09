@@ -388,9 +388,9 @@ export const giving = {
 
 // CITH (CHURCH IN THE HOUSE) ENDPOINTS
 export const cith = {
-  getHubs: () => fetchAPI<any[]>("/cith/hubs"),
+  getHubs: () => fetchAPI<any[]>("/cith/hubs", { noAuth: true }),
 
-  getHub: (id: string) => fetchAPI<any>(`/cith/hubs/${id}`),
+  getHub: (id: string) => fetchAPI<any>(`/cith/hubs/${id}`, { noAuth: true }),
 
   joinHub: (id: string) =>
     fetchAPI<{ success: boolean }>(`/cith/hubs/${id}/join`, {
@@ -709,7 +709,7 @@ export const media = {
       body: JSON.stringify({
         ...data,
         type: data.type || "BOOK",
-        isFree: data.isFree ?? true,
+        isFree: data.isFree ?? false,
       }),
     }),
 

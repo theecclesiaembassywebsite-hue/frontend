@@ -42,6 +42,10 @@ function AdminCITHContent() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
+  const [managingHub, setManagingHub] = useState<any>(null);
+  const [newLeaderId, setNewLeaderId] = useState("");
+  const [savingLeader, setSavingLeader] = useState(false);
   const [hubFormData, setHubFormData] = useState({
     name: "",
     leaderId: "",
@@ -116,13 +120,23 @@ function AdminCITHContent() {
   };
 
   const handleCreateHub = async () => {
+    if (!hubFormData.name || !hubFormData.area || !hubFormData.city || !hubFormData.state) {
+      error("Please fill in hub name, area, city, and state");
+      return;
+    }
     try {
       setCreating(true);
       const payload = {
-        ...hubFormData,
+        name: hubFormData.name,
+        ...(hubFormData.leaderId ? { leaderId: hubFormData.leaderId } : {}),
+        area: hubFormData.area,
+        city: hubFormData.city,
+        state: hubFormData.state,
+        meetingDay: hubFormData.meetingDay || "Wednesday",
+        meetingTime: hubFormData.meetingTime || "6:00 PM",
         capacity: hubFormData.capacity ? Number(hubFormData.capacity) : undefined,
       };
-      const newHub = await cith.createHub(payload);
+      const newHub = await cith.createHub(payload as any);
       setHubs([newHub, ...hubs]);
       success("Hub created successfully");
       setShowCreateModal(false);
@@ -230,7 +244,12 @@ function AdminCITHContent() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button className="text-xs font-heading font-semibold text-purple-vivid hover:underline">Manage</button>
+                    <button
+                      className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                      onClick={() => { setManagingHub(h); setNewLeaderId(h.leaderId || ""); setShowManageModal(true); }}
+                    >
+                      Manage
+                    </button>
                   </td>
                 </tr>
               );
@@ -303,6 +322,75 @@ function AdminCITHContent() {
               onClick={() => rejectingApp && handleRejectApplication(rejectingApp)}
             >
               Reject Application
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Manage Hub Modal */}
+      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setNewLeaderId(""); }} title={`Manage: ${managingHub?.name || "Hub"}`}>
+        <div className="space-y-4">
+          <div className="rounded-[4px] bg-off-white p-3 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-text font-heading">Status</span>
+              <span className={`font-heading font-semibold ${managingHub?.status === "ACTIVE" ? "text-success" : managingHub?.status === "PENDING" ? "text-warning" : "text-gray-text"}`}>{managingHub?.status}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-text font-heading">Location</span>
+              <span className="text-slate font-body">{[managingHub?.area, managingHub?.city, managingHub?.state].filter(Boolean).join(', ')}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-text font-heading">Meeting</span>
+              <span className="text-slate font-body">{managingHub?.meetingDay} at {managingHub?.meetingTime}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-text font-heading">Members</span>
+              <span className="text-slate font-body">{managingHub?._count?.members || 0}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-text font-heading">Current Leader</span>
+              <span className="text-slate font-body">{managingHub?.leader ? [managingHub.leader.profile?.firstName, managingHub.leader.profile?.lastName].filter(Boolean).join(' ') : "Unassigned"}</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Reassign Leader</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Enter new leader's User ID"
+              value={newLeaderId}
+              onChange={(e) => setNewLeaderId(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-gray-text">Enter the user ID of the new hub leader from the Members page.</p>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button variant="secondary" className="flex-1" onClick={() => { setShowManageModal(false); setManagingHub(null); }}>
+              Close
+            </Button>
+            <Button
+              variant="primary"
+              className="flex-1"
+              disabled={savingLeader || !newLeaderId || newLeaderId === managingHub?.leaderId}
+              onClick={async () => {
+                if (!managingHub || !newLeaderId) return;
+                setSavingLeader(true);
+                try {
+                  await cith.reassignLeader(managingHub.id, newLeaderId);
+                  setHubs(hubs.map(h => h.id === managingHub.id ? { ...h, leaderId: newLeaderId } : h));
+                  success("Hub leader reassigned successfully");
+                  setShowManageModal(false);
+                  setManagingHub(null);
+                  // Refresh data
+                  const hubsList = await cith.getAdminHubs();
+                  setHubs(hubsList);
+                } catch (err) {
+                  error(err instanceof Error ? err.message : "Failed to reassign leader");
+                } finally {
+                  setSavingLeader(false);
+                }
+              }}
+            >
+              {savingLeader ? "Saving..." : "Reassign Leader"}
             </Button>
           </div>
         </div>

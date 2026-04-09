@@ -10,15 +10,40 @@ import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { FadeIn } from '@/components/ui/Motion'
 import Link from 'next/link'
-import { Sparkles, CheckCircle } from 'lucide-react'
-import { useState } from 'react'
+import { Sparkles, CheckCircle, Quote } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
+
+interface ApprovedTestimony {
+  id: string
+  title: string
+  content: string
+  photoUrl?: string
+  createdAt: string
+}
 
 export default function TestimoniesPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [agreeToShare, setAgreeToShare] = useState(false)
+  const [approvedTestimonies, setApprovedTestimonies] = useState<ApprovedTestimony[]>([])
+  const [loadingTestimonies, setLoadingTestimonies] = useState(true)
   const { isAuthenticated } = useAuth()
   const { success, error } = useToast()
+
+  useEffect(() => {
+    const fetchApproved = async () => {
+      try {
+        const data = await testimonies.getTestimonies()
+        setApprovedTestimonies(data || [])
+      } catch (err) {
+        console.error('Failed to fetch testimonies:', err)
+      } finally {
+        setLoadingTestimonies(false)
+      }
+    }
+    fetchApproved()
+  }, [submitted])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -53,7 +78,7 @@ export default function TestimoniesPage() {
   }
 
   return (
-    <>
+    <main className="min-h-screen bg-[#F5F5F5]">
       {/* Hero */}
       <section
         className="relative flex items-center justify-center py-24 md:py-32 bg-cover bg-center"
@@ -85,12 +110,12 @@ export default function TestimoniesPage() {
                 <p className="font-body text-[#8A8A8E] mb-8">
                   Thank you for sharing. We will review and celebrate your story.
                 </p>
-                <a
+                <Link
                   href="/"
                   className="inline-flex items-center justify-center px-6 py-3 bg-[#4A1D6E] text-white rounded-lg font-semibold hover:bg-[#771996] transition-colors"
                 >
                   Back to Home
-                </a>
+                </Link>
               </div>
             ) : (
               <>
@@ -182,6 +207,59 @@ export default function TestimoniesPage() {
           </div>
         </FadeIn>
       </SectionWrapper>
-    </>
+
+      {/* Testimony Wall */}
+      <SectionWrapper variant="off-white">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <div className="text-center mb-12">
+              <Sparkles className="mx-auto h-8 w-8 text-[#D4A843] mb-3" />
+              <h2 className="font-heading text-3xl font-bold text-[#241A42] mb-2">
+                Testimonies of God&apos;s Faithfulness
+              </h2>
+              <p className="font-body text-[#8A8A8E] max-w-xl mx-auto">
+                Read how God is moving in the lives of our members
+              </p>
+            </div>
+          </FadeIn>
+
+          {loadingTestimonies ? (
+            <SkeletonGroup count={6} variant="card" />
+          ) : approvedTestimonies.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {approvedTestimonies.map((t) => (
+                <FadeIn key={t.id}>
+                  <div className="bg-white rounded-lg border border-[#E4E0EF] shadow-sm p-6 h-full flex flex-col">
+                    <Quote className="h-6 w-6 text-[#D4A843] mb-3 flex-shrink-0" />
+                    <h3 className="font-heading text-lg font-bold text-[#241A42] mb-2">
+                      {t.title}
+                    </h3>
+                    <p className="font-body text-[#31333B] text-sm leading-relaxed mb-4 flex-grow">
+                      {t.content.length > 200
+                        ? `${t.content.slice(0, 200)}...`
+                        : t.content}
+                    </p>
+                    <p className="font-body text-xs text-[#8A8A8E] mt-auto pt-3 border-t border-[#E4E0EF]">
+                      {new Date(t.createdAt).toLocaleDateString('en-NG', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                </FadeIn>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Quote className="w-12 h-12 text-[#E4E0EF] mx-auto mb-4" />
+              <p className="text-[#8A8A8E] font-body">
+                No testimonies shared yet. Be the first to share what God has done!
+              </p>
+            </div>
+          )}
+        </div>
+      </SectionWrapper>
+    </main>
   )
 }

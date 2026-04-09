@@ -97,8 +97,13 @@ export default function KISOLAMPage() {
       ? selectedProgram.fee!
       : Number(customAmount);
 
-    if (selectedProgram.feeType === "variable" && (!customAmount || amount <= 0)) {
-      error("Please enter the programme fee for this session.");
+    if (selectedProgram.feeType === "variable" && customAmount === "") {
+      error("Please enter the programme fee (enter 0 for free programmes).");
+      return;
+    }
+
+    if (selectedProgram.feeType === "variable" && amount < 0) {
+      error("Amount cannot be negative.");
       return;
     }
 
@@ -266,8 +271,9 @@ export default function KISOLAMPage() {
 
             {selectedProgram?.feeType === "variable" && (
               <Input
-                id="amount" label="Programme Fee (₦)" type="number" placeholder="Enter amount (0 if free)"
+                id="amount" label="Programme Fee (₦)" type="number" placeholder="Enter 0 for free, or the session fee"
                 value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} required
+                min="0"
               />
             )}
 

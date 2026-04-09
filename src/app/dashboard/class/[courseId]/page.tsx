@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -34,7 +34,7 @@ interface ExamQuestion {
   order: number;
 }
 
-function CourseContent({ params }: { params: { courseId: string } }) {
+function CourseContent({ courseId }: { courseId: string }) {
   const searchParams = useSearchParams();
   const enrollmentId = searchParams.get("enrollmentId") || "";
   const { success, error: showError } = useToast();
@@ -53,7 +53,7 @@ function CourseContent({ params }: { params: { courseId: string } }) {
   const [examResult, setExamResult] = useState<{ autoScore: number; totalPoints: number } | null>(null);
 
   useEffect(() => {
-    intentionalityClass.getModules(params.courseId)
+    intentionalityClass.getModules(courseId)
       .then((data) => {
         setModules(data || []);
         const firstUnlocked = (data || []).find((m: Module) => m.unlocked && !m.completed);
@@ -62,7 +62,7 @@ function CourseContent({ params }: { params: { courseId: string } }) {
       })
       .catch((err) => showError(err instanceof Error ? err.message : "Failed to load modules"))
       .finally(() => setLoading(false));
-  }, [params.courseId]);
+  }, [courseId]);
 
   const handleCompleteModule = async () => {
     if (!activeModule || !enrollmentId) return;
@@ -71,7 +71,7 @@ function CourseContent({ params }: { params: { courseId: string } }) {
       await intentionalityClass.completeModule(activeModule.id, enrollmentId);
       success("Module completed!");
       // Refresh modules
-      const updated = await intentionalityClass.getModules(params.courseId);
+      const updated = await intentionalityClass.getModules(courseId);
       setModules(updated || []);
       // Auto-advance to next module
       const next = (updated || []).find((m: Module) => m.unlocked && !m.completed);
@@ -87,7 +87,7 @@ function CourseContent({ params }: { params: { courseId: string } }) {
   const handleStartExam = async () => {
     setExamLoading(true);
     try {
-      const data = await intentionalityClass.getExam(params.courseId);
+      const data = await intentionalityClass.getExam(courseId);
       setExam(data);
       setShowExam(true);
     } catch (err) {
@@ -106,7 +106,7 @@ function CourseContent({ params }: { params: { courseId: string } }) {
     }
     setSubmitting(true);
     try {
-      const result = await intentionalityClass.submitExam(params.courseId, {
+      const result = await intentionalityClass.submitExam(courseId, {
         enrollmentId: exam.enrollmentId,
         answers,
       });
@@ -394,10 +394,11 @@ function CourseContent({ params }: { params: { courseId: string } }) {
   );
 }
 
-export default function CoursePage({ params }: { params: { courseId: string } }) {
+export default function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
+  const { courseId } = use(params);
   return (
     <ProtectedRoute>
-      <CourseContent params={params} />
+      <CourseContent courseId={courseId} />
     </ProtectedRoute>
   );
 }

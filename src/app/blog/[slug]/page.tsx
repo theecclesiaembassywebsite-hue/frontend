@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { ArrowLeft, User, Calendar, Tag } from "lucide-react";
 import { blog } from "@/lib/api";
@@ -31,7 +31,8 @@ interface Comment {
   createdAt: string;
 }
 
-export default function BlogDetailPage({ params }: { params: { slug: string } }) {
+export default function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [post, setPost] = useState<BlogPost | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +49,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
         setLoading(true);
         setError(null);
         setNotFound(false);
-        const data = await blog.getPost(params.slug);
+        const data = await blog.getPost(slug);
         if (!data) {
           setNotFound(true);
           return;
@@ -80,7 +81,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
     };
 
     fetchPost();
-  }, [params.slug]);
+  }, [slug]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,7 +142,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
               Post Not Found
             </h1>
             <p className="font-body text-base text-gray-text mb-6">
-              The blog post you're looking for doesn't exist or has been removed.
+              The blog post you&apos;re looking for doesn&apos;t exist or has been removed.
             </p>
             <Link href="/blog">
               <Button variant="primary">Back to Blog</Button>

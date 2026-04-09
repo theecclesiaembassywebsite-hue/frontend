@@ -13,13 +13,30 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton';
 interface Hub {
   id: string;
   name: string;
-  leader: string;
-  location: string;
+  leader?: { profile?: { firstName?: string; lastName?: string } } | string;
+  location?: string;
   area?: string;
   city?: string;
-  day?: string;
-  time?: string;
-  members?: number;
+  meetingDay?: string;
+  meetingTime?: string;
+  _count?: { members: number };
+}
+
+function getLeaderName(hub: Hub): string {
+  if (!hub.leader) return 'Unassigned';
+  if (typeof hub.leader === 'string') return hub.leader;
+  const profile = hub.leader.profile;
+  return [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Unassigned';
+}
+
+function getHubLocation(hub: Hub): string {
+  if (hub.location) return hub.location;
+  return [hub.area, hub.city].filter(Boolean).join(', ') || 'Location TBD';
+}
+
+function getMemberCount(hub: Hub): number {
+  if (hub._count?.members !== undefined) return hub._count.members;
+  return 0;
 }
 
 export default function CITHPage() {
@@ -56,10 +73,10 @@ export default function CITHPage() {
       const filtered = hubs.filter(
         hub =>
           hub.name.toLowerCase().includes(lowerQuery) ||
-          hub.location?.toLowerCase().includes(lowerQuery) ||
+          getHubLocation(hub).toLowerCase().includes(lowerQuery) ||
           hub.area?.toLowerCase().includes(lowerQuery) ||
           hub.city?.toLowerCase().includes(lowerQuery) ||
-          hub.leader.toLowerCase().includes(lowerQuery)
+          getLeaderName(hub).toLowerCase().includes(lowerQuery)
       );
       setFilteredHubs(filtered);
     }
@@ -119,17 +136,17 @@ export default function CITHPage() {
                         {hub.name}
                       </h3>
                       <p className="text-[#8A8A8E] text-sm mb-4">
-                        Led by {hub.leader}
+                        Led by {getLeaderName(hub)}
                       </p>
 
                       <div className="space-y-2 mb-6">
                         <div className="flex items-center gap-2 text-[#31333B]">
                           <MapPin className="w-4 h-4 text-[#771996]" />
-                          <span className="text-sm">{hub.location || `${hub.area}, ${hub.city}`}</span>
+                          <span className="text-sm">{getHubLocation(hub)}</span>
                         </div>
                         <div className="flex items-center gap-2 text-[#31333B]">
                           <Users className="w-4 h-4 text-[#771996]" />
-                          <span className="text-sm">{hub.members || 0} members</span>
+                          <span className="text-sm">{getMemberCount(hub)} members</span>
                         </div>
                       </div>
 
