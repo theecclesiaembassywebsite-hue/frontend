@@ -21,10 +21,21 @@ function HubDashboardContent() {
         setLoading(true);
         setError(null);
         const data = await cith.getMyHub();
-        setHubData(data);
+        // Handle null/empty responses — user has no hub
+        if (!data) {
+          setHubData(null);
+        } else {
+          setHubData(data);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch hub data");
-        setHubData(null);
+        // Don't show technical errors for "no hub" case
+        const msg = err instanceof Error ? err.message : "";
+        if (msg.includes("JSON") || msg.includes("Unexpected")) {
+          // Backend returned empty/null — user simply has no hub
+          setHubData(null);
+        } else {
+          setError(msg || "Failed to fetch hub data");
+        }
       } finally {
         setLoading(false);
       }

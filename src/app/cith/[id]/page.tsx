@@ -56,7 +56,13 @@ function HubDetailContent({ hubId }: { hubId: string }) {
 
   useEffect(() => {
     cith.getHub(hubId)
-      .then((data) => setHub(data))
+      .then((data) => {
+        if (!data) {
+          setNotFound(true);
+        } else {
+          setHub(data);
+        }
+      })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [hubId]);

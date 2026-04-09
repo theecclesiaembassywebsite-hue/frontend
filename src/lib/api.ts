@@ -50,7 +50,22 @@ export const fetchAPI = async <T>(
     throw new Error(message);
   }
 
-  return response.json() as Promise<T>;
+  // Handle empty responses (204 No Content, or null body)
+  const contentLength = response.headers.get("content-length");
+  if (response.status === 204 || contentLength === "0") {
+    return null as T;
+  }
+
+  const text = await response.text();
+  if (!text || text.trim() === "") {
+    return null as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null as T;
+  }
 };
 
 // File upload helper (multipart/form-data, no JSON content-type)

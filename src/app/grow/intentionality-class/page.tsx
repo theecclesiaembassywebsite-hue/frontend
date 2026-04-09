@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SectionWrapper from '@/components/ui/SectionWrapper';
-import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { intentionalityClass } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -11,33 +10,42 @@ import { useToast } from '@/components/ui/Toast';
 import { FadeIn } from '@/components/ui/Motion';
 import { GraduationCap, CheckCircle, BookOpen, Clock, Users } from 'lucide-react';
 
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  modules: Array<{ id: string; title: string; order: number }>;
+  _count?: { enrollments: number };
+}
+
 export default function IntentionalityClassPage() {
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
 
   useEffect(() => {
     intentionalityClass.getAvailableCourses()
       .then((data) => setCourses(data || []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setCoursesLoading(false));
   }, []);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    preferredFormat: 'hybrid',
-  });
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [preferredFormat, setPreferredFormat] = useState('hybrid');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { success, error } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // Auto-select first course when courses load
+  useEffect(() => {
+    if (courses.length > 0 && !selectedCourseId) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
+
+  const userName = user?.profile
+    ? [user.profile.firstName, user.profile.lastName].filter(Boolean).join(' ')
+    : '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,19 +53,19 @@ export default function IntentionalityClassPage() {
 
     if (!isAuthenticated) {
       error('Please sign in to enroll in the Intentionality Class.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!selectedCourseId) {
+      error('Please select a course to enroll in.');
+      setIsLoading(false);
       return;
     }
 
     try {
-      const courseId = courses.length > 0 ? courses[0].id : null;
-      if (!courseId) {
-        error('No courses available at this time. Please check back later.');
-        setIsLoading(false);
-        return;
-      }
-      await intentionalityClass.enroll(courseId);
+      await intentionalityClass.enroll(selectedCourseId);
       setIsSuccess(true);
-      setFormData({ name: '', email: '', phone: '', preferredFormat: 'hybrid' });
       success('Thank you for enrolling in the Intentionality Class.');
     } catch (err) {
       error(err instanceof Error ? err.message : 'Failed to enroll. Please try again.');
@@ -159,44 +167,68 @@ export default function IntentionalityClassPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
-                <Input
-                  label="Full Name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Your full name"
-                  required
-                />
+                {/* Show logged-in user info */}
+                {isAuthenticated && user && (
+                  <div className="rounded-[8px] bg-[#F5F5F5] border border-[#E4E0EF] px-4 py-3">
+                    <p className="font-heading text-xs font-semibold text-[#8A8A8E] uppercase tracking-wide mb-1">
+                      Enrolling as
+                    </p>
+                    <p className="font-heading text-sm font-bold text-[#241A42]">
+                      {userName || user.email}
+                    </p>
+                    {userName && (
+                      <p className="font-body text-xs text-[#8A8A8E]">{user.email}</p>
+                    )}
+                  </div>
+                )}
 
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="your@email.com"
-                  required
-                />
+                {/* Course Dropdown */}
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
+                    Preferred Course
+                  </label>
+                  {coursesLoading ? (
+                    <div className="w-full h-[42px] rounded-lg bg-[#F5F5F5] animate-pulse" />
+                  ) : courses.length === 0 ? (
+                    <p className="font-body text-sm text-[#8A8A8E] italic">
+                      No courses available at this time. Please check back later.
+                    </p>
+                  ) : (
+                    <>
+                      <select
+                        value={selectedCourseId}
+                        onChange={(e) => setSelectedCourseId(e.target.value)}
+                        className="w-full px-4 py-2 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white"
+                        required
+                      >
+                        <option value="" disabled>Select a course…</option>
+                        {courses.map((course) => (
+                          <option key={course.id} value={course.id}>
+                            {course.title} ({course.modules.length} modules)
+                          </option>
+                        ))}
+                      </select>
+                      {/* Show selected course description */}
+                      {selectedCourseId && (() => {
+                        const selected = courses.find((c) => c.id === selectedCourseId);
+                        return selected ? (
+                          <p className="mt-2 font-body text-xs text-[#8A8A8E] leading-relaxed">
+                            {selected.description}
+                          </p>
+                        ) : null;
+                      })()}
+                    </>
+                  )}
+                </div>
 
-                <Input
-                  label="Phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="(123) 456-7890"
-                  required
-                />
-
+                {/* Preferred Format Dropdown */}
                 <div>
                   <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
                     Preferred Format
                   </label>
                   <select
-                    name="preferredFormat"
-                    value={formData.preferredFormat}
-                    onChange={handleInputChange}
+                    value={preferredFormat}
+                    onChange={(e) => setPreferredFormat(e.target.value)}
                     className="w-full px-4 py-2 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white"
                   >
                     <option value="in-person">In-Person</option>
@@ -207,7 +239,7 @@ export default function IntentionalityClassPage() {
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || courses.length === 0}
                   className="w-full bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {isLoading ? 'Enrolling...' : 'Enroll Now'}
