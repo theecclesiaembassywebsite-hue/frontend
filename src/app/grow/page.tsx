@@ -114,9 +114,9 @@ export default function GrowPage() {
               discover how you can deepen your faith and fulfill your purpose.
             </p>
             <Link href="/new-here">
-              <Button className="bg-white text-purple-dark hover:bg-off-white">
+              <button className="inline-flex items-center justify-center font-heading text-[13px] font-semibold uppercase tracking-[1.5px] leading-4 transition-all duration-200 ease-in-out cursor-pointer bg-white text-purple-dark hover:bg-off-white rounded-[4px] px-8 py-3 min-w-[140px]">
                 Plan Your Visit
-              </Button>
+              </button>
             </Link>
           </FadeIn>
         </div>

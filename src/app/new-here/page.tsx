@@ -260,6 +260,29 @@ export default function NewHerePage() {
           </div>
         </FadeIn>
       </SectionWrapper>
+
+      {/* New Convert CTA */}
+      <SectionWrapper variant="dark-purple" className="py-16">
+        <FadeIn>
+          <div className="text-center max-w-2xl mx-auto">
+            <Heart size={40} className="mx-auto mb-4 text-white/80" />
+            <h2 className="font-heading text-3xl font-bold text-white mb-4">
+              Just Gave Your Life to Christ?
+            </h2>
+            <p className="font-body text-white/80 mb-8">
+              Congratulations! We want to walk with you on this new journey. Fill
+              out our New Convert form so we can connect you to a growth track,
+              a squad, and a community hub near you.
+            </p>
+            <a
+              href="/new-here/new-convert"
+              className="inline-flex items-center justify-center font-heading text-[13px] font-semibold uppercase tracking-[1.5px] leading-4 bg-white text-purple-dark hover:bg-off-white rounded-[4px] px-8 py-3 transition-all duration-200"
+            >
+              Start Your Journey
+            </a>
+          </div>
+        </FadeIn>
+      </SectionWrapper>
     </div>
   );
 }

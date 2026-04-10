@@ -289,11 +289,56 @@ export const firstTimer = {
     name: string;
     email: string;
     phone: string;
+    preferredSquad?: string;
+    preferredHub?: string;
   }) =>
     fetchAPI<{ success: boolean }>("/first-timer/new-convert", {
       method: "POST",
       body: JSON.stringify(data),
       noAuth: true,
+    }),
+
+  // Admin endpoints
+  adminGetStats: () =>
+    fetchAPI<{
+      firstTimers: number;
+      newConverts: number;
+      followedUp: number;
+      pendingFollowUp: number;
+    }>("/first-timer/admin/stats"),
+
+  adminGetFirstTimers: (search?: string) =>
+    fetchAPI<any[]>(
+      `/first-timer/admin/first-timers${search ? `?search=${encodeURIComponent(search)}` : ""}`
+    ),
+
+  adminGetNewConverts: (search?: string) =>
+    fetchAPI<any[]>(
+      `/first-timer/admin/new-converts${search ? `?search=${encodeURIComponent(search)}` : ""}`
+    ),
+
+  adminUpdateNewConvert: (
+    id: string,
+    data: {
+      assignedSquad?: string;
+      assignedHub?: string;
+      growthTrack?: string;
+      followUpSent?: boolean;
+    }
+  ) =>
+    fetchAPI<any>(`/first-timer/admin/new-converts/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  adminDeleteFirstTimer: (id: string) =>
+    fetchAPI<any>(`/first-timer/admin/first-timers/${id}`, {
+      method: "DELETE",
+    }),
+
+  adminDeleteNewConvert: (id: string) =>
+    fetchAPI<any>(`/first-timer/admin/new-converts/${id}`, {
+      method: "DELETE",
     }),
 };
 

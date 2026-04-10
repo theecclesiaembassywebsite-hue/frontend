@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Users, Gift, FileText, MapPin, GraduationCap,
   MessageCircle, Calendar, BookOpen, HandHeart, Quote, BarChart3,
-  Radio, Settings,
+  Radio, Settings, UserPlus,
 } from "lucide-react";
 
 const navItems = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Members", href: "/admin/members", icon: Users },
+  { label: "First Timers", href: "/admin/first-timers", icon: UserPlus },
   { label: "Giving Reports", href: "/admin/giving", icon: Gift },
   { label: "Content", href: "/admin/content", icon: FileText },
   { label: "Events", href: "/admin/events", icon: Calendar },
