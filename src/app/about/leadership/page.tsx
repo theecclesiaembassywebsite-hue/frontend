@@ -13,7 +13,7 @@ export default function LeadershipPage() {
             Leadership
           </h1>
           <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            Meet the Lead Brother
+            A Word from the Lead Brother
           </h6>
         </div>
       </section>
@@ -37,23 +37,37 @@ export default function LeadershipPage() {
 
             <div className="mt-6 space-y-4 font-body text-base text-white/80 leading-relaxed">
               <p>
-                Brother Victor Oluwadamilare is the Lead Brother of The Ecclesia
-                Embassy, an apostolic and prophetic ministry based in Abuja,
-                Nigeria. He carries a mandate for the Word, worship, and the
-                building of the Ecclesia — the called-out assembly of God.
+                The Ecclesia Embassy is a gospel church committed to nurturing
+                Word-cultured ambassadors who represent the Kingdom of God with
+                excellence, character, and power.
               </p>
               <p>
-                With a deep commitment to raising Word-cultured ambassadors,
-                Brother Victor has devoted his life and ministry to equipping
-                believers for the work of the kingdom. His teachings are
-                rooted in scripture, practical for daily living, and prophetic
-                in their reach.
+                We believe that the Church is not just a gathering — it is a
+                living, functioning Ecclesia: the called-out assembly of God,
+                raised to govern, influence, and transform every sphere of
+                society. Our mandate is rooted in the Great Commission, and our
+                approach is both apostolic and prophetic — building believers
+                who are spiritually sound, scripturally grounded, and practically
+                equipped for life and service.
               </p>
               <p>
-                Under his leadership, The Ecclesia Embassy has grown into a
-                vibrant community of believers who are passionate about God,
-                grounded in the Word, and committed to kingdom influence across
-                every sphere of life.
+                At The Ecclesia Embassy, every gathering is designed to build
+                you up in faith and purpose. Our weekly meetings include:
+              </p>
+              <ul className="list-disc pl-6 space-y-1">
+                <li><span className="font-semibold text-white">Tuesdays</span> — Warfare &amp; Intercession: We come together to pray, wage spiritual warfare, and intercede for nations, families, and futures.</li>
+                <li><span className="font-semibold text-white">Fridays</span> — Worship: A powerful time of encounter and intimacy with the Holy Spirit.</li>
+                <li><span className="font-semibold text-white">Sundays</span> — The Word: A deep dive into the Scriptures — teaching, training, and equipping for life in the Kingdom.</li>
+              </ul>
+              <p>
+                Whether you are new to the faith or a seasoned believer, there
+                is a place for you here. Come and be part of a community that is
+                passionate about God, serious about His Word, and intentional
+                about kingdom advancement.
+              </p>
+              <p className="font-semibold text-white italic">
+                Welcome to The Ecclesia Embassy — where we are raising
+                ambassadors for the Kingdom.
               </p>
             </div>
           </div>
@@ -63,12 +77,12 @@ export default function LeadershipPage() {
       <SectionWrapper variant="off-white">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-heading text-[28px] font-bold text-slate">
-            Ministry Leadership
+            Join Us
           </h2>
           <p className="mt-4 font-body text-base text-gray-text leading-relaxed">
-            The Ecclesia Embassy is led by a team of dedicated leaders across
-            various ministry departments, squads, and hubs. More leadership
-            profiles will be added as the platform grows.
+            Whether you are in Abuja or connecting from anywhere around the world,
+            The Ecclesia Embassy welcomes you. Come experience powerful worship,
+            deep teaching, and a community committed to raising kingdom ambassadors.
           </p>
         </div>
       </SectionWrapper>

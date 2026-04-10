@@ -90,7 +90,20 @@ export default function TEMAPage() {
               <Input id="name" name="name" placeholder="Full Name" required />
               <Input id="email" name="email" type="email" placeholder="Email Address" required />
               <Input id="phone" name="phone" type="tel" placeholder="Phone Number" required />
-              <Input id="course" name="course" placeholder="Preferred Course" required />
+              <select
+                id="course"
+                name="course"
+                required
+                defaultValue=""
+                className="w-full rounded-[8px] border-2 border-[#E4E0EF] bg-white px-4 py-2.5 font-body text-sm text-[#31333B] placeholder:text-[#8A8A8E] focus:outline-none focus:border-[#771996] transition-colors"
+              >
+                <option value="" disabled>Select a course...</option>
+                {courses.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.name} ({c.duration})
+                  </option>
+                ))}
+              </select>
               <Button type="submit" variant="giving" className="w-full" disabled={loading}>
                 {loading ? "Enrolling..." : "Enroll & Pay"}
               </Button>
