@@ -16,8 +16,10 @@ function AdminClassContent() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showModuleModal, setShowModuleModal] = useState(false);
+  const [showEditModuleModal, setShowEditModuleModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
+  const [editingModule, setEditingModule] = useState<any>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -121,6 +123,64 @@ function AdminClassContent() {
       setCourses(updated || []);
     } catch (err) {
       error("Failed to create module");
+      console.error(err);
+    }
+  };
+
+  const openEditModuleModal = (module: any, courseId: string) => {
+    setEditingModule({ ...module, courseId });
+    setModuleFormData({
+      courseId,
+      title: module.title,
+      description: module.description || "",
+      videoUrl: module.videoUrl || "",
+      pdfUrl: module.pdfUrl || "",
+      content: module.content || "",
+      order: module.order,
+    });
+    setShowEditModuleModal(true);
+  };
+
+  const handleEditModule = async () => {
+    if (!moduleFormData.title) {
+      error("Please enter a module title");
+      return;
+    }
+
+    try {
+      await intentionalityClass.adminUpdateModule(editingModule.id, {
+        title: moduleFormData.title,
+        description: moduleFormData.description || undefined,
+        videoUrl: moduleFormData.videoUrl || undefined,
+        pdfUrl: moduleFormData.pdfUrl || undefined,
+        content: moduleFormData.content || undefined,
+        order: moduleFormData.order,
+      });
+      setShowEditModuleModal(false);
+      setEditingModule(null);
+      success("Module updated successfully");
+      // Refresh courses to get updated module list
+      const updated = await intentionalityClass.adminGetCourses();
+      setCourses(updated || []);
+    } catch (err) {
+      error("Failed to update module");
+      console.error(err);
+    }
+  };
+
+  const handleDeleteModule = async (moduleId: string) => {
+    if (!window.confirm("Are you sure you want to delete this module? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await intentionalityClass.adminDeleteModule(moduleId);
+      success("Module deleted successfully");
+      // Refresh courses to get updated module list
+      const updated = await intentionalityClass.adminGetCourses();
+      setCourses(updated || []);
+    } catch (err) {
+      error("Failed to delete module");
       console.error(err);
     }
   };
@@ -289,6 +349,22 @@ function AdminClassContent() {
                                 {mod.videoUrl && <Video size={13} />}
                                 {mod.pdfUrl && <FileText size={13} />}
                               </div>
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); openEditModuleModal(mod, c.id); }}
+                                  className="p-1.5 rounded-[3px] text-gray-text hover:bg-purple-vivid/10 hover:text-purple-vivid transition-colors"
+                                  title="Edit module"
+                                >
+                                  <Edit size={14} />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteModule(mod.id); }}
+                                  className="p-1.5 rounded-[3px] text-gray-text hover:bg-error/10 hover:text-error transition-colors"
+                                  title="Delete module"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                             </div>
                           ))}
                       </div>
@@ -447,6 +523,76 @@ function AdminClassContent() {
           <div className="flex gap-2 pt-4">
             <Button variant="primary" className="flex-1" onClick={handleCreateModule}>Add Module</Button>
             <Button variant="secondary" className="flex-1" onClick={() => setShowModuleModal(false)}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Module Modal */}
+      <Modal isOpen={showEditModuleModal} onClose={() => setShowEditModuleModal(false)} title="Edit Course Module">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Module Title *</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="e.g., Week 1: Kingdom Identity"
+              value={moduleFormData.title}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, title: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Description</label>
+            <textarea
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Brief description of this module..."
+              rows={2}
+              value={moduleFormData.description}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, description: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Video URL (YouTube embed)</label>
+            <input
+              type="url"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="https://www.youtube.com/embed/..."
+              value={moduleFormData.videoUrl}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, videoUrl: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">PDF Material URL</label>
+            <input
+              type="url"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="https://..."
+              value={moduleFormData.pdfUrl}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, pdfUrl: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Written Content</label>
+            <textarea
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Module text content (supports plain text)..."
+              rows={4}
+              value={moduleFormData.content}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, content: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Order</label>
+            <input
+              type="number"
+              min="1"
+              className="w-24 rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              value={moduleFormData.order}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, order: parseInt(e.target.value) || 1 })}
+            />
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button variant="primary" className="flex-1" onClick={handleEditModule}>Update Module</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setShowEditModuleModal(false)}>Cancel</Button>
           </div>
         </div>
       </Modal>

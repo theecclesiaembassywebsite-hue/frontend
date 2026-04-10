@@ -457,10 +457,19 @@ export const cith = {
 
   createHub: (data: {
     name: string; leaderId: string; area: string; city: string;
-    state: string; meetingDay: string; meetingTime: string; capacity?: number;
+    state: string; country?: string; meetingDay: string; meetingTime: string; capacity?: number;
   }) =>
     fetchAPI<any>("/admin/cith/hubs", {
       method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateHub: (hubId: string, data: {
+    name?: string; address?: string; area?: string; city?: string; state?: string;
+    country?: string; meetingDay?: string; meetingTime?: string; capacity?: number; status?: string;
+  }) =>
+    fetchAPI<any>(`/admin/cith/hubs/${hubId}`, {
+      method: "PUT",
       body: JSON.stringify(data),
     }),
 
@@ -469,6 +478,9 @@ export const cith = {
       method: "PUT",
       body: JSON.stringify({ newLeaderId }),
     }),
+
+  searchMembers: (query: string) =>
+    fetchAPI<any[]>(`/admin/cith/members/search?q=${encodeURIComponent(query)}`),
 };
 
 // NATION ENDPOINTS
@@ -622,6 +634,31 @@ export const intentionalityClass = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
+
+  adminUpdateModule: (moduleId: string, data: any) =>
+    fetchAPI<any>(`/admin/class/modules/${moduleId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  adminDeleteModule: (moduleId: string) =>
+    fetchAPI<any>(`/admin/class/modules/${moduleId}`, {
+      method: "DELETE",
+    }),
+
+  adminUpdateQuestion: (questionId: string, data: any) =>
+    fetchAPI<any>(`/admin/class/questions/${questionId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  adminDeleteQuestion: (questionId: string) =>
+    fetchAPI<any>(`/admin/class/questions/${questionId}`, {
+      method: "DELETE",
+    }),
+
+  adminGetEnrollments: (courseId?: string) =>
+    fetchAPI<any[]>(`/admin/class/enrollments${courseId ? `?courseId=${courseId}` : ""}`),
 };
 
 // BLOG ENDPOINTS

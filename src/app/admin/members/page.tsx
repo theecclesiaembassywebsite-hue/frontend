@@ -3,11 +3,12 @@
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { useEffect, useState } from "react";
-import { Search, User } from "lucide-react";
+import { Search, User, Copy } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { admin } from "@/lib/api";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 
 const roleOptions = [
   { value: "", label: "All Roles" },
@@ -27,6 +28,7 @@ function AdminMembersContent() {
   const [roleFilter, setRoleFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -69,6 +71,16 @@ function AdminMembersContent() {
     }
   };
 
+  const handleCopyId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      success("User ID copied to clipboard");
+    } catch (err) {
+      error("Failed to copy User ID");
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 md:p-8">
@@ -97,6 +109,7 @@ function AdminMembersContent() {
           <thead>
             <tr className="border-b border-gray-border bg-off-white">
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Member</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">ID</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Email</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Role</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</th>
@@ -112,6 +125,18 @@ function AdminMembersContent() {
                       <User size={14} className="text-purple/50" />
                     </div>
                     <span className="font-heading text-sm font-semibold text-slate">{m.profile?.firstName} {m.profile?.lastName}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <code className="font-mono text-xs text-gray-text">{m.id.substring(0, 8)}...</code>
+                    <button
+                      onClick={() => handleCopyId(m.id)}
+                      className="text-gray-text hover:text-slate transition-colors"
+                      title="Copy full ID"
+                    >
+                      <Copy size={14} />
+                    </button>
                   </div>
                 </td>
                 <td className="px-4 py-3 font-body text-sm text-gray-text">{m.email}</td>
@@ -133,7 +158,12 @@ function AdminMembersContent() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <button className="text-xs font-heading font-semibold text-purple-vivid hover:underline">View</button>
+                  <button
+                    onClick={() => setSelectedMember(m)}
+                    className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
@@ -141,6 +171,76 @@ function AdminMembersContent() {
         </table>
       </div>
       <p className="mt-3 text-body-small">{filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}</p>
+
+      {/* Member Detail Modal */}
+      <Modal
+        isOpen={selectedMember !== null}
+        onClose={() => setSelectedMember(null)}
+        title="Member Details"
+      >
+        {selectedMember && (
+          <div className="space-y-4">
+            <div className="border-b border-gray-border pb-4">
+              <h3 className="font-heading text-lg font-bold text-slate">
+                {selectedMember.profile?.firstName} {selectedMember.profile?.lastName}
+              </h3>
+              <p className="text-sm text-gray-text">{selectedMember.email}</p>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-heading font-semibold uppercase tracking-wider text-gray-text">User ID</label>
+                <div className="flex items-center gap-2 mt-1">
+                  <code className="flex-1 rounded-[4px] bg-off-white px-3 py-2 font-mono text-sm text-slate break-all">
+                    {selectedMember.id}
+                  </code>
+                  <button
+                    onClick={() => handleCopyId(selectedMember.id)}
+                    className="flex items-center gap-1 rounded-[4px] bg-purple-light px-3 py-2 text-xs font-heading font-semibold text-purple-vivid hover:bg-purple-light/80 transition-colors"
+                  >
+                    <Copy size={14} />
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-heading font-semibold uppercase tracking-wider text-gray-text">Email</label>
+                <p className="mt-1 text-sm text-slate">{selectedMember.email}</p>
+              </div>
+
+              <div>
+                <label className="text-xs font-heading font-semibold uppercase tracking-wider text-gray-text">Role</label>
+                <p className="mt-1 text-sm text-slate">{selectedMember.role}</p>
+              </div>
+
+              <div>
+                <label className="text-xs font-heading font-semibold uppercase tracking-wider text-gray-text">Email Verified</label>
+                <div className="mt-1">
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${selectedMember.emailVerified ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                    {selectedMember.emailVerified ? "Verified" : "Pending"}
+                  </span>
+                </div>
+              </div>
+
+              {selectedMember.createdAt && (
+                <div>
+                  <label className="text-xs font-heading font-semibold uppercase tracking-wider text-gray-text">Joined Date</label>
+                  <p className="mt-1 text-sm text-slate">
+                    {new Date(selectedMember.createdAt).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

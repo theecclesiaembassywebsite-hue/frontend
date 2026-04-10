@@ -34,6 +34,44 @@ interface ExamQuestion {
   order: number;
 }
 
+/**
+ * Converts various video URL formats to embeddable URLs or video element sources
+ * @param url - The video URL (YouTube, Vimeo, MP4, etc.)
+ * @returns Object with type ('iframe' or 'video') and the appropriate src
+ */
+function getEmbedUrl(url: string): { type: 'iframe' | 'video'; src: string } {
+  // Handle MP4, WebM, OGG video files
+  if (url.match(/\.(mp4|webm|ogg)$/i)) {
+    return { type: 'video', src: url };
+  }
+
+  // Handle youtube.com/watch?v=VIDEO_ID
+  const youtubeWatchMatch = url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
+  if (youtubeWatchMatch) {
+    return { type: 'iframe', src: `https://www.youtube.com/embed/${youtubeWatchMatch[1]}` };
+  }
+
+  // Handle youtu.be/VIDEO_ID
+  const youtubeShortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+  if (youtubeShortMatch) {
+    return { type: 'iframe', src: `https://www.youtube.com/embed/${youtubeShortMatch[1]}` };
+  }
+
+  // Handle youtube.com/embed/VIDEO_ID (already in correct format)
+  if (url.includes('youtube.com/embed/')) {
+    return { type: 'iframe', src: url };
+  }
+
+  // Handle vimeo.com/VIDEO_ID
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return { type: 'iframe', src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  }
+
+  // Fallback: return as iframe (for other embed URLs)
+  return { type: 'iframe', src: url };
+}
+
 function CourseContent({ courseId }: { courseId: string }) {
   const searchParams = useSearchParams();
   const enrollmentId = searchParams.get("enrollmentId") || "";
@@ -315,19 +353,26 @@ function CourseContent({ courseId }: { courseId: string }) {
                 </div>
 
                 {/* Video */}
-                {activeModule.videoUrl && (
-                  <div className="mb-6">
-                    <div className="aspect-video rounded-[8px] overflow-hidden bg-slate">
-                      <iframe
-                        src={activeModule.videoUrl}
-                        title={activeModule.title}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                {activeModule.videoUrl && (() => {
+                  const { type, src } = getEmbedUrl(activeModule.videoUrl);
+                  return (
+                    <div className="mb-6">
+                      <div className="aspect-video rounded-[8px] overflow-hidden bg-slate">
+                        {type === 'iframe' ? (
+                          <iframe
+                            src={src}
+                            title={activeModule.title}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video src={src} controls className="w-full h-full" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* PDF link */}
                 {activeModule.pdfUrl && (

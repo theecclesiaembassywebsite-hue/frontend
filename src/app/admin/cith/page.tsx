@@ -44,18 +44,32 @@ function AdminCITHContent() {
   const [creating, setCreating] = useState(false);
   const [showManageModal, setShowManageModal] = useState(false);
   const [managingHub, setManagingHub] = useState<any>(null);
-  const [newLeaderId, setNewLeaderId] = useState("");
   const [savingLeader, setSavingLeader] = useState(false);
+  const [savingChanges, setSavingChanges] = useState(false);
   const [hubFormData, setHubFormData] = useState({
     name: "",
     leaderId: "",
     area: "",
     city: "",
     state: "",
+    country: "Nigeria",
     meetingDay: "",
     meetingTime: "",
     capacity: "",
   });
+  // Leader search state for Create Modal
+  const [leaderSearch, setLeaderSearch] = useState("");
+  const [leaderResults, setLeaderResults] = useState<any[]>([]);
+  const [selectedLeader, setSelectedLeader] = useState<any | null>(null);
+  const [showLeaderDropdown, setShowLeaderDropdown] = useState(false);
+  // Leader search state for Manage Modal
+  const [reassignSearch, setReassignSearch] = useState("");
+  const [reassignResults, setReassignResults] = useState<any[]>([]);
+  const [selectedReassignLeader, setSelectedReassignLeader] = useState<any | null>(null);
+  const [showReassignDropdown, setShowReassignDropdown] = useState(false);
+  // Manage Modal editing state
+  const [editingHub, setEditingHub] = useState(false);
+  const [hubEditData, setHubEditData] = useState<any>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -119,6 +133,36 @@ function AdminCITHContent() {
     }
   };
 
+  // Search leaders for Create Modal
+  const handleLeaderSearch = async (query: string) => {
+    setLeaderSearch(query);
+    if (!query.trim()) {
+      setLeaderResults([]);
+      return;
+    }
+    try {
+      const results = await cith.searchMembers(query);
+      setLeaderResults(results);
+    } catch (err) {
+      console.error("Failed to search members:", err);
+    }
+  };
+
+  // Search leaders for Manage Modal
+  const handleReassignSearch = async (query: string) => {
+    setReassignSearch(query);
+    if (!query.trim()) {
+      setReassignResults([]);
+      return;
+    }
+    try {
+      const results = await cith.searchMembers(query);
+      setReassignResults(results);
+    } catch (err) {
+      console.error("Failed to search members:", err);
+    }
+  };
+
   const handleCreateHub = async () => {
     if (!hubFormData.name || !hubFormData.area || !hubFormData.city || !hubFormData.state) {
       error("Please fill in hub name, area, city, and state");
@@ -128,10 +172,11 @@ function AdminCITHContent() {
       setCreating(true);
       const payload = {
         name: hubFormData.name,
-        ...(hubFormData.leaderId ? { leaderId: hubFormData.leaderId } : {}),
+        ...(selectedLeader ? { leaderId: selectedLeader.id } : {}),
         area: hubFormData.area,
         city: hubFormData.city,
         state: hubFormData.state,
+        country: hubFormData.country,
         meetingDay: hubFormData.meetingDay || "Wednesday",
         meetingTime: hubFormData.meetingTime || "6:00 PM",
         capacity: hubFormData.capacity ? Number(hubFormData.capacity) : undefined,
@@ -146,15 +191,85 @@ function AdminCITHContent() {
         area: "",
         city: "",
         state: "",
+        country: "Nigeria",
         meetingDay: "",
         meetingTime: "",
         capacity: "",
       });
+      setLeaderSearch("");
+      setSelectedLeader(null);
+      setLeaderResults([]);
     } catch (err) {
       error("Failed to create hub");
       console.error(err);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleUpdateHub = async () => {
+    if (!hubEditData || !managingHub) return;
+    if (!hubEditData.name || !hubEditData.area || !hubEditData.city || !hubEditData.state) {
+      error("Please fill in hub name, area, city, and state");
+      return;
+    }
+    try {
+      setSavingChanges(true);
+      const payload = {
+        name: hubEditData.name,
+        area: hubEditData.area,
+        city: hubEditData.city,
+        state: hubEditData.state,
+        country: hubEditData.country,
+        meetingDay: hubEditData.meetingDay,
+        meetingTime: hubEditData.meetingTime,
+        capacity: hubEditData.capacity ? Number(hubEditData.capacity) : undefined,
+      };
+      await cith.updateHub(managingHub.id, payload);
+      const hubsList = await cith.getAdminHubs();
+      setHubs(hubsList);
+      setManagingHub(hubsList.find((h: any) => h.id === managingHub.id) || null);
+      success("Hub updated successfully");
+      setEditingHub(false);
+    } catch (err) {
+      error("Failed to update hub");
+      console.error(err);
+    } finally {
+      setSavingChanges(false);
+    }
+  };
+
+  const handleUpdateHubStatus = async (newStatus: string) => {
+    if (!managingHub) return;
+    try {
+      await cith.updateHub(managingHub.id, { status: newStatus });
+      const hubsList = await cith.getAdminHubs();
+      setHubs(hubsList);
+      setManagingHub(hubsList.find((h: any) => h.id === managingHub.id) || null);
+      success("Hub status updated successfully");
+    } catch (err) {
+      error("Failed to update hub status");
+      console.error(err);
+    }
+  };
+
+  const handleReassignLeader = async () => {
+    if (!managingHub || !selectedReassignLeader) return;
+    try {
+      setSavingLeader(true);
+      await cith.reassignLeader(managingHub.id, selectedReassignLeader.id);
+      const hubsList = await cith.getAdminHubs();
+      setHubs(hubsList);
+      setManagingHub(hubsList.find((h: any) => h.id === managingHub.id) || null);
+      success("Hub leader reassigned successfully");
+      setReassignSearch("");
+      setSelectedReassignLeader(null);
+      setReassignResults([]);
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to reassign leader");
+      console.error(err);
+    } finally {
+      setSavingLeader(false);
     }
   };
 
@@ -246,7 +361,7 @@ function AdminCITHContent() {
                   <td className="px-4 py-3">
                     <button
                       className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
-                      onClick={() => { setManagingHub(h); setNewLeaderId(h.leaderId || ""); setShowManageModal(true); }}
+                      onClick={() => { setManagingHub(h); setReassignSearch(""); setReassignResults([]); setSelectedReassignLeader(null); setEditingHub(false); setHubEditData(null); setShowManageModal(true); }}
                     >
                       Manage
                     </button>
@@ -328,76 +443,261 @@ function AdminCITHContent() {
       </Modal>
 
       {/* Manage Hub Modal */}
-      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setNewLeaderId(""); }} title={`Manage: ${managingHub?.name || "Hub"}`}>
+      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setEditingHub(false); setHubEditData(null); setReassignSearch(""); setSelectedReassignLeader(null); setReassignResults([]); }} title={`Manage: ${managingHub?.name || "Hub"}`}>
         <div className="space-y-4">
-          <div className="rounded-[4px] bg-off-white p-3 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-text font-heading">Status</span>
-              <span className={`font-heading font-semibold ${managingHub?.status === "ACTIVE" ? "text-success" : managingHub?.status === "PENDING" ? "text-warning" : "text-gray-text"}`}>{managingHub?.status}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-text font-heading">Location</span>
-              <span className="text-slate font-body">{[managingHub?.area, managingHub?.city, managingHub?.state].filter(Boolean).join(', ')}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-text font-heading">Meeting</span>
-              <span className="text-slate font-body">{managingHub?.meetingDay} at {managingHub?.meetingTime}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-text font-heading">Members</span>
-              <span className="text-slate font-body">{managingHub?._count?.members || 0}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-text font-heading">Current Leader</span>
-              <span className="text-slate font-body">{managingHub?.leader ? [managingHub.leader.profile?.firstName, managingHub.leader.profile?.lastName].filter(Boolean).join(' ') : "Unassigned"}</span>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-heading font-semibold text-slate mb-1">Reassign Leader</label>
-            <input
-              type="text"
-              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
-              placeholder="Enter new leader's User ID"
-              value={newLeaderId}
-              onChange={(e) => setNewLeaderId(e.target.value)}
-            />
-            <p className="mt-1 text-[11px] text-gray-text">Enter the user ID of the new hub leader from the Members page.</p>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button variant="secondary" className="flex-1" onClick={() => { setShowManageModal(false); setManagingHub(null); }}>
-              Close
-            </Button>
-            <Button
-              variant="primary"
-              className="flex-1"
-              disabled={savingLeader || !newLeaderId || newLeaderId === managingHub?.leaderId}
-              onClick={async () => {
-                if (!managingHub || !newLeaderId) return;
-                setSavingLeader(true);
-                try {
-                  await cith.reassignLeader(managingHub.id, newLeaderId);
-                  setHubs(hubs.map(h => h.id === managingHub.id ? { ...h, leaderId: newLeaderId } : h));
-                  success("Hub leader reassigned successfully");
-                  setShowManageModal(false);
-                  setManagingHub(null);
-                  // Refresh data
-                  const hubsList = await cith.getAdminHubs();
-                  setHubs(hubsList);
-                } catch (err) {
-                  error(err instanceof Error ? err.message : "Failed to reassign leader");
-                } finally {
-                  setSavingLeader(false);
-                }
-              }}
-            >
-              {savingLeader ? "Saving..." : "Reassign Leader"}
-            </Button>
-          </div>
+          {!editingHub ? (
+            <>
+              {/* Status Toggle */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-2">Status</label>
+                <div className="flex gap-2">
+                  {["ACTIVE", "PENDING", "INACTIVE"].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleUpdateHubStatus(status)}
+                      className={`flex-1 px-3 py-2 rounded-[4px] text-sm font-heading font-semibold transition-colors ${
+                        managingHub?.status === status
+                          ? statusBadge[status]
+                          : "bg-gray-border/50 text-gray-text hover:bg-gray-border"
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Read-only Hub Info */}
+              <div className="rounded-[4px] bg-off-white p-3 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-text font-heading">Hub Name</span>
+                  <span className="text-slate font-body">{managingHub?.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-text font-heading">Location</span>
+                  <span className="text-slate font-body">{[managingHub?.area, managingHub?.city, managingHub?.state, managingHub?.country].filter(Boolean).join(', ')}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-text font-heading">Meeting</span>
+                  <span className="text-slate font-body">{managingHub?.meetingDay} at {managingHub?.meetingTime}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-text font-heading">Capacity</span>
+                  <span className="text-slate font-body">{managingHub?.capacity || "No limit"}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-text font-heading">Members</span>
+                  <span className="text-slate font-body">{managingHub?._count?.members || 0}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-text font-heading">Current Leader</span>
+                  <span className="text-slate font-body">{managingHub?.leader ? [managingHub.leader.profile?.firstName, managingHub.leader.profile?.lastName].filter(Boolean).join(' ') : "Unassigned"}</span>
+                </div>
+              </div>
+
+              {/* Reassign Leader Section */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-1">Reassign Leader</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    placeholder="Search members by name or email..."
+                    value={selectedReassignLeader ? `${selectedReassignLeader.profile?.firstName || ''} ${selectedReassignLeader.profile?.lastName || ''} (${selectedReassignLeader.email})` : reassignSearch}
+                    onChange={(e) => handleReassignSearch(e.target.value)}
+                    onFocus={() => setShowReassignDropdown(true)}
+                  />
+                  {showReassignDropdown && reassignResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-border rounded-[4px] shadow-lg z-10">
+                      {reassignResults.map((member: any) => (
+                        <button
+                          key={member.id}
+                          onClick={() => {
+                            setSelectedReassignLeader(member);
+                            setReassignSearch("");
+                            setShowReassignDropdown(false);
+                            setReassignResults([]);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-off-white border-b border-gray-border last:border-b-0 transition-colors"
+                        >
+                          <div className="text-sm font-semibold text-slate">{member.profile?.firstName} {member.profile?.lastName}</div>
+                          <div className="text-xs text-gray-text">{member.email} • {member.role}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {selectedReassignLeader && (
+                  <button
+                    onClick={() => {
+                      setSelectedReassignLeader(null);
+                      setReassignSearch("");
+                    }}
+                    className="mt-2 text-xs text-error hover:underline"
+                  >
+                    Clear selection
+                  </button>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowManageModal(false);
+                    setManagingHub(null);
+                    setEditingHub(false);
+                  }}
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => {
+                    setEditingHub(true);
+                    setHubEditData({
+                      name: managingHub?.name,
+                      area: managingHub?.area,
+                      city: managingHub?.city,
+                      state: managingHub?.state,
+                      country: managingHub?.country,
+                      meetingDay: managingHub?.meetingDay,
+                      meetingTime: managingHub?.meetingTime,
+                      capacity: managingHub?.capacity || "",
+                    });
+                  }}
+                >
+                  Edit Hub
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1"
+                  disabled={savingLeader || !selectedReassignLeader}
+                  onClick={handleReassignLeader}
+                >
+                  {savingLeader ? "Saving..." : "Update Leader"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Edit Mode */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-1">Hub Name</label>
+                <input
+                  type="text"
+                  className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                  value={hubEditData?.name || ""}
+                  onChange={(e) => setHubEditData({ ...hubEditData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-1">Area</label>
+                <input
+                  type="text"
+                  className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                  value={hubEditData?.area || ""}
+                  onChange={(e) => setHubEditData({ ...hubEditData, area: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-slate mb-1">City</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    value={hubEditData?.city || ""}
+                    onChange={(e) => setHubEditData({ ...hubEditData, city: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-slate mb-1">State</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    value={hubEditData?.state || ""}
+                    onChange={(e) => setHubEditData({ ...hubEditData, state: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-1">Country</label>
+                <input
+                  type="text"
+                  className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                  value={hubEditData?.country || ""}
+                  onChange={(e) => setHubEditData({ ...hubEditData, country: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-slate mb-1">Meeting Day</label>
+                  <select
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    value={hubEditData?.meetingDay || ""}
+                    onChange={(e) => setHubEditData({ ...hubEditData, meetingDay: e.target.value })}
+                  >
+                    <option value="">Select day</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-heading font-semibold text-slate mb-1">Meeting Time</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                    placeholder="e.g. 6:00 PM"
+                    value={hubEditData?.meetingTime || ""}
+                    onChange={(e) => setHubEditData({ ...hubEditData, meetingTime: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-1">Capacity <span className="text-gray-text font-normal">(optional)</span></label>
+                <input
+                  type="number"
+                  className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                  placeholder="Max members"
+                  value={hubEditData?.capacity || ""}
+                  onChange={(e) => setHubEditData({ ...hubEditData, capacity: e.target.value })}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => {
+                    setEditingHub(false);
+                    setHubEditData(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1"
+                  disabled={savingChanges}
+                  onClick={handleUpdateHub}
+                >
+                  {savingChanges ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
 
       {/* Create Hub Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Hub">
+      <Modal isOpen={showCreateModal} onClose={() => { setShowCreateModal(false); setHubFormData({ name: "", leaderId: "", area: "", city: "", state: "", country: "Nigeria", meetingDay: "", meetingTime: "", capacity: "" }); setLeaderSearch(""); setSelectedLeader(null); setLeaderResults([]); }} title="Create Hub">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Hub Name</label>
@@ -410,14 +710,47 @@ function AdminCITHContent() {
             />
           </div>
           <div>
-            <label className="block text-sm font-heading font-semibold text-slate mb-1">Leader ID</label>
-            <input
-              type="text"
-              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
-              placeholder="Enter user ID"
-              value={hubFormData.leaderId}
-              onChange={(e) => setHubFormData({ ...hubFormData, leaderId: e.target.value })}
-            />
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Leader <span className="text-gray-text font-normal">(optional)</span></label>
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                placeholder="Search members by name or email..."
+                value={selectedLeader ? `${selectedLeader.profile?.firstName || ''} ${selectedLeader.profile?.lastName || ''} (${selectedLeader.email})` : leaderSearch}
+                onChange={(e) => handleLeaderSearch(e.target.value)}
+                onFocus={() => setShowLeaderDropdown(true)}
+              />
+              {showLeaderDropdown && leaderResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-border rounded-[4px] shadow-lg z-10">
+                  {leaderResults.map((member: any) => (
+                    <button
+                      key={member.id}
+                      onClick={() => {
+                        setSelectedLeader(member);
+                        setLeaderSearch("");
+                        setShowLeaderDropdown(false);
+                        setLeaderResults([]);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-off-white border-b border-gray-border last:border-b-0 transition-colors"
+                    >
+                      <div className="text-sm font-semibold text-slate">{member.profile?.firstName} {member.profile?.lastName}</div>
+                      <div className="text-xs text-gray-text">{member.email} • {member.role}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {selectedLeader && (
+              <button
+                onClick={() => {
+                  setSelectedLeader(null);
+                  setLeaderSearch("");
+                }}
+                className="mt-2 text-xs text-error hover:underline"
+              >
+                Clear selection
+              </button>
+            )}
           </div>
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Area</label>
@@ -450,6 +783,16 @@ function AdminCITHContent() {
                 onChange={(e) => setHubFormData({ ...hubFormData, state: e.target.value })}
               />
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Country</label>
+            <input
+              type="text"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="Country"
+              value={hubFormData.country}
+              onChange={(e) => setHubFormData({ ...hubFormData, country: e.target.value })}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -494,7 +837,7 @@ function AdminCITHContent() {
             <Button
               variant="secondary"
               className="flex-1"
-              onClick={() => setShowCreateModal(false)}
+              onClick={() => { setShowCreateModal(false); setHubFormData({ name: "", leaderId: "", area: "", city: "", state: "", country: "Nigeria", meetingDay: "", meetingTime: "", capacity: "" }); setLeaderSearch(""); setSelectedLeader(null); setLeaderResults([]); }}
             >
               Cancel
             </Button>
