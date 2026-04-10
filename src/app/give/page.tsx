@@ -15,7 +15,7 @@ export default function GivePage() {
   const { success, error } = useToast();
 
   // Form state
-  const [category, setCategory] = useState("offering");
+  const [category, setCategory] = useState("OFFERING");
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("NGN");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "bank">(
@@ -151,12 +151,11 @@ export default function GivePage() {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   options={[
-                    { value: "tithe", label: "Tithe" },
-                    { value: "offering", label: "Offering" },
-                    { value: "seed", label: "Seed" },
-                    { value: "building", label: "Building Fund" },
-                    { value: "missions", label: "Missions" },
-                    { value: "other", label: "Other" },
+                    { value: "TITHE", label: "Tithe" },
+                    { value: "OFFERING", label: "Offering" },
+                    { value: "SOW_A_SEED", label: "Sow a Seed" },
+                    { value: "PROJECT_GIVING", label: "Project Giving" },
+                    { value: "SPECIAL_OFFERING", label: "Special Offering" },
                   ]}
                   className="w-full"
                 />
