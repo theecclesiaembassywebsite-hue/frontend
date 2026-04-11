@@ -90,6 +90,33 @@ export default function NewConvertPage() {
         </div>
       </section>
 
+      {/* Welcome Video */}
+      <SectionWrapper variant="off-white">
+        <FadeIn>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="font-heading text-3xl font-bold mb-3"
+              style={{ color: "#4A1D6E" }}
+            >
+              A Message For You
+            </h2>
+            <p className="font-body text-sm text-gray-text mb-6">
+              Watch this short message as you begin your journey with us.
+            </p>
+            <div className="relative w-full overflow-hidden rounded-[8px] shadow-lg" style={{ paddingBottom: "56.25%" }}>
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/K5S6n9czMYU?autoplay=1&mute=1&rel=0"
+                title="Welcome Message"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </FadeIn>
+      </SectionWrapper>
+
       {/* Growth Journey Overview */}
       <SectionWrapper variant="white">
         <FadeIn>
