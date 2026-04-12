@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
-import { livestream } from "@/lib/api";
+import { livestream, serviceSchedule } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { FadeIn, ScaleIn } from "@/components/ui/Motion";
 import { Radio, Clock, Calendar } from "lucide-react";
@@ -34,35 +34,35 @@ const CountdownTimer = () => {
 
       let nextService = new Date();
 
-      // Sunday 9AM
-      if (dayOfWeek === 0 && hour < 9) {
-        nextService.setHours(9, 0, 0, 0);
+      // Sunday 8AM
+      if (dayOfWeek === 0 && hour < 8) {
+        nextService.setHours(8, 0, 0, 0);
       } else if (dayOfWeek === 0) {
-        nextService.setDate(nextService.getDate() + 3); // Tuesday
-        nextService.setHours(18, 0, 0, 0);
+        nextService.setDate(nextService.getDate() + 2); // Tuesday
+        nextService.setHours(17, 30, 0, 0);
       }
       // Monday
       else if (dayOfWeek === 1) {
         nextService.setDate(nextService.getDate() + 1); // Tuesday
-        nextService.setHours(18, 0, 0, 0);
+        nextService.setHours(17, 30, 0, 0);
       }
-      // Tuesday before 6PM
-      else if (dayOfWeek === 2 && hour < 18) {
-        nextService.setHours(18, 0, 0, 0);
+      // Tuesday before 5:30PM
+      else if (dayOfWeek === 2 && (hour < 17 || (hour === 17 && now.getMinutes() < 30))) {
+        nextService.setHours(17, 30, 0, 0);
       }
-      // Tuesday after 6PM or Wednesday-Thursday
+      // Tuesday after 5:30PM or Wednesday-Thursday
       else if (dayOfWeek === 2 || dayOfWeek === 3 || dayOfWeek === 4) {
         nextService.setDate(nextService.getDate() + (5 - dayOfWeek)); // Friday
-        nextService.setHours(18, 0, 0, 0);
+        nextService.setHours(17, 30, 0, 0);
       }
-      // Friday before 6PM
-      else if (dayOfWeek === 5 && hour < 18) {
-        nextService.setHours(18, 0, 0, 0);
+      // Friday before 5:30PM
+      else if (dayOfWeek === 5 && (hour < 17 || (hour === 17 && now.getMinutes() < 30))) {
+        nextService.setHours(17, 30, 0, 0);
       }
-      // Friday after 6PM or Saturday
+      // Friday after 5:30PM or Saturday
       else {
-        nextService.setDate(nextService.getDate() + (7 - dayOfWeek + 1)); // Next Sunday
-        nextService.setHours(9, 0, 0, 0);
+        nextService.setDate(nextService.getDate() + (7 - dayOfWeek)); // Next Sunday
+        nextService.setHours(8, 0, 0, 0);
       }
 
       const diff = nextService.getTime() - now.getTime();
@@ -125,18 +125,18 @@ const CountdownTimer = () => {
           <div className="text-xs text-white/50 uppercase mt-2">Seconds</div>
         </div>
       </div>
-      <div className="text-center">
-        <h3 className="text-2xl font-heading text-white mb-2">Next Service</h3>
-        <p className="text-white/70">Sunday 9:00 AM</p>
-      </div>
+      {/* Countdown only — no static text */}
     </div>
   );
 };
+
+const ICONS = [Calendar, Clock, Radio];
 
 export default function LivePage() {
   const [isLive, setIsLive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [youtubeId, setYoutubeId] = useState<string | null>(null);
+  const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
     const checkLiveStatus = async () => {
@@ -153,7 +153,17 @@ export default function LivePage() {
     };
 
     checkLiveStatus();
-    const interval = setInterval(checkLiveStatus, 30000); // Check every 30 seconds
+    const interval = setInterval(checkLiveStatus, 30000);
+
+    // Fetch service schedule
+    serviceSchedule
+      .getPublic()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setServices(data);
+        }
+      })
+      .catch(() => {});
 
     return () => clearInterval(interval);
   }, []);
@@ -194,54 +204,45 @@ export default function LivePage() {
       </div>
 
       {/* Service Schedule Section */}
-      <SectionWrapper variant="dark-slate">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-heading text-white mb-4">
-            Our Service Schedule
-          </h2>
-          <p className="text-white/70 max-w-2xl mx-auto">
-            Join us in person or online for worship and community
-          </p>
-        </div>
+      {services.length > 0 && (
+        <SectionWrapper variant="dark-slate">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-heading text-white mb-4">
+              Our Service Schedule
+            </h2>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              Join us in person or online for worship and community
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Sunday Service */}
-          <FadeIn delay={0.1}>
-            <div className="bg-white/5 rounded-xl p-8 border border-purple/20 hover:border-purple/50 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <Calendar className="w-6 h-6 text-purple-vivid" />
-                <h3 className="text-xl font-heading text-white">Sunday</h3>
-              </div>
-              <p className="text-white/70 mb-2">Worship & Teaching</p>
-              <p className="text-2xl font-bold text-purple-vivid">9:00 AM</p>
-            </div>
-          </FadeIn>
-
-          {/* Tuesday Service */}
-          <FadeIn delay={0.2}>
-            <div className="bg-white/5 rounded-xl p-8 border border-purple/20 hover:border-purple/50 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <Clock className="w-6 h-6 text-purple-vivid" />
-                <h3 className="text-xl font-heading text-white">Tuesday</h3>
-              </div>
-              <p className="text-white/70 mb-2">Evening Prayer</p>
-              <p className="text-2xl font-bold text-purple-vivid">6:00 PM</p>
-            </div>
-          </FadeIn>
-
-          {/* Friday Service */}
-          <FadeIn delay={0.3}>
-            <div className="bg-white/5 rounded-xl p-8 border border-purple/20 hover:border-purple/50 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <Radio className="w-6 h-6 text-purple-vivid" />
-                <h3 className="text-xl font-heading text-white">Friday</h3>
-              </div>
-              <p className="text-white/70 mb-2">Community Gathering</p>
-              <p className="text-2xl font-bold text-purple-vivid">6:00 PM</p>
-            </div>
-          </FadeIn>
-        </div>
-      </SectionWrapper>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {services.map((svc: any, i: number) => {
+              const Icon = ICONS[i % ICONS.length];
+              return (
+                <FadeIn key={svc.id || i} delay={0.1 * (i + 1)}>
+                  <div className="bg-white/5 rounded-xl p-8 border border-purple/20 hover:border-purple/50 transition-colors">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Icon className="w-6 h-6 text-purple-vivid" />
+                      <h3 className="text-xl font-heading text-white">
+                        {svc.day}
+                        {svc.dayLabel && (
+                          <span className="text-sm text-white/50 ml-1">
+                            {svc.dayLabel}
+                          </span>
+                        )}
+                      </h3>
+                    </div>
+                    <p className="text-white/70 mb-2">{svc.name}</p>
+                    <p className="text-2xl font-bold text-purple-vivid">
+                      {svc.time}
+                    </p>
+                  </div>
+                </FadeIn>
+              );
+            })}
+          </div>
+        </SectionWrapper>
+      )}
     </>
   );
 }

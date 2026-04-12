@@ -342,6 +342,51 @@ export const firstTimer = {
     }),
 };
 
+// SERVICE SCHEDULE ENDPOINTS
+export const serviceSchedule = {
+  getPublic: () =>
+    fetchAPI<any[]>("/service-schedule", { noAuth: true }),
+
+  adminGetAll: () =>
+    fetchAPI<any[]>("/service-schedule/admin"),
+
+  adminCreate: (data: {
+    day: string;
+    dayLabel?: string;
+    name: string;
+    time: string;
+    description: string;
+    order?: number;
+    active?: boolean;
+  }) =>
+    fetchAPI<any>("/service-schedule/admin", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  adminUpdate: (
+    id: string,
+    data: {
+      day?: string;
+      dayLabel?: string;
+      name?: string;
+      time?: string;
+      description?: string;
+      order?: number;
+      active?: boolean;
+    }
+  ) =>
+    fetchAPI<any>(`/service-schedule/admin/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  adminDelete: (id: string) =>
+    fetchAPI<any>(`/service-schedule/admin/${id}`, {
+      method: "DELETE",
+    }),
+};
+
 // PRAYER ENDPOINTS
 export const prayer = {
   submitPrayer: (data: {

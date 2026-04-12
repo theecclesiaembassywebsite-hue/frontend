@@ -15,7 +15,7 @@ export default function GivePage() {
   const { success, error } = useToast();
 
   // Form state
-  const [category, setCategory] = useState("OFFERING");
+  const [category, setCategory] = useState("SOW_A_SEED");
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("NGN");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "bank">(
@@ -25,16 +25,42 @@ export default function GivePage() {
   const [email, setEmail] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [copiedAccountNumber, setCopiedAccountNumber] = useState(false);
 
-  const accountNumber = "0123456789";
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-  const handleCopyAccountNumber = async () => {
+  const bankAccounts = [
+    {
+      label: "Main Account",
+      bank: "Zenith Bank Plc.",
+      name: "The Ecclesia Embassy",
+      number: "1014839248",
+    },
+    {
+      label: "Gilgal Camp Account",
+      bank: "Zenith Bank Plc.",
+      name: "The Ecclesia Embassy Gilgal",
+      number: "1014915517",
+    },
+    {
+      label: "Domiciliary Account",
+      bank: "Zenith Bank Plc.",
+      name: "Ecclesia Christian Embassy Domiciliary",
+      number: "5366144582",
+    },
+    {
+      label: "Kingdom Life Squads Mission Account",
+      bank: "Zenith Bank Plc.",
+      name: "Kingdom Model Life Squad Initiative",
+      number: "1015080164",
+    },
+  ];
+
+  const handleCopyAccountNumber = async (number: string, index: number) => {
     try {
-      await navigator.clipboard.writeText(accountNumber);
-      setCopiedAccountNumber(true);
+      await navigator.clipboard.writeText(number);
+      setCopiedIndex(index);
       success("Account number copied to clipboard");
-      setTimeout(() => setCopiedAccountNumber(false), 2000);
+      setTimeout(() => setCopiedIndex(null), 2000);
     } catch {
       error("Failed to copy account number");
     }
@@ -297,65 +323,55 @@ export default function GivePage() {
               {/* BANK TRANSFER TAB */}
               {paymentMethod === "bank" && (
                 <ScaleIn>
-                  <div className="pt-2">
-                    {/* Bank Details Card */}
-                    <div className="bg-off-white rounded-lg p-6 space-y-4 border border-lavender">
-                      <h3 className="font-heading text-lg text-slate mb-4">
-                        Bank Details
-                      </h3>
-
-                      {/* Bank Name */}
-                      <div>
-                        <p className="font-body text-sm text-gray-text mb-1">
-                          Bank
-                        </p>
-                        <p className="font-body font-medium text-slate">
-                          First Bank of Nigeria
-                        </p>
-                      </div>
-
-                      {/* Account Name */}
-                      <div>
-                        <p className="font-body text-sm text-gray-text mb-1">
-                          Account Name
-                        </p>
-                        <p className="font-body font-medium text-slate">
-                          The Ecclesia Embassy
-                        </p>
-                      </div>
-
-                      {/* Account Number with Copy Button */}
-                      <div>
-                        <p className="font-body text-sm text-gray-text mb-2">
-                          Account Number
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <p className="font-mono font-medium text-slate text-lg tracking-wider">
-                            {accountNumber}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={handleCopyAccountNumber}
-                            className="inline-flex items-center justify-center p-2 rounded-md hover:bg-lavender transition-colors text-purple"
-                            aria-label="Copy account number"
-                          >
-                            {copiedAccountNumber ? (
-                              <Check size={20} />
-                            ) : (
-                              <Copy size={20} />
-                            )}
-                          </button>
+                  <div className="pt-2 space-y-4">
+                    {bankAccounts.map((account, i) => (
+                      <div
+                        key={i}
+                        className="bg-off-white rounded-lg p-5 border border-lavender"
+                      >
+                        <h4 className="font-heading text-sm font-bold text-purple mb-3">
+                          {account.label}
+                        </h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-body text-xs text-gray-text">Bank</span>
+                            <span className="font-body text-sm font-medium text-slate">{account.bank}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="font-body text-xs text-gray-text">Account Name</span>
+                            <span className="font-body text-sm font-medium text-slate text-right">{account.name}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="font-body text-xs text-gray-text">Account Number</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-sm font-bold text-slate tracking-wider">
+                                {account.number}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyAccountNumber(account.number, i)}
+                                className="inline-flex items-center justify-center p-1.5 rounded-md hover:bg-lavender transition-colors text-purple"
+                                aria-label="Copy account number"
+                              >
+                                {copiedIndex === i ? (
+                                  <Check size={16} />
+                                ) : (
+                                  <Copy size={16} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ))}
 
                     {/* Instructions */}
-                    <div className="mt-6 p-4 bg-purple-light rounded-lg border border-lavender">
+                    <div className="p-4 bg-purple-light rounded-lg border border-lavender">
                       <p className="font-body text-sm text-slate">
                         <span className="font-medium">Instructions:</span>{" "}
-                        Transfer the amount to the bank details above. Please
-                        include your name as the transfer reference so we can
-                        acknowledge your gift.
+                        Transfer the amount to the appropriate bank account above.
+                        Please include your name as the transfer reference so we
+                        can acknowledge your gift.
                       </p>
                     </div>
                   </div>

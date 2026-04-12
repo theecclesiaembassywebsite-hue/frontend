@@ -145,7 +145,7 @@ export default function NewHerePage() {
                 Service Times
               </h3>
               <p className="font-body text-sm text-gray-text">
-                Sunday 9:00 AM. Join us for worship, community, and growth in faith.
+                Sunday 8:00 AM. Join us for worship, community, and growth in faith.
               </p>
             </div>
           </StaggerItem>

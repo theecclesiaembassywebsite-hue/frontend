@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Users, Gift, FileText, MapPin, GraduationCap,
   MessageCircle, Calendar, BookOpen, HandHeart, Quote, BarChart3,
-  Radio, Settings, UserPlus,
+  Radio, Settings, UserPlus, Clock,
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +22,7 @@ const navItems = [
   { label: "Intentionality Class", href: "/admin/class", icon: GraduationCap },
   { label: "Ecclesia Nation", href: "/admin/nation", icon: MessageCircle },
   { label: "Resources", href: "/admin/resources", icon: BookOpen },
+  { label: "Service Schedule", href: "/admin/schedule", icon: Clock },
   { label: "Livestream", href: "/admin/livestream", icon: Radio },
   { label: "Prayer Requests", href: "/admin/prayer", icon: HandHeart },
   { label: "Testimonies", href: "/admin/testimonies", icon: Quote },

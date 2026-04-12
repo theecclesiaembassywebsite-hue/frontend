@@ -1,31 +1,34 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
+import { serviceSchedule } from "@/lib/api";
 
-const services = [
+// Fallback if API is unreachable
+const DEFAULT_SERVICES = [
   {
     day: "Sunday",
     name: "Word & Life Service",
-    time: "9:00 AM",
+    time: "8:00 AM",
     description: "Our flagship gathering — worship, the Word, and life application.",
   },
   {
     day: "Tuesday",
-    name: "Prayer & Intercession",
-    time: "6:00 PM",
+    name: "Warfare & Intercession",
+    time: "5:30 PM",
     description: "A time of corporate prayer, intercession, and spiritual warfare.",
   },
   {
     day: "Friday",
     name: "Worship Encounter",
-    time: "6:00 PM",
+    time: "5:30 PM",
     description: "An evening of deep worship and encounter with God's presence.",
   },
   {
     day: "1st — 3rd",
-    label: "of every month",
+    dayLabel: "of every month",
     name: "As Unto The Lord",
     time: "6 AM & 6 PM",
     description: "Special consecration services to begin each month in God's presence.",
@@ -33,6 +36,21 @@ const services = [
 ];
 
 export default function ServiceSchedule() {
+  const [services, setServices] = useState(DEFAULT_SERVICES);
+
+  useEffect(() => {
+    serviceSchedule
+      .getPublic()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setServices(data);
+        }
+      })
+      .catch(() => {
+        // Use defaults on error
+      });
+  }, []);
+
   return (
     <SectionWrapper variant="dark-slate">
       <FadeIn>
@@ -48,17 +66,17 @@ export default function ServiceSchedule() {
 
       <StaggerContainer staggerDelay={0.1}>
         <div className="space-y-4 max-w-3xl mx-auto">
-          {services.map((service, i) => (
-            <StaggerItem key={i}>
+          {services.map((service: any, i: number) => (
+            <StaggerItem key={service.id || i}>
               <div className="group flex items-stretch rounded-lg overflow-hidden bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] hover:border-gold/40 transition-all duration-300">
                 {/* Left: Day column */}
                 <div className="w-28 sm:w-36 shrink-0 flex flex-col items-center justify-center py-6 px-3 border-r border-white/[0.10]">
                   <span className="font-heading text-xl sm:text-2xl font-bold text-white leading-tight">
                     {service.day}
                   </span>
-                  {service.label && (
+                  {service.dayLabel && (
                     <span className="font-body text-[10px] text-white/60 mt-0.5">
-                      {service.label}
+                      {service.dayLabel}
                     </span>
                   )}
                 </div>

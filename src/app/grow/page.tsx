@@ -110,7 +110,7 @@ export default function GrowPage() {
               Ready to Take the Next Step?
             </h2>
             <p className="font-body text-white/80 max-w-2xl mx-auto mb-8">
-              Join us this Sunday at 9 AM or explore our growth pathways to
+              Join us this Sunday at 8 AM or explore our growth pathways to
               discover how you can deepen your faith and fulfill your purpose.
             </p>
             <Link href="/new-here">
