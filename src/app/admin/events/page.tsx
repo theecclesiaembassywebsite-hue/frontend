@@ -4,9 +4,9 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Search, Plus, Calendar, Users, MapPin, Clock, Pencil } from "lucide-react";
+import { Search, Plus, Calendar, Users, MapPin, Clock, Pencil, ImagePlus, X } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { events as eventsAPI } from "@/lib/api";
+import { events as eventsAPI, upload } from "@/lib/api";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
@@ -55,11 +55,16 @@ function AdminEventsContent() {
     title: "",
     description: "",
     date: "",
-    time: "9:00 AM",
+    time: "8:00 AM",
     location: "",
     capacity: "",
     eventType: "GENERAL",
   });
+  const [createImageFile, setCreateImageFile] = useState<File | null>(null);
+  const [createImagePreview, setCreateImagePreview] = useState<string | null>(null);
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -88,6 +93,20 @@ function AdminEventsContent() {
     setFilteredEvents(filtered);
   }, [search, statusFilter, eventList]);
 
+  const handleImageSelect = (file: File, mode: "create" | "edit") => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (mode === "create") {
+        setCreateImageFile(file);
+        setCreateImagePreview(reader.result as string);
+      } else {
+        setEditImageFile(file);
+        setEditImagePreview(reader.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleCreateEvent = async () => {
     if (!formData.title || !formData.date || !formData.location) {
       error("Please fill in all required fields");
@@ -95,6 +114,19 @@ function AdminEventsContent() {
     }
 
     try {
+      let imageUrl: string | undefined;
+      if (createImageFile) {
+        setUploadingImage(true);
+        try {
+          const uploadRes = await upload.image(createImageFile);
+          imageUrl = uploadRes.url;
+        } catch {
+          error("Image upload failed, creating event without image");
+        } finally {
+          setUploadingImage(false);
+        }
+      }
+
       const newEvent = await eventsAPI.createEvent({
         title: formData.title,
         description: formData.description,
@@ -103,10 +135,13 @@ function AdminEventsContent() {
         location: formData.location,
         maxCapacity: parseInt(formData.capacity) || 100,
         eventType: formData.eventType,
+        ...(imageUrl ? { imageUrl } : {}),
       });
       setEventList([newEvent, ...eventList]);
       setShowCreateModal(false);
-      setFormData({ title: "", description: "", date: "", time: "9:00 AM", location: "", capacity: "", eventType: "GENERAL" });
+      setFormData({ title: "", description: "", date: "", time: "8:00 AM", location: "", capacity: "", eventType: "GENERAL" });
+      setCreateImageFile(null);
+      setCreateImagePreview(null);
       success("Event created successfully");
     } catch (err) {
       error("Failed to create event");
@@ -117,6 +152,19 @@ function AdminEventsContent() {
   const handleUpdateEvent = async () => {
     if (!editingEvent) return;
     try {
+      let imageUrl: string | undefined;
+      if (editImageFile) {
+        setUploadingImage(true);
+        try {
+          const uploadRes = await upload.image(editImageFile);
+          imageUrl = uploadRes.url;
+        } catch {
+          error("Image upload failed");
+        } finally {
+          setUploadingImage(false);
+        }
+      }
+
       const updated = await eventsAPI.updateEvent(editingEvent.id, {
         title: editFormData.title,
         description: editFormData.description,
@@ -124,9 +172,12 @@ function AdminEventsContent() {
         time: editFormData.time,
         location: editFormData.location,
         maxCapacity: parseInt(editFormData.maxCapacity) || undefined,
+        ...(imageUrl ? { imageUrl } : {}),
       });
       setEventList(eventList.map((e) => (e.id === editingEvent.id ? { ...e, ...updated } : e)));
       setEditingEvent(null);
+      setEditImageFile(null);
+      setEditImagePreview(null);
       success("Event updated successfully");
     } catch (err) {
       error("Failed to update event");
@@ -268,6 +319,8 @@ function AdminEventsContent() {
                             location: e.location || "",
                             maxCapacity: e.maxCapacity ? String(e.maxCapacity) : "",
                           });
+                          setEditImageFile(null);
+                          setEditImagePreview(e.imageUrl || null);
                         }}
                       >
                         <Pencil size={14} />
@@ -290,6 +343,11 @@ function AdminEventsContent() {
       <Modal isOpen={!!viewingEvent} onClose={() => setViewingEvent(null)} title="Event Details">
         {viewingEvent && (
           <div className="space-y-4">
+            {viewingEvent.imageUrl && (
+              <div className="rounded-[8px] overflow-hidden border border-gray-border">
+                <img src={viewingEvent.imageUrl} alt={viewingEvent.title} className="w-full h-48 object-cover" />
+              </div>
+            )}
             <div>
               <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Title</p>
               <p className="font-body text-sm text-slate">{viewingEvent.title}</p>
@@ -393,8 +451,39 @@ function AdminEventsContent() {
               onChange={(e) => setEditFormData({ ...editFormData, maxCapacity: e.target.value })}
             />
           </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Image</label>
+            {editImagePreview ? (
+              <div className="relative rounded-[8px] overflow-hidden border border-gray-border">
+                <img src={editImagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
+                  onClick={() => { setEditImageFile(null); setEditImagePreview(null); }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 rounded-[8px] border-2 border-dashed border-gray-border bg-off-white cursor-pointer hover:border-purple-vivid/40 transition-colors">
+                <ImagePlus size={24} className="text-gray-text mb-2" />
+                <span className="text-xs font-body text-gray-text">Click to upload event image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageSelect(file, "edit");
+                  }}
+                />
+              </label>
+            )}
+          </div>
           <div className="flex gap-2 pt-4">
-            <Button variant="primary" className="flex-1" onClick={handleUpdateEvent}>Save Changes</Button>
+            <Button variant="primary" className="flex-1" onClick={handleUpdateEvent} disabled={uploadingImage}>
+              {uploadingImage ? "Uploading..." : "Save Changes"}
+            </Button>
             <Button variant="secondary" className="flex-1" onClick={() => setEditingEvent(null)}>Cancel</Button>
           </div>
         </div>
@@ -475,8 +564,39 @@ function AdminEventsContent() {
               onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
             />
           </div>
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Image</label>
+            {createImagePreview ? (
+              <div className="relative rounded-[8px] overflow-hidden border border-gray-border">
+                <img src={createImagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
+                  onClick={() => { setCreateImageFile(null); setCreateImagePreview(null); }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 rounded-[8px] border-2 border-dashed border-gray-border bg-off-white cursor-pointer hover:border-purple-vivid/40 transition-colors">
+                <ImagePlus size={24} className="text-gray-text mb-2" />
+                <span className="text-xs font-body text-gray-text">Click to upload event image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageSelect(file, "create");
+                  }}
+                />
+              </label>
+            )}
+          </div>
           <div className="flex gap-2 pt-4">
-            <Button variant="primary" className="flex-1" onClick={handleCreateEvent}>Create Event</Button>
+            <Button variant="primary" className="flex-1" onClick={handleCreateEvent} disabled={uploadingImage}>
+              {uploadingImage ? "Uploading..." : "Create Event"}
+            </Button>
             <Button variant="secondary" className="flex-1" onClick={() => setShowCreateModal(false)}>Cancel</Button>
           </div>
         </div>
