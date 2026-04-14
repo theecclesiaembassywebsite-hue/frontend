@@ -1064,6 +1064,17 @@ export const training = {
 
   getAdminEnrollments: (program?: string) =>
     fetchAPI<any[]>(`/training/admin/enrollments${program ? `?program=${program}` : ""}`),
+
+  adminUpdateEnrollment: (id: string, data: { trackingStatus?: string; notes?: string }) =>
+    fetchAPI<any>(`/training/admin/enrollments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  adminDeleteEnrollment: (id: string) =>
+    fetchAPI<{ message: string }>(`/training/admin/enrollments/${id}`, {
+      method: "DELETE",
+    }),
 };
 
 // ADMIN ENDPOINTS
