@@ -6,6 +6,7 @@ import { livestream, serviceSchedule } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { FadeIn, ScaleIn } from "@/components/ui/Motion";
 import { Radio, Clock, Calendar } from "lucide-react";
+import { normalizeEmbedUrl } from "@/lib/utils";
 
 interface CountdownState {
   days: number;
@@ -143,7 +144,7 @@ export default function LivePage() {
       try {
         const data = await livestream.getConfig();
         setIsLive(data.isLive || false);
-        setYoutubeId(data.embedUrl || null);
+        setYoutubeId(normalizeEmbedUrl(data.embedUrl) || null);
       } catch (error) {
         console.error("Failed to fetch livestream status:", error);
         setIsLive(false);
@@ -187,7 +188,7 @@ export default function LivePage() {
                 <iframe
                   width="100%"
                   height="600"
-                  src={youtubeId?.includes('http') ? youtubeId : `https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+                  src={youtubeId || ""}
                   className="rounded-xl shadow-2xl aspect-video"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
