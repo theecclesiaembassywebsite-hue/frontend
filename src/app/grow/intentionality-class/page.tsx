@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/ui/Toast';
 import { FadeIn } from '@/components/ui/Motion';
 import { GraduationCap, CheckCircle, BookOpen, Clock, Users } from 'lucide-react';
+import EditableContent from '@/components/ui/EditableContent';
 
 interface Course {
   id: string;
@@ -92,6 +93,8 @@ export default function IntentionalityClassPage() {
         </div>
       </section>
 
+      <EditableContent pagePath="/grow/intentionality-class" />
+
       {/* About the Class */}
       <SectionWrapper variant="white">
         <FadeIn>
@@ -133,6 +136,73 @@ export default function IntentionalityClassPage() {
                   <p className="text-[#8A8A8E] font-body">Small groups for meaningful connection</p>
                 </div>
               </FadeIn>
+            </div>
+          </div>
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* Intentionality Class Details */}
+      <SectionWrapper variant="white">
+        <FadeIn>
+          <div className="max-w-5xl mx-auto mb-12">
+            <h2 className="text-4xl font-bold font-heading text-[#241A42] mb-8 text-center">
+              What the Intentionality Class is About
+            </h2>
+            <div className="space-y-6 font-body text-[#4E4B6C] leading-relaxed text-base">
+              <p>
+                The Intentionality Class is the core training and development pathway of The Ecclesia Embassy, designed to intentionally guide believers from foundational faith to active service and leadership within the ministry. It is a structured system that ensures every partaker is grounded spiritually, aligned culturally, and equipped to fulfill their role in the Ecclesia mandate.
+              </p>
+              <p>
+                At its core, the Intentionality Class is about intentional growth; raising individuals who not only understand their faith but also live it out through service, stewardship, and leadership.
+              </p>
+
+              <div className="rounded-[20px] border border-[#E4E0EF] bg-[#F7F5FF] p-6">
+                <h3 className="text-2xl font-semibold text-[#241A42] mb-4">The program focuses on three key outcomes:</h3>
+                <ul className="space-y-4 list-disc list-inside font-body text-[#4E4B6C]">
+                  <li>
+                    <span className="font-semibold">Foundation:</span> Establishing strong roots in the Christian faith and understanding the Ecclesia Embassy system.
+                  </li>
+                  <li>
+                    <span className="font-semibold">Transformation:</span> Developing godly character, discipline, and the work culture required for kingdom service.
+                  </li>
+                  <li>
+                    <span className="font-semibold">Responsibility:</span> Raising individuals who are equipped to serve, lead, and help others grow.
+                  </li>
+                </ul>
+              </div>
+
+              <p>
+                It moves partakers from being learners to becoming active contributors and eventually leaders within the Ecclesia Workforce.
+              </p>
+
+              <h3 className="text-3xl font-semibold text-[#241A42] mt-8">The Process</h3>
+              <div className="space-y-8">
+                <div>
+                  <h4 className="text-2xl font-semibold text-[#241A42] mb-2">Phase One — Move-In</h4>
+                  <p>
+                    This is the entry level where partakers are introduced to the basics of the Christian faith and the Ecclesia Embassy. It includes six teachings and can be completed over three weeks or through a one-day crash course. At the end, partakers are assessed and qualified candidates move to the next phase.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-2xl font-semibold text-[#241A42] mb-2">Phase Two — Maturity & Ministry</h4>
+                  <p>
+                    This phase focuses on practical growth and culture development. Over several weeks, partakers are trained in values such as stewardship, consistency, honour, and commitment through teachings, assignments, and evaluations.
+                  </p>
+                  <p>
+                    A major component here is the Ecclesia Stewardship Experience Program (ESEP), a hands-on internship where partakers serve in different ministry platforms to gain real experience. Successful partakers are then integrated into the Ecclesia Workforce.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-2xl font-semibold text-[#241A42] mb-2">Phase Three — Missions & Mandate</h4>
+                  <p>
+                    This is the advanced stage for committed members and leaders. It shifts the focus from personal growth to kingdom impact. Partakers are trained in evangelism (Missions) and leadership (Mandate), equipping them to influence others and take on greater responsibility within and beyond the ministry.
+                  </p>
+                </div>
+              </div>
+
+              <p className="font-semibold">
+                The Intentionality Class is a step-by-step journey of transformation; from becoming grounded in faith, to living a disciplined and service-driven life, and ultimately to embracing leadership and kingdom responsibility. It ensures that every member of The Ecclesia Embassy is intentionally built to grow, serve, and lead.
+              </p>
             </div>
           </div>
         </FadeIn>

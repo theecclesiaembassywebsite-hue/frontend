@@ -18,7 +18,7 @@ const siteLinks = [
 const joinLinks = [
   { label: "New Here?", href: "/new-here" },
   { label: "Grow with Us", href: "/grow" },
-  { label: "Join a Squad", href: "/kingdom/squads" },
+  { label: "Join a Squad", href: "/kingdom-expressions/squads" },
   { label: "Find a Hub", href: "/cith" },
   { label: "Ecclesia Nation", href: "/nation" },
   { label: "Prayer Request", href: "/prayer" },

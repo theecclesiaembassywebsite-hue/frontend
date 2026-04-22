@@ -52,10 +52,10 @@ const navLinks = [
   },
   {
     label: "KINGDOM",
-    href: "/kingdom",
+    href: "/kingdom-expressions",
     children: [
-      { label: "Kingdom Life Squads", href: "/kingdom/squads" },
-      { label: "Kingdom Influencing Platform", href: "/kingdom/kip" },
+      { label: "Kingdom Life Squads", href: "/kingdom-expressions/squads" },
+      { label: "Kingdom Influencing Platform", href: "/kingdom-expressions/kip" },
     ],
   },
   {
