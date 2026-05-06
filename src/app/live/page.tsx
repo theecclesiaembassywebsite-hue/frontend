@@ -180,6 +180,8 @@ export default function LivePage() {
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [now, setNow] = useState(() => new Date());
+  const [youtubeIsLive, setYoutubeIsLive] = useState(false);
+  const [youtubeLiveUrl, setYoutubeLiveUrl] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "Live | The Ecclesia Embassy";
@@ -232,11 +234,25 @@ export default function LivePage() {
       }
     };
 
+    const fetchYoutubeLive = async () => {
+      try {
+        const res = await fetch("/api/youtube-live");
+        const data = await res.json();
+        if (!isMounted) return;
+        setYoutubeIsLive(data.isLive ?? false);
+        setYoutubeLiveUrl(data.embedUrl ?? null);
+      } catch {
+        // silent — defaults remain false/null
+      }
+    };
+
     fetchConfig();
     fetchServices();
     fetchVideos();
+    fetchYoutubeLive();
 
     const configIntervalId = window.setInterval(fetchConfig, 30000);
+    const youtubeLiveIntervalId = window.setInterval(fetchYoutubeLive, 60000);
     const clockIntervalId = window.setInterval(() => {
       setNow(new Date());
     }, 1000);
@@ -244,14 +260,17 @@ export default function LivePage() {
     return () => {
       isMounted = false;
       window.clearInterval(configIntervalId);
+      window.clearInterval(youtubeLiveIntervalId);
       window.clearInterval(clockIntervalId);
     };
   }, []);
 
-  const liveEmbedUrl = toEmbedUrl(config?.embedUrl);
+  const manualEmbedUrl = toEmbedUrl(config?.embedUrl);
+  // YouTube auto-detection takes priority; manual config is the fallback.
+  const liveEmbedUrl = youtubeIsLive ? (youtubeLiveUrl ?? "") : manualEmbedUrl;
+  const showLiveStream = youtubeIsLive || Boolean(config?.isLive && manualEmbedUrl);
   const nextUpcomingService = getNextUpcomingService(config, services, now);
   const countdown = getCountdownParts(nextUpcomingService?.startsAt ?? null, now);
-  const showLiveStream = Boolean(config?.isLive && liveEmbedUrl);
   const isLoadingHero = isLoadingConfig || isLoadingServices;
 
   return (
