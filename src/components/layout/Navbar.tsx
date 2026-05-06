@@ -52,10 +52,10 @@ const navLinks = [
   },
   {
     label: "KINGDOM",
-    href: "/kingdom",
+    href: "/kingdom-expressions",
     children: [
-      { label: "Kingdom Life Squads", href: "/kingdom/squads" },
-      { label: "Kingdom Influencing Platform", href: "/kingdom/kip" },
+      { label: "Kingdom Life Squads", href: "/kingdom-expressions/squads" },
+      { label: "Kingdom Influencing Platform", href: "/kingdom-expressions/kip" },
     ],
   },
   {
@@ -200,24 +200,44 @@ export default function Navbar() {
                 onMouseEnter={() => link.children && setOpenDropdown(link.label)}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <Link
-                  href={link.href}
-                  className={cn(
-                    "text-nav-link text-white px-3 py-4 flex items-center gap-1",
-                    "hover:text-lavender transition-colors duration-200",
-                    "border-b-2 border-transparent hover:border-purple-vivid"
-                  )}
-                >
-                  {link.label}
-                  {link.children && (
-                    <motion.span
-                      animate={{ rotate: openDropdown === link.label ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ChevronDown size={12} />
-                    </motion.span>
-                  )}
-                </Link>
+                {link.href ? (
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      "text-nav-link text-white px-3 py-4 flex items-center gap-1",
+                      "hover:text-lavender transition-colors duration-200",
+                      "border-b-2 border-transparent hover:border-purple-vivid"
+                    )}
+                  >
+                    {link.label}
+                    {link.children && (
+                      <motion.span
+                        animate={{ rotate: openDropdown === link.label ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown size={12} />
+                      </motion.span>
+                    )}
+                  </Link>
+                ) : (
+                  <button
+                    className={cn(
+                      "text-nav-link text-white px-3 py-4 flex items-center gap-1",
+                      "hover:text-lavender transition-colors duration-200",
+                      "border-b-2 border-transparent hover:border-purple-vivid cursor-pointer"
+                    )}
+                  >
+                    {link.label}
+                    {link.children && (
+                      <motion.span
+                        animate={{ rotate: openDropdown === link.label ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown size={12} />
+                      </motion.span>
+                    )}
+                  </button>
+                )}
 
                 {/* Separator */}
                 {i < navLinks.length - 1 && (
@@ -330,13 +350,21 @@ export default function Navbar() {
               <div className="flex flex-col py-2">
                 {navLinks.map((link) => (
                   <div key={link.label}>
-                    <Link
-                      href={link.href}
-                      onClick={() => !link.children && setMobileOpen(false)}
-                      className="block px-6 py-3 text-nav-link text-white hover:text-lavender hover:bg-white/5 transition-colors"
-                    >
-                      {link.label}
-                    </Link>
+                    {link.href ? (
+                      <Link
+                        href={link.href}
+                        onClick={() => !link.children && setMobileOpen(false)}
+                        className="block px-6 py-3 text-nav-link text-white hover:text-lavender hover:bg-white/5 transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <button
+                        className="block w-full text-left px-6 py-3 text-nav-link text-white hover:text-lavender hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        {link.label}
+                      </button>
+                    )}
                     {link.children && (
                       <div className="pl-10 pb-1">
                         {link.children.map((child) => (

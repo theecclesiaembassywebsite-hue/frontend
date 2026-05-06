@@ -38,7 +38,7 @@ const quickLinks = [
   {
     title: 'Join a Squad',
     subtitle: 'Kingdom Life Squads',
-    href: '/kingdom/squads',
+    href: '/kingdom-expressions/squads',
     imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
   },
 ];

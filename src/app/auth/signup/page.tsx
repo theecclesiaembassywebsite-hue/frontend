@@ -65,8 +65,9 @@ export default function SignupPage() {
       });
 
       setIsSuccess(true);
-    } catch (error: any) {
-      const errorMsg = error?.message || 'An error occurred. Please try again.';
+    } catch (error: unknown) {
+      const errorMsg =
+        error instanceof Error ? error.message : 'An error occurred. Please try again.';
       if (errorMsg.includes('409') || errorMsg.includes('already exists')) {
         setErrorMessage('An account with this email already exists');
       } else {

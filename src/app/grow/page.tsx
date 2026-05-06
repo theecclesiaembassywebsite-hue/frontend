@@ -23,7 +23,7 @@ const growthPaths = [
     icon: BookOpen,
     title: "Kingdom Life Squads",
     desc: "Serve in a ministry team that aligns with your gifts and calling while impacting the kingdom.",
-    href: "/kingdom/squads",
+    href: "/kingdom-expressions/squads",
   },
   {
     icon: Music,
