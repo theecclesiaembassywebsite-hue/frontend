@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { media, livestream, serviceSchedule } from "@/lib/api";
+import Image from "next/image";
+import { livestream, serviceSchedule } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 interface LivestreamConfig {
@@ -20,13 +21,11 @@ interface ServiceScheduleEntry {
   time: string;
 }
 
-interface VideoMessage {
+interface YouTubeVideo {
   id: string;
   title: string;
-  embedUrl?: string;
-  youtubeUrl?: string;
-  date?: string;
-  createdAt?: string;
+  publishedAt: string;
+  thumbnail: string;
 }
 
 interface UpcomingService {
@@ -176,7 +175,7 @@ function LiveHeroSkeleton() {
 export default function LivePage() {
   const [config, setConfig] = useState<LivestreamConfig | null>(null);
   const [services, setServices] = useState<ServiceScheduleEntry[]>([]);
-  const [videos, setVideos] = useState<VideoMessage[]>([]);
+  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
@@ -219,9 +218,10 @@ export default function LivePage() {
 
     const fetchVideos = async () => {
       try {
-        const data = await media.getVideoMessages();
+        const res = await fetch("/api/youtube-videos");
+        const data = await res.json();
         if (!isMounted) return;
-        setVideos((data ?? []).slice(0, 6));
+        setVideos(data.videos ?? []);
       } catch {
         if (!isMounted) return;
         setVideos([]);
@@ -356,45 +356,48 @@ export default function LivePage() {
           </div>
         ) : videos.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {videos.map((video) => {
-              const embedUrl = toEmbedUrl(video.embedUrl || video.youtubeUrl);
-              const publishedAt = video.date || video.createdAt;
-
-              return (
-                <article
-                  key={video.id}
-                  className="overflow-hidden rounded border border-[#C9A84C]/20 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1"
+            {videos.map((video) => (
+              <article
+                key={video.id}
+                className="overflow-hidden rounded border border-[#C9A84C]/20 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1"
+              >
+                <a
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
                 >
-                  <div className="aspect-video w-full bg-gray-100">
-                    {embedUrl ? (
-                      <iframe
-                        src={embedUrl}
-                        title={video.title}
-                        className="h-full w-full border-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-[#F3F1F8] px-6 text-center text-sm text-[#8A8A90]">
-                        Video unavailable
+                  <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
+                    <Image
+                      src={video.thumbnail}
+                      alt={video.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="rounded-full bg-red-600 p-3 shadow-lg">
+                        <svg viewBox="0 0 24 24" fill="white" className="h-6 w-6">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
                       </div>
-                    )}
+                    </div>
                   </div>
+                </a>
 
-                  <div className="p-4">
-                    <h3 className="mb-1 line-clamp-2 font-heading text-sm leading-6">
-                      {video.title}
-                    </h3>
-                    <p className="text-xs text-[#8A8A90]">
-                      {publishedAt
-                        ? format(new Date(publishedAt), "MMMM d, yyyy")
-                        : "Date unavailable"}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
+                <div className="p-4">
+                  <h3 className="mb-1 line-clamp-2 font-heading text-sm leading-6">
+                    {video.title}
+                  </h3>
+                  <p className="text-xs text-[#8A8A90]">
+                    {video.publishedAt
+                      ? format(new Date(video.publishedAt), "MMMM d, yyyy")
+                      : "Date unavailable"}
+                  </p>
+                </div>
+              </article>
+            ))}
           </div>
         ) : (
           <div className="text-center italic text-[#8A8A90]">
