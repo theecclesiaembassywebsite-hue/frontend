@@ -155,11 +155,11 @@ export default function GivePage() {
                   fill="currentColor"
                 />
                 <h2 className="font-heading text-4xl text-slate">
-                  Make a Gift
+                  Give what the Lord has put in your heart 
                 </h2>
               </div>
               <p className="font-body text-gray-text">
-                Your contribution supports our mission and ministry
+                The Lord bless you abundantly as you give with a cheerful heart.
               </p>
             </div>
 

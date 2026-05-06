@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import SectionWrapper from '@/components/ui/SectionWrapper'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -7,13 +8,12 @@ import Select from '@/components/ui/Select'
 import { prayer } from '@/lib/api'
 import { useToast } from '@/components/ui/Toast'
 import { FadeIn } from '@/components/ui/Motion'
-import { Heart, CheckCircle } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 
 export default function PrayerPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [isPublic, setIsPublic] = useState(false)
   const { success, error } = useToast()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -76,12 +76,12 @@ export default function PrayerPage() {
                 <p className="font-body text-[#8A8A8E] mb-8">
                   Thank you for sharing. Our team will be praying with you.
                 </p>
-                <a
+                <Link
                   href="/"
                   className="inline-flex items-center justify-center px-6 py-3 bg-[#4A1D6E] text-white rounded-lg font-semibold hover:bg-[#771996] transition-colors"
                 >
                   Back to Home
-                </a>
+                </Link>
               </div>
             ) : (
               <>

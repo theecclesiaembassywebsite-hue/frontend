@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { getPageContent, normalizePath } from "@/lib/site-content";
 
@@ -10,12 +10,8 @@ interface EditableContentProps {
 
 export default function EditableContent({ pagePath }: EditableContentProps) {
   const pathname = usePathname();
-  const [content, setContent] = useState<{ writeUp: string; images: string[] }>({ writeUp: "", images: [] });
-
-  useEffect(() => {
-    const targetPath = normalizePath(pagePath || pathname || "/");
-    setContent(getPageContent(targetPath));
-  }, [pagePath, pathname]);
+  const targetPath = normalizePath(pagePath || pathname || "/");
+  const content = useMemo(() => getPageContent(targetPath), [targetPath]);
 
   if (!content.writeUp.trim() && content.images.length === 0) {
     return null;

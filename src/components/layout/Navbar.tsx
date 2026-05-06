@@ -60,7 +60,7 @@ const navLinks = [
   },
   {
     label: "TRAINING",
-    href: "",
+    href: "/training",
     children: [
       { label: "TEMA", href: "/training/tema" },
       { label: "KISOLAM", href: "/training/kisolam" },

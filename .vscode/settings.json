@@ -1,3 +1,5 @@
 {
-    "chat.agent.maxRequests": 500
+    "chat.agent.maxRequests": 500,
+    "geminicodeassist.outlines.automaticOutlineGeneration": true,
+    "python.terminal.useEnvFile": true
 }
