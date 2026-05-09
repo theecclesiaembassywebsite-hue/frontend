@@ -1,11 +1,57 @@
-const FEED_URL =
-  "https://www.youtube.com/feeds/videos.xml?channel_id=UCrvZyTocoH926b_wv81bpzA";
+// Fetches recent videos for YouTube channel @theecclesiaembassy (UCrvZyTocoH926b_wv81bpzA).
+// Primary: YouTube Data API v3 (needs YOUTUBE_API_KEY env var).
+// Fallback: RSS feed — used automatically when the key is missing or daily quota is exceeded.
+const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
+const CACHE_TTL_MS = 60 * 60_000; // 1 hour — each refresh = 100 YouTube API quota units
 
 interface YouTubeVideo {
   id: string;
   title: string;
   publishedAt: string;
   thumbnail: string;
+}
+
+let cached: { videos: YouTubeVideo[]; expiresAt: number } | null = null;
+
+async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCEEDED"> {
+  const res = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=id,snippet&channelId=${CHANNEL_ID}&order=date&type=video&maxResults=6&key=${apiKey}`,
+    { signal: AbortSignal.timeout(10_000) }
+  );
+
+  if (res.status === 403) {
+    const body = await res.json().catch(() => ({}));
+    const reason = body?.error?.errors?.[0]?.reason ?? "";
+    if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") {
+      return "QUOTA_EXCEEDED";
+    }
+  }
+
+  if (!res.ok) throw new Error(`API ${res.status}`);
+
+  const data = await res.json();
+  return (data.items ?? []).map((item: {
+    id: { videoId: string };
+    snippet: {
+      title: string;
+      publishedAt: string;
+      thumbnails?: { high?: { url: string }; medium?: { url: string }; default?: { url: string } };
+    };
+  }) => ({
+    id: item.id.videoId,
+    title: item.snippet.title
+      .replace(/&amp;/g, "&")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">"),
+    publishedAt: item.snippet.publishedAt,
+    thumbnail:
+      item.snippet.thumbnails?.high?.url ??
+      item.snippet.thumbnails?.medium?.url ??
+      item.snippet.thumbnails?.default?.url ??
+      `https://i.ytimg.com/vi/${item.id.videoId}/hqdefault.jpg`,
+  }));
 }
 
 function parseRSSEntries(xml: string): YouTubeVideo[] {
@@ -23,8 +69,7 @@ function parseRSSEntries(xml: string): YouTubeVideo[] {
       .replace(/&gt;/g, ">")
       .replace(/&#39;/g, "'")
       .replace(/&quot;/g, '"');
-    const publishedAt =
-      /<published>([^<]+)<\/published>/.exec(block)?.[1] ?? "";
+    const publishedAt = /<published>([^<]+)<\/published>/.exec(block)?.[1] ?? "";
 
     if (videoId) {
       entries.push({
@@ -39,14 +84,35 @@ function parseRSSEntries(xml: string): YouTubeVideo[] {
   return entries;
 }
 
+async function fetchViaRSS(): Promise<YouTubeVideo[]> {
+  const res = await fetch(
+    `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
+    { signal: AbortSignal.timeout(10_000) }
+  );
+  if (!res.ok) throw new Error(`RSS ${res.status}`);
+  const xml = await res.text();
+  return parseRSSEntries(xml).slice(0, 6);
+}
+
 export async function GET() {
+  const now = Date.now();
+  if (cached && now < cached.expiresAt) return Response.json({ videos: cached.videos });
+
   try {
-    const res = await fetch(FEED_URL, { next: { revalidate: 3600 } });
-    if (!res.ok) throw new Error(`Feed fetch failed: ${res.status}`);
-    const xml = await res.text();
-    const videos = parseRSSEntries(xml).slice(0, 6);
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    let videos: YouTubeVideo[];
+
+    if (apiKey) {
+      const result = await fetchViaApi(apiKey);
+      videos = result === "QUOTA_EXCEEDED" ? await fetchViaRSS() : result;
+    } else {
+      videos = await fetchViaRSS();
+    }
+
+    cached = { videos, expiresAt: now + CACHE_TTL_MS };
     return Response.json({ videos });
   } catch {
+    cached = { videos: [], expiresAt: now + 30_000 };
     return Response.json({ videos: [] });
   }
 }
