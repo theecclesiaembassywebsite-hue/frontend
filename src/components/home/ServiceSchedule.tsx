@@ -16,13 +16,13 @@ const DEFAULT_SERVICES = [
   },
   {
     day: "Tuesday",
-    name: "Warfare & Intercession",
+    name: "Prayer Service",
     time: "5:30 PM",
     description: "A time of corporate prayer, intercession, and spiritual warfare.",
   },
   {
     day: "Friday",
-    name: "Worship Encounter",
+    name: "Worship Service",
     time: "5:30 PM",
     description: "An evening of deep worship and encounter with God's presence.",
   },

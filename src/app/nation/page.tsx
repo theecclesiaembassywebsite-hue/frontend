@@ -1,29 +1,41 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { MessageCircle, Users, User } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/Toast";
-import { nation, engagement, type Post } from "@/lib/api";
+import { nation, engagement, serviceSchedule, type Post } from "@/lib/api";
 import CreatePost from "@/components/nation/CreatePost";
 import PostCard from "@/components/nation/PostCard";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 
-const UPCOMING_SERVICES = [
-  { dayIndex: 0, label: "Word & Life Service", time: "8:00 AM" },
-  { dayIndex: 2, label: "Prayer & Intercession", time: "5:30 PM" },
-  { dayIndex: 5, label: "Worship Encounter", time: "5:30 PM" },
-];
+const WEEKDAY_INDEX: Record<string, number> = {
+  Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3,
+  Thursday: 4, Friday: 5, Saturday: 6,
+};
 
-function nextOccurrence(dayIndex: number): Date {
+function nextOccurrence(day: string, time: string): Date | null {
+  const trimmed = day.trim().replace(/s$/i, "");
+  const normalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  const dayIndex = WEEKDAY_INDEX[normalized];
+  const match = time.trim().match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+  if (dayIndex === undefined || !match) return null;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2] ?? "0");
+  if (hours === 12) hours = 0;
+  if (match[3].toUpperCase() === "PM") hours += 12;
+
   const now = new Date();
-  const daysAhead = (dayIndex - now.getDay() + 7) % 7 || 7;
-  const d = new Date(now);
-  d.setDate(now.getDate() + daysAhead);
-  return d;
+  const candidate = new Date(now);
+  candidate.setHours(hours, minutes, 0, 0);
+  let daysAhead = (dayIndex - now.getDay() + 7) % 7;
+  if (daysAhead === 0 && candidate <= now) daysAhead = 7;
+  candidate.setDate(now.getDate() + daysAhead);
+  return candidate;
 }
 
 export default function NationPage() {
@@ -34,20 +46,27 @@ export default function NationPage() {
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const upcomingServices = useMemo(
-    () =>
-      UPCOMING_SERVICES.map((s) => ({
-        ...s,
-        date: nextOccurrence(s.dayIndex),
-      })).sort((a, b) => a.date.getTime() - b.date.getTime()),
-    []
-  );
+  const [upcomingServices, setUpcomingServices] = useState<{ name: string; time: string; date: Date }[]>([]);
 
   useEffect(() => {
     loadFeed();
     loadGroups();
     loadStreak();
   }, [page]);
+
+  useEffect(() => {
+    serviceSchedule.getPublic().then((data) => {
+      if (!data?.length) return;
+      const now = new Date();
+      const mapped = (data as any[])
+        .filter((s) => s.active !== false)
+        .map((s) => ({ name: s.name, time: s.time, date: nextOccurrence(s.day, s.time) }))
+        .filter((s): s is { name: string; time: string; date: Date } => s.date !== null && s.date > now)
+        .sort((a, b) => a.date.getTime() - b.date.getTime())
+        .slice(0, 3);
+      setUpcomingServices(mapped);
+    }).catch(() => {});
+  }, []);
 
   async function loadFeed() {
     try {
@@ -208,7 +227,7 @@ export default function NationPage() {
                   <div className="space-y-3">
                     {upcomingServices.map((s) => (
                       <Link
-                        key={s.dayIndex}
+                        key={s.name + s.date.toISOString()}
                         href="/live"
                         className="flex flex-col rounded-[4px] px-2 py-2 hover:bg-lavender transition-colors"
                       >
@@ -216,7 +235,7 @@ export default function NationPage() {
                           {format(s.date, "EEE, MMM d")} · {s.time}
                         </span>
                         <span className="font-body text-sm text-slate">
-                          {s.label}
+                          {s.name}
                         </span>
                       </Link>
                     ))}
