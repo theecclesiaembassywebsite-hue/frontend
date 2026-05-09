@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import SectionWrapper from '@/components/ui/SectionWrapper';
@@ -78,7 +78,7 @@ export default function NewHerePage() {
       {/* What to Expect Section */}
       <SectionWrapper variant="white" className="py-20">
         <FadeIn>
-          <h2 className="font-heading text-4xl font-bold text-center mb-4" style={{ color: '#4A1D6E' }}>
+          <h2 className="font-heading text-4xl font-bold text-center mb-4" style={{ color: '#0E0B1E' }}>
             What to Expect
           </h2>
           <p className="font-body text-center text-gray-text mb-12 max-w-2xl mx-auto">
@@ -91,15 +91,15 @@ export default function NewHerePage() {
           <StaggerItem>
             <div
               className="p-8 rounded-lg text-center transition-all duration-300 hover:shadow-lg"
-              style={{ backgroundColor: '#E4E0EF' }}
+              style={{ backgroundColor: '#E8E6F0' }}
             >
               <div className="flex justify-center mb-4">
                 <Heart
                   size={40}
-                  style={{ color: '#771996' }}
+                  style={{ color: '#C9A84C' }}
                 />
               </div>
-              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#4A1D6E' }}>
+              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#0E0B1E' }}>
                 Warm Welcome
               </h3>
               <p className="font-body text-sm text-gray-text">
@@ -112,15 +112,15 @@ export default function NewHerePage() {
           <StaggerItem>
             <div
               className="p-8 rounded-lg text-center transition-all duration-300 hover:shadow-lg"
-              style={{ backgroundColor: '#E4E0EF' }}
+              style={{ backgroundColor: '#E8E6F0' }}
             >
               <div className="flex justify-center mb-4">
                 <Shirt
                   size={40}
-                  style={{ color: '#771996' }}
+                  style={{ color: '#C9A84C' }}
                 />
               </div>
-              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#4A1D6E' }}>
+              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#0E0B1E' }}>
                 Casual Dress
               </h3>
               <p className="font-body text-sm text-gray-text">
@@ -133,15 +133,15 @@ export default function NewHerePage() {
           <StaggerItem>
             <div
               className="p-8 rounded-lg text-center transition-all duration-300 hover:shadow-lg"
-              style={{ backgroundColor: '#E4E0EF' }}
+              style={{ backgroundColor: '#E8E6F0' }}
             >
               <div className="flex justify-center mb-4">
                 <Clock
                   size={40}
-                  style={{ color: '#771996' }}
+                  style={{ color: '#C9A84C' }}
                 />
               </div>
-              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#4A1D6E' }}>
+              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#0E0B1E' }}>
                 Service Times
               </h3>
               <p className="font-body text-sm text-gray-text">
@@ -154,15 +154,15 @@ export default function NewHerePage() {
           <StaggerItem>
             <div
               className="p-8 rounded-lg text-center transition-all duration-300 hover:shadow-lg"
-              style={{ backgroundColor: '#E4E0EF' }}
+              style={{ backgroundColor: '#E8E6F0' }}
             >
               <div className="flex justify-center mb-4">
                 <MapPin
                   size={40}
-                  style={{ color: '#771996' }}
+                  style={{ color: '#C9A84C' }}
                 />
               </div>
-              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#4A1D6E' }}>
+              <h3 className="font-heading text-lg font-bold mb-2" style={{ color: '#0E0B1E' }}>
                 Location
               </h3>
               <p className="font-body text-sm text-gray-text">
@@ -179,7 +179,7 @@ export default function NewHerePage() {
           <div className="max-w-xl mx-auto">
             {!isSuccess ? (
               <>
-                <h2 className="font-heading text-4xl font-bold text-center mb-2" style={{ color: '#4A1D6E' }}>
+                <h2 className="font-heading text-4xl font-bold text-center mb-2" style={{ color: '#0E0B1E' }}>
                   Tell Us About Yourself
                 </h2>
                 <p className="font-body text-center text-gray-text mb-8">
@@ -234,7 +234,7 @@ export default function NewHerePage() {
                     disabled={isLoading}
                     className="w-full"
                     style={{
-                      backgroundColor: isLoading ? '#8A8A8E' : '#4A1D6E',
+                      backgroundColor: isLoading ? '#8A8A90' : '#0E0B1E',
                     }}
                   >
                     {isLoading ? 'Submitting...' : 'Submit'}
@@ -246,10 +246,10 @@ export default function NewHerePage() {
                 <div className="flex justify-center mb-4">
                   <CheckCircle
                     size={64}
-                    style={{ color: '#771996' }}
+                    style={{ color: '#C9A84C' }}
                   />
                 </div>
-                <h3 className="font-heading text-2xl font-bold mb-2" style={{ color: '#4A1D6E' }}>
+                <h3 className="font-heading text-2xl font-bold mb-2" style={{ color: '#0E0B1E' }}>
                   Welcome to our family!
                 </h3>
                 <p className="font-body text-gray-text">

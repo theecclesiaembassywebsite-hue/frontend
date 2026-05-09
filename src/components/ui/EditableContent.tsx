@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
@@ -23,7 +23,7 @@ export default function EditableContent({ pagePath }: EditableContentProps) {
     .filter(Boolean);
 
   return (
-    <section className="bg-white rounded-[20px] border border-[#E4E0EF] shadow-sm p-8 my-10">
+    <section className="bg-white rounded-[20px] border border-[#E8E6F0] shadow-sm p-8 my-10">
       {paragraphs.length > 0 && (
         <div className="space-y-5 font-body text-[#4E4B6C] leading-relaxed text-base">
           {paragraphs.map((paragraph, index) => (

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -79,7 +79,7 @@ export default function LoginPage() {
       <div
         className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-8 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #241A42 0%, #4A1D6E 50%, #771996 100%)',
+          background: 'linear-gradient(135deg, #0E0B1E 0%, #0E0B1E 50%, #C9A84C 100%)',
         }}
       >
         <div

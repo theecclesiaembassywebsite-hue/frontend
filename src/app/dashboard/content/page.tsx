@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -79,31 +79,31 @@ export default function ContentEditorPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-[#F5F5F5] py-10">
+      <main className="min-h-screen bg-[#FAFAF8] py-10">
         <div className="mx-auto max-w-[1200px] px-4">
-          <div className="rounded-[24px] border border-[#E4E0EF] bg-white p-10 shadow-sm">
+          <div className="rounded-[24px] border border-[#E8E6F0] bg-white p-10 shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
               <div>
-                <p className="text-sm uppercase tracking-[0.24em] text-[#771996] font-semibold">Content Editor</p>
-                <h1 className="text-4xl font-heading font-bold text-[#241A42] mt-2">
+                <p className="text-sm uppercase tracking-[0.24em] text-[#C9A84C] font-semibold">Content Editor</p>
+                <h1 className="text-4xl font-heading font-bold text-[#0E0B1E] mt-2">
                   Edit website write-ups & page images
                 </h1>
               </div>
-              <div className="space-y-2 text-sm text-[#8A8A8E]">
+              <div className="space-y-2 text-sm text-[#8A8A90]">
                 <p>Use this page to store landing copy and media for any route.</p>
-                <p>Display content by rendering the <code className="rounded bg-[#F5F5F5] px-1 py-0.5 font-mono text-xs">EditableContent</code> component on the target page.</p>
+                <p>Display content by rendering the <code className="rounded bg-[#FAFAF8] px-1 py-0.5 font-mono text-xs">EditableContent</code> component on the target page.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-8">
-              <div className="rounded-[20px] border border-[#E4E0EF] bg-[#F7F5FF] p-6">
-                <h2 className="text-xl font-semibold text-[#241A42] mb-4">Page Target</h2>
+              <div className="rounded-[20px] border border-[#E8E6F0] bg-[#F7F5FF] p-6">
+                <h2 className="text-xl font-semibold text-[#0E0B1E] mb-4">Page Target</h2>
                 <div className="space-y-4">
-                  <label className="block text-sm font-semibold text-[#241A42]">Page path</label>
+                  <label className="block text-sm font-semibold text-[#0E0B1E]">Page path</label>
                   <input
                     value={pagePath}
                     onChange={(event) => handlePageChange(event.target.value)}
-                    className="w-full rounded-xl border border-[#D8D1E5] bg-white px-4 py-3 text-sm text-[#31333B] focus:border-[#771996] focus:outline-none"
+                    className="w-full rounded-xl border border-[#D8D1E5] bg-white px-4 py-3 text-sm text-[#0E0B1E] focus:border-[#C9A84C] focus:outline-none"
                     placeholder="/grow/intentionality-class"
                   />
 
@@ -113,7 +113,7 @@ export default function ContentEditorPage() {
                         key={path}
                         type="button"
                         onClick={() => handlePageChange(path)}
-                        className={`text-left rounded-xl px-4 py-3 text-sm font-medium transition ${pagePath === path ? 'bg-[#771996] text-white' : 'bg-white text-[#241A42] hover:bg-[#F1EDFF]'}`}
+                        className={`text-left rounded-xl px-4 py-3 text-sm font-medium transition ${pagePath === path ? 'bg-[#C9A84C] text-white' : 'bg-white text-[#0E0B1E] hover:bg-[#F1EDFF]'}`}
                       >
                         {path}
                       </button>
@@ -123,22 +123,22 @@ export default function ContentEditorPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="rounded-[20px] border border-[#E4E0EF] bg-white p-6">
-                  <h2 className="text-xl font-semibold text-[#241A42] mb-4">Write-up</h2>
+                <div className="rounded-[20px] border border-[#E8E6F0] bg-white p-6">
+                  <h2 className="text-xl font-semibold text-[#0E0B1E] mb-4">Write-up</h2>
                   <textarea
                     value={writeUp}
                     onChange={(event) => setWriteUp(event.target.value)}
                     rows={10}
-                    className="w-full rounded-3xl border border-[#D8D1E5] bg-[#F7F5FF] px-5 py-4 text-sm text-[#31333B] focus:border-[#771996] focus:outline-none"
+                    className="w-full rounded-3xl border border-[#D8D1E5] bg-[#F7F5FF] px-5 py-4 text-sm text-[#0E0B1E] focus:border-[#C9A84C] focus:outline-none"
                     placeholder="Enter the page content you want to display."
                   />
                 </div>
 
-                <div className="rounded-[20px] border border-[#E4E0EF] bg-white p-6">
+                <div className="rounded-[20px] border border-[#E8E6F0] bg-white p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-[#241A42]">Images</h2>
-                      <p className="text-sm text-[#8A8A8E]">Upload or paste image URLs for this page.</p>
+                      <h2 className="text-xl font-semibold text-[#0E0B1E]">Images</h2>
+                      <p className="text-sm text-[#8A8A90]">Upload or paste image URLs for this page.</p>
                     </div>
                     <Button
                       type="button"
@@ -168,7 +168,7 @@ export default function ContentEditorPage() {
                         onChange={(event) => setImageUrl(event.target.value)}
                         type="text"
                         placeholder="Paste an image URL"
-                        className="min-w-0 flex-1 rounded-xl border border-[#D8D1E5] bg-[#F7F5FF] px-4 py-3 text-sm text-[#31333B] focus:border-[#771996] focus:outline-none"
+                        className="min-w-0 flex-1 rounded-xl border border-[#D8D1E5] bg-[#F7F5FF] px-4 py-3 text-sm text-[#0E0B1E] focus:border-[#C9A84C] focus:outline-none"
                       />
                       <Button
                         type="button"
@@ -186,7 +186,7 @@ export default function ContentEditorPage() {
                     {images.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {images.map((url, index) => (
-                          <div key={url + index} className="group relative overflow-hidden rounded-3xl border border-[#E4E0EF] bg-[#F7F5FF]">
+                          <div key={url + index} className="group relative overflow-hidden rounded-3xl border border-[#E8E6F0] bg-[#F7F5FF]">
                             <img src={url} alt={`Page media ${index + 1}`} className="h-36 w-full object-cover" />
                             <button
                               type="button"
@@ -199,7 +199,7 @@ export default function ContentEditorPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-[#8A8A8E]">No images added for this page yet.</p>
+                      <p className="text-sm text-[#8A8A90]">No images added for this page yet.</p>
                     )}
                   </div>
                 </div>
@@ -207,10 +207,10 @@ export default function ContentEditorPage() {
             </div>
 
             <div className="mt-8 flex items-center justify-between flex-col gap-4 sm:flex-row">
-              <div className="text-sm text-[#8A8A8E]">
-                <p className="font-semibold text-[#241A42]">Display Notes</p>
+              <div className="text-sm text-[#8A8A90]">
+                <p className="font-semibold text-[#0E0B1E]">Display Notes</p>
                 <p>
-                  To render this content on the target page, add <code className="rounded bg-[#F5F5F5] px-1 py-0.5 font-mono text-xs">&lt;EditableContent pagePath="{pagePath}" /&gt;</code> in that page's component tree.
+                  To render this content on the target page, add <code className="rounded bg-[#FAFAF8] px-1 py-0.5 font-mono text-xs">&lt;EditableContent pagePath="{pagePath}" /&gt;</code> in that page's component tree.
                 </p>
               </div>
               <Button

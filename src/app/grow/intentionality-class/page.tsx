@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -80,16 +80,16 @@ export default function IntentionalityClassPage() {
       {/* Hero Section */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[#241A42] to-[#4A1D6E]"
+          className="absolute inset-0 bg-gradient-to-r from-[#0E0B1E] to-[#0E0B1E]"
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
         <div className="relative z-10 text-center px-4">
           <div className="flex justify-center mb-4">
-            <GraduationCap className="w-16 h-16 text-[#E4E0EF]" />
+            <GraduationCap className="w-16 h-16 text-[#E8E6F0]" />
           </div>
           <h1 className="text-5xl font-bold font-heading text-white mb-4">Intentionality Class</h1>
-          <p className="text-xl text-[#E4E0EF]">A foundational journey into kingdom living</p>
+          <p className="text-xl text-[#E8E6F0]">A foundational journey into kingdom living</p>
         </div>
       </section>
 
@@ -99,10 +99,10 @@ export default function IntentionalityClassPage() {
       <SectionWrapper variant="white">
         <FadeIn>
           <div className="mb-12">
-            <h2 className="text-4xl font-bold font-heading text-[#241A42] mb-8 text-center">
+            <h2 className="text-4xl font-bold font-heading text-[#0E0B1E] mb-8 text-center">
               About the Class
             </h2>
-            <p className="text-lg text-[#8A8A8E] font-body max-w-3xl mx-auto mb-12 text-center">
+            <p className="text-lg text-[#8A8A90] font-body max-w-3xl mx-auto mb-12 text-center">
               The Intentionality Class is a foundational journey designed to help you live with purpose
               and clarity. Over six weeks, we explore what it means to align your daily decisions with
               kingdom values, deepen your spiritual foundation, and build meaningful community with
@@ -112,28 +112,28 @@ export default function IntentionalityClassPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Duration Card */}
               <FadeIn delay={0.1}>
-                <div className="bg-[#F5F5F5] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
-                  <Clock className="w-12 h-12 text-[#771996] mx-auto mb-4" />
-                  <h3 className="text-xl font-heading font-semibold text-[#241A42] mb-2">Duration</h3>
-                  <p className="text-[#8A8A8E] font-body">6 weeks of transformative learning</p>
+                <div className="bg-[#FAFAF8] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                  <Clock className="w-12 h-12 text-[#C9A84C] mx-auto mb-4" />
+                  <h3 className="text-xl font-heading font-semibold text-[#0E0B1E] mb-2">Duration</h3>
+                  <p className="text-[#8A8A90] font-body">6 weeks of transformative learning</p>
                 </div>
               </FadeIn>
 
               {/* Format Card */}
               <FadeIn delay={0.2}>
-                <div className="bg-[#F5F5F5] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
-                  <BookOpen className="w-12 h-12 text-[#771996] mx-auto mb-4" />
-                  <h3 className="text-xl font-heading font-semibold text-[#241A42] mb-2">Format</h3>
-                  <p className="text-[#8A8A8E] font-body">In-person and online options available</p>
+                <div className="bg-[#FAFAF8] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                  <BookOpen className="w-12 h-12 text-[#C9A84C] mx-auto mb-4" />
+                  <h3 className="text-xl font-heading font-semibold text-[#0E0B1E] mb-2">Format</h3>
+                  <p className="text-[#8A8A90] font-body">In-person and online options available</p>
                 </div>
               </FadeIn>
 
               {/* Community Card */}
               <FadeIn delay={0.3}>
-                <div className="bg-[#F5F5F5] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
-                  <Users className="w-12 h-12 text-[#771996] mx-auto mb-4" />
-                  <h3 className="text-xl font-heading font-semibold text-[#241A42] mb-2">Community</h3>
-                  <p className="text-[#8A8A8E] font-body">Small groups for meaningful connection</p>
+                <div className="bg-[#FAFAF8] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                  <Users className="w-12 h-12 text-[#C9A84C] mx-auto mb-4" />
+                  <h3 className="text-xl font-heading font-semibold text-[#0E0B1E] mb-2">Community</h3>
+                  <p className="text-[#8A8A90] font-body">Small groups for meaningful connection</p>
                 </div>
               </FadeIn>
             </div>
@@ -145,7 +145,7 @@ export default function IntentionalityClassPage() {
       <SectionWrapper variant="white">
         <FadeIn>
           <div className="max-w-5xl mx-auto mb-12">
-            <h2 className="text-4xl font-bold font-heading text-[#241A42] mb-8 text-center">
+            <h2 className="text-4xl font-bold font-heading text-[#0E0B1E] mb-8 text-center">
               What the Intentionality Class is About
             </h2>
             <div className="space-y-6 font-body text-[#4E4B6C] leading-relaxed text-base">
@@ -156,8 +156,8 @@ export default function IntentionalityClassPage() {
                 At its core, the Intentionality Class is about intentional growth; raising individuals who not only understand their faith but also live it out through service, stewardship, and leadership.
               </p>
 
-              <div className="rounded-[20px] border border-[#E4E0EF] bg-[#F7F5FF] p-6">
-                <h3 className="text-2xl font-semibold text-[#241A42] mb-4">The program focuses on three key outcomes:</h3>
+              <div className="rounded-[20px] border border-[#E8E6F0] bg-[#F7F5FF] p-6">
+                <h3 className="text-2xl font-semibold text-[#0E0B1E] mb-4">The program focuses on three key outcomes:</h3>
                 <ul className="space-y-4 list-disc list-inside font-body text-[#4E4B6C]">
                   <li>
                     <span className="font-semibold">Foundation:</span> Establishing strong roots in the Christian faith and understanding the Ecclesia Embassy system.
@@ -175,16 +175,16 @@ export default function IntentionalityClassPage() {
                 It moves partakers from being learners to becoming active contributors and eventually leaders within the Ecclesia Workforce.
               </p>
 
-              <h3 className="text-3xl font-semibold text-[#241A42] mt-8">The Process</h3>
+              <h3 className="text-3xl font-semibold text-[#0E0B1E] mt-8">The Process</h3>
               <div className="space-y-8">
                 <div>
-                  <h4 className="text-2xl font-semibold text-[#241A42] mb-2">Phase One — Move-In</h4>
+                  <h4 className="text-2xl font-semibold text-[#0E0B1E] mb-2">Phase One — Move-In</h4>
                   <p>
                     This is the entry level where partakers are introduced to the basics of the Christian faith and the Ecclesia Embassy. It includes six teachings and can be completed over three weeks or through a one-day crash course. At the end, partakers are assessed and qualified candidates move to the next phase.
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-2xl font-semibold text-[#241A42] mb-2">Phase Two — Maturity & Ministry</h4>
+                  <h4 className="text-2xl font-semibold text-[#0E0B1E] mb-2">Phase Two — Maturity & Ministry</h4>
                   <p>
                     This phase focuses on practical growth and culture development. Over several weeks, partakers are trained in values such as stewardship, consistency, honour, and commitment through teachings, assignments, and evaluations.
                   </p>
@@ -193,7 +193,7 @@ export default function IntentionalityClassPage() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-2xl font-semibold text-[#241A42] mb-2">Phase Three — Missions & Mandate</h4>
+                  <h4 className="text-2xl font-semibold text-[#0E0B1E] mb-2">Phase Three — Missions & Mandate</h4>
                   <p>
                     This is the advanced stage for committed members and leaders. It shifts the focus from personal growth to kingdom impact. Partakers are trained in evangelism (Missions) and leadership (Mandate), equipping them to influence others and take on greater responsibility within and beyond the ministry.
                   </p>
@@ -212,25 +212,25 @@ export default function IntentionalityClassPage() {
       <SectionWrapper variant="off-white">
         <FadeIn>
           <div className="max-w-xl mx-auto">
-            <h2 className="text-4xl font-bold font-heading text-[#241A42] mb-2 text-center">
+            <h2 className="text-4xl font-bold font-heading text-[#0E0B1E] mb-2 text-center">
               Enroll Now
             </h2>
-            <p className="text-[#8A8A8E] font-body text-center mb-8">
+            <p className="text-[#8A8A90] font-body text-center mb-8">
               Join us on this transformative journey
             </p>
 
             {isSuccess ? (
-              <div className="bg-[#E4E0EF] border-2 border-[#27AE60] rounded-lg p-8 text-center">
+              <div className="bg-[#E8E6F0] border-2 border-[#27AE60] rounded-lg p-8 text-center">
                 <CheckCircle className="w-16 h-16 text-[#27AE60] mx-auto mb-4" />
-                <h3 className="text-2xl font-heading font-bold text-[#241A42] mb-2">
+                <h3 className="text-2xl font-heading font-bold text-[#0E0B1E] mb-2">
                   Thank you for enrolling!
                 </h3>
-                <p className="text-[#8A8A8E] font-body mb-6">
+                <p className="text-[#8A8A90] font-body mb-6">
                   You can now access your course materials from your dashboard.
                 </p>
                 <Link
                   href="/dashboard/class"
-                  className="inline-block bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 px-6 rounded-lg transition-colors"
+                  className="inline-block bg-[#C9A84C] hover:bg-[#0E0B1E] text-white font-heading font-semibold py-3 px-6 rounded-lg transition-colors"
                 >
                   Go to My Courses
                 </Link>
@@ -239,28 +239,28 @@ export default function IntentionalityClassPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Show logged-in user info */}
                 {isAuthenticated && user && (
-                  <div className="rounded-[8px] bg-[#F5F5F5] border border-[#E4E0EF] px-4 py-3">
-                    <p className="font-heading text-xs font-semibold text-[#8A8A8E] uppercase tracking-wide mb-1">
+                  <div className="rounded-[8px] bg-[#FAFAF8] border border-[#E8E6F0] px-4 py-3">
+                    <p className="font-heading text-xs font-semibold text-[#8A8A90] uppercase tracking-wide mb-1">
                       Enrolling as
                     </p>
-                    <p className="font-heading text-sm font-bold text-[#241A42]">
+                    <p className="font-heading text-sm font-bold text-[#0E0B1E]">
                       {userName || user.email}
                     </p>
                     {userName && (
-                      <p className="font-body text-xs text-[#8A8A8E]">{user.email}</p>
+                      <p className="font-body text-xs text-[#8A8A90]">{user.email}</p>
                     )}
                   </div>
                 )}
 
                 {/* Course Dropdown */}
                 <div>
-                  <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
+                  <label className="block text-sm font-heading font-semibold text-[#0E0B1E] mb-2">
                     Preferred Course
                   </label>
                   {coursesLoading ? (
-                    <div className="w-full h-[42px] rounded-lg bg-[#F5F5F5] animate-pulse" />
+                    <div className="w-full h-[42px] rounded-lg bg-[#FAFAF8] animate-pulse" />
                   ) : courses.length === 0 ? (
-                    <p className="font-body text-sm text-[#8A8A8E] italic">
+                    <p className="font-body text-sm text-[#8A8A90] italic">
                       No courses available at this time. Please check back later.
                     </p>
                   ) : (
@@ -268,7 +268,7 @@ export default function IntentionalityClassPage() {
                       <select
                         value={selectedCourseId}
                         onChange={(e) => setSelectedCourseId(e.target.value)}
-                        className="w-full px-4 py-2 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white"
+                        className="w-full px-4 py-2 border-2 border-[#E8E6F0] rounded-lg font-body text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors bg-white"
                         required
                       >
                         <option value="" disabled>Select a course…</option>
@@ -282,7 +282,7 @@ export default function IntentionalityClassPage() {
                       {selectedCourseId && (() => {
                         const selected = courses.find((c) => c.id === selectedCourseId);
                         return selected ? (
-                          <p className="mt-2 font-body text-xs text-[#8A8A8E] leading-relaxed">
+                          <p className="mt-2 font-body text-xs text-[#8A8A90] leading-relaxed">
                             {selected.description}
                           </p>
                         ) : null;
@@ -293,13 +293,13 @@ export default function IntentionalityClassPage() {
 
                 {/* Preferred Format Dropdown */}
                 <div>
-                  <label className="block text-sm font-heading font-semibold text-[#241A42] mb-2">
+                  <label className="block text-sm font-heading font-semibold text-[#0E0B1E] mb-2">
                     Preferred Format
                   </label>
                   <select
                     value={preferredFormat}
                     onChange={(e) => setPreferredFormat(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-[#E4E0EF] rounded-lg font-body text-[#31333B] focus:outline-none focus:border-[#771996] transition-colors bg-white"
+                    className="w-full px-4 py-2 border-2 border-[#E8E6F0] rounded-lg font-body text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors bg-white"
                   >
                     <option value="in-person">In-Person</option>
                     <option value="online">Online</option>
@@ -310,15 +310,15 @@ export default function IntentionalityClassPage() {
                 <Button
                   type="submit"
                   disabled={isLoading || courses.length === 0}
-                  className="w-full bg-[#771996] hover:bg-[#4A1D6E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
+                  className="w-full bg-[#C9A84C] hover:bg-[#0E0B1E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {isLoading ? 'Enrolling...' : 'Enroll Now'}
                 </Button>
 
                 {!isAuthenticated && (
-                  <p className="text-center text-sm text-[#8A8A8E] font-body mt-4">
+                  <p className="text-center text-sm text-[#8A8A90] font-body mt-4">
                     You need to{' '}
-                    <Link href="/auth/login" className="text-[#771996] hover:underline font-semibold">
+                    <Link href="/auth/login" className="text-[#C9A84C] hover:underline font-semibold">
                       sign in
                     </Link>{' '}
                     to enroll in this class.

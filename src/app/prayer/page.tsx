@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import SectionWrapper from '@/components/ui/SectionWrapper'
@@ -57,7 +57,7 @@ export default function PrayerPage() {
           <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
             Prayer Request
           </h1>
-          <p className="mt-3 font-serif text-lg font-light text-[#F5F5F5]">
+          <p className="mt-3 font-serif text-lg font-light text-[#FAFAF8]">
             We stand with you in prayer
           </p>
         </div>
@@ -70,15 +70,15 @@ export default function PrayerPage() {
             {submitted ? (
               <div className="text-center py-12">
                 <CheckCircle className="mx-auto h-16 w-16 text-[#27AE60] mb-6" />
-                <h3 className="font-heading text-2xl font-bold text-[#241A42] mb-2">
+                <h3 className="font-heading text-2xl font-bold text-[#0E0B1E] mb-2">
                   Your prayer request has been received
                 </h3>
-                <p className="font-body text-[#8A8A8E] mb-8">
+                <p className="font-body text-[#8A8A90] mb-8">
                   Thank you for sharing. Our team will be praying with you.
                 </p>
                 <Link
                   href="/"
-                  className="inline-flex items-center justify-center px-6 py-3 bg-[#4A1D6E] text-white rounded-lg font-semibold hover:bg-[#771996] transition-colors"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[#0E0B1E] text-white rounded-lg font-semibold hover:bg-[#C9A84C] transition-colors"
                 >
                   Back to Home
                 </Link>
@@ -86,7 +86,7 @@ export default function PrayerPage() {
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <h2 className="font-heading text-3xl font-bold text-[#241A42]">
+                  <h2 className="font-heading text-3xl font-bold text-[#0E0B1E]">
                     Share Your Prayer Request
                   </h2>
                 </div>
@@ -143,14 +143,14 @@ export default function PrayerPage() {
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="request"
-                      className="font-body text-sm font-medium text-[#31333B]"
+                      className="font-body text-sm font-medium text-[#0E0B1E]"
                     >
                       Prayer Request
                     </label>
                     <textarea
                       id="request"
                       name="request"
-                      className="h-40 w-full rounded-lg border border-[#31333B] bg-white px-4 py-3 font-body text-base text-[#31333B] placeholder:text-[#8A8A8E] transition-colors duration-150 focus:border-[#771996] focus:ring-3 focus:ring-[#771996]/15 focus:outline-none resize-none"
+                      className="h-40 w-full rounded-lg border border-[#0E0B1E] bg-white px-4 py-3 font-body text-base text-[#0E0B1E] placeholder:text-[#8A8A90] transition-colors duration-150 focus:border-[#C9A84C] focus:ring-3 focus:ring-[#C9A84C]/15 focus:outline-none resize-none"
                       placeholder="Share your prayer need here..."
                       required
                     />

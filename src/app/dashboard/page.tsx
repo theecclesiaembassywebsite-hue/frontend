@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useAuth } from '@/lib/auth-context'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -94,15 +94,15 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="bg-[#F5F5F5] min-h-screen pt-8 pb-16">
+      <div className="bg-[#FAFAF8] min-h-screen pt-8 pb-16">
         <div className="max-w-[1200px] mx-auto px-4">
           {/* Welcome Header */}
           <FadeIn>
             <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold text-[#241A42] mb-2">
+              <h1 className="text-4xl md:text-5xl font-bold text-[#0E0B1E] mb-2">
                 Welcome back, {firstName}
               </h1>
-              <p className="text-[#8A8A8E] text-lg">{formattedDate}</p>
+              <p className="text-[#8A8A90] text-lg">{formattedDate}</p>
             </div>
           </FadeIn>
 
@@ -114,17 +114,17 @@ export default function DashboardPage() {
                 <StaggerItem>
                   <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 bg-[#4A1D6E] rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-[#0E0B1E] rounded-full flex items-center justify-center">
                         <Gift className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                    <h3 className="text-[#8A8A90] text-sm font-medium mb-2">
                       My Giving
                     </h3>
                     {loading ? (
                       <Skeleton className="h-8 w-24" />
                     ) : (
-                      <p className="text-2xl font-bold text-[#241A42]">
+                      <p className="text-2xl font-bold text-[#0E0B1E]">
                         ${stats?.totalGiving || 0}
                       </p>
                     )}
@@ -135,17 +135,17 @@ export default function DashboardPage() {
                 <StaggerItem>
                   <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 bg-[#771996] rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-[#C9A84C] rounded-full flex items-center justify-center">
                         <Heart className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                    <h3 className="text-[#8A8A90] text-sm font-medium mb-2">
                       Prayer Requests
                     </h3>
                     {loading ? (
                       <Skeleton className="h-8 w-24" />
                     ) : (
-                      <p className="text-2xl font-bold text-[#241A42]">
+                      <p className="text-2xl font-bold text-[#0E0B1E]">
                         {stats?.prayerRequestsCount || 0}
                       </p>
                     )}
@@ -156,17 +156,17 @@ export default function DashboardPage() {
                 <StaggerItem>
                   <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 bg-[#4A1D6E] rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-[#0E0B1E] rounded-full flex items-center justify-center">
                         <Users className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                    <h3 className="text-[#8A8A90] text-sm font-medium mb-2">
                       Hub Status
                     </h3>
                     {loading ? (
                       <Skeleton className="h-8 w-32" />
                     ) : (
-                      <p className="text-lg font-bold text-[#241A42]">
+                      <p className="text-lg font-bold text-[#0E0B1E]">
                         {stats?.hubStatus || 'Not Joined'}
                       </p>
                     )}
@@ -177,17 +177,17 @@ export default function DashboardPage() {
                 <StaggerItem>
                   <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 bg-[#771996] rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-[#C9A84C] rounded-full flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-[#8A8A8E] text-sm font-medium mb-2">
+                    <h3 className="text-[#8A8A90] text-sm font-medium mb-2">
                       Classes
                     </h3>
                     {loading ? (
                       <Skeleton className="h-8 w-24" />
                     ) : (
-                      <p className="text-2xl font-bold text-[#241A42]">
+                      <p className="text-2xl font-bold text-[#0E0B1E]">
                         {stats?.enrolledClassesCount || 0}
                       </p>
                     )}
@@ -199,7 +199,7 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div>
-            <h2 className="text-2xl font-bold text-[#241A42] mb-6">
+            <h2 className="text-2xl font-bold text-[#0E0B1E] mb-6">
               Quick Actions
             </h2>
             <StaggerContainer>
@@ -212,14 +212,14 @@ export default function DashboardPage() {
                         <div className="bg-white rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-[#E4E0EF] rounded-lg flex items-center justify-center">
-                                <IconComponent className="w-5 h-5 text-[#4A1D6E]" />
+                              <div className="w-10 h-10 bg-[#E8E6F0] rounded-lg flex items-center justify-center">
+                                <IconComponent className="w-5 h-5 text-[#0E0B1E]" />
                               </div>
-                              <span className="font-semibold text-[#241A42]">
+                              <span className="font-semibold text-[#0E0B1E]">
                                 {action.label}
                               </span>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-[#8A8A8E]" />
+                            <ChevronRight className="w-5 h-5 text-[#8A8A90]" />
                           </div>
                         </div>
                       </Link>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
@@ -95,7 +95,7 @@ export default function TEMAPage() {
                 name="course"
                 required
                 defaultValue=""
-                className="w-full rounded-[8px] border-2 border-[#E4E0EF] bg-white px-4 py-2.5 font-body text-sm text-[#31333B] placeholder:text-[#8A8A8E] focus:outline-none focus:border-[#771996] transition-colors"
+                className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] placeholder:text-[#8A8A90] focus:outline-none focus:border-[#C9A84C] transition-colors"
               >
                 <option value="" disabled>Select a course...</option>
                 {courses.map((c) => (
