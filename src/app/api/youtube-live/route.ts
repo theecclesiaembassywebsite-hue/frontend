@@ -1,4 +1,5 @@
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
+const LIVE_DELAY_MS = 60_000; // wait 1 min after YouTube goes live before showing the stream
 
 interface LiveStatus {
   isLive: boolean;
@@ -10,6 +11,8 @@ const NOT_LIVE: LiveStatus = { isLive: false, videoId: null, embedUrl: null };
 
 // Module-level cache so repeated client polls don't hammer YouTube.
 let cached: { status: LiveStatus; expiresAt: number } | null = null;
+// Tracks when YouTube was first detected as live for the delay logic.
+let firstDetectedLiveAt: number | null = null;
 
 async function fetchLiveStatus(): Promise<LiveStatus> {
   const now = Date.now();
@@ -44,22 +47,38 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
 
     const videoId = watchMatch?.[1] ?? htmlVideoMatch?.[1] ?? null;
 
-    const isLive =
+    const rawIsLive =
       videoId !== null &&
       (html.includes('"isLive":true') ||
         html.includes('"isLiveBroadcast":true') ||
         html.includes('"broadcastStatus":"live"') ||
-        html.includes('"liveBadge"') ||
-        // If we got a /watch redirect from /live, treat it as live.
-        watchMatch !== null);
+        html.includes('"liveBadge"'));
 
-    const status: LiveStatus = isLive
-      ? {
-          isLive: true,
-          videoId,
-          embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1`,
-        }
-      : NOT_LIVE;
+    if (!rawIsLive) {
+      firstDetectedLiveAt = null;
+      cached = { status: NOT_LIVE, expiresAt: now + 60_000 };
+      return NOT_LIVE;
+    }
+
+    // YouTube is live — start (or continue) the delay timer.
+    if (firstDetectedLiveAt === null) {
+      firstDetectedLiveAt = now;
+    }
+
+    const delayElapsed = now - firstDetectedLiveAt >= LIVE_DELAY_MS;
+
+    if (!delayElapsed) {
+      // Re-check once the delay window closes rather than waiting a full minute.
+      const remaining = LIVE_DELAY_MS - (now - firstDetectedLiveAt);
+      cached = { status: NOT_LIVE, expiresAt: now + remaining };
+      return NOT_LIVE;
+    }
+
+    const status: LiveStatus = {
+      isLive: true,
+      videoId,
+      embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1`,
+    };
 
     cached = { status, expiresAt: now + 60_000 };
     return status;
