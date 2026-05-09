@@ -1,12 +1,12 @@
 // Tracks live status for YouTube channel @theecclesiaembassy (UCrvZyTocoH926b_wv81bpzA).
 // Primary: YouTube Data API v3 (reliable, needs YOUTUBE_API_KEY env var).
-// Fallback: HTML scraping — used automatically when the key is missing or daily quota is exceeded.
+// Fallback: HTML scraping — used when the key is missing or quota drops to 500 units remaining.
+import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
+
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
 const LIVE_DELAY_MS = 60_000;
-// Server-side cache shared across all clients. Each refresh = 100 YouTube API quota units.
-// 5-min TTL → at most ~288 refreshes/day (28,800 units). Free quota is 10,000 units/day;
-// request a free quota increase in Google Cloud Console if needed.
 const CACHE_TTL_MS = 5 * 60_000;
+const SEARCH_COST = 100; // units per search.list call
 
 interface LiveStatus {
   isLive: boolean;
@@ -28,7 +28,6 @@ async function fetchViaApi(apiKey: string): Promise<string | null> {
   if (res.status === 403) {
     const body = await res.json().catch(() => ({}));
     const reason = body?.error?.errors?.[0]?.reason ?? "";
-    // Quota exceeded — signal caller to fall back to scraping.
     if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") {
       return "QUOTA_EXCEEDED";
     }
@@ -36,6 +35,7 @@ async function fetchViaApi(apiKey: string): Promise<string | null> {
 
   if (!res.ok) throw new Error(`API ${res.status}`);
 
+  consumeQuota(SEARCH_COST);
   const data = await res.json();
   return data.items?.[0]?.id?.videoId ?? null;
 }
@@ -80,9 +80,8 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
     const apiKey = process.env.YOUTUBE_API_KEY;
     let videoId: string | null;
 
-    if (apiKey) {
+    if (apiKey && isQuotaSafe(SEARCH_COST)) {
       const result = await fetchViaApi(apiKey);
-      // On quota exceeded, transparently fall back to scraping.
       videoId = result === "QUOTA_EXCEEDED" ? await fetchViaScraping() : result;
     } else {
       videoId = await fetchViaScraping();

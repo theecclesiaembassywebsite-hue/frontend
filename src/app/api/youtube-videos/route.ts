@@ -1,8 +1,11 @@
 // Fetches recent videos for YouTube channel @theecclesiaembassy (UCrvZyTocoH926b_wv81bpzA).
 // Primary: YouTube Data API v3 (needs YOUTUBE_API_KEY env var).
-// Fallback: RSS feed — used automatically when the key is missing or daily quota is exceeded.
+// Fallback: RSS feed — used when the key is missing or quota drops to 500 units remaining.
+import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
+
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
-const CACHE_TTL_MS = 60 * 60_000; // 1 hour — each refresh = 100 YouTube API quota units
+const CACHE_TTL_MS = 60 * 60_000; // 1 hour
+const SEARCH_COST = 100; // units per search.list call
 
 interface YouTubeVideo {
   id: string;
@@ -29,6 +32,7 @@ async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCE
 
   if (!res.ok) throw new Error(`API ${res.status}`);
 
+  consumeQuota(SEARCH_COST);
   const data = await res.json();
   return (data.items ?? []).map((item: {
     id: { videoId: string };
@@ -102,7 +106,7 @@ export async function GET() {
     const apiKey = process.env.YOUTUBE_API_KEY;
     let videos: YouTubeVideo[];
 
-    if (apiKey) {
+    if (apiKey && isQuotaSafe(SEARCH_COST)) {
       const result = await fetchViaApi(apiKey);
       videos = result === "QUOTA_EXCEEDED" ? await fetchViaRSS() : result;
     } else {
