@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FadeIn, ShimmerLine } from "@/components/ui/Motion";
 import { Heart } from "lucide-react";
@@ -35,9 +36,15 @@ export default function Footer() {
           {/* Brand */}
           <FadeIn direction="up" delay={0}>
             <div>
-              <h3 className="font-heading text-lg font-bold text-white mb-4">
-                The Ecclesia Embassy
-              </h3>
+              <div className="mb-5">
+                <Image
+                  src="/Logo.png"
+                  alt="The Ecclesia Embassy"
+                  width={220}
+                  height={62}
+                  className="h-[58px] w-auto object-contain"
+                />
+              </div>
               <p className="font-serif text-sm italic text-white/70 leading-relaxed">
                 Word, Kingdom and Worship.
                 <br />

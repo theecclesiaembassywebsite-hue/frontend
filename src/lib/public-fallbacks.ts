@@ -390,7 +390,7 @@ export function getDefaultBlogPost(identifier: string) {
 
 export const DEFAULT_LIVESTREAM_CONFIG = {
   isLive: false,
-  embedUrl: "",
+  embedUrl: "https://www.youtube.com/embed/live_stream?channel=UCrvZyTocoH926b_wv81bpzA&autoplay=1",
   nextService: "2026-04-28T17:30:00.000Z",
 };
 

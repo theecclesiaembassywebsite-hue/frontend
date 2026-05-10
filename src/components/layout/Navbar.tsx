@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, Search, ChevronDown, User, LogOut, LayoutDashboard, Settings, Shield } from "lucide-react";
@@ -99,8 +100,15 @@ export default function Navbar() {
       {/* Top header bar — logo area */}
       <header className="bg-slate">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-5 sm:px-6 md:px-8">
-          <Link href="/" className="font-heading text-2xl font-bold text-white md:text-[42px] md:leading-[48px] transition-opacity hover:opacity-90">
-            The Ecclesia Embassy
+          <Link href="/" className="transition-opacity hover:opacity-90 flex-shrink-0">
+            <Image
+              src="/Logo.png"
+              alt="The Ecclesia Embassy"
+              width={340}
+              height={96}
+              priority
+              className="h-[64px] w-auto md:h-[88px] object-contain"
+            />
           </Link>
           <div className="flex items-center gap-4">
             {user ? (
@@ -308,9 +316,13 @@ export default function Navbar() {
               className="absolute right-0 top-0 h-full w-[300px] bg-slate overflow-y-auto"
             >
               <div className="flex items-center justify-between p-5 border-b border-white/10">
-                <span className="font-heading text-lg font-bold text-white">
-                  Menu
-                </span>
+                <Image
+                  src="/Logo.png"
+                  alt="The Ecclesia Embassy"
+                  width={180}
+                  height={50}
+                  className="h-[44px] w-auto object-contain"
+                />
                 <button
                   onClick={() => setMobileOpen(false)}
                   aria-label="Close menu"

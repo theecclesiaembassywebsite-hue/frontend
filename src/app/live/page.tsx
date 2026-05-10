@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { livestream, serviceSchedule } from "@/lib/api";
@@ -182,6 +182,14 @@ export default function LivePage() {
   const [now, setNow] = useState(() => new Date());
   const [youtubeIsLive, setYoutubeIsLive] = useState(false);
   const [youtubeLiveUrl, setYoutubeLiveUrl] = useState<string | null>(null);
+  const [youtubeFallback, setYoutubeFallback] = useState(false);
+
+  // Locked iframe src — set once when the stream is first detected, cleared only
+  // when the stream fully ends. Prevents mid-stream reloads when the URL type
+  // transitions (e.g. channel fallback → specific video ID) or polls return a
+  // different embed URL for the same ongoing broadcast.
+  const lockedEmbedRef = useRef<string>("");
+  const [iframeSrc, setIframeSrc] = useState<string>("");
 
   useEffect(() => {
     document.title = "Live | The Ecclesia Embassy";
@@ -241,6 +249,7 @@ export default function LivePage() {
         if (!isMounted) return;
         setYoutubeIsLive(data.isLive ?? false);
         setYoutubeLiveUrl(data.embedUrl ?? null);
+        setYoutubeFallback(data.useFallbackEmbed ?? false);
       } catch {
         // silent — defaults remain false/null
       }
@@ -266,9 +275,32 @@ export default function LivePage() {
   }, []);
 
   const manualEmbedUrl = toEmbedUrl(config?.embedUrl);
-  // YouTube auto-detection takes priority; manual config is the fallback.
-  const liveEmbedUrl = youtubeIsLive ? (youtubeLiveUrl ?? "") : manualEmbedUrl;
-  const showLiveStream = youtubeIsLive || Boolean(config?.isLive && manualEmbedUrl);
+  // Priority: auto-detected live → manual admin URL → channel iframe fallback.
+  const liveEmbedUrl = youtubeIsLive
+    ? (youtubeLiveUrl ?? "")
+    : manualEmbedUrl || (youtubeFallback ? (youtubeLiveUrl ?? "") : "");
+  const showLiveStream =
+    youtubeIsLive ||
+    Boolean(config?.isLive && manualEmbedUrl) ||
+    youtubeFallback;
+
+  // Lock the iframe src the moment a stream is first detected. Do not change it
+  // while the stream is still showing — this prevents the iframe from reloading
+  // if the URL type shifts (channel fallback → specific video ID) or a poll
+  // returns a marginally different embed URL for the same broadcast.
+  // Only release the lock when showLiveStream goes fully false (stream ended).
+  useEffect(() => {
+    if (showLiveStream && liveEmbedUrl) {
+      if (!lockedEmbedRef.current) {
+        lockedEmbedRef.current = liveEmbedUrl;
+        setIframeSrc(liveEmbedUrl);
+      }
+    } else if (!showLiveStream && lockedEmbedRef.current) {
+      lockedEmbedRef.current = "";
+      setIframeSrc("");
+    }
+  }, [showLiveStream, liveEmbedUrl]);
+
   const nextUpcomingService = getNextUpcomingService(config, services, now);
   const countdown = getCountdownParts(nextUpcomingService?.startsAt ?? null, now);
   const isLoadingHero = isLoadingConfig || isLoadingServices;
@@ -281,16 +313,16 @@ export default function LivePage() {
         <section className="relative bg-[#0E0B1E] pt-24 pb-0">
           <div className="mx-auto w-full max-w-6xl px-4">
             <div className="relative aspect-video overflow-hidden rounded-t-lg border-x-2 border-t-2 border-[#C9A84C]/30 bg-black shadow-2xl">
-              {showLiveStream && (
+              {iframeSrc && (
                 <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-[3px] bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-[0.3em] text-white">
                   <span className="h-2 w-2 rounded-full bg-white" />
-                  Live Now
+                  {youtubeFallback && !youtubeIsLive ? "Channel Live" : "Live Now"}
                 </div>
               )}
 
-              {showLiveStream ? (
+              {iframeSrc ? (
                 <iframe
-                  src={liveEmbedUrl}
+                  src={iframeSrc}
                   title="The Ecclesia Embassy livestream"
                   className="h-full w-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

@@ -1,14 +1,22 @@
-﻿'use client';
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SectionWrapper from '@/components/ui/SectionWrapper';
 import Button from '@/components/ui/Button';
+import ProgramHero from '@/components/training/ProgramHero';
 import { intentionalityClass } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/ui/Toast';
 import { FadeIn } from '@/components/ui/Motion';
-import { GraduationCap, CheckCircle, BookOpen, Clock, Users } from 'lucide-react';
+import {
+  BookOpen,
+  CheckCircle,
+  Clock,
+  GraduationCap,
+  Sparkles,
+  Users,
+} from 'lucide-react';
 import EditableContent from '@/components/ui/EditableContent';
 
 interface Course {
@@ -19,9 +27,63 @@ interface Course {
   _count?: { enrollments: number };
 }
 
+const journeyCards = [
+  {
+    icon: Clock,
+    title: 'Paced formation',
+    desc: 'A guided journey that helps learners move with intention instead of drifting through growth.',
+  },
+  {
+    icon: BookOpen,
+    title: 'Doctrinal grounding',
+    desc: 'Foundational teaching clarifies faith, culture, and what it means to live kingdom values daily.',
+  },
+  {
+    icon: Users,
+    title: 'Community practice',
+    desc: 'Growth is reinforced through accountability, interaction, and real ministry participation.',
+  },
+];
+
+const outcomeCards = [
+  {
+    title: 'Foundation',
+    desc: 'Strong roots in the Christian faith and a clear understanding of the Ecclesia Embassy system.',
+  },
+  {
+    title: 'Transformation',
+    desc: 'Character formation, discipline, and a healthy work culture for kingdom service and stewardship.',
+  },
+  {
+    title: 'Responsibility',
+    desc: 'Preparedness to serve, lead, and help others grow with maturity and clarity.',
+  },
+];
+
+const phaseCards = [
+  {
+    title: 'Phase One - Move-In',
+    desc: 'The entry level introduces the basics of the Christian faith and the Ecclesia Embassy. It includes six teachings and can be completed over three weeks or through a one-day crash course.',
+  },
+  {
+    title: 'Phase Two - Maturity and Ministry',
+    desc: 'This phase develops culture, consistency, honor, and stewardship through teachings, assignments, evaluations, and hands-on service experiences.',
+  },
+  {
+    title: 'Phase Three - Missions and Mandate',
+    desc: 'The advanced phase shifts the focus from personal growth to kingdom impact, preparing committed members for evangelism, leadership, and wider responsibility.',
+  },
+];
+
 export default function IntentionalityClassPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [preferredFormat, setPreferredFormat] = useState('hybrid');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const { success, error } = useToast();
 
   useEffect(() => {
     intentionalityClass.getAvailableCourses()
@@ -30,14 +92,6 @@ export default function IntentionalityClassPage() {
       .finally(() => setCoursesLoading(false));
   }, []);
 
-  const [selectedCourseId, setSelectedCourseId] = useState('');
-  const [preferredFormat, setPreferredFormat] = useState('hybrid');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const { user, isAuthenticated } = useAuth();
-  const { success, error } = useToast();
-
-  // Auto-select first course when courses load
   useEffect(() => {
     if (courses.length > 0 && !selectedCourseId) {
       setSelectedCourseId(courses[0].id);
@@ -47,6 +101,12 @@ export default function IntentionalityClassPage() {
   const userName = user?.profile
     ? [user.profile.firstName, user.profile.lastName].filter(Boolean).join(' ')
     : '';
+
+  const selectedCourse = courses.find((course) => course.id === selectedCourseId);
+
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,255 +137,298 @@ export default function IntentionalityClassPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-[#0E0B1E] to-[#0E0B1E]"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
-        <div className="relative z-10 text-center px-4">
-          <div className="flex justify-center mb-4">
-            <GraduationCap className="w-16 h-16 text-[#E8E6F0]" />
+      <ProgramHero
+        eyebrow="Growth Pathway"
+        title="The Intentionality Class"
+        subtitle="Level 1-3: Move-In | Maturity | Ministry"
+        description="A step-by-step formation journey that helps believers grow in faith, align with culture, and mature into service, stewardship, and leadership."
+        logoSrc="/intentionality-class-logo.png"
+        logoAlt="The Intentionality Class"
+        logoWidth={1200}
+        logoHeight={480}
+        chips={[
+          'Foundational faith',
+          'Culture and stewardship',
+          'Leadership formation',
+        ]}
+        stats={[
+          { value: '3', label: 'formation levels' },
+          { value: 'Hybrid', label: 'delivery options' },
+          { value: 'Step-by-step', label: 'growth model' },
+        ]}
+        backgroundClassName="bg-[radial-gradient(circle_at_top_left,rgba(52,152,219,0.2),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(201,168,76,0.2),transparent_30%),linear-gradient(135deg,#0E0B1E_0%,#351E63_48%,#1D6CB0_100%)]"
+        overlayClassName="bg-[linear-gradient(180deg,rgba(14,11,30,0.12),rgba(14,11,30,0.45))]"
+        logoCardClassName="bg-white/8"
+        logoWrapClassName="bg-[linear-gradient(180deg,#ffffff_0%,#faf9ff_100%)]"
+        logoClassName="max-w-[560px]"
+        aside={
+          <div>
+            <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
+              Pathway at a glance
+            </p>
+            <div className="mt-4 space-y-3">
+              {[
+                'Move-In introduces the foundations of faith and ministry culture.',
+                'Maturity and Ministry develops stewardship, consistency, and service habits.',
+                'Missions and Mandate prepares committed members for wider kingdom responsibility.',
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-gold" />
+                  <p className="font-body text-sm leading-6 text-white/80">{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <h1 className="text-5xl font-bold font-heading text-white mb-4">Intentionality Class</h1>
-          <p className="text-xl text-[#E8E6F0]">A foundational journey into kingdom living</p>
-        </div>
-      </section>
+        }
+        actions={
+          <>
+            <Button variant="primary" onClick={() => scrollToSection('enroll')}>
+              Enroll Now
+            </Button>
+            <Button variant="secondary" onDark onClick={() => scrollToSection('pathway')}>
+              Explore the Pathway
+            </Button>
+          </>
+        }
+      />
 
       <EditableContent pagePath="/grow/intentionality-class" />
 
-      {/* About the Class */}
       <SectionWrapper variant="white">
         <FadeIn>
-          <div className="mb-12">
-            <h2 className="text-4xl font-bold font-heading text-[#0E0B1E] mb-8 text-center">
-              About the Class
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
+              Built for purposeful growth
             </h2>
-            <p className="text-lg text-[#8A8A90] font-body max-w-3xl mx-auto mb-12 text-center">
-              The Intentionality Class is a foundational journey designed to help you live with purpose
-              and clarity. Over six weeks, we explore what it means to align your daily decisions with
-              kingdom values, deepen your spiritual foundation, and build meaningful community with
-              others on the same journey.
+            <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
+              The Intentionality Class is a foundational journey designed to help believers live with
+              purpose and clarity. It strengthens spiritual foundation, shapes daily decisions, and
+              forms a healthy rhythm of service and community.
             </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Duration Card */}
-              <FadeIn delay={0.1}>
-                <div className="bg-[#FAFAF8] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
-                  <Clock className="w-12 h-12 text-[#C9A84C] mx-auto mb-4" />
-                  <h3 className="text-xl font-heading font-semibold text-[#0E0B1E] mb-2">Duration</h3>
-                  <p className="text-[#8A8A90] font-body">6 weeks of transformative learning</p>
-                </div>
-              </FadeIn>
-
-              {/* Format Card */}
-              <FadeIn delay={0.2}>
-                <div className="bg-[#FAFAF8] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
-                  <BookOpen className="w-12 h-12 text-[#C9A84C] mx-auto mb-4" />
-                  <h3 className="text-xl font-heading font-semibold text-[#0E0B1E] mb-2">Format</h3>
-                  <p className="text-[#8A8A90] font-body">In-person and online options available</p>
-                </div>
-              </FadeIn>
-
-              {/* Community Card */}
-              <FadeIn delay={0.3}>
-                <div className="bg-[#FAFAF8] rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
-                  <Users className="w-12 h-12 text-[#C9A84C] mx-auto mb-4" />
-                  <h3 className="text-xl font-heading font-semibold text-[#0E0B1E] mb-2">Community</h3>
-                  <p className="text-[#8A8A90] font-body">Small groups for meaningful connection</p>
-                </div>
-              </FadeIn>
-            </div>
           </div>
         </FadeIn>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {journeyCards.map((card) => {
+            const Icon = card.icon;
+
+            return (
+              <FadeIn key={card.title} delay={0.08}>
+                <div className="rounded-[24px] border border-gray-border bg-off-white p-6 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple text-white shadow-purple">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-5 font-heading text-lg font-bold text-slate">{card.title}</h3>
+                  <p className="mt-3 font-body text-sm leading-7 text-gray-text">{card.desc}</p>
+                </div>
+              </FadeIn>
+            );
+          })}
+        </div>
       </SectionWrapper>
 
-      {/* Intentionality Class Details */}
-      <SectionWrapper variant="white">
+      <SectionWrapper variant="off-white" id="pathway">
         <FadeIn>
-          <div className="max-w-5xl mx-auto mb-12">
-            <h2 className="text-4xl font-bold font-heading text-[#0E0B1E] mb-8 text-center">
-              What the Intentionality Class is About
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
+              What the class is building in people
             </h2>
-            <div className="space-y-6 font-body text-[#4E4B6C] leading-relaxed text-base">
-              <p>
-                The Intentionality Class is the core training and development pathway of The Ecclesia Embassy, designed to intentionally guide believers from foundational faith to active service and leadership within the ministry. It is a structured system that ensures every partaker is grounded spiritually, aligned culturally, and equipped to fulfill their role in the Ecclesia mandate.
-              </p>
-              <p>
-                At its core, the Intentionality Class is about intentional growth; raising individuals who not only understand their faith but also live it out through service, stewardship, and leadership.
-              </p>
-
-              <div className="rounded-[20px] border border-[#E8E6F0] bg-[#F7F5FF] p-6">
-                <h3 className="text-2xl font-semibold text-[#0E0B1E] mb-4">The program focuses on three key outcomes:</h3>
-                <ul className="space-y-4 list-disc list-inside font-body text-[#4E4B6C]">
-                  <li>
-                    <span className="font-semibold">Foundation:</span> Establishing strong roots in the Christian faith and understanding the Ecclesia Embassy system.
-                  </li>
-                  <li>
-                    <span className="font-semibold">Transformation:</span> Developing godly character, discipline, and the work culture required for kingdom service.
-                  </li>
-                  <li>
-                    <span className="font-semibold">Responsibility:</span> Raising individuals who are equipped to serve, lead, and help others grow.
-                  </li>
-                </ul>
-              </div>
-
-              <p>
-                It moves partakers from being learners to becoming active contributors and eventually leaders within the Ecclesia Workforce.
-              </p>
-
-              <h3 className="text-3xl font-semibold text-[#0E0B1E] mt-8">The Process</h3>
-              <div className="space-y-8">
-                <div>
-                  <h4 className="text-2xl font-semibold text-[#0E0B1E] mb-2">Phase One — Move-In</h4>
-                  <p>
-                    This is the entry level where partakers are introduced to the basics of the Christian faith and the Ecclesia Embassy. It includes six teachings and can be completed over three weeks or through a one-day crash course. At the end, partakers are assessed and qualified candidates move to the next phase.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-2xl font-semibold text-[#0E0B1E] mb-2">Phase Two — Maturity & Ministry</h4>
-                  <p>
-                    This phase focuses on practical growth and culture development. Over several weeks, partakers are trained in values such as stewardship, consistency, honour, and commitment through teachings, assignments, and evaluations.
-                  </p>
-                  <p>
-                    A major component here is the Ecclesia Stewardship Experience Program (ESEP), a hands-on internship where partakers serve in different ministry platforms to gain real experience. Successful partakers are then integrated into the Ecclesia Workforce.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-2xl font-semibold text-[#0E0B1E] mb-2">Phase Three — Missions & Mandate</h4>
-                  <p>
-                    This is the advanced stage for committed members and leaders. It shifts the focus from personal growth to kingdom impact. Partakers are trained in evangelism (Missions) and leadership (Mandate), equipping them to influence others and take on greater responsibility within and beyond the ministry.
-                  </p>
-                </div>
-              </div>
-
-              <p className="font-semibold">
-                The Intentionality Class is a step-by-step journey of transformation; from becoming grounded in faith, to living a disciplined and service-driven life, and ultimately to embracing leadership and kingdom responsibility. It ensures that every member of The Ecclesia Embassy is intentionally built to grow, serve, and lead.
-              </p>
-            </div>
+            <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
+              At its core, the Intentionality Class is about intentional growth: raising individuals
+              who understand their faith and live it out through service, stewardship, and leadership.
+            </p>
           </div>
         </FadeIn>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {outcomeCards.map((card) => (
+            <div
+              key={card.title}
+              className="rounded-[24px] border border-gray-border bg-white p-6 shadow-sm"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/15">
+                <Sparkles className="h-5 w-5 text-gold-dark" />
+              </div>
+              <h3 className="mt-5 font-heading text-xl font-bold text-slate">{card.title}</h3>
+              <p className="mt-3 font-body text-sm leading-7 text-gray-text">{card.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          {phaseCards.map((phase, index) => (
+            <div
+              key={phase.title}
+              className="rounded-[28px] bg-[linear-gradient(180deg,#0E0B1E_0%,#24183D_100%)] p-6 text-white shadow-xl"
+            >
+              <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-gold">
+                Stage {index + 1}
+              </p>
+              <h3 className="mt-3 font-heading text-2xl font-bold text-white">{phase.title}</h3>
+              <p className="mt-4 font-body text-sm leading-7 text-white/72">{phase.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 rounded-[28px] border border-gray-border bg-white p-6 shadow-sm md:p-8">
+          <h3 className="font-heading text-[24px] font-bold text-slate md:text-[28px]">
+            The process in one sentence
+          </h3>
+          <p className="mt-4 font-body text-sm leading-8 text-gray-text md:text-base">
+            The Intentionality Class moves partakers from being grounded in faith, to living a
+            disciplined and service-driven life, and ultimately to embracing leadership and kingdom
+            responsibility within the Ecclesia mandate.
+          </p>
+        </div>
       </SectionWrapper>
 
-      {/* Enrollment Form */}
-      <SectionWrapper variant="off-white">
+      <SectionWrapper variant="white" id="enroll">
         <FadeIn>
-          <div className="max-w-xl mx-auto">
-            <h2 className="text-4xl font-bold font-heading text-[#0E0B1E] mb-2 text-center">
-              Enroll Now
-            </h2>
-            <p className="text-[#8A8A90] font-body text-center mb-8">
-              Join us on this transformative journey
-            </p>
+          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
+            <div className="rounded-[28px] bg-[linear-gradient(135deg,#0E0B1E_0%,#2C1D52_100%)] p-6 text-white shadow-xl md:p-8">
+              <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
+                Enrollment journey
+              </p>
+              <h2 className="mt-3 font-heading text-[30px] font-bold text-white md:text-[34px]">
+                Join the class with clarity
+              </h2>
+              <p className="mt-3 font-body text-sm leading-7 text-white/72 md:text-base">
+                Choose a course, select your preferred format, and continue your growth journey from
+                the dashboard once your enrollment is complete.
+              </p>
 
-            {isSuccess ? (
-              <div className="bg-[#E8E6F0] border-2 border-[#27AE60] rounded-lg p-8 text-center">
-                <CheckCircle className="w-16 h-16 text-[#27AE60] mx-auto mb-4" />
-                <h3 className="text-2xl font-heading font-bold text-[#0E0B1E] mb-2">
-                  Thank you for enrolling!
-                </h3>
-                <p className="text-[#8A8A90] font-body mb-6">
-                  You can now access your course materials from your dashboard.
-                </p>
-                <Link
-                  href="/dashboard/class"
-                  className="inline-block bg-[#C9A84C] hover:bg-[#0E0B1E] text-white font-heading font-semibold py-3 px-6 rounded-lg transition-colors"
-                >
-                  Go to My Courses
-                </Link>
+              <div className="mt-8 space-y-4">
+                {[
+                  'Select the available course that fits your current cohort.',
+                  'Choose whether you prefer in-person, online, or hybrid learning.',
+                  'Access your course materials from the dashboard after enrollment.',
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-[22px] border border-white/10 bg-white/8 p-5 backdrop-blur-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-gold text-slate">
+                        <GraduationCap className="h-4 w-4" />
+                      </div>
+                      <p className="font-body text-sm leading-7 text-white/78">{item}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Show logged-in user info */}
-                {isAuthenticated && user && (
-                  <div className="rounded-[8px] bg-[#FAFAF8] border border-[#E8E6F0] px-4 py-3">
-                    <p className="font-heading text-xs font-semibold text-[#8A8A90] uppercase tracking-wide mb-1">
-                      Enrolling as
-                    </p>
-                    <p className="font-heading text-sm font-bold text-[#0E0B1E]">
-                      {userName || user.email}
-                    </p>
-                    {userName && (
-                      <p className="font-body text-xs text-[#8A8A90]">{user.email}</p>
+            </div>
+
+            <div className="rounded-[28px] border border-gray-border bg-off-white p-6 shadow-sm md:p-8">
+              <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
+                Enroll Now
+              </h2>
+              <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
+                Join us on this transformative journey.
+              </p>
+
+              {isSuccess ? (
+                <div className="mt-8 rounded-[24px] border border-success/30 bg-success/10 p-8 text-center">
+                  <CheckCircle className="mx-auto h-16 w-16 text-success" />
+                  <h3 className="mt-4 font-heading text-2xl font-bold text-slate">
+                    Thank you for enrolling
+                  </h3>
+                  <p className="mt-3 font-body text-sm leading-7 text-gray-text">
+                    You can now access your course materials from your dashboard.
+                  </p>
+                  <Link
+                    href="/dashboard/class"
+                    className="mt-6 inline-flex min-w-[180px] items-center justify-center rounded-[4px] bg-gold px-8 py-3 font-heading text-[13px] font-semibold uppercase tracking-[1.5px] text-slate transition-colors hover:bg-gold-dark"
+                  >
+                    Go to My Courses
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+                  {isAuthenticated && user ? (
+                    <div className="rounded-[16px] border border-gray-border bg-white px-4 py-4">
+                      <p className="font-heading text-xs font-semibold uppercase tracking-[1.5px] text-gray-text">
+                        Enrolling as
+                      </p>
+                      <p className="mt-2 font-heading text-sm font-bold text-slate">
+                        {userName || user.email}
+                      </p>
+                      {userName ? (
+                        <p className="mt-1 font-body text-xs text-gray-text">{user.email}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  <div>
+                    <label className="mb-2 block font-heading text-sm font-semibold text-slate">
+                      Preferred Course
+                    </label>
+                    {coursesLoading ? (
+                      <div className="h-[44px] w-full animate-pulse rounded-lg bg-white" />
+                    ) : courses.length === 0 ? (
+                      <p className="font-body text-sm italic text-gray-text">
+                        No courses are available right now. Please check back later.
+                      </p>
+                    ) : (
+                      <>
+                        <select
+                          value={selectedCourseId}
+                          onChange={(e) => setSelectedCourseId(e.target.value)}
+                          className="w-full rounded-lg border-2 border-gray-border bg-white px-4 py-2 font-body text-slate transition-colors focus:border-gold focus:outline-none"
+                          required
+                        >
+                          <option value="" disabled>
+                            Select a course...
+                          </option>
+                          {courses.map((course) => (
+                            <option key={course.id} value={course.id}>
+                              {course.title} ({course.modules.length} modules)
+                            </option>
+                          ))}
+                        </select>
+                        {selectedCourse ? (
+                          <p className="mt-3 font-body text-xs leading-6 text-gray-text">
+                            {selectedCourse.description}
+                          </p>
+                        ) : null}
+                      </>
                     )}
                   </div>
-                )}
 
-                {/* Course Dropdown */}
-                <div>
-                  <label className="block text-sm font-heading font-semibold text-[#0E0B1E] mb-2">
-                    Preferred Course
-                  </label>
-                  {coursesLoading ? (
-                    <div className="w-full h-[42px] rounded-lg bg-[#FAFAF8] animate-pulse" />
-                  ) : courses.length === 0 ? (
-                    <p className="font-body text-sm text-[#8A8A90] italic">
-                      No courses available at this time. Please check back later.
-                    </p>
-                  ) : (
-                    <>
-                      <select
-                        value={selectedCourseId}
-                        onChange={(e) => setSelectedCourseId(e.target.value)}
-                        className="w-full px-4 py-2 border-2 border-[#E8E6F0] rounded-lg font-body text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors bg-white"
-                        required
-                      >
-                        <option value="" disabled>Select a course…</option>
-                        {courses.map((course) => (
-                          <option key={course.id} value={course.id}>
-                            {course.title} ({course.modules.length} modules)
-                          </option>
-                        ))}
-                      </select>
-                      {/* Show selected course description */}
-                      {selectedCourseId && (() => {
-                        const selected = courses.find((c) => c.id === selectedCourseId);
-                        return selected ? (
-                          <p className="mt-2 font-body text-xs text-[#8A8A90] leading-relaxed">
-                            {selected.description}
-                          </p>
-                        ) : null;
-                      })()}
-                    </>
-                  )}
-                </div>
+                  <div>
+                    <label className="mb-2 block font-heading text-sm font-semibold text-slate">
+                      Preferred Format
+                    </label>
+                    <select
+                      value={preferredFormat}
+                      onChange={(e) => setPreferredFormat(e.target.value)}
+                      className="w-full rounded-lg border-2 border-gray-border bg-white px-4 py-2 font-body text-slate transition-colors focus:border-gold focus:outline-none"
+                    >
+                      <option value="in-person">In-Person</option>
+                      <option value="online">Online</option>
+                      <option value="hybrid">Hybrid</option>
+                    </select>
+                  </div>
 
-                {/* Preferred Format Dropdown */}
-                <div>
-                  <label className="block text-sm font-heading font-semibold text-[#0E0B1E] mb-2">
-                    Preferred Format
-                  </label>
-                  <select
-                    value={preferredFormat}
-                    onChange={(e) => setPreferredFormat(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-[#E8E6F0] rounded-lg font-body text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors bg-white"
+                  <Button
+                    type="submit"
+                    disabled={isLoading || courses.length === 0}
+                    className="w-full"
                   >
-                    <option value="in-person">In-Person</option>
-                    <option value="online">Online</option>
-                    <option value="hybrid">Hybrid</option>
-                  </select>
-                </div>
+                    {isLoading ? 'Enrolling...' : 'Enroll Now'}
+                  </Button>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading || courses.length === 0}
-                  className="w-full bg-[#C9A84C] hover:bg-[#0E0B1E] text-white font-heading font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? 'Enrolling...' : 'Enroll Now'}
-                </Button>
-
-                {!isAuthenticated && (
-                  <p className="text-center text-sm text-[#8A8A90] font-body mt-4">
-                    You need to{' '}
-                    <Link href="/auth/login" className="text-[#C9A84C] hover:underline font-semibold">
-                      sign in
-                    </Link>{' '}
-                    to enroll in this class.
-                  </p>
-                )}
-              </form>
-            )}
+                  {!isAuthenticated ? (
+                    <p className="text-center font-body text-sm text-gray-text">
+                      You need to{' '}
+                      <Link href="/auth/login" className="font-semibold text-gold-dark hover:underline">
+                        sign in
+                      </Link>{' '}
+                      to enroll in this class.
+                    </p>
+                  ) : null}
+                </form>
+              )}
+            </div>
           </div>
         </FadeIn>
       </SectionWrapper>

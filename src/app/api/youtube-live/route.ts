@@ -7,14 +7,22 @@ const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
 const LIVE_DELAY_MS = 60_000;
 const CACHE_TTL_MS = 5 * 60_000;
 const SEARCH_COST = 100; // units per search.list call
+const CHANNEL_FALLBACK_URL = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1`;
 
 interface LiveStatus {
   isLive: boolean;
   videoId: string | null;
   embedUrl: string | null;
+  useFallbackEmbed?: boolean;
 }
 
 const NOT_LIVE: LiveStatus = { isLive: false, videoId: null, embedUrl: null };
+const CHANNEL_FALLBACK: LiveStatus = {
+  isLive: false,
+  videoId: null,
+  embedUrl: CHANNEL_FALLBACK_URL,
+  useFallbackEmbed: true,
+};
 
 let cached: { status: LiveStatus; expiresAt: number } | null = null;
 let firstDetectedLiveAt: number | null = null;
@@ -80,17 +88,27 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
     const apiKey = process.env.YOUTUBE_API_KEY;
     let videoId: string | null;
 
+    let apiQuotaExceeded = false;
+
     if (apiKey && isQuotaSafe(SEARCH_COST)) {
       const result = await fetchViaApi(apiKey);
-      videoId = result === "QUOTA_EXCEEDED" ? await fetchViaScraping() : result;
+      if (result === "QUOTA_EXCEEDED") {
+        apiQuotaExceeded = true;
+        videoId = await fetchViaScraping();
+      } else {
+        videoId = result;
+      }
     } else {
       videoId = await fetchViaScraping();
     }
 
     if (!videoId) {
       firstDetectedLiveAt = null;
-      cached = { status: NOT_LIVE, expiresAt: now + CACHE_TTL_MS };
-      return NOT_LIVE;
+      // If quota was the reason we couldn't use the API and scraping also
+      // found nothing, surface the channel iframe so viewers can check directly.
+      const status = apiQuotaExceeded ? CHANNEL_FALLBACK : NOT_LIVE;
+      cached = { status, expiresAt: now + CACHE_TTL_MS };
+      return status;
     }
 
     // Enforce the 1-minute delay before surfacing the stream to visitors.
@@ -115,8 +133,10 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
     cached = { status, expiresAt: now + CACHE_TTL_MS };
     return status;
   } catch {
-    cached = { status: NOT_LIVE, expiresAt: now + 30_000 };
-    return NOT_LIVE;
+    // On any unexpected error fall back to the channel iframe rather than
+    // silently dropping visitors to the countdown screen.
+    cached = { status: CHANNEL_FALLBACK, expiresAt: now + 30_000 };
+    return CHANNEL_FALLBACK;
   }
 }
 

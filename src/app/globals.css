@@ -15,6 +15,11 @@
   --color-purple-hover: #1A1530;
   --color-purple-pressed: #0E0B1E;
 
+  /* ---- Brand Purple (from logo dome) ---- */
+  --color-brand-purple: #5B2D8E;
+  --color-brand-purple-dark: #4A2275;
+  --color-brand-purple-hover: #6B3FA0;
+
   /* ---- Accent Gold ---- */
   --color-gold: #C9A84C;
   --color-gold-light: #DFC070;
