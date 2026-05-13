@@ -86,19 +86,18 @@ export default function CITHPage() {
     <main className="min-h-screen bg-[#FAFAF8]">
       {/* Hero Section */}
       <section
-        className="relative h-screen min-h-96 flex items-center justify-center overflow-hidden bg-cover bg-center"
+        className="relative min-h-[60vh] sm:min-h-[70vh] lg:h-screen flex items-center justify-center overflow-hidden bg-cover bg-center"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920&q=80')`,
-          backgroundAttachment: 'fixed',
         }}
       >
         <div className="absolute inset-0 bg-black/40"></div>
         <FadeIn>
           <div className="relative z-10 text-center px-4 max-w-3xl">
-            <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">
               Church in the House
             </h1>
-            <p className="font-body text-xl md:text-2xl text-[#FAFAF8]">
+            <p className="font-body text-lg sm:text-xl md:text-2xl text-[#FAFAF8]">
               Find fellowship near you
             </p>
           </div>

@@ -34,6 +34,9 @@
   --color-lavender: #E8E6F0;
   --color-gray-text: #8A8A90;
   --color-gray-border: #EAEAEA;
+  --color-cream: #F5F1E8;
+  --color-ink: #211535;
+  --color-plum-mist: #F0EBF7;
 
   /* ---- Semantic Colors ---- */
   --color-success: #27AE60;
@@ -79,6 +82,8 @@
   --overlay-hero: rgba(14, 11, 30, 0.84);
   --overlay-card: rgba(14, 11, 30, 0.76);
   --overlay-scrim: rgba(0, 0, 0, 0.3);
+  --border-soft: rgba(14, 11, 30, 0.08);
+  --shadow-soft: 0 20px 45px rgba(14, 11, 30, 0.08);
 }
 
 /* ---- Base Styles ---- */
@@ -89,7 +94,11 @@ html {
 body {
   font-family: var(--font-body);
   color: var(--color-text-body);
+  background:
+    radial-gradient(circle at top, rgba(201, 168, 76, 0.08), transparent 32%),
+    linear-gradient(180deg, #fffdf8 0%, #fafaf8 28%, #f6f1e8 100%);
   background-color: var(--color-surface);
+  text-rendering: optimizeLegibility;
 }
 
 /* ---- Selection ---- */
@@ -162,6 +171,14 @@ p {
   line-height: 1.6;
 }
 
+a {
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease,
+    background-color 160ms ease;
+}
+
 /* ---- Accessibility ---- */
 *:focus-visible {
   outline: 2px solid var(--color-primary-vivid);
@@ -212,4 +229,23 @@ p {
   line-height: 16px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+}
+
+.soft-card {
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px);
+}
+
+.mesh-panel {
+  background:
+    radial-gradient(circle at top left, rgba(201, 168, 76, 0.15), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 241, 232, 0.92) 100%);
+}
+
+.page-bands {
+  background:
+    radial-gradient(circle at top, rgba(201, 168, 76, 0.07), transparent 30%),
+    linear-gradient(180deg, rgba(250, 250, 248, 0.72) 0%, rgba(245, 241, 232, 0.38) 100%);
 }

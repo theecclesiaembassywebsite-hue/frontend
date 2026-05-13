@@ -178,9 +178,9 @@ function getCountdownParts(target: Date | null, now: Date) {
 
 function LiveHeroSkeleton() {
   return (
-    <section className="bg-[#0E0B1E] pt-24 pb-0">
-      <div className="mx-auto w-full max-w-6xl px-4">
-        <Skeleton className="aspect-video w-full rounded-t-lg border-x-2 border-t-2 border-[#C9A84C]/30 bg-white/8" />
+    <section className="bg-slate pt-16 pb-0">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 md:px-8">
+        <Skeleton className="aspect-video w-full rounded-t-[20px] border-x-2 border-t-2 border-gold/20 bg-white/8" />
       </div>
     </section>
   );
@@ -197,10 +197,6 @@ export default function LivePage() {
   const [youtubeIsLive, setYoutubeIsLive] = useState(false);
   const [youtubeLiveUrl, setYoutubeLiveUrl] = useState<string | null>(null);
 
-  // Locked iframe src — set once when the stream is first detected, cleared only
-  // when the stream fully ends. Prevents mid-stream reloads when the URL type
-  // transitions (e.g. channel fallback → specific video ID) or polls return a
-  // different embed URL for the same ongoing broadcast.
   const lockedEmbedRef = useRef<string>("");
   const lockedStreamKeyRef = useRef<string>("");
   const [iframeSrc, setIframeSrc] = useState<string>("");
@@ -288,8 +284,6 @@ export default function LivePage() {
   }, []);
 
   const manualEmbedUrl = toEmbedUrl(config?.embedUrl);
-  // Manual override wins when admins explicitly mark the stream live.
-  // Otherwise, fall back to the detected YouTube live video.
   const hasManualOverride = Boolean(config?.isLive && manualEmbedUrl);
   const liveEmbedUrl = hasManualOverride
     ? manualEmbedUrl
@@ -306,11 +300,6 @@ export default function LivePage() {
     ? videos.filter((video) => video.id !== activeVideoId)
     : videos;
 
-  // Lock the iframe src the moment a stream is first detected. Do not change it
-  // while the stream is still showing — this prevents the iframe from reloading
-  // if the URL type shifts (channel fallback → specific video ID) or a poll
-  // returns a marginally different embed URL for the same broadcast.
-  // Only release the lock when showLiveStream goes fully false (stream ended).
   useEffect(() => {
     const streamKey = hasManualOverride
       ? `manual:${liveEmbedUrl}`
@@ -342,16 +331,17 @@ export default function LivePage() {
   const isLoadingHero = isLoadingConfig || isLoadingServices;
 
   return (
-    <div className="w-full bg-[#FAFAF8] text-[#0E0B1E]">
+    <div className="w-full">
+      {/* Stream hero */}
       {isLoadingHero ? (
         <LiveHeroSkeleton />
       ) : (
-        <section className="relative bg-[#0E0B1E] pt-24 pb-0">
-          <div className="mx-auto w-full max-w-6xl px-4">
-            <div className="relative aspect-video overflow-hidden rounded-t-lg border-x-2 border-t-2 border-[#C9A84C]/30 bg-black shadow-2xl">
+        <section className="relative bg-slate pt-16 pb-0">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 md:px-8">
+            <div className="relative aspect-video overflow-hidden rounded-t-[20px] border-x-2 border-t-2 border-gold/25 bg-black shadow-[0_30px_80px_rgba(9,7,26,0.5)]">
               {iframeSrc && (
-                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-[3px] bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-[0.3em] text-white">
-                  <span className="h-2 w-2 rounded-full bg-white" />
+                <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-full bg-red-600 px-3 py-1 font-heading text-[11px] font-bold uppercase tracking-[0.28em] text-white">
+                  <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
                   {hasManualOverride ? "Manual Live" : "Live Now"}
                 </div>
               )}
@@ -365,21 +355,21 @@ export default function LivePage() {
                   allowFullScreen
                 />
               ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.22),_transparent_45%),linear-gradient(180deg,_#161129_0%,_#0E0B1E_100%)] px-6 text-center text-[#FAFAF8]">
-                  <p className="mb-4 rounded-full border border-[#C9A84C]/40 bg-white/5 px-4 py-1.5 font-heading text-[11px] font-semibold uppercase tracking-[0.28em] text-[#C9A84C]">
+                <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.22),_transparent_45%),linear-gradient(180deg,_#161129_0%,_#0E0B1E_100%)] px-6 text-center text-white">
+                  <p className="mb-5 rounded-full border border-gold/35 bg-white/5 px-5 py-1.5 font-heading text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
                     Next Service Countdown
                   </p>
-                  <h2 className="mb-3 font-heading text-3xl text-[#C9A84C] md:text-4xl">
+                  <h2 className="font-heading text-3xl font-bold text-gold md:text-4xl">
                     {nextUpcomingService?.name ?? "We are offline"}
                   </h2>
-                  <p className="max-w-xl text-sm text-white/70 md:text-base">
+                  <p className="mt-3 max-w-xl font-body text-sm text-white/68 md:text-base">
                     {nextUpcomingService
                       ? format(nextUpcomingService.startsAt, "EEEE, MMMM d 'at' h:mm a")
                       : "Check back during service hours for the next livestream."}
                   </p>
 
                   {countdown && (
-                    <div className="mt-8 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
                       {[
                         { label: "Days", value: countdown.days },
                         { label: "Hours", value: countdown.hours },
@@ -388,12 +378,12 @@ export default function LivePage() {
                       ].map((item) => (
                         <div
                           key={item.label}
-                          className="rounded-lg border border-[#C9A84C]/25 bg-white/6 px-4 py-5 backdrop-blur-sm"
+                          className="rounded-[18px] border border-gold/20 bg-white/6 px-4 py-5 backdrop-blur-sm"
                         >
                           <p className="font-heading text-3xl font-bold text-white md:text-4xl">
                             {String(item.value).padStart(2, "0")}
                           </p>
-                          <p className="mt-2 text-xs uppercase tracking-[0.22em] text-white/50">
+                          <p className="mt-2 font-heading text-[11px] uppercase tracking-[0.22em] text-white/48">
                             {item.label}
                           </p>
                         </div>
@@ -407,90 +397,105 @@ export default function LivePage() {
         </section>
       )}
 
-      <section className="border-b border-[#C9A84C]/20 bg-[#E8E6F0] py-12">
-        <div className="mx-auto px-4 text-center">
-          <h3 className="mb-4 font-heading text-2xl md:text-3xl">
+      {/* Ecclesia Nation CTA */}
+      <section className="bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.18),_transparent_42%),linear-gradient(180deg,_#161129_0%,_#0E0B1E_100%)] py-14">
+        <div className="mx-auto max-w-[1240px] px-4 sm:px-6 md:px-8 text-center">
+          <p className="font-heading text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+            Community
+          </p>
+          <h3 className="mt-4 font-heading text-2xl font-bold text-white md:text-3xl">
             Join the conversation in Ecclesia Nation
           </h3>
+          <p className="mt-3 font-body text-sm text-white/60 max-w-lg mx-auto">
+            Connect with the community between services — share, pray, and grow together.
+          </p>
           <Link
             href="/nation"
-            className="inline-flex items-center justify-center rounded-[3px] bg-[#0E0B1E] px-8 py-3 font-heading text-sm font-bold uppercase tracking-[0.18em] text-[#C9A84C] transition-colors hover:bg-[#1A1530]"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-gold px-8 py-3 font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-slate shadow-[0_14px_28px_rgba(201,168,76,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark"
           >
             Enter the Nation
           </Link>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-20">
-        <h2 className="mb-10 text-center font-heading text-3xl md:text-4xl">
-          Previous Streams
-        </h2>
-
-        {isLoadingVideos ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className="overflow-hidden rounded border border-[#C9A84C]/20 bg-white shadow-sm"
-              >
-                <Skeleton className="aspect-video w-full rounded-none" />
-                <div className="space-y-3 p-4">
-                  <Skeleton className="h-4 w-4/5" />
-                  <Skeleton className="h-3 w-2/5" />
-                </div>
-              </div>
-            ))}
+      {/* Previous streams */}
+      <section className="bg-[linear-gradient(180deg,_rgba(255,255,255,1)_0%,_rgba(250,250,248,0.96)_100%)] py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+          <div className="mb-12 text-center">
+            <p className="font-heading text-xs font-semibold uppercase tracking-[0.3em] text-purple-vivid">
+              Archive
+            </p>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-slate md:text-4xl">
+              Previous Streams
+            </h2>
           </div>
-        ) : archivedVideos.length > 0 ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {archivedVideos.map((video) => (
-              <article
-                key={video.id}
-                className="overflow-hidden rounded border border-[#C9A84C]/20 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1"
-              >
-                <a
-                  href={`https://www.youtube.com/watch?v=${video.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block"
+
+          {isLoadingVideos ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-[24px] border border-[rgba(14,11,30,0.08)] bg-white shadow-sm"
                 >
-                  <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
-                    <Image
-                      src={video.thumbnail}
-                      alt={video.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
-                      <div className="rounded-full bg-red-600 p-3 shadow-lg">
-                        <svg viewBox="0 0 24 24" fill="white" className="h-6 w-6">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+                  <Skeleton className="aspect-video w-full rounded-none" />
+                  <div className="space-y-3 p-5">
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-3 w-2/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : archivedVideos.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {archivedVideos.map((video) => (
+                <article
+                  key={video.id}
+                  className="soft-card overflow-hidden rounded-[24px] transition-transform duration-200 hover:-translate-y-1"
+                >
+                  <a
+                    href={`https://www.youtube.com/watch?v=${video.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block"
+                  >
+                    <div className="relative aspect-video w-full overflow-hidden bg-lavender">
+                      <Image
+                        src={video.thumbnail}
+                        alt={video.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate/30 opacity-0 transition-opacity group-hover:opacity-100">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg">
+                          <svg viewBox="0 0 24 24" fill="white" className="h-6 w-6">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </a>
 
-                <div className="p-4">
-                  <h3 className="mb-1 line-clamp-2 font-heading text-sm leading-6">
-                    {video.title}
-                  </h3>
-                  <p className="text-xs text-[#8A8A90]">
-                    {video.publishedAt
-                      ? format(new Date(video.publishedAt), "MMMM d, yyyy")
-                      : "Date unavailable"}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center italic text-[#8A8A90]">
-            No previous streams found.
-          </div>
-        )}
+                    <div className="p-5">
+                      <h3 className="line-clamp-2 font-heading text-sm font-bold leading-6 text-slate">
+                        {video.title}
+                      </h3>
+                      <p className="mt-2 font-body text-xs text-gray-text">
+                        {video.publishedAt
+                          ? format(new Date(video.publishedAt), "MMMM d, yyyy")
+                          : "Date unavailable"}
+                      </p>
+                    </div>
+                  </a>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="py-16 text-center font-body italic text-gray-text">
+              No previous streams found.
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );
