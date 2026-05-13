@@ -13,6 +13,7 @@ interface LiveStatus {
   isLive: boolean;
   videoId: string | null;
   embedUrl: string | null;
+  fallbackUrl?: string | null;
   useFallbackEmbed?: boolean;
 }
 
@@ -20,7 +21,8 @@ const NOT_LIVE: LiveStatus = { isLive: false, videoId: null, embedUrl: null };
 const CHANNEL_FALLBACK: LiveStatus = {
   isLive: false,
   videoId: null,
-  embedUrl: CHANNEL_FALLBACK_URL,
+  embedUrl: null,
+  fallbackUrl: CHANNEL_FALLBACK_URL,
   useFallbackEmbed: true,
 };
 
@@ -104,8 +106,8 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
 
     if (!videoId) {
       firstDetectedLiveAt = null;
-      // If quota was the reason we couldn't use the API and scraping also
-      // found nothing, surface the channel iframe so viewers can check directly.
+      // Preserve the channel fallback as metadata for callers that want it,
+      // but do not expose it as the active embed unless a live video is confirmed.
       const status = apiQuotaExceeded ? CHANNEL_FALLBACK : NOT_LIVE;
       cached = { status, expiresAt: now + CACHE_TTL_MS };
       return status;

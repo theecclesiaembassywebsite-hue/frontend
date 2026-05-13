@@ -70,6 +70,20 @@ function toEmbedUrl(url?: string | null) {
   return url;
 }
 
+function extractYoutubeVideoId(url?: string | null) {
+  if (!url) return null;
+
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+
+  if (match?.[1]) {
+    return match[1];
+  }
+
+  return /^[A-Za-z0-9_-]{11}$/.test(url) ? url : null;
+}
+
 function parseServiceTime(time: string) {
   const match = time.trim().match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
 
@@ -182,13 +196,13 @@ export default function LivePage() {
   const [now, setNow] = useState(() => new Date());
   const [youtubeIsLive, setYoutubeIsLive] = useState(false);
   const [youtubeLiveUrl, setYoutubeLiveUrl] = useState<string | null>(null);
-  const [youtubeFallback, setYoutubeFallback] = useState(false);
 
   // Locked iframe src — set once when the stream is first detected, cleared only
   // when the stream fully ends. Prevents mid-stream reloads when the URL type
   // transitions (e.g. channel fallback → specific video ID) or polls return a
   // different embed URL for the same ongoing broadcast.
   const lockedEmbedRef = useRef<string>("");
+  const lockedStreamKeyRef = useRef<string>("");
   const [iframeSrc, setIframeSrc] = useState<string>("");
 
   useEffect(() => {
@@ -249,7 +263,6 @@ export default function LivePage() {
         if (!isMounted) return;
         setYoutubeIsLive(data.isLive ?? false);
         setYoutubeLiveUrl(data.embedUrl ?? null);
-        setYoutubeFallback(data.useFallbackEmbed ?? false);
       } catch {
         // silent — defaults remain false/null
       }
@@ -275,14 +288,23 @@ export default function LivePage() {
   }, []);
 
   const manualEmbedUrl = toEmbedUrl(config?.embedUrl);
-  // Priority: auto-detected live → manual admin URL → channel iframe fallback.
-  const liveEmbedUrl = youtubeIsLive
-    ? (youtubeLiveUrl ?? "")
-    : manualEmbedUrl || (youtubeFallback ? (youtubeLiveUrl ?? "") : "");
-  const showLiveStream =
-    youtubeIsLive ||
-    Boolean(config?.isLive && manualEmbedUrl) ||
-    youtubeFallback;
+  // Manual override wins when admins explicitly mark the stream live.
+  // Otherwise, fall back to the detected YouTube live video.
+  const hasManualOverride = Boolean(config?.isLive && manualEmbedUrl);
+  const liveEmbedUrl = hasManualOverride
+    ? manualEmbedUrl
+    : youtubeIsLive
+      ? (youtubeLiveUrl ?? "")
+      : "";
+  const showLiveStream = Boolean(liveEmbedUrl);
+  const activeVideoId = hasManualOverride
+    ? extractYoutubeVideoId(manualEmbedUrl)
+    : youtubeIsLive
+      ? extractYoutubeVideoId(youtubeLiveUrl)
+      : null;
+  const archivedVideos = activeVideoId
+    ? videos.filter((video) => video.id !== activeVideoId)
+    : videos;
 
   // Lock the iframe src the moment a stream is first detected. Do not change it
   // while the stream is still showing — this prevents the iframe from reloading
@@ -290,16 +312,30 @@ export default function LivePage() {
   // returns a marginally different embed URL for the same broadcast.
   // Only release the lock when showLiveStream goes fully false (stream ended).
   useEffect(() => {
+    const streamKey = hasManualOverride
+      ? `manual:${liveEmbedUrl}`
+      : activeVideoId
+        ? `youtube:${activeVideoId}`
+        : "";
+
     if (showLiveStream && liveEmbedUrl) {
-      if (!lockedEmbedRef.current) {
+      if (hasManualOverride) {
+        if (lockedStreamKeyRef.current !== streamKey) {
+          lockedStreamKeyRef.current = streamKey;
+          lockedEmbedRef.current = liveEmbedUrl;
+          setIframeSrc(liveEmbedUrl);
+        }
+      } else if (!lockedEmbedRef.current) {
+        lockedStreamKeyRef.current = streamKey;
         lockedEmbedRef.current = liveEmbedUrl;
         setIframeSrc(liveEmbedUrl);
       }
     } else if (!showLiveStream && lockedEmbedRef.current) {
+      lockedStreamKeyRef.current = "";
       lockedEmbedRef.current = "";
       setIframeSrc("");
     }
-  }, [showLiveStream, liveEmbedUrl]);
+  }, [activeVideoId, hasManualOverride, liveEmbedUrl, showLiveStream]);
 
   const nextUpcomingService = getNextUpcomingService(config, services, now);
   const countdown = getCountdownParts(nextUpcomingService?.startsAt ?? null, now);
@@ -316,7 +352,7 @@ export default function LivePage() {
               {iframeSrc && (
                 <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-[3px] bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-[0.3em] text-white">
                   <span className="h-2 w-2 rounded-full bg-white" />
-                  {youtubeFallback && !youtubeIsLive ? "Channel Live" : "Live Now"}
+                  {hasManualOverride ? "Manual Live" : "Live Now"}
                 </div>
               )}
 
@@ -405,9 +441,9 @@ export default function LivePage() {
               </div>
             ))}
           </div>
-        ) : videos.length > 0 ? (
+        ) : archivedVideos.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {videos.map((video) => (
+            {archivedVideos.map((video) => (
               <article
                 key={video.id}
                 className="overflow-hidden rounded border border-[#C9A84C]/20 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1"

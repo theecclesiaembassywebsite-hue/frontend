@@ -1,4 +1,5 @@
-// Fetches recent videos for YouTube channel @theecclesiaembassy (UCrvZyTocoH926b_wv81bpzA).
+// Fetches recent completed livestreams for YouTube channel
+// @theecclesiaembassy (UCrvZyTocoH926b_wv81bpzA).
 // Primary: YouTube Data API v3 (needs YOUTUBE_API_KEY env var).
 // Fallback: RSS feed — used when the key is missing or quota drops to 500 units remaining.
 import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
@@ -18,7 +19,7 @@ let cached: { videos: YouTubeVideo[]; expiresAt: number } | null = null;
 
 async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCEEDED"> {
   const res = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=id,snippet&channelId=${CHANNEL_ID}&order=date&type=video&maxResults=6&key=${apiKey}`,
+    `https://www.googleapis.com/youtube/v3/search?part=id,snippet&channelId=${CHANNEL_ID}&eventType=completed&order=date&type=video&maxResults=12&key=${apiKey}`,
     { signal: AbortSignal.timeout(10_000) }
   );
 
@@ -34,28 +35,41 @@ async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCE
 
   consumeQuota(SEARCH_COST);
   const data = await res.json();
-  return (data.items ?? []).map((item: {
-    id: { videoId: string };
-    snippet: {
-      title: string;
-      publishedAt: string;
-      thumbnails?: { high?: { url: string }; medium?: { url: string }; default?: { url: string } };
-    };
-  }) => ({
-    id: item.id.videoId,
-    title: item.snippet.title
-      .replace(/&amp;/g, "&")
-      .replace(/&#39;/g, "'")
-      .replace(/&quot;/g, '"')
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">"),
-    publishedAt: item.snippet.publishedAt,
-    thumbnail:
-      item.snippet.thumbnails?.high?.url ??
-      item.snippet.thumbnails?.medium?.url ??
-      item.snippet.thumbnails?.default?.url ??
-      `https://i.ytimg.com/vi/${item.id.videoId}/hqdefault.jpg`,
-  }));
+  return (data.items ?? [])
+    .filter((item: {
+      id?: { videoId?: string };
+      snippet?: { liveBroadcastContent?: string };
+    }) => {
+      const liveBroadcastContent = item.snippet?.liveBroadcastContent ?? "none";
+      return (
+        Boolean(item.id?.videoId) &&
+        liveBroadcastContent !== "live" &&
+        liveBroadcastContent !== "upcoming"
+      );
+    })
+    .map((item: {
+      id: { videoId: string };
+      snippet: {
+        title: string;
+        publishedAt: string;
+        thumbnails?: { high?: { url: string }; medium?: { url: string }; default?: { url: string } };
+      };
+    }) => ({
+      id: item.id.videoId,
+      title: item.snippet.title
+        .replace(/&amp;/g, "&")
+        .replace(/&#39;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">"),
+      publishedAt: item.snippet.publishedAt,
+      thumbnail:
+        item.snippet.thumbnails?.high?.url ??
+        item.snippet.thumbnails?.medium?.url ??
+        item.snippet.thumbnails?.default?.url ??
+        `https://i.ytimg.com/vi/${item.id.videoId}/hqdefault.jpg`,
+    }))
+    .slice(0, 6);
 }
 
 function parseRSSEntries(xml: string): YouTubeVideo[] {
