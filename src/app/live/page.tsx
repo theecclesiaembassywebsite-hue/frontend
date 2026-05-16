@@ -308,13 +308,7 @@ export default function LivePage() {
         : "";
 
     if (showLiveStream && liveEmbedUrl) {
-      if (hasManualOverride) {
-        if (lockedStreamKeyRef.current !== streamKey) {
-          lockedStreamKeyRef.current = streamKey;
-          lockedEmbedRef.current = liveEmbedUrl;
-          setIframeSrc(liveEmbedUrl);
-        }
-      } else if (!lockedEmbedRef.current) {
+      if (lockedStreamKeyRef.current !== streamKey) {
         lockedStreamKeyRef.current = streamKey;
         lockedEmbedRef.current = liveEmbedUrl;
         setIframeSrc(liveEmbedUrl);

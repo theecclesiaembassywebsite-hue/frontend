@@ -19,7 +19,7 @@ let cached: { videos: YouTubeVideo[]; expiresAt: number } | null = null;
 
 async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCEEDED"> {
   const res = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=id,snippet&channelId=${CHANNEL_ID}&eventType=completed&order=date&type=video&maxResults=12&key=${apiKey}`,
+    `https://www.googleapis.com/youtube/v3/search?part=id,snippet&channelId=${CHANNEL_ID}&eventType=completed&order=date&type=video&maxResults=4&key=${apiKey}`,
     { signal: AbortSignal.timeout(10_000) }
   );
 
@@ -52,7 +52,6 @@ async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCE
       snippet: {
         title: string;
         publishedAt: string;
-        thumbnails?: { high?: { url: string }; medium?: { url: string }; default?: { url: string } };
       };
     }) => ({
       id: item.id.videoId,
@@ -63,13 +62,9 @@ async function fetchViaApi(apiKey: string): Promise<YouTubeVideo[] | "QUOTA_EXCE
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">"),
       publishedAt: item.snippet.publishedAt,
-      thumbnail:
-        item.snippet.thumbnails?.high?.url ??
-        item.snippet.thumbnails?.medium?.url ??
-        item.snippet.thumbnails?.default?.url ??
-        `https://i.ytimg.com/vi/${item.id.videoId}/hqdefault.jpg`,
+      thumbnail: `https://i.ytimg.com/vi/${item.id.videoId}/hqdefault.jpg`,
     }))
-    .slice(0, 6);
+    .slice(0, 3);
 }
 
 function parseRSSEntries(xml: string): YouTubeVideo[] {
@@ -109,7 +104,7 @@ async function fetchViaRSS(): Promise<YouTubeVideo[]> {
   );
   if (!res.ok) throw new Error(`RSS ${res.status}`);
   const xml = await res.text();
-  return parseRSSEntries(xml).slice(0, 6);
+  return parseRSSEntries(xml).slice(0, 3);
 }
 
 export async function GET() {

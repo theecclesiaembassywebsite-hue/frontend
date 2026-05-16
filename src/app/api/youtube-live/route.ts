@@ -67,17 +67,20 @@ async function fetchViaScraping(): Promise<string | null> {
 
   if (res.url.includes("consent.youtube.com")) return null;
 
-  const html = await res.text();
+  // Only trust a redirect to a specific watch URL — if YouTube didn't redirect
+  // to a watch page there is no active live stream on this channel.
   const watchMatch = /[?&]v=([a-zA-Z0-9_-]{11})/.exec(res.url);
-  const htmlVideoMatch = /"videoId":"([a-zA-Z0-9_-]{11})"/.exec(html);
-  const videoId = watchMatch?.[1] ?? htmlVideoMatch?.[1] ?? null;
+  if (!watchMatch) return null;
 
+  const videoId = watchMatch[1];
+  const html = await res.text();
+
+  // Use only the most reliable indicators of a currently-active broadcast.
+  // "isLiveBroadcast":true and "liveBadge" also appear on ended streams so
+  // we intentionally exclude them here.
   const isLive =
-    videoId !== null &&
-    (html.includes('"isLive":true') ||
-      html.includes('"isLiveBroadcast":true') ||
-      html.includes('"broadcastStatus":"live"') ||
-      html.includes('"liveBadge"'));
+    html.includes('"isLive":true') ||
+    html.includes('"broadcastStatus":"live"');
 
   return isLive ? videoId : null;
 }
