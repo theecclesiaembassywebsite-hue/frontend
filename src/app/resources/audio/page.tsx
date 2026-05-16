@@ -16,6 +16,7 @@ export default function AudioArchivePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeAudio, setActiveAudio] = useState<string | null>(null);
+  const [activePodcast, setActivePodcast] = useState(0);
 
   useEffect(() => {
     const fetchAudio = async () => {
@@ -75,67 +76,115 @@ export default function AudioArchivePage() {
 
       {/* Spotify Podcasts */}
       <SectionWrapper variant="dark-purple" className="py-14">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#1DB954]/30 bg-[#1DB954]/10 px-4 py-1.5 mb-4">
-              <svg className="h-4 w-4 text-[#1DB954]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-              </svg>
-              <span className="font-heading text-[11px] font-semibold uppercase tracking-[2px] text-[#1DB954]">
-                Now on Spotify
-              </span>
-            </div>
-            <h2 className="font-heading text-[28px] font-bold text-white md:text-[34px]">
-              Listen to Our Podcasts
-            </h2>
-            <p className="mt-2 font-body text-sm leading-7 text-white/55">
-              Spirit-filled conversations and teachings — available wherever you are.
-            </p>
-          </div>
+        {(() => {
+          const SPOTIFY_ICON = (
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+            </svg>
+          );
 
-          <div className="grid gap-5 md:grid-cols-2">
-            {[
-              {
-                name: "The Ecclesia Embassy Podcast",
-                desc: "Deep teachings, revelations, and messages from The Ecclesia Embassy — cultivating kingdom sound in every episode.",
-                url: "https://open.spotify.com/show/38f94eSitKoPzXLUunJRV4?si=jZUyg6SvSD6tGUKjYzWk8Q",
-              },
-              {
-                name: "The Victor Oluwadamilare Podcast",
-                desc: "Prophetic insights and kingdom wisdom from Pastor Victor Oluwadamilare — messages that stir, build, and transform.",
-                url: "https://open.spotify.com/show/1hiBj66Ggd8GvfQVV9aQRC?si=hF0103nOSWWlx_AGdQlCog",
-              },
-            ].map((podcast) => (
-              <a
-                key={podcast.name}
-                href={podcast.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex flex-col gap-5 rounded-[24px] border border-white/10 bg-white/6 p-6 backdrop-blur-sm transition-all duration-200 hover:border-[#1DB954]/35 hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-xl"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1DB954]/15 ring-1 ring-[#1DB954]/25">
-                    <svg className="h-7 w-7 text-[#1DB954]" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-heading text-base font-bold text-white leading-snug">
-                    {podcast.name}
-                  </h3>
-                </div>
-                <p className="font-body text-sm leading-7 text-white/60">{podcast.desc}</p>
-                <div className="mt-auto">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1DB954]/12 px-4 py-1.5 font-heading text-[11px] font-semibold uppercase tracking-[1.5px] text-[#1DB954] ring-1 ring-[#1DB954]/25 group-hover:bg-[#1DB954] group-hover:text-white group-hover:ring-[#1DB954] transition-all duration-200">
-                    Listen on Spotify
-                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M7 17L17 7M17 7H7M17 7v10" />
-                    </svg>
+          const podcasts = [
+            {
+              name: "The Ecclesia Embassy Podcast",
+              desc: "Deep teachings, revelations, and messages from The Ecclesia Embassy.",
+              showId: "38f94eSitKoPzXLUunJRV4",
+              url: "https://open.spotify.com/show/38f94eSitKoPzXLUunJRV4",
+            },
+            {
+              name: "The Victor Oluwadamilare Podcast",
+              desc: "Prophetic insights and kingdom wisdom from Pastor Victor Oluwadamilare.",
+              showId: "1hiBj66Ggd8GvfQVV9aQRC",
+              url: "https://open.spotify.com/show/1hiBj66Ggd8GvfQVV9aQRC",
+            },
+          ];
+
+          const active = podcasts[activePodcast];
+
+          return (
+            <div className="mx-auto max-w-4xl">
+              {/* Header */}
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#1DB954]/30 bg-[#1DB954]/10 px-4 py-1.5 mb-4">
+                  <span className="h-4 w-4 text-[#1DB954]">{SPOTIFY_ICON}</span>
+                  <span className="font-heading text-[11px] font-semibold uppercase tracking-[2px] text-[#1DB954]">
+                    Now on Spotify
                   </span>
                 </div>
-              </a>
-            ))}
-          </div>
-        </div>
+                <h2 className="font-heading text-[28px] font-bold text-white md:text-[34px]">
+                  Listen to Our Podcasts
+                </h2>
+                <p className="mt-2 font-body text-sm leading-7 text-white/55">
+                  Spirit-filled conversations and teachings — play episodes right here.
+                </p>
+              </div>
+
+              {/* Podcast selector tabs */}
+              <div className="grid gap-3 md:grid-cols-2 mb-6">
+                {podcasts.map((podcast, i) => (
+                  <button
+                    key={podcast.showId}
+                    onClick={() => setActivePodcast(i)}
+                    className={`flex items-center gap-4 rounded-[20px] border p-5 text-left transition-all duration-200 ${
+                      activePodcast === i
+                        ? "border-[#1DB954]/50 bg-[#1DB954]/10 shadow-lg shadow-[#1DB954]/10"
+                        : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8"
+                    }`}
+                  >
+                    <div
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl p-2.5 transition-colors ${
+                        activePodcast === i ? "bg-[#1DB954]" : "bg-[#1DB954]/15 ring-1 ring-[#1DB954]/25"
+                      }`}
+                    >
+                      <span className={activePodcast === i ? "text-white" : "text-[#1DB954]"}>
+                        {SPOTIFY_ICON}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-heading text-sm font-bold text-white leading-snug">
+                        {podcast.name}
+                      </p>
+                      <p className="mt-0.5 font-body text-xs leading-5 text-white/50 line-clamp-1">
+                        {podcast.desc}
+                      </p>
+                    </div>
+                    {activePodcast === i && (
+                      <span className="shrink-0 h-2 w-2 rounded-full bg-[#1DB954] shadow-[0_0_6px_#1DB954]" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Embedded player */}
+              <div className="rounded-[24px] overflow-hidden border border-white/10 shadow-2xl">
+                <iframe
+                  key={active.showId}
+                  src={`https://open.spotify.com/embed/show/${active.showId}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="380"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  title={active.name}
+                  style={{ border: "none", display: "block" }}
+                />
+              </div>
+
+              {/* Open in Spotify link */}
+              <div className="mt-4 text-center">
+                <a
+                  href={active.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 font-body text-xs text-white/35 hover:text-[#1DB954] transition-colors"
+                >
+                  Open in Spotify
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M7 17L17 7M17 7H7M17 7v10" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          );
+        })()}
       </SectionWrapper>
 
       {/* Search & Sort Section */}
