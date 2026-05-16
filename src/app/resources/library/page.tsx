@@ -162,6 +162,55 @@ export default function EcclesialibraryPage() {
         </div>
       </section>
 
+      {/* App Download */}
+      <section className="bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,76,0.14),transparent_55%),linear-gradient(135deg,#0A0718_0%,#12102A_50%,#1E1040_100%)] py-14">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 md:px-8 text-center">
+          <p className="font-heading text-[11px] font-semibold uppercase tracking-[2.5px] text-gold mb-3">
+            Ecclesia Library App
+          </p>
+          <h2 className="font-heading text-[26px] font-bold text-white md:text-[30px]">
+            Carry the Library Everywhere
+          </h2>
+          <p className="mt-3 font-body text-sm leading-7 text-white/55 max-w-md mx-auto">
+            Download the app and access kingdom resources — books, materials, and more — right from your pocket.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <a
+              href="https://play.google.com/store/apps/details?id=com.ecclesia.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3.5 rounded-[18px] border border-white/12 bg-white/8 px-6 py-4 backdrop-blur-sm transition-all duration-200 hover:border-gold/35 hover:bg-white/14 hover:-translate-y-0.5 hover:shadow-xl"
+            >
+              <svg className="h-8 w-8 shrink-0" viewBox="0 0 24 24" fill="none">
+                <path d="M3.18 23.76a2 2 0 01-.68-.88V1.12A2 2 0 012.5 1L14.09 12 3.18 23.76z" fill="#EA4335" />
+                <path d="M17.96 15.9L4.23 23.97l-.13.07 9.99-11.04 3.87 2.9z" fill="#FBBC04" />
+                <path d="M21.5 11.11c.31.44.5.96.5 1.52v-.26c0 .54-.17 1.04-.47 1.46l-3.57 2.07-3.87-2.9L17.93 9l3.57 2.11z" fill="#4285F4" />
+                <path d="M4.1.03L17.93 9 14.09 12 2.5 1a2 2 0 011.6-.97z" fill="#34A853" />
+              </svg>
+              <div className="text-left">
+                <p className="font-body text-[10px] uppercase tracking-[1.2px] text-white/45">Get it on</p>
+                <p className="font-heading text-[15px] font-bold text-white">Google Play</p>
+              </div>
+            </a>
+
+            <a
+              href="https://apps.apple.com/za/app/ecclesia-library/id6753295575"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3.5 rounded-[18px] border border-white/12 bg-white/8 px-6 py-4 backdrop-blur-sm transition-all duration-200 hover:border-gold/35 hover:bg-white/14 hover:-translate-y-0.5 hover:shadow-xl"
+            >
+              <svg className="h-8 w-8 shrink-0 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+              </svg>
+              <div className="text-left">
+                <p className="font-body text-[10px] uppercase tracking-[1.2px] text-white/45">Download on the</p>
+                <p className="font-heading text-[15px] font-bold text-white">App Store</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Library Content */}
       <SectionWrapper variant="white">
         <FadeIn>
