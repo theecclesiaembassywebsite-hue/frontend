@@ -29,7 +29,7 @@ const programs = [
     id: "IM",
     name: "Instrument Mastery",
     icon: Music,
-    desc: "Build mastery across three dynamic streams — Classical (violin, viola, cello, flute, trumpet), Contemporary (keyboard, guitars, saxophone), and Percussion (drums, talking drum, conga, cymbals).",
+    desc: "Build mastery across three dynamic streams — Classical (violin, viola, cello, flute, trumpet and more), Contemporary (keyboard, guitars, saxophone and more), and Percussion (drums, talking drum, conga, cymbals and more — strengthen timing and rhythm).",
     streams: ["Classical", "Contemporary", "Percussion"],
   },
   {
@@ -166,10 +166,21 @@ export default function TEMAPage() {
           </FadeIn>
 
           <FadeIn direction="up" delay={0.26}>
-            <p className="mx-auto mt-6 max-w-2xl font-body text-base leading-8 text-white/65 md:text-lg">
-              Every generation carries a divine sound — a summons to rise, rebuild, and restore
-              God's order through music. This is not just another music school. It is a call.
-            </p>
+            <div className="mx-auto mt-6 max-w-2xl space-y-4 font-body text-base leading-8 text-white/65 md:text-lg">
+              <p>
+                Every generation carries a divine sound — a summons to rise, rebuild, and restore
+                God's order through music.
+              </p>
+              <p>
+                The Ecclesia Music Academy stands as God's answer to this generation's longing for
+                more than talent — a rising of Spirit-led musicians marked by fire, discipline, and
+                excellence.
+              </p>
+              <p>
+                This is not just another music school. It is a call — one that, when answered,
+                ushers you into realms of grace and possibilities you never imagined.
+              </p>
+            </div>
           </FadeIn>
 
           <FadeIn direction="up" delay={0.34}>
@@ -181,8 +192,14 @@ export default function TEMAPage() {
             </div>
           </FadeIn>
 
+          <FadeIn direction="up" delay={0.38}>
+            <p className="mt-6 font-body text-base italic text-white/80">
+              If this stirs something within you… then this call is yours. Take the step today.
+            </p>
+          </FadeIn>
+
           <FadeIn direction="up" delay={0.42}>
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button variant="primary" onClick={() => scrollTo("enroll")}>
                 Take the Step
               </Button>
