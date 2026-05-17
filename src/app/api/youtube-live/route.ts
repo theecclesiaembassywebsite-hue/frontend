@@ -6,7 +6,6 @@
 import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
-const LIVE_DELAY_MS = 60_000;
 const CACHE_TTL_MS = 5 * 60_000;
 const UNCERTAIN_CACHE_TTL_MS = 60_000;
 const SEARCH_COST = 100; // units per search.list call
@@ -30,7 +29,6 @@ const CHANNEL_FALLBACK: LiveStatus = {
 };
 
 let cached: { status: LiveStatus; expiresAt: number } | null = null;
-let firstDetectedLiveAt: number | null = null;
 
 async function fetchViaApi(apiKey: string): Promise<string | null> {
   const res = await fetch(
@@ -125,25 +123,11 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
     }
 
     if (!videoId) {
-      firstDetectedLiveAt = null;
       // Uncertain means YouTube redirected to a watch URL but we couldn't confirm live status
       // from HTML — show the channel embed so a real stream is never silently hidden.
       const status = uncertain ? CHANNEL_FALLBACK : NOT_LIVE;
       cached = { status, expiresAt: now + (uncertain ? UNCERTAIN_CACHE_TTL_MS : CACHE_TTL_MS) };
       return status;
-    }
-
-    // Enforce the 1-minute delay before surfacing the stream to visitors.
-    if (firstDetectedLiveAt === null) {
-      firstDetectedLiveAt = now;
-    }
-
-    const delayElapsed = now - firstDetectedLiveAt >= LIVE_DELAY_MS;
-
-    if (!delayElapsed) {
-      const remaining = LIVE_DELAY_MS - (now - firstDetectedLiveAt);
-      cached = { status: NOT_LIVE, expiresAt: now + remaining };
-      return NOT_LIVE;
     }
 
     const status: LiveStatus = {
