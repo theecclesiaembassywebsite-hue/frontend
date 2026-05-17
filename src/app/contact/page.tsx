@@ -27,7 +27,7 @@ const contactDetails = [
   {
     icon: MapPin,
     label: "Location",
-    value: "Sarki Tafida Street, Guzape Hills, Asokoro, Abuja",
+    value: "Guzape Hills, Asokoro Extension. Abuja. Nigeria",
   },
   {
     icon: Phone,
@@ -221,13 +221,13 @@ const ContactPage = () => {
         <SectionHeading
           eyebrow="Find Us"
           title="Come worship with us."
-          description="Sarki Tafida Street, Guzape Hills, Asokoro, Abuja, Nigeria"
+          description="Guzape Hills, Asokoro Extension. Abuja. Nigeria"
           className="mb-10"
         />
         <FadeIn>
           <div className="overflow-hidden rounded-[28px] shadow-[0_20px_48px_rgba(14,11,30,0.10)] h-[220px] sm:h-[300px] md:h-[400px]">
             <iframe
-              src="https://maps.google.com/maps?q=Sarki+Tafida+Street+Guzape+Hills+Asokoro+Abuja+Nigeria&output=embed"
+              src="https://maps.google.com/maps?q=Guzape+Hills+Asokoro+Extension+Abuja+Nigeria&output=embed"
               width="100%"
               height="100%"
               style={{ border: 0 }}

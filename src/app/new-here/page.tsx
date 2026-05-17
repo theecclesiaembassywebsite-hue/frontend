@@ -33,7 +33,7 @@ const expectCards = [
   {
     icon: MapPin,
     title: "Our Location",
-    description: "Sarki Tafida Street, Guzape Hills, Asokoro, Abuja. We look forward to welcoming you in person.",
+    description: "Guzape Hills, Asokoro Extension. Abuja. Nigeria. We look forward to welcoming you in person.",
   },
 ];
 

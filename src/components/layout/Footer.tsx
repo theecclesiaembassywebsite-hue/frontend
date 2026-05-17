@@ -27,7 +27,7 @@ const contactDetails = [
   {
     icon: MapPin,
     label: "Address",
-    value: "Sarki Tafida Street, Guzape Hills, Asokoro, Abuja",
+    value: "Guzape Hills, Asokoro Extension. Abuja. Nigeria",
   },
   {
     icon: Phone,
