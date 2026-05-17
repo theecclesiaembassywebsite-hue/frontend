@@ -7,6 +7,7 @@ type HeroAction = {
   label: string;
   variant?: ButtonVariant;
   onDark?: boolean;
+  glow?: boolean;
 };
 
 type HeroStat = {
@@ -95,18 +96,31 @@ export default function PageHero({
                 align === "center" && "justify-center"
               )}
             >
-              {actions.map((action) => (
-                <Link
-                  key={`${action.href}-${action.label}`}
-                  href={action.href}
-                  className={buttonClasses({
-                    variant: action.variant ?? "primary",
-                    onDark: action.onDark ?? true,
-                  })}
-                >
-                  {action.label}
-                </Link>
-              ))}
+              {actions.map((action) => {
+                const key = `${action.href}-${action.label}`;
+                const classes = buttonClasses({
+                  variant: action.variant ?? "primary",
+                  onDark: action.onDark ?? true,
+                });
+
+                if (!action.glow) {
+                  return (
+                    <Link key={key} href={action.href} className={classes}>
+                      {action.label}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <span key={key} className="relative inline-flex">
+                    <span className="absolute -inset-[3px] rounded-full border border-gold/40 animate-[pulse_2.8s_ease-in-out_infinite]" />
+                    <span className="absolute -inset-[7px] rounded-full border border-gold/15 animate-[pulse_2.8s_ease-in-out_infinite_0.4s]" />
+                    <Link href={action.href} className={classes}>
+                      {action.label}
+                    </Link>
+                  </span>
+                );
+              })}
             </div>
           ) : null}
 
