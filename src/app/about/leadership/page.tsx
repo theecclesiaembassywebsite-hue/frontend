@@ -13,7 +13,7 @@ export default function LeadershipPage() {
             Leadership
           </h1>
           <h6 className="mt-3 font-serif text-lg font-light text-off-white">
-            A Word from the Lead Brother
+            A Word from The Lead Brother
           </h6>
         </div>
       </section>
@@ -29,7 +29,7 @@ export default function LeadershipPage() {
 
           <div>
             <h2 className="font-heading text-[28px] font-bold text-white">
-              Brother Victor Oluwadamilare
+              Victor Oluwadamilare
             </h2>
             <p className="mt-1 font-serif text-lg italic text-purple-light">
               The Lead Brother
