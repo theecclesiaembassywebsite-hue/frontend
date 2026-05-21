@@ -33,6 +33,8 @@ interface PlaylistItem {
   };
 }
 
+type PlaylistThumbnails = NonNullable<PlaylistItem["snippet"]>["thumbnails"];
+
 let cached: { videos: ChannelVideo[]; expiresAt: number } | null = null;
 
 function decodeEntities(value: string) {
@@ -46,7 +48,7 @@ function decodeEntities(value: string) {
 
 function resolveThumbnail(
   id: string,
-  thumbnails?: PlaylistItem["snippet"]["thumbnails"]
+  thumbnails?: PlaylistThumbnails
 ) {
   return (
     thumbnails?.maxres?.url ??
