@@ -1,9 +1,9 @@
 import { consumeQuota, isQuotaSafe } from "@/lib/youtube-quota";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
+const CHANNEL_VIDEOS_URL =
+  "https://www.youtube.com/@TheEcclesiaEmbassy/videos?ucbcb=1&has_verified=1&bpctr=9999999999";
 const CACHE_TTL_MS = 15 * 60_000;
-const CHANNELS_COST = 1;
-const PLAYLIST_ITEMS_COST = 1;
 const VIDEOS_COST = 1;
 
 interface ChannelVideo {
@@ -15,20 +15,22 @@ interface ChannelVideo {
 }
 
 interface PlaylistItem {
+  id?: string;
   snippet?: {
     title?: string;
     publishedAt?: string;
-    liveBroadcastContent?: string;
+    thumbnails?: {
+      default?: { url?: string };
+      medium?: { url?: string };
+      high?: { url?: string };
+      standard?: { url?: string };
+      maxres?: { url?: string };
+    };
   };
   contentDetails?: {
     videoId?: string;
     videoPublishedAt?: string;
   };
-}
-
-interface VideoDetailsItem {
-  id?: string;
-  liveStreamingDetails?: Record<string, unknown>;
 }
 
 let cached: { videos: ChannelVideo[]; expiresAt: number } | null = null;
@@ -42,93 +44,118 @@ function decodeEntities(value: string) {
     .replace(/&quot;/g, '"');
 }
 
-function normalizeVideo(id: string, title: string, publishedAt: string): ChannelVideo {
+function resolveThumbnail(
+  id: string,
+  thumbnails?: PlaylistItem["snippet"]["thumbnails"]
+) {
+  return (
+    thumbnails?.maxres?.url ??
+    thumbnails?.standard?.url ??
+    thumbnails?.high?.url ??
+    thumbnails?.medium?.url ??
+    thumbnails?.default?.url ??
+    `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
+  );
+}
+
+function normalizeVideo(
+  id: string,
+  title: string,
+  publishedAt: string,
+  thumbnail?: string
+): ChannelVideo {
   return {
     id,
     title: decodeEntities(title),
     publishedAt,
-    thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+    thumbnail: thumbnail ?? `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
     watchUrl: `https://www.youtube.com/watch?v=${id}`,
   };
 }
 
-async function fetchUploadsViaApi(apiKey: string) {
-  const channelResponse = await fetch(
-    `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${apiKey}`,
+function extractVideosTabIds(html: string) {
+  const matches = html.matchAll(/"videoId":"([^"]+)"/g);
+  const ids = new Set<string>();
+
+  for (const match of matches) {
+    const id = match[1];
+
+    if (id) {
+      ids.add(id);
+    }
+
+    if (ids.size >= 24) {
+      break;
+    }
+  }
+
+  return Array.from(ids);
+}
+
+async function fetchVideosTabIds() {
+  const response = await fetch(CHANNEL_VIDEOS_URL, {
+    headers: {
+      "accept-language": "en-US,en;q=0.9",
+      cookie: "CONSENT=YES+cb",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`VIDEOS_TAB ${response.status}`);
+  }
+
+  const html = await response.text();
+  const ids = extractVideosTabIds(html);
+
+  if (ids.length === 0) {
+    throw new Error("VIDEOS_TAB_EMPTY");
+  }
+
+  return ids;
+}
+
+async function fetchVideosTabViaApi(apiKey: string) {
+  const ids = await fetchVideosTabIds();
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${ids.join(",")}&key=${apiKey}`,
     { signal: AbortSignal.timeout(10_000) }
   );
 
-  if (!channelResponse.ok) {
-    throw new Error(`CHANNELS ${channelResponse.status}`);
-  }
-
-  consumeQuota(CHANNELS_COST);
-  const channelData = await channelResponse.json();
-  const uploadsPlaylistId =
-    channelData.items?.[0]?.contentDetails?.relatedPlaylists?.uploads ?? "";
-
-  if (!uploadsPlaylistId) {
-    return [];
-  }
-
-  const playlistResponse = await fetch(
-    `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=24&key=${apiKey}`,
-    { signal: AbortSignal.timeout(10_000) }
-  );
-
-  if (!playlistResponse.ok) {
-    throw new Error(`PLAYLIST_ITEMS ${playlistResponse.status}`);
-  }
-
-  consumeQuota(PLAYLIST_ITEMS_COST);
-  const playlistData = await playlistResponse.json();
-  const playlistItems: PlaylistItem[] = playlistData.items ?? [];
-  const candidateIds = playlistItems
-    .map((item) => item.contentDetails?.videoId)
-    .filter((id): id is string => Boolean(id));
-
-  if (candidateIds.length === 0) {
-    return [];
-  }
-
-  const videosResponse = await fetch(
-    `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${candidateIds.join(",")}&key=${apiKey}`,
-    { signal: AbortSignal.timeout(10_000) }
-  );
-
-  if (!videosResponse.ok) {
-    throw new Error(`VIDEOS ${videosResponse.status}`);
+  if (!response.ok) {
+    throw new Error(`VIDEOS ${response.status}`);
   }
 
   consumeQuota(VIDEOS_COST);
-  const videosData = await videosResponse.json();
-  const livestreamIds = new Set(
-    ((videosData.items ?? []) as VideoDetailsItem[])
-      .filter((item) => item.id && item.liveStreamingDetails)
-      .map((item) => item.id as string)
-  );
+  const data = await response.json();
+  const videosById = new Map<string, PlaylistItem>();
 
-  return playlistItems
-    .filter((item) => {
-      const id = item.contentDetails?.videoId;
-      const liveBroadcastContent = item.snippet?.liveBroadcastContent ?? "none";
+  ((data.items ?? []) as PlaylistItem[]).forEach((item) => {
+    const id = item.contentDetails?.videoId ?? item.id;
 
-      if (!id) {
-        return false;
+    if (id) {
+      videosById.set(id, item);
+    }
+  });
+
+  return ids
+    .map((id) => {
+      const item = videosById.get(id);
+
+      if (!item) {
+        return null;
       }
 
-      return (
-        liveBroadcastContent === "none" &&
-        !livestreamIds.has(id)
+      return normalizeVideo(
+        id,
+        item.snippet?.title ?? "YouTube Upload",
+        item.snippet?.publishedAt ?? item.contentDetails?.videoPublishedAt ?? "",
+        resolveThumbnail(id, item.snippet?.thumbnails)
       );
     })
-    .map((item) =>
-      normalizeVideo(
-        item.contentDetails?.videoId ?? "",
-        item.snippet?.title ?? "YouTube Upload",
-        item.snippet?.publishedAt ?? item.contentDetails?.videoPublishedAt ?? ""
-      )
-    )
+    .filter((video): video is ChannelVideo => Boolean(video))
     .slice(0, 12);
 }
 
@@ -177,11 +204,11 @@ async function fetchChannelVideos() {
   const apiKey = process.env.YOUTUBE_API_KEY;
   let videos: ChannelVideo[];
 
-  if (apiKey && isQuotaSafe(CHANNELS_COST + PLAYLIST_ITEMS_COST + VIDEOS_COST)) {
+  if (apiKey && isQuotaSafe(VIDEOS_COST)) {
     try {
-      videos = await fetchUploadsViaApi(apiKey);
+      videos = await fetchVideosTabViaApi(apiKey);
     } catch {
-      videos = await fetchUploadsViaRss();
+      videos = [];
     }
   } else {
     videos = await fetchUploadsViaRss();

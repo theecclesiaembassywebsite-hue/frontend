@@ -533,6 +533,7 @@ export default function LivePage() {
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         unoptimized
+                        style={{ opacity: 1 }}
                         className="object-cover"
                         loading="lazy"
                       />
