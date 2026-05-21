@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Image, Send, User, X } from "lucide-react";
+import { ImageIcon, Send, User, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth-context";
 import { upload } from "@/lib/api";
@@ -11,7 +11,7 @@ interface CreatePostProps {
 }
 
 export default function CreatePost({ onSubmit }: CreatePostProps) {
-  const { user } = useAuth();
+  useAuth();
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -72,7 +72,7 @@ export default function CreatePost({ onSubmit }: CreatePostProps) {
       {/* Image preview */}
       {imageUrl && (
         <div className="mt-3 relative inline-block">
-          <img src={imageUrl} alt="Upload" className="h-24 rounded-[8px] object-cover" />
+          <img src={imageUrl} alt="Selected post attachment" className="h-24 rounded-[8px] object-cover" />
           <button type="button" onClick={() => setImageUrl(null)} className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-error text-white flex items-center justify-center">
             <X size={12} />
           </button>
@@ -88,7 +88,7 @@ export default function CreatePost({ onSubmit }: CreatePostProps) {
             onClick={() => fileRef.current?.click()}
             className="flex items-center gap-1 text-xs font-heading font-semibold text-gray-text hover:text-purple-vivid transition-colors disabled:opacity-50"
           >
-            <Image size={16} /> {uploading ? "Uploading..." : "Photo"}
+            <ImageIcon size={16} /> {uploading ? "Uploading..." : "Photo"}
           </button>
           <span className="text-[11px] text-gray-text">
             {content.length}/2000

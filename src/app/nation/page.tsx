@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { MessageCircle, Users, User } from "lucide-react";
@@ -49,12 +49,6 @@ export default function NationPage() {
   const [upcomingServices, setUpcomingServices] = useState<{ name: string; time: string; date: Date }[]>([]);
 
   useEffect(() => {
-    loadFeed();
-    loadGroups();
-    loadStreak();
-  }, [page]);
-
-  useEffect(() => {
     serviceSchedule.getPublic().then((data) => {
       if (!data?.length) return;
       const now = new Date();
@@ -68,35 +62,41 @@ export default function NationPage() {
     }).catch(() => {});
   }, []);
 
-  async function loadFeed() {
+  const loadFeed = useCallback(async () => {
     try {
       setLoading(true);
       const feed = await nation.getFeed(page + 1);
       setPosts(Array.isArray(feed) ? feed : []);
-    } catch (err) {
+    } catch {
       error("Failed to load feed");
     } finally {
       setLoading(false);
     }
-  }
+  }, [error, page]);
 
-  async function loadGroups() {
+  const loadGroups = useCallback(async () => {
     try {
       const groupsData = await nation.getGroups();
       setGroups((Array.isArray(groupsData) ? groupsData : []).slice(0, 4));
     } catch {
       // silent — sidebar is non-critical
     }
-  }
+  }, []);
 
-  async function loadStreak() {
+  const loadStreak = useCallback(async () => {
     try {
       const streakData = await engagement.getStreak();
       setStreak(streakData?.currentStreak ?? 0);
     } catch {
       // silent — widget is non-critical
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    void loadFeed();
+    void loadGroups();
+    void loadStreak();
+  }, [loadFeed, loadGroups, loadStreak]);
 
   async function handleCreatePost(content: string, imageUrl?: string) {
     try {
@@ -104,8 +104,8 @@ export default function NationPage() {
       success("Post created successfully!");
       setPosts([]);
       setPage(0);
-      loadFeed();
-    } catch (err) {
+      void loadFeed();
+    } catch {
       error("Failed to create post");
     }
   }

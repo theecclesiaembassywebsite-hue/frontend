@@ -1,56 +1,188 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
+import clsx from "clsx";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
 import { serviceSchedule } from "@/lib/api";
 
-// Fallback if API is unreachable
-const DEFAULT_SERVICES = [
+interface ServiceEntry {
+  id?: string;
+  day: string;
+  dayLabel?: string | null;
+  name: string;
+  time: string;
+  description: string;
+  order?: number | null;
+  active?: boolean | null;
+}
+
+const DEFAULT_SERVICES: ServiceEntry[] = [
   {
-    day: "Sunday",
+    id: "svc-sunday-word-life",
+    day: "Sun",
     name: "Word & Life Service",
     time: "8:00 AM",
-    description: "Our flagship gathering — worship, the Word, and life application.",
+    description:
+      "Our flagship gathering for worship, the Word, and life application.",
+    order: 1,
   },
   {
-    day: "Tuesday",
+    id: "svc-tuesday-prayer",
+    day: "Tue",
     name: "Prayer Service",
     time: "5:30 PM",
-    description: "A time of corporate prayer, intercession, and spiritual warfare.",
+    description:
+      "A time of corporate prayer, intercession, and spiritual warfare.",
+    order: 2,
   },
   {
-    day: "Friday",
+    id: "svc-friday-worship",
+    day: "Fri",
     name: "Worship Service",
     time: "5:30 PM",
-    description: "An evening of deep worship and encounter with God's presence.",
+    description:
+      "An evening of deep worship and encounter in the Lord's presence.",
+    order: 3,
   },
   {
-    day: "1st — 3rd",
-    dayLabel: "of every month",
+    id: "svc-monthly-as-unto",
+    day: "1st-3rd",
+    dayLabel: "every month",
     name: "As Unto The Lord",
-    time: "6 AM & 6 PM",
-    description: "Special consecration services to begin each month in God's presence.",
+    time: "6:00 AM & 6:00 PM",
+    description:
+      "A monthly consecration gathering to begin the month in worship, prayer, and devotion before the Lord.",
+    order: 4,
   },
 ];
 
+const getLookupKey = (name: string) => name.trim().toLowerCase();
+const getServiceKey = (service: ServiceEntry) =>
+  service.id || getLookupKey(service.name).replace(/[^a-z0-9]+/g, "-");
+
+const getFallbackRank = (service: ServiceEntry) => {
+  const index = DEFAULT_SERVICES.findIndex(
+    (defaultService) => getLookupKey(defaultService.name) === getLookupKey(service.name)
+  );
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+};
+
+const mergeServices = (incoming: ServiceEntry[]) => {
+  const merged = new Map<string, ServiceEntry>();
+
+  for (const service of DEFAULT_SERVICES) {
+    merged.set(getLookupKey(service.name), service);
+  }
+
+  for (const rawService of incoming) {
+    if (!rawService?.name) continue;
+
+    const lookupKey = getLookupKey(rawService.name);
+    const fallback = merged.get(lookupKey);
+
+    merged.set(lookupKey, {
+      ...fallback,
+      ...rawService,
+      id: rawService.id || fallback?.id,
+      day: rawService.day || fallback?.day || "",
+      dayLabel: rawService.dayLabel ?? fallback?.dayLabel,
+      name: rawService.name || fallback?.name || "",
+      time: rawService.time || fallback?.time || "",
+      description: rawService.description || fallback?.description || "",
+      order: rawService.order ?? fallback?.order,
+    });
+  }
+
+  return Array.from(merged.values()).sort((left, right) => {
+    const leftOrder = left.order ?? getFallbackRank(left);
+    const rightOrder = right.order ?? getFallbackRank(right);
+    return leftOrder !== rightOrder
+      ? leftOrder - rightOrder
+      : left.name.localeCompare(right.name);
+  });
+};
+
+function DayLabel({ label, className }: { label?: string | null; className: string }) {
+  if (!label) return null;
+  return <p className={className}>{label}</p>;
+}
+
+function ServiceTabButton({
+  service,
+  isActive,
+  onClick,
+}: {
+  service: ServiceEntry;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={clsx(
+        "min-w-[152px] rounded-[22px] border px-5 py-4 text-center transition-all duration-300",
+        "bg-white/[0.04] backdrop-blur-sm",
+        isActive
+          ? "border-gold/55 bg-white/[0.12] shadow-[0_16px_40px_rgba(0,0,0,0.18)]"
+          : "border-white/[0.12] text-white/82 hover:border-gold/30 hover:bg-white/[0.08]"
+      )}
+      aria-pressed={isActive}
+    >
+      <p
+        className={clsx(
+          "font-heading text-[11px] font-bold uppercase tracking-[0.12em]",
+          isActive ? "text-white" : "text-white/86"
+        )}
+      >
+        {service.day} {service.time}
+      </p>
+      <p
+        className={clsx(
+          "mt-1 font-body text-xs",
+          isActive ? "text-white/90" : "text-white/62"
+        )}
+      >
+        {service.name}
+      </p>
+      <DayLabel
+        label={service.dayLabel}
+        className="mt-1 font-body text-[10px] uppercase tracking-[0.14em] text-gold/82"
+      />
+    </button>
+  );
+}
+
 export default function ServiceSchedule() {
-  const [services, setServices] = useState(DEFAULT_SERVICES);
+  const [services, setServices] = useState<ServiceEntry[]>(DEFAULT_SERVICES);
+  const [selectedServiceKey, setSelectedServiceKey] = useState(
+    getServiceKey(DEFAULT_SERVICES[0])
+  );
 
   useEffect(() => {
     serviceSchedule
       .getPublic()
       .then((data) => {
         if (data && data.length > 0) {
-          setServices(data);
+          setServices(mergeServices(data as ServiceEntry[]));
         }
       })
       .catch(() => {
-        // Use defaults on error
+        setServices(DEFAULT_SERVICES);
       });
   }, []);
+
+  const activeServiceKey = services.some(
+    (service) => getServiceKey(service) === selectedServiceKey
+  )
+    ? selectedServiceKey
+    : getServiceKey(services[0]);
+
+  const selectedService =
+    services.find((service) => getServiceKey(service) === activeServiceKey) || services[0];
 
   return (
     <SectionWrapper variant="dark-slate">
@@ -60,59 +192,63 @@ export default function ServiceSchedule() {
           title="A steady weekly rhythm of worship, prayer, and formation."
           description="Build your week around the moments where the house gathers to behold Christ, hear the Word, and pray together."
           align="center"
-          className="mb-14"
+          className="mb-12 [&>p:last-child]:mx-auto [&>p:last-child]:text-white/68"
           titleClassName="text-white"
         />
       </FadeIn>
 
-      <StaggerContainer staggerDelay={0.1}>
-        <div className="space-y-4 max-w-3xl mx-auto">
-          {services.map((service: any, i: number) => (
-            <StaggerItem key={service.id || i}>
-              <div className="group flex items-stretch overflow-hidden rounded-[30px] border border-white/[0.1] bg-white/[0.06] hover:border-gold/40 hover:bg-white/[0.1] transition-all duration-300">
-                {/* Left: Day column */}
-                <div className="w-24 sm:w-32 shrink-0 flex flex-col items-center justify-center py-5 px-2 sm:px-3 border-r border-white/[0.10]">
-                  <span className="font-heading text-base sm:text-xl font-bold text-white leading-tight text-center">
-                    {service.day}
-                  </span>
-                  {service.dayLabel && (
-                    <span className="font-body text-[9px] sm:text-[10px] text-white/60 mt-0.5 text-center">
-                      {service.dayLabel}
-                    </span>
-                  )}
-                </div>
+      <StaggerContainer className="mx-auto max-w-5xl" staggerDelay={0.08}>
+        <div className="mb-8 flex flex-wrap justify-center gap-3">
+          {services.map((service) => {
+            const serviceKey = getServiceKey(service);
+            return (
+              <StaggerItem key={serviceKey}>
+                <ServiceTabButton
+                  service={service}
+                  isActive={serviceKey === activeServiceKey}
+                  onClick={() => setSelectedServiceKey(serviceKey)}
+                />
+              </StaggerItem>
+            );
+          })}
+        </div>
 
-                {/* Middle: Name + Description */}
-                <div className="flex-1 py-5 px-4 sm:px-6 min-w-0">
-                  <h3 className="font-heading text-base sm:text-xl font-bold text-gold">
-                    {service.name}
-                  </h3>
-                  <p className="font-body text-xs sm:text-sm text-white/80 mt-1.5 line-clamp-2 sm:line-clamp-none leading-relaxed">
-                    {service.description}
+        <FadeIn key={activeServiceKey} direction="up" duration={0.45}>
+          <article className="overflow-hidden rounded-[30px] border border-white/[0.12] bg-white/[0.07] shadow-[0_24px_60px_rgba(0,0,0,0.2)] backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row">
+              <div className="flex min-w-[120px] items-center justify-center border-b border-white/[0.1] px-6 py-6 md:border-b-0 md:border-r">
+                <div className="text-center">
+                  <p className="font-heading text-xl font-bold text-white">
+                    {selectedService.day}
                   </p>
-                </div>
-
-                {/* Right: Time */}
-                <div className="shrink-0 flex items-center px-3 sm:px-6">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gold" />
-                    <span className="font-heading text-xs sm:text-sm font-bold text-white whitespace-nowrap">
-                      {service.time}
-                    </span>
-                  </div>
+                  <DayLabel
+                    label={selectedService.dayLabel}
+                    className="mt-1 font-body text-[11px] uppercase tracking-[0.18em] text-gold/84"
+                  />
                 </div>
               </div>
-            </StaggerItem>
-          ))}
-        </div>
-      </StaggerContainer>
 
-      {/* Subtle bottom accent */}
-      <FadeIn delay={0.5}>
-        <p className="mt-10 text-center font-serif text-sm italic text-white/30">
-          Join us in fellowship
-        </p>
-      </FadeIn>
+              <div className="flex-1 px-6 py-6 md:px-7">
+                <h3 className="font-heading text-xl font-bold text-gold md:text-2xl">
+                  {selectedService.name}
+                </h3>
+                <p className="mt-3 max-w-2xl font-body text-sm leading-7 text-white/78 md:text-base">
+                  {selectedService.description}
+                </p>
+              </div>
+
+              <div className="flex items-center border-t border-white/[0.1] px-6 py-5 md:border-t-0 md:border-l">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gold" />
+                  <span className="font-heading text-sm font-bold uppercase tracking-[0.08em] text-white">
+                    {selectedService.time}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </FadeIn>
+      </StaggerContainer>
     </SectionWrapper>
   );
 }

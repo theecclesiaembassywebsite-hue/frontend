@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import SectionWrapper from "@/components/ui/SectionWrapper";
@@ -15,11 +15,7 @@ export default function GroupsPage() {
   const [loading, setLoading] = useState(true);
   const [joiningGroupId, setJoiningGroupId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadGroups();
-  }, []);
-
-  async function loadGroups() {
+  const loadGroups = useCallback(async () => {
     try {
       setLoading(true);
       const groupsData = await nation.getGroups();
@@ -29,14 +25,18 @@ export default function GroupsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [error]);
+
+  useEffect(() => {
+    void loadGroups();
+  }, [loadGroups]);
 
   async function handleJoinGroup(groupId: string) {
     try {
       setJoiningGroupId(groupId);
       await nation.joinGroup(groupId);
       success("Joined group successfully!");
-      loadGroups();
+      void loadGroups();
     } catch (err) {
       error("Failed to join group");
     } finally {

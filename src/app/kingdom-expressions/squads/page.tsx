@@ -34,7 +34,6 @@ const squadIconMap: Record<string, React.ReactNode> = {
 export default function SquadsPage() {
   const [squads, setSquads] = useState<Squad[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [joining, setJoining] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSquads = async () => {
@@ -52,17 +51,6 @@ export default function SquadsPage() {
 
     fetchSquads();
   }, []);
-
-  const handleJoinSquad = async (squadId: string) => {
-    setJoining(squadId);
-    try {
-      await squadsAPI.joinSquad(squadId);
-    } catch (err) {
-      console.error('Failed to join squad:', err);
-    } finally {
-      setJoining(null);
-    }
-  };
 
   return (
     <main className="min-h-screen bg-[#FAFAF8]">

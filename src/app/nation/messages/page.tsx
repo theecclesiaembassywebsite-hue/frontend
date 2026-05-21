@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Send, User, Search } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useToast } from "@/components/ui/Toast";
@@ -24,21 +24,7 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    loadConversations();
-    const interval = setInterval(loadConversations, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (activeConvo) {
-      loadMessages(activeConvo);
-      const interval = setInterval(() => loadMessages(activeConvo), 3000);
-      return () => clearInterval(interval);
-    }
-  }, [activeConvo]);
-
-  async function loadConversations() {
+  const loadConversations = useCallback(async () => {
     try {
       setLoading(true);
       const convos = await nation.getConversations();
@@ -49,21 +35,35 @@ export default function MessagesPage() {
         time: c.time || "now",
         unread: c.unread || false,
       })));
-    } catch (err) {
+    } catch {
       error("Failed to load conversations");
     } finally {
       setLoading(false);
     }
-  }
+  }, [error]);
 
-  async function loadMessages(conversationId: string) {
+  const loadMessages = useCallback(async (conversationId: string) => {
     try {
       const msgs = await nation.getMessages(conversationId);
       setMessages(msgs.map(m => ({ ...m, sender: "them" as const })));
-    } catch (err) {
+    } catch {
       error("Failed to load messages");
     }
-  }
+  }, [error]);
+
+  useEffect(() => {
+    void loadConversations();
+    const interval = setInterval(loadConversations, 5000);
+    return () => clearInterval(interval);
+  }, [loadConversations]);
+
+  useEffect(() => {
+    if (activeConvo) {
+      void loadMessages(activeConvo);
+      const interval = setInterval(() => void loadMessages(activeConvo), 3000);
+      return () => clearInterval(interval);
+    }
+  }, [activeConvo, loadMessages]);
 
   async function handleSendMessage(e: React.FormEvent) {
     e.preventDefault();
@@ -74,7 +74,7 @@ export default function MessagesPage() {
       await nation.sendMessage(activeConvo, newMessage);
       setNewMessage("");
       success("Message sent!");
-      loadMessages(activeConvo);
+      void loadMessages(activeConvo);
     } catch (err) {
       error("Failed to send message");
     } finally {

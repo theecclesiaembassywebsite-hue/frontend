@@ -7,17 +7,9 @@ import { useEffect, useState } from "react";
 import { Search, Flag, EyeOff, Trash2, AlertTriangle, MessageCircle } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { nation } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
-
-const filterOptions = [
-  { value: "", label: "All Flags" },
-  { value: "SPAM", label: "Spam" },
-  { value: "INAPPROPRIATE", label: "Inappropriate" },
-  { value: "HARASSMENT", label: "Harassment" },
-  { value: "MISINFORMATION", label: "Misinformation" },
-];
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -26,18 +18,10 @@ const statusOptions = [
   { value: "ACTIONED", label: "Action Taken" },
 ];
 
-const reasonBadge: Record<string, string> = {
-  SPAM: "bg-warning/10 text-warning",
-  INAPPROPRIATE: "bg-error/10 text-error",
-  HARASSMENT: "bg-error/10 text-error",
-  MISINFORMATION: "bg-info/10 text-info",
-};
-
 function AdminNationContent() {
   const [flaggedPosts, setFlaggedPosts] = useState<any[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [reasonFilter, setReasonFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);

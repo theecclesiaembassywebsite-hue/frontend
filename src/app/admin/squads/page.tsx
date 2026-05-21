@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Users, Plus, Trash2, Pencil, X, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -109,11 +109,7 @@ function AdminSquadsContent() {
   const [editForm, setEditForm] = useState<SquadFormData>(EMPTY_FORM);
   const { success, error } = useToast();
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [squadsData, membersData] = await Promise.all([
@@ -127,7 +123,11 @@ function AdminSquadsContent() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [error]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   async function handleCreate() {
     if (!createForm.name || !createForm.description || !createForm.leaderId) {
@@ -140,7 +140,7 @@ function AdminSquadsContent() {
       success("Squad created!");
       setShowCreate(false);
       setCreateForm(EMPTY_FORM);
-      loadData();
+      void loadData();
     } catch {
       error("Failed to create squad");
     } finally {
@@ -170,7 +170,7 @@ function AdminSquadsContent() {
       await squads.updateSquad(editingId!, editForm);
       success("Squad updated!");
       setEditingId(null);
-      loadData();
+      void loadData();
     } catch {
       error("Failed to update squad");
     } finally {
@@ -183,7 +183,7 @@ function AdminSquadsContent() {
     try {
       await squads.deleteSquad(id);
       success("Squad deleted");
-      loadData();
+      void loadData();
     } catch {
       error("Failed to delete squad");
     }

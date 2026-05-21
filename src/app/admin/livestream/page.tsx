@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Radio, Calendar, Wifi, WifiOff, RefreshCw } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -13,7 +13,7 @@ function YouTubeAutoDetect() {
   const [status, setStatus] = useState<{ isLive: boolean; videoId: string | null } | null>(null);
   const [checking, setChecking] = useState(false);
 
-  const check = async () => {
+  const check = useCallback(async () => {
     setChecking(true);
     try {
       const res = await fetch("/api/youtube-live");
@@ -24,14 +24,13 @@ function YouTubeAutoDetect() {
     } finally {
       setChecking(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    check();
+    void check();
     const id = window.setInterval(check, 60000);
     return () => window.clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [check]);
 
   return (
     <div className="flex items-start gap-4">
@@ -77,7 +76,6 @@ function YouTubeAutoDetect() {
 }
 
 function AdminLiveStreamContent() {
-  const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
@@ -89,7 +87,6 @@ function AdminLiveStreamContent() {
     const fetchConfig = async () => {
       try {
         const data = await livestream.getConfig();
-        setConfig(data);
         setIsLive(data?.isLive || false);
         setEmbedUrl(data?.embedUrl || "");
         setNextService(data?.nextService || "");

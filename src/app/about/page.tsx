@@ -3,7 +3,6 @@ import { BookOpen, Crown, Heart, Sparkles } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { buttonClasses } from "@/components/ui/button-styles";
 
 const coreValues = [
   {
@@ -92,7 +91,7 @@ export default function AboutPage() {
             </div>
             <Link
               href="/new-here"
-              className={buttonClasses({ variant: "primary", className: "mt-8" })}
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-gold px-8 py-3 font-heading text-[13px] font-semibold uppercase tracking-[1.5px] leading-4 text-[#0E0B1E] shadow-[0_14px_28px_rgba(201,168,76,0.2)] transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:bg-gold-dark hover:shadow-[0_16px_32px_rgba(201,168,76,0.28)] active:translate-y-0 active:shadow-[0_8px_18px_rgba(201,168,76,0.18)]"
             >
               Worship With Us
             </Link>

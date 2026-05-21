@@ -8,7 +8,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { cith } from '@/lib/api';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/Motion';
-import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton';
+import { SkeletonGroup } from '@/components/ui/Skeleton';
 
 interface Hub {
   id: string;

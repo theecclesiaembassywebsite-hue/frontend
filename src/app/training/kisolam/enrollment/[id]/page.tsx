@@ -59,7 +59,7 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
     };
 
     load();
-  }, [enrollmentParamId]);
+  }, [enrollmentParamId, success]);
 
   const handlePayNow = async () => {
     if (!enrollment) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, Variants, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { ReactNode, useRef } from "react";
 
 /* ============================================
@@ -64,15 +64,6 @@ interface StaggerContainerProps {
   staggerDelay?: number;
   once?: boolean;
 }
-
-const staggerParent: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
 
 export function StaggerContainer({
   children,
@@ -158,7 +149,6 @@ interface AnimatedCounterProps {
   suffix?: string;
   prefix?: string;
   className?: string;
-  duration?: number;
 }
 
 export function AnimatedCounter({
@@ -166,7 +156,6 @@ export function AnimatedCounter({
   suffix = "",
   prefix = "",
   className,
-  duration = 2,
 }: AnimatedCounterProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
@@ -239,7 +228,7 @@ export function ParallaxBg({ children, className, speed = 0.3 }: ParallaxBgProps
       className={className}
       initial={{ scale: 1.1 }}
       animate={{ scale: 1 }}
-      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 1.2 / Math.max(speed, 0.1), ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>

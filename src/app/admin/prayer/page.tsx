@@ -2,12 +2,11 @@
 
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Search, HandHeart, Clock, CheckCircle, MessageSquare, Eye } from "lucide-react";
+import { Search, HandHeart, Clock, CheckCircle, Eye } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { prayer } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 
@@ -30,8 +29,6 @@ function AdminPrayerContent() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
-  const [editingNote, setEditingNote] = useState<string | null>(null);
-  const [noteText, setNoteText] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [viewingRequest, setViewingRequest] = useState<any | null>(null);
   const { success, error } = useToast();

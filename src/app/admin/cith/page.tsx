@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Search, MapPin, CheckCircle, XCircle, Clock, Plus } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { cith } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 

@@ -6,7 +6,7 @@ import { upload } from '@/lib/api'
 import { getPageContent, normalizePath, savePageContent } from '@/lib/site-content'
 import { useToast } from '@/components/ui/Toast'
 import Button from '@/components/ui/Button'
-import { ArrowUpRight, ImagePlus, Save } from 'lucide-react'
+import { ImagePlus, Save } from 'lucide-react'
 
 const knownPages = [
   '/',

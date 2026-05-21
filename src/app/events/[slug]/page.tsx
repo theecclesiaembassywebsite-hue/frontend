@@ -32,6 +32,8 @@ interface RegistrationData {
   phone: string;
 }
 
+const HIDDEN_EVENT_SLUGS = new Set(["as-unto-the-lord"]);
+
 export default function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [eventData, setEventData] = useState<Event | null>(null);
@@ -50,6 +52,12 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
 
   useEffect(() => {
     const fetchEvent = async () => {
+      if (HIDDEN_EVENT_SLUGS.has(slug)) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);

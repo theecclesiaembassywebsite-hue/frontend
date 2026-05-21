@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Search, Plus, Trash2, BookOpen } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { blog, announcements } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 
@@ -190,7 +190,7 @@ function AdminContentContent() {
                           await announcements.deleteAnnouncement(c.id);
                           setContentItems(contentItems.filter((item) => item.id !== c.id));
                           success("Content deleted");
-                        } catch (err) {
+                        } catch {
                           error("Failed to delete content");
                         }
                       }}

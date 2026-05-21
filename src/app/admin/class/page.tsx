@@ -1,12 +1,11 @@
 "use client";
 
-import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GraduationCap, Plus, Users, Award, BookOpen, ChevronDown, ChevronRight, Video, FileText, Trash2, Edit } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { intentionalityClass, upload } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { intentionalityClass } from "@/lib/api";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 
@@ -44,11 +43,7 @@ function AdminClassContent() {
   });
   const { success, error } = useToast();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [statsData, coursesData] = await Promise.all([
         intentionalityClass.adminGetStats(),
@@ -62,7 +57,11 @@ function AdminClassContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [error]);
+
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
 
   const handleCreateCourse = async () => {
     if (!formData.title || !formData.description) {

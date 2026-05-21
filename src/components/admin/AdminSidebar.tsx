@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Users, Gift, FileText, MapPin, GraduationCap,
   MessageCircle, Calendar, BookOpen, HandHeart, Quote, BarChart3,
-  Radio, Settings, UserPlus, Clock, Award,
+  Radio, UserPlus, Clock, Award,
 } from "lucide-react";
 
 const navItems = [

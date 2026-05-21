@@ -5,7 +5,7 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useState, useEffect } from "react";
-import { Globe, Target, BookOpen, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { squads } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/Toast";

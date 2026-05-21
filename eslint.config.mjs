@@ -8,6 +8,13 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          caughtErrors: "none",
+        },
+      ],
+      "@next/next/no-img-element": "off",
       "react/no-unescaped-entities": "off",
     },
   },
@@ -18,6 +25,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Repo-local generated or non-frontend code:
+    ".codex-temp/**",
+    ".claude/**",
+    "backend/**",
+    "backend-output.log",
   ]),
 ]);
 

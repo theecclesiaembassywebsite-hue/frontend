@@ -5,7 +5,6 @@ import { firstTimer, squads, cith } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import {
   Search,
-  Users,
   UserPlus,
   Heart,
   Clock,
@@ -49,7 +48,7 @@ export default function AdminFirstTimersPage() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [error, search]);
 
   useEffect(() => {
     fetchData();

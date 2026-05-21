@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
-  ArrowLeft, BookOpen, CheckCircle, Lock, Play, FileText,
+  ArrowLeft, BookOpen, CheckCircle, Lock, FileText,
   ChevronRight, AlertCircle, Send,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -100,7 +100,7 @@ function CourseContent({ courseId }: { courseId: string }) {
       })
       .catch((err) => showError(err instanceof Error ? err.message : "Failed to load modules"))
       .finally(() => setLoading(false));
-  }, [courseId]);
+  }, [courseId, showError]);
 
   const handleCompleteModule = async () => {
     if (!activeModule || !enrollmentId) return;

@@ -15,11 +15,6 @@ export default function HeroSection() {
         { href: "/live", label: "Watch Live", variant: "secondary", onDark: true },
         { href: "/prayer", label: "Submit Prayer Burden", variant: "secondary", onDark: true, glow: true },
       ]}
-      stats={[
-        { value: "Sun 8AM", label: "Word and Life Service" },
-        { value: "Tue 5:30PM", label: "Prayer Service" },
-        { value: "Fri 5:30PM", label: "Worship Gathering" },
-      ]}
       className="min-h-[88vh]"
     />
   );

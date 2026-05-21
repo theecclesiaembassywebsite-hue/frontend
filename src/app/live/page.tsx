@@ -75,20 +75,6 @@ function toEmbedUrl(url?: string | null) {
   return url;
 }
 
-function extractYoutubeVideoId(url?: string | null) {
-  if (!url) return null;
-
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
-  );
-
-  if (match?.[1]) {
-    return match[1];
-  }
-
-  return /^[A-Za-z0-9_-]{11}$/.test(url) ? url : null;
-}
-
 function parseServiceTime(time: string) {
   const match = time.trim().match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
 

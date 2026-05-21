@@ -46,7 +46,6 @@ const navLinks = [
       { label: "Events Calendar", href: "/events" },
       { label: "Feast of Tabernacles", href: "/events/feast-of-tabernacles" },
       { label: "Gilgal Camp Meetings", href: "/events/gilgal" },
-      { label: "As Unto The Lord", href: "/events/as-unto-the-lord" },
     ],
   },
   { label: "LIVESTREAM", href: "/live" },

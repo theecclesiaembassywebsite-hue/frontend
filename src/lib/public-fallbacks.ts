@@ -285,25 +285,6 @@ export const DEFAULT_EVENTS = [
     createdAt: "2026-01-10T09:00:00.000Z",
     updatedAt: "2026-01-10T09:00:00.000Z",
   },
-  {
-    id: "event-as-unto-the-lord",
-    slug: "as-unto-the-lord",
-    title: "As Unto The Lord",
-    description:
-      "A monthly consecration gathering held on the first three days of the month to seek the Lord in worship, prayer, and devotion.",
-    date: "2026-04-01T06:00:00.000Z",
-    location: "The Ecclesia Embassy, Abuja",
-    imageUrl:
-      "https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&q=80",
-    capacity: 500,
-    registered: 122,
-    isFree: true,
-    speakers: [
-      { name: "Brother Victor Oluwadamilare", title: "Lead Brother" },
-    ],
-    createdAt: "2026-01-15T09:00:00.000Z",
-    updatedAt: "2026-01-15T09:00:00.000Z",
-  },
 ];
 
 export function getDefaultEvent(identifier: string) {

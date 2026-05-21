@@ -10,7 +10,7 @@ import {
   StaggerItem,
   HoverLift,
 } from "@/components/ui/Motion";
-import { ChevronLeft, ChevronRight, Calendar, MapPin, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import EventCard from "@/components/ui/EventCard";
 
@@ -38,6 +38,8 @@ type Event = {
   slug?: string;
 };
 
+const HIDDEN_EVENT_SLUGS = new Set(["as-unto-the-lord"]);
+
 export default function EventsPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear] = useState(new Date().getFullYear());
@@ -49,8 +51,10 @@ export default function EventsPage() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const data = await eventsAPI.getEvents();
-        setEvents(data);
+        const data = (await eventsAPI.getEvents()) as Event[];
+        setEvents(
+          data.filter((event) => !HIDDEN_EVENT_SLUGS.has(event.slug || event.id))
+        );
         setError(null);
       } catch (err) {
         setError(

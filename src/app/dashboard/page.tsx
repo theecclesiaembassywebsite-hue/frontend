@@ -9,7 +9,6 @@ import {
   StaggerItem,
 } from '@/components/ui/Motion'
 import Link from 'next/link'
-import Button from '@/components/ui/Button'
 import {
   User,
   Heart,

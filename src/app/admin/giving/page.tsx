@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { admin } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 
 const periodOptions = [

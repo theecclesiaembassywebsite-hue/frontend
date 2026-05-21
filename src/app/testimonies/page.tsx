@@ -12,7 +12,7 @@ import { FadeIn } from '@/components/ui/Motion'
 import Link from 'next/link'
 import { Sparkles, CheckCircle, Quote } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
+import { SkeletonGroup } from '@/components/ui/Skeleton'
 
 interface ApprovedTestimony {
   id: string

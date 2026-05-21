@@ -238,6 +238,11 @@ export interface Message {
   updatedAt: string;
 }
 
+export interface FirstTimerSubmissionResponse {
+  message: string;
+  id: string;
+}
+
 // AUTH ENDPOINTS
 export const auth = {
   register: (data: {
@@ -329,7 +334,7 @@ export const firstTimer = {
     phone: string;
     source: string;
   }) =>
-    fetchAPI<{ success: boolean }>("/first-timer", {
+    fetchAPI<FirstTimerSubmissionResponse>("/first-timer", {
       method: "POST",
       body: JSON.stringify(data),
       noAuth: true,
@@ -342,7 +347,7 @@ export const firstTimer = {
     preferredSquad?: string;
     preferredHub?: string;
   }) =>
-    fetchAPI<{ success: boolean }>("/first-timer/new-convert", {
+    fetchAPI<FirstTimerSubmissionResponse>("/first-timer/new-convert", {
       method: "POST",
       body: JSON.stringify(data),
       noAuth: true,

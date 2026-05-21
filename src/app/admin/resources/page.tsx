@@ -5,7 +5,7 @@ import { Plus, Music, Video, BookOpen, Headphones, Trash2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { media, upload } from "@/lib/api";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 

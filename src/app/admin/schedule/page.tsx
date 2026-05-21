@@ -53,7 +53,7 @@ export default function AdminSchedulePage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [error]);
 
   useEffect(() => {
     fetchServices();
