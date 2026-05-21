@@ -118,7 +118,7 @@ function AdminLiveStreamContent() {
       });
       setIsLive(newLiveState);
       if (normalizedUrl) setEmbedUrl(normalizedUrl);
-      success(isLive ? "Livestream turned off" : "Livestream is now LIVE");
+      success(isLive ? "Manual fallback disabled" : "Manual fallback enabled");
     } catch (err) {
       error("Failed to toggle livestream");
       console.error(err);
@@ -129,7 +129,7 @@ function AdminLiveStreamContent() {
 
   const handleSaveConfig = async () => {
     if (isLive && !normalizedUrl) {
-      error("Please enter a valid stream URL when livestream is active");
+      error("Please enter a valid stream URL when manual fallback is active");
       return;
     }
     if (embedUrl.trim() && !normalizedUrl) {
@@ -181,10 +181,10 @@ function AdminLiveStreamContent() {
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isLive ? "bg-error/10" : "bg-off-white"}`}>
               <div className={`w-2 h-2 rounded-full ${isLive ? "bg-error" : "bg-gray-text"}`} />
               <p className={`font-heading text-sm font-semibold ${isLive ? "text-error" : "text-gray-text"}`}>
-                {isLive ? "LIVE" : "OFFLINE"}
+                {isLive ? "MANUAL FALLBACK ACTIVE" : "AUTO-DETECT"}
               </p>
             </div>
-            <h2 className="font-heading text-lg font-bold text-slate">Service Status</h2>
+            <h2 className="font-heading text-lg font-bold text-slate">Public Livestream Mode</h2>
           </div>
           <Button
             variant={isLive ? "secondary" : "primary"}
@@ -193,7 +193,7 @@ function AdminLiveStreamContent() {
             disabled={saving}
           >
             <Radio size={16} className="mr-2" />
-            {isLive ? "Go Offline" : "Go Live"}
+            {isLive ? "Disable Manual Fallback" : "Enable Manual Fallback"}
           </Button>
         </div>
       </div>
@@ -202,9 +202,9 @@ function AdminLiveStreamContent() {
       <div className="space-y-6">
         {/* Embed URL */}
         <div className="rounded-[8px] border border-gray-border bg-white p-6 shadow-sm">
-          <h3 className="font-heading text-lg font-bold text-slate mb-4">Manual Override <span className="text-sm font-body font-normal text-gray-text">(optional)</span></h3>
+          <h3 className="font-heading text-lg font-bold text-slate mb-4">Manual Fallback <span className="text-sm font-body font-normal text-gray-text">(optional)</span></h3>
           <div>
-            <label className="block text-sm font-heading font-semibold text-slate mb-2">Paste a specific YouTube link to override auto-detection</label>
+            <label className="block text-sm font-heading font-semibold text-slate mb-2">Paste a specific stream link to use only when the channel is not auto-detected live</label>
             <textarea
               className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-3 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
               placeholder="https://www.youtube.com/watch?v=...  or  youtu.be/...  or  <iframe src='...'></iframe>"
@@ -213,7 +213,7 @@ function AdminLiveStreamContent() {
               onChange={(e) => setEmbedUrl(e.target.value)}
             />
             <p className="text-[11px] text-gray-text mt-2">
-              Accepts: YouTube watch URL, youtu.be short link, embed URL, channel live_stream URL, or the full &lt;iframe&gt; embed code from YouTube/Vimeo. We'll auto-clean it.
+              Accepts: YouTube watch URL, youtu.be short link, embed URL, channel live_stream URL, or the full &lt;iframe&gt; embed code from YouTube/Vimeo. We&apos;ll auto-clean it, but the public page will still prefer a confirmed live stream from your official YouTube channel when one exists.
             </p>
             {embedUrl && normalizedUrl && normalizedUrl !== embedUrl && (
               <div className="mt-3 rounded-[4px] bg-success/10 border border-success/30 p-3">
@@ -262,7 +262,7 @@ function AdminLiveStreamContent() {
                 title="Livestream Preview"
               />
             </div>
-            <p className="text-[11px] text-gray-text mt-2">This is exactly what viewers will see on /live when you go live.</p>
+            <p className="text-[11px] text-gray-text mt-2">This preview is used when manual fallback is enabled and the YouTube channel is not already auto-detected live.</p>
           </div>
         )}
       </div>
@@ -280,7 +280,7 @@ function AdminLiveStreamContent() {
         {isLive && (
           <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-[4px] bg-error/10 border border-error/30">
             <div className="w-2 h-2 rounded-full bg-error animate-pulse" />
-            <p className="font-body text-sm text-error">Livestream is currently active</p>
+            <p className="font-body text-sm text-error">Manual fallback is currently active</p>
           </div>
         )}
       </div>
@@ -290,9 +290,9 @@ function AdminLiveStreamContent() {
         <p className="font-heading text-sm font-semibold text-info mb-2">How the Livestream works</p>
         <ol className="text-sm text-info font-body space-y-1 list-decimal list-inside">
           <li><strong>Automatic:</strong> Just start your YouTube livestream — the /live page detects it within 60 seconds and switches to the stream automatically. No action needed here.</li>
-          <li><strong>Manual override:</strong> If you need to stream from a specific link (not the channel's active stream), paste it in the Manual Override box and click <strong>Go Live</strong>.</li>
+          <li><strong>Manual fallback:</strong> If you need a backup source, paste it in the Manual Fallback box and enable it. The public page still prefers the confirmed official channel stream whenever one exists.</li>
           <li>Set <strong>Next Service</strong> date/time. When not live, /live shows a countdown to that service.</li>
-          <li>After the service ends on YouTube, /live reverts to the countdown within 60 seconds automatically.</li>
+          <li>After the service ends on YouTube, /live reverts to the countdown instead of drifting into unrelated recommended videos.</li>
         </ol>
       </div>
     </div>

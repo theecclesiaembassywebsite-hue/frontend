@@ -227,7 +227,7 @@ const ContactPage = () => {
         <FadeIn>
           <div className="overflow-hidden rounded-[28px] shadow-[0_20px_48px_rgba(14,11,30,0.10)] h-[220px] sm:h-[300px] md:h-[400px]">
             <iframe
-              src="https://maps.google.com/maps?q=The+Ecclesia+Embassy+Guzape+Hills+Abuja+Nigeria&output=embed&z=18"
+              src="https://www.google.com/maps?q=The+Ecclesia+Embassy+Guzape+Hills+Abuja+Nigeria&z=18&output=embed"
               width="100%"
               height="100%"
               style={{ border: 0 }}

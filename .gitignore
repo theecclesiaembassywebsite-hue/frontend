@@ -51,6 +51,7 @@ playwright-report/
 
 # vercel
 .vercel
+.vercel.*.env
 
 # typescript
 *.tsbuildinfo

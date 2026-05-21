@@ -1,32 +1,22 @@
 // Tracks live status for YouTube channel @theecclesiaembassy (UCrvZyTocoH926b_wv81bpzA).
 // Primary: YouTube Data API v3 (reliable, needs YOUTUBE_API_KEY env var).
 // Fallback: HTML scraping — used when the key is missing or quota drops to 500 units remaining.
-// When scraping finds a YouTube redirect to a watch URL but can't confirm live markers in the
-// initial HTML, CHANNEL_FALLBACK is returned so a real stream is never silently dropped.
+// Public pages should only autoplay a confirmed live broadcast video ID from this channel.
+// When confirmation is uncertain, we report "not live" so the player never drifts into
+// unrelated YouTube recommendations or another channel's fallback content.
 import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
 const CACHE_TTL_MS = 5 * 60_000;
 const UNCERTAIN_CACHE_TTL_MS = 60_000;
 const SEARCH_COST = 100; // units per search.list call
-const CHANNEL_FALLBACK_URL = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1`;
-
 interface LiveStatus {
   isLive: boolean;
   videoId: string | null;
   embedUrl: string | null;
-  fallbackUrl?: string | null;
-  useFallbackEmbed?: boolean;
 }
 
 const NOT_LIVE: LiveStatus = { isLive: false, videoId: null, embedUrl: null };
-const CHANNEL_FALLBACK: LiveStatus = {
-  isLive: false,
-  videoId: null,
-  embedUrl: null,
-  fallbackUrl: CHANNEL_FALLBACK_URL,
-  useFallbackEmbed: true,
-};
 
 let cached: { status: LiveStatus; expiresAt: number } | null = null;
 
@@ -123,9 +113,9 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
     }
 
     if (!videoId) {
-      // Uncertain means YouTube redirected to a watch URL but we couldn't confirm live status
-      // from HTML — show the channel embed so a real stream is never silently hidden.
-      const status = uncertain ? CHANNEL_FALLBACK : NOT_LIVE;
+      // If confirmation is uncertain, stay offline until we can verify the actual live video.
+      // This avoids YouTube's channel-level fallback player surfacing unrelated content.
+      const status = NOT_LIVE;
       cached = { status, expiresAt: now + (uncertain ? UNCERTAIN_CACHE_TTL_MS : CACHE_TTL_MS) };
       return status;
     }
@@ -133,16 +123,14 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
     const status: LiveStatus = {
       isLive: true,
       videoId,
-      embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1`,
+      embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
     };
 
     cached = { status, expiresAt: now + CACHE_TTL_MS };
     return status;
   } catch {
-    // On any unexpected error fall back to the channel iframe rather than
-    // silently dropping visitors to the countdown screen.
-    cached = { status: CHANNEL_FALLBACK, expiresAt: now + 30_000 };
-    return CHANNEL_FALLBACK;
+    cached = { status: NOT_LIVE, expiresAt: now + 30_000 };
+    return NOT_LIVE;
   }
 }
 

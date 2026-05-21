@@ -9,7 +9,6 @@ import { livestream, serviceSchedule } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
-const CHANNEL_LIVE_URL = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1&rel=0`;
 const CHANNEL_URL = `https://www.youtube.com/channel/${CHANNEL_ID}`;
 
 interface LivestreamConfig {
@@ -31,6 +30,12 @@ interface YouTubeVideo {
   title: string;
   publishedAt: string;
   thumbnail: string;
+}
+
+interface YouTubeLiveStatus {
+  isLive: boolean;
+  videoId: string | null;
+  embedUrl: string | null;
 }
 
 interface UpcomingService {
@@ -56,6 +61,10 @@ function normalizeWeekday(day: string) {
   return WEEKDAY_INDEX[normalizedDay] === undefined ? null : normalizedDay;
 }
 
+function buildYouTubeEmbedUrl(videoId: string) {
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+}
+
 function toEmbedUrl(url?: string | null) {
   if (!url) return "";
   if (url.includes("youtube.com/embed/")) return url;
@@ -65,11 +74,11 @@ function toEmbedUrl(url?: string | null) {
   );
 
   if (match?.[1]) {
-    return `https://www.youtube.com/embed/${match[1]}`;
+    return buildYouTubeEmbedUrl(match[1]);
   }
 
   if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
-    return `https://www.youtube.com/embed/${url}`;
+    return buildYouTubeEmbedUrl(url);
   }
 
   return url;
@@ -186,7 +195,7 @@ export default function LivePage() {
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [now, setNow] = useState(() => new Date());
   const [youtubeIsLive, setYoutubeIsLive] = useState(false);
-  const [useFallbackEmbed, setUseFallbackEmbed] = useState(false);
+  const [youtubeEmbedUrl, setYoutubeEmbedUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -227,7 +236,7 @@ export default function LivePage() {
     const fetchVideos = async () => {
       try {
         const res = await fetch("/api/youtube-videos");
-        const data = await res.json();
+        const data: { videos?: YouTubeVideo[] } = await res.json();
         if (!isMounted) return;
         setVideos(data.videos ?? []);
       } catch {
@@ -243,12 +252,14 @@ export default function LivePage() {
     const fetchYoutubeLive = async () => {
       try {
         const res = await fetch("/api/youtube-live");
-        const data = await res.json();
+        const data: YouTubeLiveStatus = await res.json();
         if (!isMounted) return;
         setYoutubeIsLive(data.isLive ?? false);
-        setUseFallbackEmbed(data.useFallbackEmbed ?? false);
+        setYoutubeEmbedUrl(data.embedUrl ?? "");
       } catch {
-        // silent — defaults remain false/null
+        if (!isMounted) return;
+        setYoutubeIsLive(false);
+        setYoutubeEmbedUrl("");
       }
     };
 
@@ -272,11 +283,16 @@ export default function LivePage() {
   }, []);
 
   const manualEmbedUrl = toEmbedUrl(config?.embedUrl);
-  const hasManualOverride = Boolean(config?.isLive && manualEmbedUrl);
+  const autoDetectedLive = youtubeIsLive && Boolean(youtubeEmbedUrl);
+  const hasManualOverride = Boolean(config?.isLive && manualEmbedUrl && !autoDetectedLive);
+  // Public playback should use a confirmed stream URL from the official channel.
   // Use the channel-level live_stream URL — YouTube always serves the correct
   // active broadcast so we never accidentally lock onto a stale video ID.
-  const showLiveStream = hasManualOverride || youtubeIsLive || useFallbackEmbed;
-  const iframeSrc = hasManualOverride ? manualEmbedUrl : (showLiveStream ? CHANNEL_LIVE_URL : "");
+  const iframeSrc = autoDetectedLive
+    ? youtubeEmbedUrl
+    : hasManualOverride
+      ? manualEmbedUrl
+      : "";
   // youtube-videos API fetches completed streams, so no active live video to exclude.
   const archivedVideos = videos;
 
@@ -302,7 +318,7 @@ export default function LivePage() {
               {iframeSrc && (
                 <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-full bg-red-600 px-3 py-1 font-heading text-[11px] font-bold uppercase tracking-[0.28em] text-white">
                   <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                  {hasManualOverride ? "Manual Live" : "Live Now"}
+                  Live
                 </div>
               )}
 
@@ -516,6 +532,7 @@ export default function LivePage() {
                         alt={video.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        unoptimized
                         className="object-cover"
                         loading="lazy"
                       />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Music, Video, BookOpen, Headphones, Trash2 } from "lucide-react";
+import { Plus, Music, Video, BookOpen, Headphones, Trash2, ExternalLink } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { media, upload } from "@/lib/api";
@@ -11,10 +11,18 @@ import { Modal } from "@/components/ui/Modal";
 
 type ResourceTab = "audio" | "video" | "library" | "music";
 
+interface YouTubeUpload {
+  id: string;
+  title: string;
+  publishedAt: string;
+  watchUrl: string;
+}
+
 function AdminResourcesContent() {
   const [activeTab, setActiveTab] = useState<ResourceTab>("audio");
   const [audioSermons, setAudioSermons] = useState<any[]>([]);
   const [videoMessages, setVideoMessages] = useState<any[]>([]);
+  const [youtubeUploads, setYoutubeUploads] = useState<YouTubeUpload[]>([]);
   const [libraryResources, setLibraryResources] = useState<any[]>([]);
   const [musicTracks, setMusicTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,14 +43,17 @@ function AdminResourcesContent() {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const [audio, video, library, music] = await Promise.all([
+        const [audio, video, library, music, youtubeResponse] = await Promise.all([
           media.getAudioSermons(),
           media.getVideoMessages(),
           media.getLibrary(),
           media.getMusic(),
+          fetch("/api/youtube-channel-videos"),
         ]);
+        const youtubePayload: { videos?: YouTubeUpload[] } = await youtubeResponse.json();
         setAudioSermons(audio);
         setVideoMessages(video);
+        setYoutubeUploads(youtubePayload.videos ?? []);
         setLibraryResources(library);
         setMusicTracks(music);
       } catch (err) {
@@ -276,10 +287,10 @@ function AdminResourcesContent() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-slate">Media Resources</h1>
-          <p className="text-body-small mt-1">Manage audio sermons, video messages, library resources, and music</p>
+          <p className="text-body-small mt-1">Manage audio sermons, YouTube-connected video content, manual video entries, library resources, and music</p>
         </div>
         <Button variant="primary" className="text-xs py-2 px-4 min-w-0" onClick={() => setShowCreateModal(true)}>
-          <Plus size={14} className="mr-1" /> Add Resource
+          <Plus size={14} className="mr-1" /> {activeTab === "video" ? "Add Manual Video" : "Add Resource"}
         </Button>
       </div>
 
@@ -287,7 +298,7 @@ function AdminResourcesContent() {
       <div className="flex gap-2 mb-6 border-b border-gray-border">
         {[
           { key: "audio", label: "Audio Sermons", icon: Headphones },
-          { key: "video", label: "Video Messages", icon: Video },
+          { key: "video", label: "Video Library", icon: Video },
           { key: "library", label: "Library", icon: BookOpen },
           { key: "music", label: "Music", icon: Music },
         ].map((tab) => {
@@ -334,10 +345,72 @@ function AdminResourcesContent() {
 
       {activeTab === "video" && (
         <div>
-          <h2 className="font-heading text-lg font-bold text-slate mb-3">Video Messages</h2>
+          <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm mb-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-heading text-lg font-bold text-slate mb-1">YouTube Channel Uploads</h2>
+                <p className="font-body text-sm text-gray-text">
+                  These are auto-synced from the official channel's Videos tab and appear on the public Video Messages page alongside manual video entries.
+                </p>
+              </div>
+              <a
+                href="https://www.youtube.com/@TheEcclesiaEmbassy/videos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-border px-4 py-2 text-xs font-heading font-semibold uppercase tracking-[0.14em] text-slate transition hover:bg-off-white"
+              >
+                Open Channel
+                <ExternalLink size={14} />
+              </a>
+            </div>
+
+            {youtubeUploads.length === 0 ? (
+              <div className="mt-5 rounded-[8px] border border-dashed border-gray-border bg-off-white p-6 text-center">
+                <p className="font-body text-sm text-gray-text">No channel uploads found yet.</p>
+              </div>
+            ) : (
+              <div className="mt-5 overflow-x-auto rounded-[8px] border border-gray-border bg-white">
+                <table className="w-full min-w-[640px]">
+                  <thead>
+                    <tr className="border-b border-gray-border bg-off-white">
+                      <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Title</th>
+                      <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Published</th>
+                      <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Link</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-border">
+                    {youtubeUploads.map((video) => (
+                      <tr key={video.id} className="hover:bg-off-white/50 transition-colors">
+                        <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{video.title}</td>
+                        <td className="px-4 py-3 font-body text-sm text-gray-text">
+                          {new Date(video.publishedAt || Date.now()).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <a
+                            href={video.watchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                          >
+                            View on YouTube
+                            <ExternalLink size={12} />
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <h2 className="font-heading text-lg font-bold text-slate mb-3">Manual Video Messages</h2>
+          <p className="font-body text-sm text-gray-text mb-4">
+            These are editor-managed entries. The public Video Messages page combines these with official YouTube uploads after filtering out stream-style content.
+          </p>
           {videoMessages.length === 0 ? (
             <div className="rounded-[8px] border border-gray-border bg-off-white p-8 text-center">
-              <p className="font-body text-sm text-gray-text">No video messages yet</p>
+              <p className="font-body text-sm text-gray-text">No manual video messages yet</p>
             </div>
           ) : (
             renderResourceTable(videoMessages, ["speaker", "date"])
@@ -589,7 +662,11 @@ function AdminResourcesContent() {
       </Modal>
 
       {/* Create Resource Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Add New Resource">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title={activeTab === "video" ? "Add Manual Video Message" : "Add New Resource"}
+      >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Title *</label>
@@ -603,30 +680,35 @@ function AdminResourcesContent() {
           </div>
 
           <div>
-            <label className="block text-sm font-heading font-semibold text-slate mb-1">
-              {activeTab === "audio" ? "Speaker" : activeTab === "video" ? "Speaker (optional)" : activeTab === "library" ? "Author" : "Album (optional)"}
-            </label>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">
+                {activeTab === "audio" ? "Speaker" : activeTab === "video" ? "Speaker / Label (optional)" : activeTab === "library" ? "Author" : "Album (optional)"}
+              </label>
             <input
               type="text"
               className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
-              placeholder={activeTab === "audio" ? "Speaker name" : activeTab === "video" ? "Speaker name" : activeTab === "library" ? "Author name" : "Album name"}
-              value={formData.speaker}
-              onChange={(e) => setFormData({ ...formData, speaker: e.target.value })}
-            />
-          </div>
+                placeholder={activeTab === "audio" ? "Speaker name" : activeTab === "video" ? "Speaker or internal label" : activeTab === "library" ? "Author name" : "Album name"}
+                value={formData.speaker}
+                onChange={(e) => setFormData({ ...formData, speaker: e.target.value })}
+              />
+            </div>
 
           <div>
-            <label className="block text-sm font-heading font-semibold text-slate mb-1">
-              {activeTab === "video" ? "YouTube URL *" : "File Upload or URL *"}
-            </label>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">
+                {activeTab === "video" ? "Manual YouTube URL *" : "File Upload or URL *"}
+              </label>
             {activeTab === "video" ? (
-              <input
-                type="url"
-                className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
-                placeholder="https://youtube.com/watch?v=..."
-                value={formData.url}
-                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              />
+              <div className="space-y-2">
+                <input
+                  type="url"
+                  className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                  placeholder="https://youtube.com/watch?v=..."
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                />
+                <p className="text-[11px] text-gray-text">
+                  Public <code>/resources/video</code> combines actual YouTube channel uploads with these manual entries, while still filtering out livestream-style videos.
+                </p>
+              </div>
             ) : (
               <div className="space-y-2">
                 <input
@@ -703,7 +785,9 @@ function AdminResourcesContent() {
           )}
 
           <div className="flex gap-2 pt-4">
-            <Button variant="primary" className="flex-1" onClick={handleCreateResource}>Add Resource</Button>
+            <Button variant="primary" className="flex-1" onClick={handleCreateResource}>
+              {activeTab === "video" ? "Add Manual Video" : "Add Resource"}
+            </Button>
             <Button variant="secondary" className="flex-1" onClick={() => setShowCreateModal(false)}>Cancel</Button>
           </div>
         </div>
