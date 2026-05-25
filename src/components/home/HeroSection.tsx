@@ -13,7 +13,7 @@ export default function HeroSection() {
       actions={[
         { href: "/new-here", label: "Plan Your Visit", variant: "primary" },
         { href: "/live", label: "Watch Live", variant: "secondary", onDark: true },
-        { href: "/prayer", label: "Submit Prayer Burden", variant: "secondary", onDark: true, glow: true },
+        { href: "/prayer", label: "Submit Prayer Burden", variant: "secondary", onDark: true },
       ]}
       className="min-h-[88vh]"
     />

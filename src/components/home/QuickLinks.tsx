@@ -37,10 +37,10 @@ const quickLinks = [
     imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80',
   },
   {
-    title: 'Join a Squad',
-    subtitle: 'Kingdom Life Squads',
-    href: '/kingdom-expressions/squads',
-    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+    title: 'Blog',
+    subtitle: 'Articles & reflections',
+    href: '/blog',
+    imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80',
   },
 ];
 

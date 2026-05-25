@@ -9,7 +9,16 @@ import { media } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
 
-const CHANNEL_VIDEOS_URL = "https://www.youtube.com/@TheEcclesiaEmbassy/videos";
+const CHANNELS = [
+  {
+    label: "The Ecclesia Embassy",
+    url: "https://www.youtube.com/@TheEcclesiaEmbassy/videos",
+  },
+  {
+    label: "Victor Oluwadamilare",
+    url: "https://www.youtube.com/@VictorOluwadamilarelive/videos",
+  },
+];
 
 interface ChannelVideo {
   id: string;
@@ -168,15 +177,20 @@ export default function VideoMessagesPage() {
             <p className="mx-auto max-w-2xl font-body text-lg text-gray-200 md:text-xl">
               Watch channel uploads and curated manual video entries from The Ecclesia Embassy, including edited reuploads prepared from live services.
             </p>
-            <a
-              href={CHANNEL_VIDEOS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-white/16"
-            >
-              View Channel on YouTube
-              <ExternalLink className="h-4 w-4" />
-            </a>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              {CHANNELS.map((channel) => (
+                <a
+                  key={channel.url}
+                  href={channel.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-white/16"
+                >
+                  {channel.label}
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </FadeIn>
         </div>
       </section>

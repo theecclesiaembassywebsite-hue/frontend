@@ -841,11 +841,30 @@ export const blog = {
   createBlogPost: (data: {
     title: string;
     content: string;
+    excerpt?: string;
+    category?: string;
     imageUrl?: string;
   }) =>
     fetchAPI<any>("/blog", {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+
+  updateBlogPost: (id: string, data: {
+    title?: string;
+    content?: string;
+    excerpt?: string;
+    category?: string;
+    imageUrl?: string;
+  }) =>
+    fetchAPI<any>(`/blog/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deleteBlogPost: (id: string) =>
+    fetchAPI<{ success: boolean }>(`/blog/${id}`, {
+      method: "DELETE",
     }),
 
   publishPost: (id: string) =>

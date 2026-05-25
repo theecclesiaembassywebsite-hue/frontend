@@ -1,8 +1,18 @@
 import { consumeQuota, isQuotaSafe } from "@/lib/youtube-quota";
 
-const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
-const CHANNEL_VIDEOS_URL =
-  "https://www.youtube.com/@TheEcclesiaEmbassy/videos?ucbcb=1&has_verified=1&bpctr=9999999999";
+const CHANNELS = [
+  {
+    id: "UCrvZyTocoH926b_wv81bpzA",
+    videosUrl:
+      "https://www.youtube.com/@TheEcclesiaEmbassy/videos?ucbcb=1&has_verified=1&bpctr=9999999999",
+  },
+  {
+    id: "UCO9vOTvZ6gX3fKZoQF_CHRg",
+    videosUrl:
+      "https://www.youtube.com/@VictorOluwadamilarelive/videos?ucbcb=1&has_verified=1&bpctr=9999999999",
+  },
+];
+
 const CACHE_TTL_MS = 15 * 60_000;
 const VIDEOS_COST = 1;
 
@@ -46,10 +56,7 @@ function decodeEntities(value: string) {
     .replace(/&quot;/g, '"');
 }
 
-function resolveThumbnail(
-  id: string,
-  thumbnails?: PlaylistThumbnails
-) {
+function resolveThumbnail(id: string, thumbnails?: PlaylistThumbnails) {
   return (
     thumbnails?.maxres?.url ??
     thumbnails?.standard?.url ??
@@ -94,8 +101,8 @@ function extractVideosTabIds(html: string) {
   return Array.from(ids);
 }
 
-async function fetchVideosTabIds() {
-  const response = await fetch(CHANNEL_VIDEOS_URL, {
+async function fetchVideosTabIds(channelUrl: string) {
+  const response = await fetch(channelUrl, {
     headers: {
       "accept-language": "en-US,en;q=0.9",
       cookie: "CONSENT=YES+cb",
@@ -119,8 +126,8 @@ async function fetchVideosTabIds() {
   return ids;
 }
 
-async function fetchVideosTabViaApi(apiKey: string) {
-  const ids = await fetchVideosTabIds();
+async function fetchVideosTabViaApi(channelUrl: string, apiKey: string) {
+  const ids = await fetchVideosTabIds(channelUrl);
   const response = await fetch(
     `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${ids.join(",")}&key=${apiKey}`,
     { signal: AbortSignal.timeout(10_000) }
@@ -169,8 +176,11 @@ function parseFeed(xml: string) {
   while ((match = entryRe.exec(xml)) !== null) {
     const entry = match[1];
     const id = /<yt:videoId>([^<]+)<\/yt:videoId>/.exec(entry)?.[1] ?? "";
-    const title = decodeEntities(/<title>([^<]*)<\/title>/.exec(entry)?.[1] ?? "");
-    const publishedAt = /<published>([^<]+)<\/published>/.exec(entry)?.[1] ?? "";
+    const title = decodeEntities(
+      /<title>([^<]*)<\/title>/.exec(entry)?.[1] ?? ""
+    );
+    const publishedAt =
+      /<published>([^<]+)<\/published>/.exec(entry)?.[1] ?? "";
 
     if (!id || !title) {
       continue;
@@ -182,9 +192,9 @@ function parseFeed(xml: string) {
   return videos;
 }
 
-async function fetchUploadsViaRss() {
+async function fetchUploadsViaRss(channelId: string) {
   const response = await fetch(
-    `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
+    `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
     { signal: AbortSignal.timeout(10_000) }
   );
 
@@ -196,6 +206,25 @@ async function fetchUploadsViaRss() {
   return parseFeed(xml).slice(0, 12);
 }
 
+async function fetchSingleChannel(
+  channel: { id: string; videosUrl: string },
+  apiKey: string | undefined
+): Promise<ChannelVideo[]> {
+  if (apiKey && isQuotaSafe(VIDEOS_COST)) {
+    try {
+      return await fetchVideosTabViaApi(channel.videosUrl, apiKey);
+    } catch {
+      // fall through to RSS
+    }
+  }
+
+  try {
+    return await fetchUploadsViaRss(channel.id);
+  } catch {
+    return [];
+  }
+}
+
 async function fetchChannelVideos() {
   const now = Date.now();
 
@@ -204,23 +233,32 @@ async function fetchChannelVideos() {
   }
 
   const apiKey = process.env.YOUTUBE_API_KEY;
-  let videos: ChannelVideo[];
 
-  if (apiKey && isQuotaSafe(VIDEOS_COST)) {
-    try {
-      videos = await fetchVideosTabViaApi(apiKey);
-    } catch {
-      videos = [];
+  const results = await Promise.allSettled(
+    CHANNELS.map((channel) => fetchSingleChannel(channel, apiKey))
+  );
+
+  const seen = new Set<string>();
+  const allVideos: ChannelVideo[] = [];
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      for (const video of result.value) {
+        if (!seen.has(video.id)) {
+          seen.add(video.id);
+          allVideos.push(video);
+        }
+      }
     }
-  } else {
-    videos = await fetchUploadsViaRss();
   }
 
-  cached = {
-    videos,
-    expiresAt: now + CACHE_TTL_MS,
-  };
+  const videos = allVideos.sort(
+    (a, b) =>
+      new Date(b.publishedAt || 0).getTime() -
+      new Date(a.publishedAt || 0).getTime()
+  );
 
+  cached = { videos, expiresAt: now + CACHE_TTL_MS };
   return videos;
 }
 

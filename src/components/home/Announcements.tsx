@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { announcements as announcementsAPI } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { FadeIn, StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/Motion";
+import { ArrowRight } from "lucide-react";
 
 interface Announcement {
   id: string;
@@ -115,6 +117,18 @@ export default function Announcements() {
             <p className="font-body text-gray-text">
               No announcements at this time. Check back soon for updates!
             </p>
+          </div>
+        )}
+
+        {!loading && announcements.length > 0 && (
+          <div className="mt-10 text-center">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-purple-vivid hover:text-purple transition-colors"
+            >
+              Read the Blog
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         )}
       </div>

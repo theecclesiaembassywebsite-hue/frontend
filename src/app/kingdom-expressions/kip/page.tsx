@@ -1,27 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Check } from "lucide-react";
 import { squads } from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/Toast";
 
 export default function KIPPage() {
   const [registered, setRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const { success, error } = useToast();
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/auth/login");
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -139,20 +129,7 @@ export default function KIPPage() {
       <SectionWrapper variant="dark-purple">
         <div className="mx-auto max-w-md text-center">
           <h2 className="font-heading text-[28px] font-bold text-white mb-6">Join the Platform</h2>
-          {authLoading ? (
-            <div className="text-center py-8">
-              <p className="font-body text-sm text-white/70">Loading...</p>
-            </div>
-          ) : !isAuthenticated ? (
-            <div className="rounded-[8px] bg-white/10 p-6">
-              <p className="font-body text-sm text-white/70 mb-4">
-                You must be logged in to join the Kingdom Influencing Platform.
-              </p>
-              <a href="/auth/login" className="text-purple-light font-heading font-semibold hover:underline">
-                Log in to continue
-              </a>
-            </div>
-          ) : registered ? (
+          {registered ? (
             <div className="rounded-[8px] bg-white/10 p-8">
               <Check className="mx-auto h-10 w-10 text-success mb-3" />
               <h3 className="font-heading text-lg font-bold text-white">Welcome Aboard!</h3>
