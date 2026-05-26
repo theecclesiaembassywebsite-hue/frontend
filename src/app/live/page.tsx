@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
-import { Radio, Share2 } from "lucide-react";
+import { ExternalLink, Radio, Share2, X } from "lucide-react";
 import { livestream, serviceSchedule } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -176,6 +176,79 @@ function getCountdownParts(target: Date | null, now: Date) {
   return { days, hours, minutes, seconds };
 }
 
+function StreamPlayer({
+  video,
+  onClose,
+}: {
+  video: YouTubeVideo;
+  onClose: () => void;
+}) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const embedUrl = buildYouTubeEmbedUrl(video.id);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+    >
+      <div className="relative w-full max-w-4xl overflow-hidden rounded-[20px] bg-[#0E0B1E] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+        <div className="flex items-start justify-between gap-4 px-5 py-4">
+          <div className="min-w-0">
+            <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
+              Previous Stream
+            </p>
+            <h2 className="mt-1 line-clamp-2 font-heading text-base font-bold text-white">
+              {video.title}
+            </h2>
+          </div>
+          <div className="flex shrink-0 items-center gap-3 pt-0.5">
+            <a
+              href={`https://www.youtube.com/watch?v=${video.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18"
+            >
+              YouTube <ExternalLink className="h-3 w-3" />
+            </a>
+            <button
+              onClick={onClose}
+              aria-label="Close player"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="aspect-video w-full bg-black">
+          <iframe
+            src={embedUrl}
+            title={video.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        </div>
+
+        <p className="px-5 py-3 font-body text-xs text-white/40">
+          {video.publishedAt ? format(new Date(video.publishedAt), "MMMM d, yyyy") : ""}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function LiveHeroSkeleton() {
   return (
     <section className="bg-slate pt-16 pb-0">
@@ -197,6 +270,7 @@ export default function LivePage() {
   const [youtubeIsLive, setYoutubeIsLive] = useState(false);
   const [youtubeEmbedUrl, setYoutubeEmbedUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [activeStream, setActiveStream] = useState<YouTubeVideo | null>(null);
 
   useEffect(() => {
     document.title = "Live | The Ecclesia Embassy";
@@ -308,6 +382,10 @@ export default function LivePage() {
 
   return (
     <div className="w-full">
+      {activeStream ? (
+        <StreamPlayer video={activeStream} onClose={() => setActiveStream(null)} />
+      ) : null}
+
       {/* Stream hero */}
       {isLoadingHero ? (
         <LiveHeroSkeleton />
@@ -520,11 +598,9 @@ export default function LivePage() {
                   key={video.id}
                   className="soft-card overflow-hidden rounded-[24px] transition-transform duration-200 hover:-translate-y-1"
                 >
-                  <a
-                    href={`https://www.youtube.com/watch?v=${video.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group block"
+                  <button
+                    onClick={() => setActiveStream(video)}
+                    className="group block w-full text-left"
                   >
                     <div className="relative aspect-video w-full overflow-hidden bg-lavender">
                       <Image
@@ -556,7 +632,7 @@ export default function LivePage() {
                           : "Date unavailable"}
                       </p>
                     </div>
-                  </a>
+                  </button>
                 </article>
               ))}
             </div>

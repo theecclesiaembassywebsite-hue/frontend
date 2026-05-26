@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { ExternalLink, PlayCircle, Search } from "lucide-react";
+import { ExternalLink, PlayCircle, Search, X } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import { media } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
+import { normalizeEmbedUrl } from "@/lib/utils";
 
 const CHANNELS = [
   {
@@ -108,11 +109,93 @@ function formatVideoDate(date: string) {
     : format(parsed, "MMMM d, yyyy");
 }
 
+function VideoPlayer({
+  video,
+  onClose,
+}: {
+  video: PublicVideo;
+  onClose: () => void;
+}) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const embedUrl = normalizeEmbedUrl(video.watchUrl);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+    >
+      <div className="relative w-full max-w-4xl rounded-[20px] overflow-hidden bg-[#0E0B1E] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+        <div className="flex items-start justify-between gap-4 px-5 py-4">
+          <div className="min-w-0">
+            <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-vivid">
+              {video.sourceLabel}
+            </p>
+            <h2 className="mt-1 line-clamp-2 font-heading text-base font-bold text-white">
+              {video.title}
+            </h2>
+          </div>
+          <div className="flex shrink-0 items-center gap-3 pt-0.5">
+            <a
+              href={video.watchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 font-heading text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18"
+            >
+              YouTube <ExternalLink className="h-3 w-3" />
+            </a>
+            <button
+              onClick={onClose}
+              aria-label="Close player"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="aspect-video w-full bg-black">
+          {embedUrl ? (
+            <iframe
+              src={`${embedUrl}&autoplay=1`}
+              title={video.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="h-full w-full"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center font-body text-sm text-white/50">
+              Unable to load video
+            </div>
+          )}
+        </div>
+
+        {video.description ? (
+          <p className="px-5 py-4 font-body text-sm leading-6 text-white/60">
+            {video.description}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function VideoMessagesPage() {
   const [videoMessages, setVideoMessages] = useState<PublicVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeVideo, setActiveVideo] = useState<PublicVideo | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -159,6 +242,10 @@ export default function VideoMessagesPage() {
 
   return (
     <div>
+      {activeVideo ? (
+        <VideoPlayer video={activeVideo} onClose={() => setActiveVideo(null)} />
+      ) : null}
+
       <section
         className="relative flex h-96 items-center justify-center overflow-hidden text-center text-white"
         style={{
@@ -238,14 +325,10 @@ export default function VideoMessagesPage() {
           <StaggerContainer className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {filteredVideos.map((video) => (
               <StaggerItem key={video.id}>
-                <article
-                  className="overflow-hidden rounded-[24px] border border-[rgba(14,11,30,0.08)] bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1"
-                >
-                  <a
-                    href={video.watchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group block"
+                <article className="overflow-hidden rounded-[24px] border border-[rgba(14,11,30,0.08)] bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1">
+                  <button
+                    onClick={() => setActiveVideo(video)}
+                    className="group block w-full text-left"
                   >
                     <div className="relative aspect-video overflow-hidden bg-lavender">
                       <Image
@@ -281,7 +364,7 @@ export default function VideoMessagesPage() {
                         </p>
                       ) : null}
                     </div>
-                  </a>
+                  </button>
                 </article>
               </StaggerItem>
             ))}

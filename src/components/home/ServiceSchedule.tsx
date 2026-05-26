@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Clock } from "lucide-react";
 import clsx from "clsx";
 import SectionWrapper from "@/components/ui/SectionWrapper";
@@ -158,9 +158,8 @@ function ServiceTabButton({
 
 export default function ServiceSchedule() {
   const [services, setServices] = useState<ServiceEntry[]>(DEFAULT_SERVICES);
-  const [selectedServiceKey, setSelectedServiceKey] = useState(
-    getServiceKey(DEFAULT_SERVICES[0])
-  );
+  const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     serviceSchedule
@@ -175,17 +174,29 @@ export default function ServiceSchedule() {
       });
   }, []);
 
-  const activeServiceKey = services.some(
-    (service) => getServiceKey(service) === selectedServiceKey
-  )
-    ? selectedServiceKey
-    : getServiceKey(services[0]);
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (sectionRef.current && !sectionRef.current.contains(e.target as Node)) {
+        setSelectedServiceKey(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
-  const selectedService =
-    services.find((service) => getServiceKey(service) === activeServiceKey) || services[0];
+  const activeServiceKey =
+    selectedServiceKey !== null &&
+    services.some((service) => getServiceKey(service) === selectedServiceKey)
+      ? selectedServiceKey
+      : null;
+
+  const selectedService = activeServiceKey
+    ? services.find((service) => getServiceKey(service) === activeServiceKey)
+    : null;
 
   return (
     <SectionWrapper variant="dark-slate">
+      <div ref={sectionRef}>
       <FadeIn>
         <SectionHeading
           eyebrow="When We Gather"
@@ -206,49 +217,56 @@ export default function ServiceSchedule() {
                 <ServiceTabButton
                   service={service}
                   isActive={serviceKey === activeServiceKey}
-                  onClick={() => setSelectedServiceKey(serviceKey)}
+                  onClick={() =>
+                    setSelectedServiceKey(
+                      serviceKey === activeServiceKey ? null : serviceKey
+                    )
+                  }
                 />
               </StaggerItem>
             );
           })}
         </div>
 
-        <FadeIn key={activeServiceKey} direction="up" duration={0.45}>
-          <article className="overflow-hidden rounded-[30px] border border-white/[0.12] bg-white/[0.07] shadow-[0_24px_60px_rgba(0,0,0,0.2)] backdrop-blur-sm">
-            <div className="flex flex-col md:flex-row">
-              <div className="flex min-w-[120px] items-center justify-center border-b border-white/[0.1] px-6 py-6 md:border-b-0 md:border-r">
-                <div className="text-center">
-                  <p className="font-heading text-xl font-bold text-white">
-                    {selectedService.day}
+        {selectedService ? (
+          <FadeIn key={activeServiceKey} direction="up" duration={0.45}>
+            <article className="overflow-hidden rounded-[30px] border border-white/[0.12] bg-white/[0.07] shadow-[0_24px_60px_rgba(0,0,0,0.2)] backdrop-blur-sm">
+              <div className="flex flex-col md:flex-row">
+                <div className="flex min-w-[120px] items-center justify-center border-b border-white/[0.1] px-6 py-6 md:border-b-0 md:border-r">
+                  <div className="text-center">
+                    <p className="font-heading text-xl font-bold text-white">
+                      {selectedService.day}
+                    </p>
+                    <DayLabel
+                      label={selectedService.dayLabel}
+                      className="mt-1 font-body text-[11px] uppercase tracking-[0.18em] text-gold/84"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 px-6 py-6 md:px-7">
+                  <h3 className="font-heading text-xl font-bold text-gold md:text-2xl">
+                    {selectedService.name}
+                  </h3>
+                  <p className="mt-3 max-w-2xl font-body text-sm leading-7 text-white/78 md:text-base">
+                    {selectedService.description}
                   </p>
-                  <DayLabel
-                    label={selectedService.dayLabel}
-                    className="mt-1 font-body text-[11px] uppercase tracking-[0.18em] text-gold/84"
-                  />
+                </div>
+
+                <div className="flex items-center border-t border-white/[0.1] px-6 py-5 md:border-t-0 md:border-l">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gold" />
+                    <span className="font-heading text-sm font-bold uppercase tracking-[0.08em] text-white">
+                      {selectedService.time}
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              <div className="flex-1 px-6 py-6 md:px-7">
-                <h3 className="font-heading text-xl font-bold text-gold md:text-2xl">
-                  {selectedService.name}
-                </h3>
-                <p className="mt-3 max-w-2xl font-body text-sm leading-7 text-white/78 md:text-base">
-                  {selectedService.description}
-                </p>
-              </div>
-
-              <div className="flex items-center border-t border-white/[0.1] px-6 py-5 md:border-t-0 md:border-l">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gold" />
-                  <span className="font-heading text-sm font-bold uppercase tracking-[0.08em] text-white">
-                    {selectedService.time}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </article>
-        </FadeIn>
+            </article>
+          </FadeIn>
+        ) : null}
       </StaggerContainer>
+      </div>
     </SectionWrapper>
   );
 }
