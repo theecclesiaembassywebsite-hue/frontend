@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
-import { ExternalLink, Radio, Share2, X } from "lucide-react";
+import { ExternalLink, Heart, Radio, Share2, X } from "lucide-react";
 import { livestream, serviceSchedule } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -455,7 +455,7 @@ export default function LivePage() {
       <section className="bg-slate py-6 border-t border-white/8">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
-            {/* Left: Subscribe + Share */}
+            {/* Left: Subscribe + Share + Prayer */}
             <div className="flex flex-wrap items-center gap-3">
               <a
                 href={CHANNEL_URL}
@@ -466,6 +466,13 @@ export default function LivePage() {
                 <Radio className="h-4 w-4" />
                 Subscribe on YouTube
               </a>
+              <Link
+                href="/prayer"
+                className="inline-flex items-center gap-2 rounded-full border border-gold/35 bg-white/8 px-5 py-2.5 font-heading text-[12px] font-bold uppercase tracking-[0.16em] text-gold backdrop-blur-sm transition-all duration-200 hover:bg-white/14 hover:border-gold/55"
+              >
+                <Heart className="h-4 w-4" />
+                Submit a Prayer Burden
+              </Link>
               <button
                 onClick={handleShare}
                 className="inline-flex items-center gap-2 rounded-full border border-white/18 bg-white/8 px-5 py-2.5 font-heading text-[12px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/14"

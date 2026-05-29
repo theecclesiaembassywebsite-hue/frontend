@@ -205,43 +205,112 @@ export const DEFAULT_LIBRARY_RESOURCES = [
   },
 ];
 
+const ART = {
+  jesusIsKing: "https://images.unsplash.com/photo-1504704911898-68304a7d2807?w=400&q=80",
+  psalmos: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80",
+  proclaimHim: "https://images.unsplash.com/photo-1477233534935-f5e6fe7c1159?w=400&q=80",
+  eternalSpirit: "https://images.unsplash.com/photo-1491466424936-e304919aada7?w=400&q=80",
+  thisSameJesus: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&q=80",
+  greatnessOfGod: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=400&q=80",
+  spirit: "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=400&q=80",
+  zamar: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80",
+  singles: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&q=80",
+};
+
+const SP = {
+  jesusIsKing: "https://open.spotify.com/album/1ZLtFziPv7gGmVLvYKFH3O",
+  psalmos: "https://open.spotify.com/album/1Soo1P1jbdC2kqEPaFbizk",
+  awamaridi: "https://open.spotify.com/album/6hi28SJ4uqeo3zIV3rK1Dg",
+  proclaimHim: "https://open.spotify.com/album/0iOq7qbgH4nhsK01epv3Ic",
+  liftTheName: "https://open.spotify.com/album/4LBespD6I4x5V5mhslfDLe",
+  godOfSigns: "https://open.spotify.com/album/69ILTyrb5uMaWpVSTDMN5F",
+  eternalSpirit: "https://open.spotify.com/album/4pBLiGjuZUi6u6FyGisc7t",
+  thisSameJesus: "https://open.spotify.com/album/1I0nmZ6b7F90XArMHerE2o",
+  greatnessOfGod: "https://open.spotify.com/album/7nrbiJPKgHjVbKGMKvUa0w",
+  spirit: "https://open.spotify.com/album/3a2ufLJWcHeviLNZwJeVwh",
+  zamar: "https://open.spotify.com/album/3yfUntEuN9h5IVGzXjOeTd",
+  artist: "https://open.spotify.com/artist/1PP9KSpeqiUq7eGyVe8F1p",
+};
+
 export const DEFAULT_MUSIC_TRACKS = [
-  {
-    id: "music-he-is-worthy",
-    title: "He Is Worthy",
-    album: "Worship Sessions",
-    artworkUrl:
-      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-    musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-    duration: "05:12",
-    price: 0,
-    createdAt: "2026-01-10T09:00:00.000Z",
-  },
-  {
-    id: "music-on-the-altar",
-    title: "On the Altar",
-    album: "Worship Sessions",
-    artworkUrl:
-      "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-    musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-    duration: "04:36",
-    price: 0,
-    createdAt: "2026-01-24T09:00:00.000Z",
-  },
-  {
-    id: "music-kingdom-anthem",
-    title: "Kingdom Anthem",
-    album: "Worship Sessions",
-    artworkUrl:
-      "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-    musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-    duration: "06:01",
-    price: 0,
-    createdAt: "2026-02-07T09:00:00.000Z",
-  },
+  // ── Jesus is King (2025) ────────────────────────────────────────────────
+  { id: "music-shout-of-the-king", title: "Shout of the King", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "06:28", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-his-name-is-jesus", title: "His Name is Jesus", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "06:45", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-hail-to-the-high-priest", title: "Hail to The High Priest", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "07:02", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-jesus-is-my-king", title: "Jesus is My King", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "06:15", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-i-belong", title: "I Belong", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "05:48", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-blow-my-mind", title: "Blow My Mind", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "06:37", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-our-rock", title: "Our Rock", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "07:12", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  { id: "music-a-new-song", title: "A New Song", album: "Jesus is King", artworkUrl: ART.jesusIsKing, audioUrl: SP.jesusIsKing, duration: "07:00", price: 0, createdAt: "2025-01-15T09:00:00.000Z" },
+  // ── Awamaridi single (2024) ─────────────────────────────────────────────
+  { id: "music-awamaridi", title: "Awamaridi (The Infinitely Unsearchable God)", album: "Awamaridi", artworkUrl: ART.psalmos, audioUrl: SP.awamaridi, duration: "05:59", price: 0, createdAt: "2024-09-01T09:00:00.000Z" },
+  // ── PSALMOS: The Witness (2024) ─────────────────────────────────────────
+  { id: "music-holy-is-the-lord", title: "Holy is the Lord", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "05:45", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-song-of-a-child", title: "The Song of a Child to a Father", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "06:12", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-i-will-love-you", title: "I will Love You", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "04:58", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-if-they-had-known", title: "If They Had Known", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "05:23", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-agbanilagbatan", title: "Agbanilagbatan", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "04:47", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-nobody-do-pass-you", title: "Nobody Do Pass You", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "05:08", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-bulie-jesus", title: "Bulie Jesus", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "05:31", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  { id: "music-hosanna-eh", title: "Hosanna eh", album: "PSALMOS (The Witness)", artworkUrl: ART.psalmos, audioUrl: SP.psalmos, duration: "04:51", price: 0, createdAt: "2024-10-01T09:00:00.000Z" },
+  // ── Proclaim Him (2023) ─────────────────────────────────────────────────
+  { id: "music-joy-in-the-holy-ghost", title: "Joy in the Holy Ghost", album: "Proclaim Him", artworkUrl: ART.proclaimHim, audioUrl: SP.proclaimHim, duration: "06:23", price: 0, createdAt: "2023-06-01T09:00:00.000Z" },
+  { id: "music-hosanna-to-the-king", title: "Hosanna to the King of kings", album: "Proclaim Him", artworkUrl: ART.proclaimHim, audioUrl: SP.proclaimHim, duration: "05:48", price: 0, createdAt: "2023-06-01T09:00:00.000Z" },
+  { id: "music-kings-will-rise", title: "Kings will Rise, Kings will Fall", album: "Proclaim Him", artworkUrl: ART.proclaimHim, audioUrl: SP.proclaimHim, videoUrl: "https://www.youtube.com/watch?v=ViPVorfvpDk", duration: "06:15", price: 0, createdAt: "2023-06-01T09:00:00.000Z" },
+  { id: "music-holy-holy-holy", title: "Holy Holy Holy", album: "Proclaim Him", artworkUrl: ART.proclaimHim, audioUrl: SP.proclaimHim, duration: "05:02", price: 0, createdAt: "2023-06-01T09:00:00.000Z" },
+  { id: "music-morale-eh", title: "Morale eh", album: "Proclaim Him", artworkUrl: ART.proclaimHim, audioUrl: SP.proclaimHim, duration: "07:12", price: 0, createdAt: "2023-06-01T09:00:00.000Z" },
+  // ── Singles (2022) ──────────────────────────────────────────────────────
+  { id: "music-lift-the-name-of-jesus", title: "Lift the Name of Jesus", album: "Single", artworkUrl: ART.singles, audioUrl: SP.liftTheName, duration: "05:48", price: 0, createdAt: "2022-09-01T09:00:00.000Z" },
+  { id: "music-god-of-signs", title: "God of Signs", album: "Single", artworkUrl: ART.singles, audioUrl: SP.godOfSigns, duration: "05:22", price: 0, createdAt: "2022-06-01T09:00:00.000Z" },
+  // ── Eternal Spirit (2023) ───────────────────────────────────────────────
+  { id: "music-eternal-spirit", title: "Eternal Spirit", album: "Eternal Spirit", artworkUrl: ART.eternalSpirit, audioUrl: SP.eternalSpirit, duration: "08:14", price: 0, createdAt: "2023-02-01T09:00:00.000Z" },
+  { id: "music-i-offer-my-life", title: "I Offer My Life", album: "Eternal Spirit", artworkUrl: ART.eternalSpirit, audioUrl: SP.eternalSpirit, duration: "06:45", price: 0, createdAt: "2023-02-01T09:00:00.000Z" },
+  { id: "music-ruach-hakodesh", title: "Ruach HaKodesh", album: "Eternal Spirit", artworkUrl: ART.eternalSpirit, audioUrl: SP.eternalSpirit, duration: "07:28", price: 0, createdAt: "2023-02-01T09:00:00.000Z" },
+  { id: "music-spirit-chant", title: "Spirit Chant", album: "Eternal Spirit", artworkUrl: ART.eternalSpirit, audioUrl: SP.eternalSpirit, duration: "06:52", price: 0, createdAt: "2023-02-01T09:00:00.000Z" },
+  { id: "music-ill-be-there", title: "I'll Be There", album: "Eternal Spirit", artworkUrl: ART.eternalSpirit, audioUrl: SP.eternalSpirit, duration: "05:56", price: 0, createdAt: "2023-02-01T09:00:00.000Z" },
+  // ── This Same Jesus (2021) ──────────────────────────────────────────────
+  { id: "music-hes-christ", title: "He's Christ", album: "This Same Jesus", artworkUrl: ART.thisSameJesus, audioUrl: SP.thisSameJesus, duration: "06:02", price: 0, createdAt: "2021-11-01T09:00:00.000Z" },
+  { id: "music-wind-beneath", title: "You are the Wind Beneath", album: "This Same Jesus", artworkUrl: ART.thisSameJesus, audioUrl: SP.thisSameJesus, duration: "05:48", price: 0, createdAt: "2021-11-01T09:00:00.000Z" },
+  { id: "music-jesus-we-love-you", title: "Jesus, We love You", album: "This Same Jesus", artworkUrl: ART.thisSameJesus, audioUrl: SP.thisSameJesus, duration: "06:15", price: 0, createdAt: "2021-11-01T09:00:00.000Z" },
+  { id: "music-oh-lamb-of-god", title: "Oh Lamb of God", album: "This Same Jesus", artworkUrl: ART.thisSameJesus, audioUrl: SP.thisSameJesus, duration: "05:32", price: 0, createdAt: "2021-11-01T09:00:00.000Z" },
+  { id: "music-jesus-na-you-biko", title: "Jesus na You biko", album: "This Same Jesus", artworkUrl: ART.thisSameJesus, audioUrl: SP.thisSameJesus, duration: "06:47", price: 0, createdAt: "2021-11-01T09:00:00.000Z" },
+  { id: "music-they-are-one", title: "They are One (Trinity song)", album: "This Same Jesus", artworkUrl: ART.thisSameJesus, audioUrl: SP.thisSameJesus, duration: "05:36", price: 0, createdAt: "2021-11-01T09:00:00.000Z" },
+  // ── The Greatness of Our God (2021) ─────────────────────────────────────
+  { id: "music-who-is-like-the-lord", title: "Who is like the Lord", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "05:22", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-who-is-like-the-lord-reprise", title: "Who is like the Lord (Reprise)", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "03:18", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-yaweh-malak", title: "Yaweh Malak", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "05:47", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-victorious-god", title: "Victorious God", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "05:14", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-great-god", title: "Great God", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "05:02", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-big-big-god", title: "Big Big God", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "04:58", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-you-are-the-lord", title: "You are The Lord", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, duration: "05:35", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  { id: "music-to-the-lamb", title: "To the Lamb Who sits on the Throne", album: "The Greatness of Our God", artworkUrl: ART.greatnessOfGod, audioUrl: SP.greatnessOfGod, videoUrl: "https://www.youtube.com/watch?v=jptbV5aHDwA", duration: "05:26", price: 0, createdAt: "2021-08-01T09:00:00.000Z" },
+  // ── Spirit (2021) ────────────────────────────────────────────────────────
+  { id: "music-holy-ghost-lead-me", title: "Holy Ghost Lead Me Into Christ", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "09:12", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-just-like-2-lovers", title: "Just Like 2 Lovers", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "07:48", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-spirit-you-are", title: "Spirit You Are", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "08:04", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-holy-holy-holy-ghost", title: "Holy Holy Holy Ghost", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "07:52", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-i-worship-the-father", title: "I Worship The Father", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "08:45", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-i-raise-incense", title: "I Raise Incense", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "09:02", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-holy-ghost-chant", title: "Holy Ghost Chant", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "06:58", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-river-flow", title: "River Flow", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "08:48", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  { id: "music-spirit-burn", title: "Spirit Burn", album: "Spirit", artworkUrl: ART.spirit, audioUrl: SP.spirit, duration: "10:31", price: 0, createdAt: "2021-05-01T09:00:00.000Z" },
+  // ── ZAMAR: Sounds of Worship (2022) ─────────────────────────────────────
+  { id: "music-piano-medley", title: "Piano Medley", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "04:45", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  { id: "music-give-thanks", title: "Give Thanks", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "05:12", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  { id: "music-hes-able", title: "He's Able", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "04:58", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  { id: "music-this-is-the-day", title: "This is the Day / Praising the Lord", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "05:34", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  { id: "music-jesus-at-the-center", title: "Jesus at the Center / All About You", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "05:47", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  { id: "music-i-will-call-upon-the-lord", title: "I will Call upon the Lord / Hallelujah", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "05:02", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  { id: "music-what-can-i-offer", title: "What can I Offer / Elohim Adonai", album: "ZAMAR: Sounds of Worship", artworkUrl: ART.zamar, audioUrl: SP.zamar, duration: "04:44", price: 0, createdAt: "2022-01-01T09:00:00.000Z" },
+  // ── Additional tracks ────────────────────────────────────────────────────
+  { id: "music-out-of-fullness", title: "Out of Fullness", album: "The Ecclesia Levites", artworkUrl: ART.spirit, audioUrl: SP.artist, videoUrl: "https://www.youtube.com/watch?v=yuZC2zjgzV8", duration: "06:14", price: 0, createdAt: "2021-03-01T09:00:00.000Z" },
+  { id: "music-we-have-fellowship", title: "We Have Fellowship", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "06:12", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
+  { id: "music-kadosh", title: "Kadosh / The Reigning King", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "07:08", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
+  { id: "music-unto-the-master", title: "Unto The Master I Come", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "05:45", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
+  { id: "music-most-high", title: "Most High", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "06:02", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
+  { id: "music-your-greatness", title: "Your Greatness", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "05:38", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
+  { id: "music-i-rejoice", title: "I Rejoice", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "04:52", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
+  { id: "music-god-of-light-and-glory", title: "God of Light and Glory", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "05:56", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
 ];
 
 export const DEFAULT_EVENTS = [
