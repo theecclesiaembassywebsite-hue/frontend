@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
 const CHANNEL_URL = `https://www.youtube.com/channel/${CHANNEL_ID}`;
+const CHANNEL_LIVE_URL = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1&rel=0`;
 
 interface LivestreamConfig {
   isLive?: boolean;
@@ -363,7 +364,7 @@ export default function LivePage() {
   // Use the channel-level live_stream URL — YouTube always serves the correct
   // active broadcast so we never accidentally lock onto a stale video ID.
   const iframeSrc = autoDetectedLive
-    ? youtubeEmbedUrl
+    ? CHANNEL_LIVE_URL
     : hasManualOverride
       ? manualEmbedUrl
       : "";
