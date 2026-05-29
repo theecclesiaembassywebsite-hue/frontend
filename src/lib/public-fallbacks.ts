@@ -86,7 +86,7 @@ export const DEFAULT_AUDIO_SERMONS = [
   {
     id: "audio-word-cultured",
     title: "Raising Word-Cultured Ambassadors",
-    speaker: "Brother Victor Oluwadamilare",
+    speaker: "Victor Oluwadamilare",
     audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     description:
       "A call to become believers who are shaped by the Word in thought, posture, and practice.",
@@ -99,7 +99,7 @@ export const DEFAULT_AUDIO_SERMONS = [
   {
     id: "audio-priesthood",
     title: "The Believer's Priestly Ministry",
-    speaker: "Brother Victor Oluwadamilare",
+    speaker: "Victor Oluwadamilare",
     audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     description:
       "Understanding consecration, intercession, and the priestly call of the believer.",
@@ -112,7 +112,7 @@ export const DEFAULT_AUDIO_SERMONS = [
   {
     id: "audio-kingdom-service",
     title: "Service as a Lifestyle",
-    speaker: "Brother Victor Oluwadamilare",
+    speaker: "Victor Oluwadamilare",
     audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
     description:
       "Seeing service as worship and embracing responsibility in the house of God.",
@@ -129,7 +129,7 @@ export const DEFAULT_VIDEO_MESSAGES = [
     id: "video-intentionality",
     title: "The Place of Intentionality",
     youtubeUrl: "https://www.youtube.com/watch?v=K5S6n9czMYU",
-    speaker: "Brother Victor Oluwadamilare",
+    speaker: "Victor Oluwadamilare",
     description:
       "A charge to live with spiritual focus and kingdom purpose.",
     series: "Intentionality",
@@ -140,7 +140,7 @@ export const DEFAULT_VIDEO_MESSAGES = [
     id: "video-kingdom-patterns",
     title: "Kingdom Patterns for Daily Living",
     youtubeUrl: "https://www.youtube.com/watch?v=K5S6n9czMYU",
-    speaker: "Brother Victor Oluwadamilare",
+    speaker: "Victor Oluwadamilare",
     description:
       "Building a life governed by kingdom values and godly discipline.",
     series: "Kingdom Patterns",
@@ -151,7 +151,7 @@ export const DEFAULT_VIDEO_MESSAGES = [
     id: "video-prayer-altar",
     title: "Keeping the Prayer Altar Burning",
     youtubeUrl: "https://www.youtube.com/watch?v=K5S6n9czMYU",
-    speaker: "Brother Victor Oluwadamilare",
+    speaker: "Victor Oluwadamilare",
     description:
       "A teaching on prayer, consecration, and sustaining spiritual fire.",
     series: "Prayer & Consecration",
@@ -259,7 +259,7 @@ export const DEFAULT_EVENTS = [
     registered: 214,
     isFree: true,
     speakers: [
-      { name: "Brother Victor Oluwadamilare", title: "Lead Brother" },
+      { name: "Victor Oluwadamilare", title: "Lead Brother" },
     ],
     createdAt: "2026-01-05T09:00:00.000Z",
     updatedAt: "2026-01-05T09:00:00.000Z",
@@ -280,7 +280,7 @@ export const DEFAULT_EVENTS = [
     fee: 15000,
     currency: "NGN ",
     speakers: [
-      { name: "Brother Victor Oluwadamilare", title: "Lead Brother" },
+      { name: "Victor Oluwadamilare", title: "Lead Brother" },
     ],
     createdAt: "2026-01-10T09:00:00.000Z",
     updatedAt: "2026-01-10T09:00:00.000Z",

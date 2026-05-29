@@ -66,7 +66,7 @@ export default function AboutPage() {
                 but live from it daily as authentic representatives of Christ.
               </p>
               <p>
-                Under the leadership of <span className="font-semibold text-slate">Brother Victor Oluwadamilare</span>,
+                Under the leadership of <span className="font-semibold text-slate">Victor Oluwadamilare</span>,
                 we cultivate an atmosphere where the Holy Spirit is honoured, mature discipleship is
                 normal, and Kingdom service is intentional.
               </p>
