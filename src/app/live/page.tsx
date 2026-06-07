@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
-import { ExternalLink, Heart, Radio, Share2, X } from "lucide-react";
-import { livestream, serviceSchedule } from "@/lib/api";
+import { ExternalLink, Flame, Heart, Radio, Share2, X } from "lucide-react";
+import { livestream, serviceSchedule, engagement } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
 const CHANNEL_URL = `https://www.youtube.com/channel/${CHANNEL_ID}`;
-const CHANNEL_LIVE_URL = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1&rel=0`;
 
 interface LivestreamConfig {
   isLive?: boolean;
@@ -261,6 +261,7 @@ function LiveHeroSkeleton() {
 }
 
 export default function LivePage() {
+  const { isAuthenticated } = useAuth();
   const [config, setConfig] = useState<LivestreamConfig | null>(null);
   const [services, setServices] = useState<ServiceScheduleEntry[]>([]);
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
@@ -272,6 +273,8 @@ export default function LivePage() {
   const [youtubeEmbedUrl, setYoutubeEmbedUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const [activeStream, setActiveStream] = useState<YouTubeVideo | null>(null);
+  const [watchStreak, setWatchStreak] = useState<number | null>(null);
+  const watchRecorded = useRef(false);
 
   useEffect(() => {
     document.title = "Live | The Ecclesia Embassy";
@@ -357,14 +360,35 @@ export default function LivePage() {
     };
   }, []);
 
+  // Record watch + refresh streak once per session when the stream is active
+  useEffect(() => {
+    if (!isAuthenticated || watchRecorded.current) return;
+    const streamActive =
+      (youtubeIsLive && Boolean(youtubeEmbedUrl)) ||
+      Boolean(config?.isLive && config?.embedUrl);
+    if (!streamActive) return;
+    watchRecorded.current = true;
+    engagement
+      .recordWatch()
+      .then(() => engagement.getStreak())
+      .then((data) => setWatchStreak(data?.currentStreak ?? null))
+      .catch(() => {});
+  }, [youtubeIsLive, youtubeEmbedUrl, config, isAuthenticated]);
+
+  // Fetch existing streak on mount for authenticated users (no watch recorded yet)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    engagement
+      .getStreak()
+      .then((data) => setWatchStreak(data?.currentStreak ?? null))
+      .catch(() => {});
+  }, [isAuthenticated]);
+
   const manualEmbedUrl = toEmbedUrl(config?.embedUrl);
   const autoDetectedLive = youtubeIsLive && Boolean(youtubeEmbedUrl);
   const hasManualOverride = Boolean(config?.isLive && manualEmbedUrl && !autoDetectedLive);
-  // Public playback should use a confirmed stream URL from the official channel.
-  // Use the channel-level live_stream URL — YouTube always serves the correct
-  // active broadcast so we never accidentally lock onto a stale video ID.
   const iframeSrc = autoDetectedLive
-    ? CHANNEL_LIVE_URL
+    ? youtubeEmbedUrl
     : hasManualOverride
       ? manualEmbedUrl
       : "";
@@ -481,6 +505,13 @@ export default function LivePage() {
                 <Share2 className="h-4 w-4" />
                 {copied ? "Link Copied!" : "Share Stream"}
               </button>
+
+              {isAuthenticated && watchStreak !== null && (
+                <div className="inline-flex items-center gap-2 rounded-full border border-gold/35 bg-white/8 px-5 py-2.5 font-heading text-[12px] font-bold uppercase tracking-[0.16em] text-gold backdrop-blur-sm">
+                  <Flame className="h-4 w-4" />
+                  {watchStreak} {watchStreak === 1 ? "Live" : "Lives"} Watched
+                </div>
+              )}
             </div>
 
             {/* Right: Social handles */}

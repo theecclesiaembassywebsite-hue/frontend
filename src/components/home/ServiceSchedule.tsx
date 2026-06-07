@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 import clsx from "clsx";
 import SectionWrapper from "@/components/ui/SectionWrapper";
@@ -158,8 +158,9 @@ function ServiceTabButton({
 
 export default function ServiceSchedule() {
   const [services, setServices] = useState<ServiceEntry[]>(DEFAULT_SERVICES);
-  const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(
+    getServiceKey(DEFAULT_SERVICES[0])
+  );
 
   useEffect(() => {
     serviceSchedule
@@ -174,21 +175,13 @@ export default function ServiceSchedule() {
       });
   }, []);
 
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (sectionRef.current && !sectionRef.current.contains(e.target as Node)) {
-        setSelectedServiceKey(null);
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, []);
-
   const activeServiceKey =
     selectedServiceKey !== null &&
     services.some((service) => getServiceKey(service) === selectedServiceKey)
       ? selectedServiceKey
-      : null;
+      : services[0]
+        ? getServiceKey(services[0])
+        : null;
 
   const selectedService = activeServiceKey
     ? services.find((service) => getServiceKey(service) === activeServiceKey)
@@ -196,7 +189,6 @@ export default function ServiceSchedule() {
 
   return (
     <SectionWrapper variant="dark-slate">
-      <div ref={sectionRef}>
       <FadeIn>
         <SectionHeading
           eyebrow="When We Gather"
@@ -217,11 +209,7 @@ export default function ServiceSchedule() {
                 <ServiceTabButton
                   service={service}
                   isActive={serviceKey === activeServiceKey}
-                  onClick={() =>
-                    setSelectedServiceKey(
-                      serviceKey === activeServiceKey ? null : serviceKey
-                    )
-                  }
+                  onClick={() => setSelectedServiceKey(serviceKey)}
                 />
               </StaggerItem>
             );
@@ -266,7 +254,6 @@ export default function ServiceSchedule() {
           </FadeIn>
         ) : null}
       </StaggerContainer>
-      </div>
     </SectionWrapper>
   );
 }

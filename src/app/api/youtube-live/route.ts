@@ -19,6 +19,18 @@ interface LiveStatus {
 const NOT_LIVE: LiveStatus = { isLive: false, videoId: null, embedUrl: null };
 
 let cached: { status: LiveStatus; expiresAt: number } | null = null;
+// Tracks the confirmed live state from the previous real YouTube check (not cached reads).
+// When this transitions true → false we notify the backend to record a LiveBroadcast.
+let wasLiveOnLastCheck = false;
+
+function notifyBroadcastEnded() {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+  const secret = process.env.CRON_SECRET ?? "";
+  fetch(`${base}/livestream/broadcast-ended`, {
+    method: "POST",
+    headers: { "x-cron-secret": secret },
+  }).catch(() => {});
+}
 
 async function fetchViaApi(apiKey: string): Promise<string | null> {
   const res = await fetch(
@@ -117,6 +129,13 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
       // This avoids YouTube's channel-level fallback player surfacing unrelated content.
       const status = NOT_LIVE;
       cached = { status, expiresAt: now + (uncertain ? UNCERTAIN_CACHE_TTL_MS : CACHE_TTL_MS) };
+
+      // Stream just ended (confirmed, not uncertain): notify backend to record the broadcast
+      if (wasLiveOnLastCheck && !uncertain) {
+        wasLiveOnLastCheck = false;
+        notifyBroadcastEnded();
+      }
+
       return status;
     }
 
@@ -126,6 +145,7 @@ async function fetchLiveStatus(): Promise<LiveStatus> {
       embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
     };
 
+    wasLiveOnLastCheck = true;
     cached = { status, expiresAt: now + CACHE_TTL_MS };
     return status;
   } catch {

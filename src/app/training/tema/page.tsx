@@ -4,6 +4,7 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/Motion";
+import Image from "next/image";
 import { useState } from "react";
 import {
   Music,
@@ -206,6 +207,22 @@ export default function TEMAPage() {
               <Button variant="secondary" onDark onClick={() => scrollTo("programs")}>
                 Explore Programs
               </Button>
+            </div>
+          </FadeIn>
+
+          <FadeIn direction="up" delay={0.46}>
+            <div className="mx-auto mt-10 max-w-md rounded-[30px] border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
+              <div className="overflow-hidden rounded-[24px] bg-white p-4 sm:p-5">
+                <Image
+                  src="/tema-academy-logo.jpeg"
+                  alt="The Ecclesia Music and Arts Academy logo"
+                  width={1024}
+                  height={1024}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="h-auto w-full object-contain"
+                />
+              </div>
             </div>
           </FadeIn>
 

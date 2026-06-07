@@ -352,9 +352,15 @@ export default function VideoMessagesPage() {
                       <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.24em] text-purple-vivid">
                         {video.sourceLabel}
                       </p>
-                      <h2 className="mt-3 line-clamp-2 font-heading text-xl font-bold text-slate">
+                      <a
+                        href={video.watchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(event) => event.stopPropagation()}
+                        className="mt-3 block line-clamp-2 font-heading text-xl font-bold text-slate transition-colors hover:text-purple-vivid"
+                      >
                         {video.title}
-                      </h2>
+                      </a>
                       <p className="mt-3 font-body text-sm text-gray-text">
                         {formatVideoDate(video.publishedAt)}
                       </p>

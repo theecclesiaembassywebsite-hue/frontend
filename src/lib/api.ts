@@ -3,11 +3,7 @@ import {
   DEFAULT_ANNOUNCEMENTS,
   DEFAULT_AUDIO_SERMONS,
   DEFAULT_BLOG_POSTS,
-  DEFAULT_CITH_HUBS,
-  DEFAULT_EVENTS,
-  DEFAULT_INTENTIONALITY_COURSES,
   DEFAULT_LATEST_MESSAGE,
-  DEFAULT_LIBRARY_RESOURCES,
   DEFAULT_LIVESTREAM_CONFIG,
   DEFAULT_MUSIC_TRACKS,
   DEFAULT_SERVICE_SCHEDULE,
@@ -15,8 +11,6 @@ import {
   DEFAULT_TESTIMONIES,
   DEFAULT_VIDEO_MESSAGES,
   getDefaultBlogPost,
-  getDefaultCithHub,
-  getDefaultEvent,
   getDefaultSquad,
 } from "@/lib/public-fallbacks";
 
@@ -556,16 +550,10 @@ export const giving = {
 // CITH (CHURCH IN THE HOUSE) ENDPOINTS
 export const cith = {
   getHubs: () =>
-    fetchWithFallback(
-      () => fetchAPI<any[]>("/cith/hubs", { noAuth: true }),
-      DEFAULT_CITH_HUBS
-    ),
+    fetchAPI<any[]>("/cith/hubs", { noAuth: true }),
 
   getHub: (id: string) =>
-    fetchWithFallback(
-      () => fetchAPI<any>(`/cith/hubs/${id}`, { noAuth: true }),
-      () => getDefaultCithHub(id)
-    ),
+    fetchAPI<any>(`/cith/hubs/${id}`, { noAuth: true }),
 
   joinHub: (id: string) =>
     fetchAPI<{ success: boolean }>(`/cith/hubs/${id}/join`, {
@@ -734,10 +722,7 @@ export const nation = {
 // INTENTIONALITY CLASS ENDPOINTS
 export const intentionalityClass = {
   getAvailableCourses: () =>
-    fetchWithFallback(
-      () => fetchAPI<any[]>("/class/courses", { noAuth: true }),
-      DEFAULT_INTENTIONALITY_COURSES
-    ),
+    fetchAPI<any[]>("/class/courses", { noAuth: true }),
 
   enroll: (courseId: string) =>
     fetchAPI<{ success: boolean }>(`/class/enroll/${courseId}`, {
@@ -956,10 +941,7 @@ export const media = {
     }),
 
   getLibrary: () =>
-    fetchWithFallback(
-      () => fetchAPI<any[]>("/library", { noAuth: true }),
-      DEFAULT_LIBRARY_RESOURCES
-    ),
+    fetchAPI<any[]>("/library", { noAuth: true }),
 
   createLibraryResource: (data: {
     title: string;
@@ -1030,16 +1012,10 @@ export const media = {
 // EVENTS ENDPOINTS
 export const events = {
   getEvents: (limit = 20, offset = 0) =>
-    fetchWithFallback(
-      () => fetchAPI<Event[]>(`/events?limit=${limit}&offset=${offset}`, { noAuth: true }),
-      () => cloneFallback(DEFAULT_EVENTS.slice(offset, offset + limit))
-    ),
+    fetchAPI<Event[]>(`/events?limit=${limit}&offset=${offset}`, { noAuth: true }),
 
   getEvent: (id: string) =>
-    fetchWithFallback(
-      () => fetchAPI<Event>(`/events/${id}`, { noAuth: true }),
-      () => getDefaultEvent(id)
-    ),
+    fetchAPI<Event>(`/events/${id}`, { noAuth: true }),
 
   registerForEvent: (id: string, data: { name: string; email: string; phone?: string }) =>
     fetchAPI<{ success: boolean }>(`/events/${id}/register`, {

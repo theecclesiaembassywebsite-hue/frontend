@@ -8,10 +8,8 @@ import {
   FadeIn,
   StaggerContainer,
   StaggerItem,
-  HoverLift,
 } from "@/components/ui/Motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
 import EventCard from "@/components/ui/EventCard";
 
 const months = [
@@ -42,7 +40,7 @@ const HIDDEN_EVENT_SLUGS = new Set(["as-unto-the-lord"]);
 
 export default function EventsPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear] = useState(new Date().getFullYear());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,20 +67,28 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
-  const featuredEvents = [
-    {
-      id: "feast",
-      title: "Feast of Tabernacles",
-      description: "Join us for our annual spiritual celebration and communion gathering.",
-      href: "/events/feast-of-tabernacles",
-    },
-    {
-      id: "gilgal",
-      title: "Gilgal Camp Meetings",
-      description: "An immersive retreat experience for spiritual renewal and growth.",
-      href: "/events/gilgal",
-    },
-  ];
+  const filteredEvents = events.filter((event) => {
+    const d = new Date(event.date);
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  });
+
+  function prevMonth() {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear((y) => y - 1);
+    } else {
+      setCurrentMonth((m) => m - 1);
+    }
+  }
+
+  function nextMonth() {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear((y) => y + 1);
+    } else {
+      setCurrentMonth((m) => m + 1);
+    }
+  }
 
   return (
     <main>
@@ -111,56 +117,6 @@ export default function EventsPage() {
         </FadeIn>
       </section>
 
-      {/* Featured Events Section */}
-      <SectionWrapper variant="white">
-        <StaggerContainer>
-          <StaggerItem>
-            <h2 className="font-heading text-3xl font-bold text-slate mb-8">
-              Featured
-            </h2>
-          </StaggerItem>
-
-          <StaggerItem>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-              {featuredEvents.map((event) => (
-                <HoverLift
-                  key={event.id}
-                  className="bg-gradient-to-r from-purple-dark to-purple rounded-xl p-8 text-white shadow-lg"
-                >
-                  <Link
-                    href={event.href}
-                    className="block group"
-                  >
-                    <h3 className="font-heading text-2xl font-bold mb-3 group-hover:text-lavender transition-colors">
-                      {event.title}
-                    </h3>
-                    <p className="font-body text-gray-100 mb-6">
-                      {event.description}
-                    </p>
-                    <div className="inline-flex items-center gap-2 font-body font-medium text-lavender group-hover:text-white transition-colors">
-                      Learn More
-                      <svg
-                        className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
-                  </Link>
-                </HoverLift>
-              ))}
-            </div>
-          </StaggerItem>
-        </StaggerContainer>
-      </SectionWrapper>
-
       {/* All Events Section */}
       <SectionWrapper variant="off-white">
         <StaggerContainer>
@@ -168,9 +124,7 @@ export default function EventsPage() {
           <StaggerItem>
             <div className="flex items-center justify-center gap-4 sm:gap-6 mb-12">
               <button
-                onClick={() =>
-                  setCurrentMonth((m) => (m === 0 ? 11 : m - 1))
-                }
+                onClick={prevMonth}
                 className="text-gray-text hover:text-purple transition-colors p-3 rounded-full hover:bg-lavender"
               >
                 <ChevronLeft size={24} />
@@ -179,9 +133,7 @@ export default function EventsPage() {
                 {months[currentMonth]} {currentYear}
               </h2>
               <button
-                onClick={() =>
-                  setCurrentMonth((m) => (m === 11 ? 0 : m + 1))
-                }
+                onClick={nextMonth}
                 className="text-gray-text hover:text-purple transition-colors p-3 rounded-full hover:bg-lavender"
               >
                 <ChevronRight size={24} />
@@ -208,10 +160,10 @@ export default function EventsPage() {
           )}
 
           {/* Events Grid */}
-          {!loading && events.length > 0 && (
+          {!loading && filteredEvents.length > 0 && (
             <StaggerItem>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {events.map((event) => {
+                {filteredEvents.map((event) => {
                   const eventDate = new Date(event.date);
                   const day = eventDate.getDate().toString();
                   const month = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
@@ -232,11 +184,11 @@ export default function EventsPage() {
           )}
 
           {/* Empty State */}
-          {!loading && events.length === 0 && !error && (
+          {!loading && filteredEvents.length === 0 && !error && (
             <StaggerItem>
               <div className="text-center py-12">
                 <p className="font-body text-gray-text text-lg">
-                  No events scheduled for this month.
+                  No events scheduled for {months[currentMonth]}.
                 </p>
               </div>
             </StaggerItem>

@@ -160,50 +160,6 @@ export const DEFAULT_VIDEO_MESSAGES = [
   },
 ];
 
-export const DEFAULT_LIBRARY_RESOURCES = [
-  {
-    id: "library-word-cultured",
-    title: "Raising Word-Cultured Ambassadors",
-    author: "The Ecclesia Embassy",
-    description:
-      "A foundational ministry resource on doctrine, identity, and kingdom formation.",
-    coverUrl:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&q=80",
-    fileUrl: "https://www.orimi.com/pdf-test.pdf",
-    type: "BOOK",
-    isFree: true,
-    price: 0,
-    createdAt: "2026-01-08T09:00:00.000Z",
-  },
-  {
-    id: "library-prayer-bulletin",
-    title: "Prayer & Intercession Bulletin",
-    author: "The Ecclesia Embassy",
-    description:
-      "A prayer guide for personal consecration, corporate prayer, and strategic intercession.",
-    coverUrl:
-      "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=80",
-    fileUrl: "https://www.orimi.com/pdf-test.pdf",
-    type: "BULLETIN",
-    isFree: true,
-    price: 0,
-    createdAt: "2026-01-22T09:00:00.000Z",
-  },
-  {
-    id: "library-kingdom-living",
-    title: "Kingdom Living Handbook",
-    author: "The Ecclesia Embassy",
-    description:
-      "A practical handbook on stewardship, service, community, and kingdom culture.",
-    coverUrl:
-      "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=800&q=80",
-    fileUrl: "https://www.orimi.com/pdf-test.pdf",
-    type: "HANDBOOK",
-    isFree: false,
-    price: 2500,
-    createdAt: "2026-02-05T09:00:00.000Z",
-  },
-];
 
 const ART = {
   jesusIsKing: "https://images.unsplash.com/photo-1504704911898-68304a7d2807?w=400&q=80",
@@ -313,56 +269,6 @@ export const DEFAULT_MUSIC_TRACKS = [
   { id: "music-god-of-light-and-glory", title: "God of Light and Glory", album: "The Ecclesia Levites", artworkUrl: ART.singles, audioUrl: SP.artist, duration: "05:56", price: 0, createdAt: "2021-01-01T09:00:00.000Z" },
 ];
 
-export const DEFAULT_EVENTS = [
-  {
-    id: "event-feast-of-tabernacles",
-    slug: "feast-of-tabernacles",
-    title: "Feast of Tabernacles",
-    description:
-      "A corporate season of worship, communion, teaching, and celebration as we mark another year of God's faithfulness at The Ecclesia Embassy.",
-    date: "2026-11-12T17:00:00.000Z",
-    location: "The Ecclesia Embassy, Abuja",
-    imageUrl:
-      "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=80",
-    capacity: 600,
-    registered: 214,
-    isFree: true,
-    speakers: [
-      { name: "Victor Oluwadamilare", title: "Lead Brother" },
-    ],
-    createdAt: "2026-01-05T09:00:00.000Z",
-    updatedAt: "2026-01-05T09:00:00.000Z",
-  },
-  {
-    id: "event-gilgal",
-    slug: "gilgal",
-    title: "Gilgal Camp Meetings",
-    description:
-      "A retreat experience for consecration, prayer, discipleship, and encounters that reposition believers for kingdom effectiveness.",
-    date: "2026-08-21T09:00:00.000Z",
-    location: "Retreat Grounds, Abuja",
-    imageUrl:
-      "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=1200&q=80",
-    capacity: 400,
-    registered: 168,
-    isFree: false,
-    fee: 15000,
-    currency: "NGN ",
-    speakers: [
-      { name: "Victor Oluwadamilare", title: "Lead Brother" },
-    ],
-    createdAt: "2026-01-10T09:00:00.000Z",
-    updatedAt: "2026-01-10T09:00:00.000Z",
-  },
-];
-
-export function getDefaultEvent(identifier: string) {
-  return cloneFallback(
-    DEFAULT_EVENTS.find(
-      (event) => event.id === identifier || event.slug === identifier
-    ) || null
-  );
-}
 
 export const DEFAULT_BLOG_POSTS = [
   {
@@ -444,80 +350,6 @@ export const DEFAULT_LIVESTREAM_CONFIG = {
   nextService: null,
 };
 
-export const DEFAULT_CITH_HUBS = [
-  {
-    id: "hub-asokoro-east",
-    name: "Asokoro East Hub",
-    leader: {
-      id: "leader-asokoro-east",
-      email: "leader@ecclesia.test",
-      profile: {
-        firstName: "Daniel",
-        lastName: "O.",
-      },
-    },
-    location: "Asokoro, Abuja",
-    area: "Asokoro",
-    city: "Abuja",
-    state: "FCT",
-    meetingDay: "Wednesday",
-    meetingTime: "6:00 PM",
-    capacity: 30,
-    description:
-      "A warm midweek fellowship for prayer, discipleship, and shared growth in the Word.",
-    _count: { members: 18 },
-  },
-  {
-    id: "hub-lugbe-central",
-    name: "Lugbe Central Hub",
-    leader: {
-      id: "leader-lugbe-central",
-      email: "leader2@ecclesia.test",
-      profile: {
-        firstName: "Miriam",
-        lastName: "A.",
-      },
-    },
-    location: "Lugbe, Abuja",
-    area: "Lugbe",
-    city: "Abuja",
-    state: "FCT",
-    meetingDay: "Thursday",
-    meetingTime: "6:00 PM",
-    capacity: 25,
-    description:
-      "A neighborhood hub committed to fellowship, accountability, and kingdom community.",
-    _count: { members: 14 },
-  },
-  {
-    id: "hub-gwarinpa",
-    name: "Gwarinpa e-Hub Connect",
-    leader: {
-      id: "leader-gwarinpa",
-      email: "leader3@ecclesia.test",
-      profile: {
-        firstName: "Tosin",
-        lastName: "E.",
-      },
-    },
-    location: "Gwarinpa, Abuja",
-    area: "Gwarinpa",
-    city: "Abuja",
-    state: "FCT",
-    meetingDay: "Saturday",
-    meetingTime: "5:00 PM",
-    capacity: 40,
-    description:
-      "A hybrid hub for believers desiring consistent fellowship and practical kingdom growth.",
-    _count: { members: 21 },
-  },
-];
-
-export function getDefaultCithHub(identifier: string) {
-  return cloneFallback(
-    DEFAULT_CITH_HUBS.find((hub) => hub.id === identifier) || null
-  );
-}
 
 export const DEFAULT_SQUADS = [
   {
@@ -720,17 +552,3 @@ export const DEFAULT_TESTIMONIES = [
   },
 ];
 
-export const DEFAULT_INTENTIONALITY_COURSES = [
-  {
-    id: "course-intentionality-core",
-    title: "Intentionality Class Core Track",
-    description:
-      "A foundational course on faith, culture, stewardship, and kingdom responsibility.",
-    modules: [
-      { id: "module-foundation", title: "Foundation", order: 1 },
-      { id: "module-transformation", title: "Transformation", order: 2 },
-      { id: "module-responsibility", title: "Responsibility", order: 3 },
-    ],
-    _count: { enrollments: 48 },
-  },
-];
