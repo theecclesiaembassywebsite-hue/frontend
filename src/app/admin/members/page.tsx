@@ -18,6 +18,7 @@ const roleOptions = [
   { value: "HUB_LEADER", label: "Hub Leader" },
   { value: "SQUAD_LEADER", label: "Squad Leader" },
   { value: "MODERATOR", label: "Moderator" },
+  { value: "CONTENT_MANAGER", label: "Content Manager" },
   { value: "ADMIN", label: "Admin" },
 ];
 
