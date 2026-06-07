@@ -3,7 +3,7 @@
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { useEffect, useState } from "react";
-import { Search, User, Copy } from "lucide-react";
+import { Search, User, Copy, Trash2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { admin } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
@@ -68,6 +68,19 @@ function AdminMembersContent() {
       console.error(err);
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const handleDeleteMember = async (member: any) => {
+    if (!window.confirm(`Delete ${member.profile?.firstName || member.email}? This permanently removes all their data and cannot be undone.`)) return;
+    try {
+      await admin.deleteMember(member.id);
+      setMembers(members.filter((m) => m.id !== member.id));
+      if (selectedMember?.id === member.id) setSelectedMember(null);
+      success("Member deleted successfully");
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to delete member");
+      console.error(err);
     }
   };
 
@@ -158,12 +171,21 @@ function AdminMembersContent() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => setSelectedMember(m)}
-                    className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
-                  >
-                    View
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedMember(m)}
+                      className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMember(m)}
+                      className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
+                      title="Delete member"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

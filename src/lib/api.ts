@@ -1238,4 +1238,7 @@ export const admin = {
       method: "PUT",
       body: JSON.stringify({ role }),
     }),
+
+  deleteMember: (userId: string) =>
+    fetchAPI<{ message: string }>(`/admin/members/${userId}`, { method: "DELETE" }),
 };
