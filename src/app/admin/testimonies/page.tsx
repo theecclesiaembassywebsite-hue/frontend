@@ -158,7 +158,7 @@ function AdminTestimoniesContent() {
 
 export default function AdminTestimoniesPage() {
   return (
-    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"]}>
       <AdminTestimoniesContent />
     </ProtectedRoute>
   );

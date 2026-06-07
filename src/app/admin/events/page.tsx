@@ -50,6 +50,7 @@ function AdminEventsContent() {
     time: "",
     location: "",
     maxCapacity: "",
+    requiresRegistration: false,
   });
   const [formData, setFormData] = useState({
     title: "",
@@ -59,6 +60,7 @@ function AdminEventsContent() {
     location: "",
     capacity: "",
     eventType: "GENERAL",
+    requiresRegistration: false,
   });
   const [createImageFile, setCreateImageFile] = useState<File | null>(null);
   const [createImagePreview, setCreateImagePreview] = useState<string | null>(null);
@@ -135,11 +137,12 @@ function AdminEventsContent() {
         location: formData.location,
         maxCapacity: parseInt(formData.capacity) || 100,
         eventType: formData.eventType,
+        requiresRegistration: formData.requiresRegistration,
         ...(imageUrl ? { imageUrl } : {}),
       });
       setEventList([newEvent, ...eventList]);
       setShowCreateModal(false);
-      setFormData({ title: "", description: "", date: "", time: "8:00 AM", location: "", capacity: "", eventType: "GENERAL" });
+      setFormData({ title: "", description: "", date: "", time: "8:00 AM", location: "", capacity: "", eventType: "GENERAL", requiresRegistration: false });
       setCreateImageFile(null);
       setCreateImagePreview(null);
       success("Event created successfully");
@@ -183,7 +186,8 @@ function AdminEventsContent() {
         date: editFormData.date,
         time: editFormData.time,
         location: editFormData.location,
-        maxCapacity: parseInt(editFormData.maxCapacity) || undefined,
+        maxCapacity: editFormData.maxCapacity ? parseInt(editFormData.maxCapacity) : undefined,
+        requiresRegistration: editFormData.requiresRegistration,
         ...(imageUrl ? { imageUrl } : {}),
       });
       setEventList(eventList.map((e) => (e.id === editingEvent.id ? { ...e, ...updated } : e)));
@@ -330,6 +334,7 @@ function AdminEventsContent() {
                             time: e.time || "",
                             location: e.location || "",
                             maxCapacity: e.maxCapacity ? String(e.maxCapacity) : "",
+                            requiresRegistration: e.requiresRegistration || false,
                           });
                           setEditImageFile(null);
                           setEditImagePreview(e.imageUrl || null);
@@ -470,6 +475,18 @@ function AdminEventsContent() {
               onChange={(e) => setEditFormData({ ...editFormData, maxCapacity: e.target.value })}
             />
           </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="edit-requires-reg"
+              className="h-4 w-4 rounded border-gray-border accent-purple-vivid"
+              checked={editFormData.requiresRegistration}
+              onChange={(e) => setEditFormData({ ...editFormData, requiresRegistration: e.target.checked })}
+            />
+            <label htmlFor="edit-requires-reg" className="cursor-pointer font-body text-sm text-slate">
+              Requires registration
+            </label>
+          </div>
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Image</label>
             {editImagePreview ? (
@@ -583,6 +600,18 @@ function AdminEventsContent() {
               onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
             />
           </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="create-requires-reg"
+              className="h-4 w-4 rounded border-gray-border accent-purple-vivid"
+              checked={formData.requiresRegistration}
+              onChange={(e) => setFormData({ ...formData, requiresRegistration: e.target.checked })}
+            />
+            <label htmlFor="create-requires-reg" className="cursor-pointer font-body text-sm text-slate">
+              Requires registration
+            </label>
+          </div>
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Image</label>
             {createImagePreview ? (
@@ -626,7 +655,7 @@ function AdminEventsContent() {
 
 export default function AdminEventsPage() {
   return (
-    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"]}>
       <AdminEventsContent />
     </ProtectedRoute>
   );

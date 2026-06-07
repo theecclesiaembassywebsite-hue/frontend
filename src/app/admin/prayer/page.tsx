@@ -3,7 +3,7 @@
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { useEffect, useState } from "react";
-import { Search, HandHeart, Clock, CheckCircle, Eye } from "lucide-react";
+import { Search, HandHeart, Clock, CheckCircle, Eye, Trash2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { prayer } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
@@ -59,6 +59,19 @@ function AdminPrayerContent() {
     });
     setFilteredRequests(filtered);
   }, [search, statusFilter, requests]);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this prayer request? This cannot be undone.")) return;
+    try {
+      await prayer.deletePrayerRequest(id);
+      setRequests(requests.filter((r) => r.id !== id));
+      if (viewingRequest?.id === id) setViewingRequest(null);
+      success("Prayer request deleted");
+    } catch (err) {
+      error("Failed to delete prayer request");
+      console.error(err);
+    }
+  };
 
   const handleStatusChange = async (requestId: string, newStatus: string) => {
     setUpdatingStatus(requestId);
@@ -171,6 +184,13 @@ function AdminPrayerContent() {
                   onClick={() => setViewingRequest(r)}
                 >
                   <Eye size={12} /> View
+                </button>
+                <button
+                  className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
+                  title="Delete request"
+                  onClick={() => handleDelete(r.id)}
+                >
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>

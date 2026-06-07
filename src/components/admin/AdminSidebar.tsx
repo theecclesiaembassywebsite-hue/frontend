@@ -3,34 +3,40 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 import {
   LayoutDashboard, Users, Gift, FileText, MapPin, GraduationCap,
   MessageCircle, Calendar, BookOpen, HandHeart, Quote, BarChart3,
-  Radio, UserPlus, Clock, Award,
+  Radio, UserPlus, Clock, Award, Image,
 } from "lucide-react";
 
-const navItems = [
-  { label: "Overview", href: "/admin", icon: LayoutDashboard },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Members", href: "/admin/members", icon: Users },
-  { label: "First Timers", href: "/admin/first-timers", icon: UserPlus },
-  { label: "Giving Reports", href: "/admin/giving", icon: Gift },
-  { label: "Content", href: "/admin/content", icon: FileText },
-  { label: "Events", href: "/admin/events", icon: Calendar },
-  { label: "CITH Hubs", href: "/admin/cith", icon: MapPin },
-  { label: "Squads", href: "/admin/squads", icon: Users },
-  { label: "Intentionality Class", href: "/admin/class", icon: GraduationCap },
-  { label: "Training", href: "/admin/training", icon: Award },
-  { label: "Ecclesia Nation", href: "/admin/nation", icon: MessageCircle },
-  { label: "Resources", href: "/admin/resources", icon: BookOpen },
-  { label: "Service Schedule", href: "/admin/schedule", icon: Clock },
-  { label: "Livestream", href: "/admin/livestream", icon: Radio },
-  { label: "Prayer Requests", href: "/admin/prayer", icon: HandHeart },
-  { label: "Testimonies", href: "/admin/testimonies", icon: Quote },
+const allNavItems = [
+  { label: "Overview",            href: "/admin",              icon: LayoutDashboard, roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Analytics",           href: "/admin/analytics",    icon: BarChart3,       roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Members",             href: "/admin/members",      icon: Users,           roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "First Timers",        href: "/admin/first-timers", icon: UserPlus,        roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Giving Reports",      href: "/admin/giving",       icon: Gift,            roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Content",             href: "/admin/content",      icon: FileText,        roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Events",              href: "/admin/events",       icon: Calendar,        roles: ["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"] },
+  { label: "Experience Gallery",  href: "/admin/gallery",      icon: Image,           roles: ["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"] },
+  { label: "Testimonies",         href: "/admin/testimonies",  icon: Quote,           roles: ["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"] },
+  { label: "CITH Hubs",           href: "/admin/cith",         icon: MapPin,          roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Squads",              href: "/admin/squads",       icon: Users,           roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Intentionality Class",href: "/admin/class",        icon: GraduationCap,   roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Training",            href: "/admin/training",     icon: Award,           roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Ecclesia Nation",     href: "/admin/nation",       icon: MessageCircle,   roles: ["ADMIN", "SUPER_ADMIN", "MODERATOR"] },
+  { label: "Resources",           href: "/admin/resources",    icon: BookOpen,        roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Service Schedule",    href: "/admin/schedule",     icon: Clock,           roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Livestream",          href: "/admin/livestream",   icon: Radio,           roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Prayer Requests",     href: "/admin/prayer",       icon: HandHeart,       roles: ["ADMIN", "SUPER_ADMIN"] },
 ];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const role = user?.role ?? "";
+
+  const navItems = allNavItems.filter((item) => item.roles.includes(role));
 
   return (
     <aside className="w-60 shrink-0 border-r border-gray-border bg-white min-h-screen hidden lg:block">

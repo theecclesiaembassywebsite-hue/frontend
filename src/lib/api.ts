@@ -463,6 +463,9 @@ export const prayer = {
       method: "PUT",
       body: JSON.stringify({ status, ...(adminNotes ? { adminNotes } : {}) }),
     }),
+
+  deletePrayerRequest: (id: string) =>
+    fetchAPI<{ message: string }>(`/prayer-requests/admin/${id}`, { method: "DELETE" }),
 };
 
 // TESTIMONIES ENDPOINTS
@@ -1101,6 +1104,21 @@ export const squads = {
     fetchAPI<any>(`/admin/squads/${id}`, {
       method: "DELETE",
     }),
+};
+
+// GALLERY ENDPOINTS
+export const gallery = {
+  getImages: () =>
+    fetchAPI<any[]>("/gallery", { noAuth: true }),
+
+  addImage: (data: { url: string; caption?: string; order?: number }) =>
+    fetchAPI<any>("/gallery", { method: "POST", body: JSON.stringify(data) }),
+
+  updateImage: (id: string, data: { caption?: string; order?: number }) =>
+    fetchAPI<any>(`/gallery/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+
+  deleteImage: (id: string) =>
+    fetchAPI<{ message: string }>(`/gallery/${id}`, { method: "DELETE" }),
 };
 
 // ANNOUNCEMENTS ENDPOINTS

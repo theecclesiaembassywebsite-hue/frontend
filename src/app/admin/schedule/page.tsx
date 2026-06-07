@@ -83,8 +83,8 @@ export default function AdminSchedulePage() {
   };
 
   const handleSave = async () => {
-    if (!form.day || !form.name || !form.time) {
-      error("Day, name, and time are required");
+    if (!form.day || !form.name) {
+      error("Day and name are required");
       return;
     }
 
@@ -325,7 +325,7 @@ export default function AdminSchedulePage() {
                 </div>
                 <div>
                   <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                    Time *
+                    Time <span className="normal-case font-normal">(optional for recurring)</span>
                   </label>
                   <input
                     type="text"

@@ -22,6 +22,7 @@ interface Event {
   fee?: number;
   currency?: string;
   isFree?: boolean;
+  requiresRegistration?: boolean;
   speakers?: Array<{ name: string; title?: string }>;
   createdAt: string;
 }
@@ -287,7 +288,8 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
             )}
           </div>
 
-          {/* Registration sidebar */}
+          {/* Registration sidebar — only shown when registration is enabled */}
+          {eventData.requiresRegistration && (
           <div className="lg:col-span-1">
             <div className="rounded-[8px] border border-gray-border bg-white p-6 shadow-sm sticky top-8">
               {registered ? (
@@ -381,6 +383,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
               )}
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>

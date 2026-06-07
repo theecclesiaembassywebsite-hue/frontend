@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import { Quote } from "lucide-react";
+import { gallery } from "@/lib/api";
 
 const testimonials = [
   {
@@ -17,6 +21,12 @@ const testimonials = [
 ];
 
 export default function ExperiencePage() {
+  const [images, setImages] = useState<any[]>([]);
+
+  useEffect(() => {
+    gallery.getImages().then((data) => setImages(data || [])).catch(() => {});
+  }, []);
+
   return (
     <>
       {/* Hero Banner */}
@@ -60,26 +70,32 @@ export default function ExperiencePage() {
         </div>
       </SectionWrapper>
 
-      {/* Photo Gallery Placeholder */}
-      <SectionWrapper variant="off-white">
-        <div className="text-center mb-10">
-          <h2 className="font-heading text-[28px] font-bold text-slate">
-            Life at The Ecclesia Embassy
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="aspect-square rounded-[8px] bg-purple-light flex items-center justify-center"
-            >
-              <span className="font-body text-sm text-purple/40">
-                Photo {i}
-              </span>
-            </div>
-          ))}
-        </div>
-      </SectionWrapper>
+      {/* Photo Gallery */}
+      {images.length > 0 && (
+        <SectionWrapper variant="off-white">
+          <div className="text-center mb-10">
+            <h2 className="font-heading text-[28px] font-bold text-slate">
+              Life at The Ecclesia Embassy
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {images.map((img) => (
+              <div key={img.id} className="relative aspect-square overflow-hidden rounded-[8px] bg-purple-light">
+                <img
+                  src={img.url}
+                  alt={img.caption || "Ecclesia Embassy"}
+                  className="h-full w-full object-cover"
+                />
+                {img.caption && (
+                  <div className="absolute inset-x-0 bottom-0 bg-black/50 px-2 py-1.5">
+                    <p className="font-body text-[11px] text-white/90 line-clamp-1">{img.caption}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </SectionWrapper>
+      )}
 
       {/* Testimonial Carousel */}
       <SectionWrapper variant="dark-purple">
