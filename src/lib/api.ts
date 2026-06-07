@@ -629,6 +629,9 @@ export const cith = {
 
   searchMembers: (query: string) =>
     fetchAPI<any[]>(`/admin/cith/members/search?q=${encodeURIComponent(query)}`),
+
+  deleteHub: (hubId: string) =>
+    fetchAPI<{ message: string }>(`/admin/cith/hubs/${hubId}`, { method: "DELETE" }),
 };
 
 // NATION ENDPOINTS
@@ -807,6 +810,9 @@ export const intentionalityClass = {
 
   adminGetEnrollments: (courseId?: string) =>
     fetchAPI<any[]>(`/admin/class/enrollments${courseId ? `?courseId=${courseId}` : ""}`),
+
+  adminDeleteCourse: (courseId: string) =>
+    fetchAPI<{ message: string }>(`/admin/class/courses/${courseId}`, { method: "DELETE" }),
 };
 
 // BLOG ENDPOINTS
@@ -1042,6 +1048,9 @@ export const events = {
 
   getEventRegistrations: (eventId: string) =>
     fetchAPI<any[]>(`/events/${eventId}/registrations`),
+
+  deleteEvent: (id: string) =>
+    fetchAPI<{ message: string }>(`/events/${id}`, { method: "DELETE" }),
 };
 
 // SQUADS ENDPOINTS

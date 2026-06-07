@@ -158,9 +158,7 @@ function ServiceTabButton({
 
 export default function ServiceSchedule() {
   const [services, setServices] = useState<ServiceEntry[]>(DEFAULT_SERVICES);
-  const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(
-    getServiceKey(DEFAULT_SERVICES[0])
-  );
+  const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(null);
 
   useEffect(() => {
     serviceSchedule
@@ -179,9 +177,7 @@ export default function ServiceSchedule() {
     selectedServiceKey !== null &&
     services.some((service) => getServiceKey(service) === selectedServiceKey)
       ? selectedServiceKey
-      : services[0]
-        ? getServiceKey(services[0])
-        : null;
+      : null;
 
   const selectedService = activeServiceKey
     ? services.find((service) => getServiceKey(service) === activeServiceKey)

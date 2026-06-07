@@ -155,18 +155,34 @@ export default function TEMAPage() {
           </FadeIn>
 
           <FadeIn direction="up" delay={0.1}>
-            <h1 className="mt-6 font-heading text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
+            <div className="mx-auto mt-8 max-w-md rounded-[30px] border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
+              <div className="overflow-hidden rounded-[24px] bg-white p-4 sm:p-5">
+                <Image
+                  src="/tema-academy-logo.jpeg"
+                  alt="The Ecclesia Music and Arts Academy logo"
+                  width={1024}
+                  height={1024}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="h-auto w-full object-contain"
+                />
+              </div>
+            </div>
+          </FadeIn>
+
+          <FadeIn direction="up" delay={0.18}>
+            <h1 className="mt-8 font-heading text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
               The Call
             </h1>
           </FadeIn>
 
-          <FadeIn direction="up" delay={0.18}>
+          <FadeIn direction="up" delay={0.26}>
             <p className="mt-5 font-serif text-xl italic text-white/80 md:text-2xl">
               TEMA — Where Spirit-led musicians are made
             </p>
           </FadeIn>
 
-          <FadeIn direction="up" delay={0.26}>
+          <FadeIn direction="up" delay={0.34}>
             <div className="mx-auto mt-6 max-w-2xl space-y-4 font-body text-base leading-8 text-white/65 md:text-lg">
               <p>
                 Every generation carries a divine sound — a summons to rise, rebuild, and restore
@@ -184,7 +200,7 @@ export default function TEMAPage() {
             </div>
           </FadeIn>
 
-          <FadeIn direction="up" delay={0.34}>
+          <FadeIn direction="up" delay={0.38}>
             <div className="mx-auto mt-8 max-w-xl rounded-[22px] border border-white/10 bg-white/6 p-5 backdrop-blur-sm">
               <p className="font-body text-sm leading-7 text-white/72 italic">
                 "This call is designed to take students from mere interest to love, and from love
@@ -193,13 +209,13 @@ export default function TEMAPage() {
             </div>
           </FadeIn>
 
-          <FadeIn direction="up" delay={0.38}>
+          <FadeIn direction="up" delay={0.42}>
             <p className="mt-6 font-body text-base italic text-white/80">
               If this stirs something within you… then this call is yours. Take the step today.
             </p>
           </FadeIn>
 
-          <FadeIn direction="up" delay={0.42}>
+          <FadeIn direction="up" delay={0.46}>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button variant="primary" onClick={() => scrollTo("enroll")}>
                 Take the Step
@@ -207,22 +223,6 @@ export default function TEMAPage() {
               <Button variant="secondary" onDark onClick={() => scrollTo("programs")}>
                 Explore Programs
               </Button>
-            </div>
-          </FadeIn>
-
-          <FadeIn direction="up" delay={0.46}>
-            <div className="mx-auto mt-10 max-w-md rounded-[30px] border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
-              <div className="overflow-hidden rounded-[24px] bg-white p-4 sm:p-5">
-                <Image
-                  src="/tema-academy-logo.jpeg"
-                  alt="The Ecclesia Music and Arts Academy logo"
-                  width={1024}
-                  height={1024}
-                  loading="eager"
-                  fetchPriority="high"
-                  className="h-auto w-full object-contain"
-                />
-              </div>
             </div>
           </FadeIn>
 

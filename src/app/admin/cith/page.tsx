@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Search, MapPin, CheckCircle, XCircle, Clock, Plus } from "lucide-react";
+import { Search, MapPin, CheckCircle, XCircle, Clock, Plus, Trash2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { cith } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
@@ -249,6 +249,20 @@ function AdminCITHContent() {
       success("Hub status updated successfully");
     } catch (err) {
       error("Failed to update hub status");
+      console.error(err);
+    }
+  };
+
+  const handleDeleteHub = async (hubId: string) => {
+    if (!window.confirm("Are you sure you want to delete this hub? This cannot be undone.")) return;
+    try {
+      await cith.deleteHub(hubId);
+      setHubs(hubs.filter((h) => h.id !== hubId));
+      setShowManageModal(false);
+      setManagingHub(null);
+      success("Hub deleted successfully");
+    } catch (err) {
+      error("Failed to delete hub");
       console.error(err);
     }
   };
@@ -541,6 +555,13 @@ function AdminCITHContent() {
               </div>
 
               <div className="flex gap-2 pt-4">
+                <button
+                  className="flex items-center justify-center gap-1 rounded-[4px] border border-error/30 bg-error/5 px-3 py-2 text-[11px] font-heading font-semibold text-error hover:bg-error/10 transition-colors"
+                  onClick={() => managingHub && handleDeleteHub(managingHub.id)}
+                  title="Delete hub"
+                >
+                  <Trash2 size={13} />
+                </button>
                 <Button
                   variant="secondary"
                   className="flex-1"

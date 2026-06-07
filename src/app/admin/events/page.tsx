@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Search, Plus, Calendar, Users, MapPin, Clock, Pencil, ImagePlus, X } from "lucide-react";
+import { Search, Plus, Calendar, Users, MapPin, Clock, Pencil, ImagePlus, X, Trash2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { events as eventsAPI, upload } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
@@ -145,6 +145,18 @@ function AdminEventsContent() {
       success("Event created successfully");
     } catch (err) {
       error("Failed to create event");
+      console.error(err);
+    }
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this event? This cannot be undone.")) return;
+    try {
+      await eventsAPI.deleteEvent(id);
+      setEventList(eventList.filter((e) => e.id !== id));
+      success("Event deleted successfully");
+    } catch (err) {
+      error("Failed to delete event");
       console.error(err);
     }
   };
@@ -329,6 +341,13 @@ function AdminEventsContent() {
                         className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
                         onClick={() => setViewingEvent(e)}
                       >View</button>
+                      <button
+                        className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
+                        title="Delete"
+                        onClick={() => handleDeleteEvent(e.id)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>

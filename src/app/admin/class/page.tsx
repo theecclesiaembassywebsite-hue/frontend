@@ -167,6 +167,18 @@ function AdminClassContent() {
     }
   };
 
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!window.confirm("Are you sure you want to delete this course? All modules, questions, and enrollments will be removed.")) return;
+    try {
+      await intentionalityClass.adminDeleteCourse(courseId);
+      setCourses(courses.filter((c) => c.id !== courseId));
+      success("Course deleted successfully");
+    } catch (err) {
+      error("Failed to delete course");
+      console.error(err);
+    }
+  };
+
   const handleDeleteModule = async (moduleId: string) => {
     if (!window.confirm("Are you sure you want to delete this module? This action cannot be undone.")) {
       return;
@@ -315,6 +327,13 @@ function AdminClassContent() {
                     <span>{c.modules?.length || 0} modules</span>
                   </div>
                 </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDeleteCourse(c.id); }}
+                  className="ml-2 flex-shrink-0 rounded-[4px] p-1.5 text-gray-text hover:bg-error/10 hover:text-error transition-colors"
+                  title="Delete course"
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
 
               {/* Expanded Module List */}
