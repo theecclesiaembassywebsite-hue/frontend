@@ -82,47 +82,6 @@ export const DEFAULT_LATEST_MESSAGE = {
   createdAt: "2026-03-01T09:00:00.000Z",
 };
 
-export const DEFAULT_AUDIO_SERMONS = [
-  {
-    id: "audio-word-cultured",
-    title: "Raising Word-Cultured Ambassadors",
-    speaker: "Victor Oluwadamilare",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    description:
-      "A call to become believers who are shaped by the Word in thought, posture, and practice.",
-    series: "Foundation Series",
-    topic: "Doctrine",
-    duration: "42:10",
-    createdAt: "2026-01-05T08:00:00.000Z",
-    date: "2026-01-05T08:00:00.000Z",
-  },
-  {
-    id: "audio-priesthood",
-    title: "The Believer's Priestly Ministry",
-    speaker: "Victor Oluwadamilare",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-    description:
-      "Understanding consecration, intercession, and the priestly call of the believer.",
-    series: "Kingdom Identity",
-    topic: "Prayer",
-    duration: "38:45",
-    createdAt: "2026-01-19T08:00:00.000Z",
-    date: "2026-01-19T08:00:00.000Z",
-  },
-  {
-    id: "audio-kingdom-service",
-    title: "Service as a Lifestyle",
-    speaker: "Victor Oluwadamilare",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-    description:
-      "Seeing service as worship and embracing responsibility in the house of God.",
-    series: "Kingdom Expressions",
-    topic: "Service",
-    duration: "47:02",
-    createdAt: "2026-02-02T08:00:00.000Z",
-    date: "2026-02-02T08:00:00.000Z",
-  },
-];
 
 export const DEFAULT_VIDEO_MESSAGES = [
   {

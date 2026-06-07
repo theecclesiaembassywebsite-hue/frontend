@@ -1,7 +1,6 @@
 import {
   cloneFallback,
   DEFAULT_ANNOUNCEMENTS,
-  DEFAULT_AUDIO_SERMONS,
   DEFAULT_BLOG_POSTS,
   DEFAULT_LATEST_MESSAGE,
   DEFAULT_LIVESTREAM_CONFIG,
@@ -876,26 +875,11 @@ export const blog = {
 // MEDIA ENDPOINTS
 export const media = {
   getAudioSermons: (search?: string, topic?: string, series?: string) =>
-    fetchWithFallback(
-      () =>
-        fetchAPI<any[]>(`/sermons/audio?${new URLSearchParams({
-          ...(search ? { search } : {}),
-          ...(topic ? { topic } : {}),
-          ...(series ? { series } : {}),
-        }).toString()}`, { noAuth: true }),
-      () =>
-        cloneFallback(
-          DEFAULT_AUDIO_SERMONS.filter((sermon) => {
-            const matchesSearch =
-              !search ||
-              sermon.title.toLowerCase().includes(search.toLowerCase()) ||
-              sermon.speaker.toLowerCase().includes(search.toLowerCase());
-            const matchesTopic = !topic || sermon.topic === topic;
-            const matchesSeries = !series || sermon.series === series;
-            return matchesSearch && matchesTopic && matchesSeries;
-          })
-        )
-    ),
+    fetchAPI<any[]>(`/sermons/audio?${new URLSearchParams({
+      ...(search ? { search } : {}),
+      ...(topic ? { topic } : {}),
+      ...(series ? { series } : {}),
+    }).toString()}`, { noAuth: true }),
 
   getLatestSermon: () =>
     fetchWithFallback(

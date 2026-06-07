@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Clock } from "lucide-react";
 import clsx from "clsx";
 import SectionWrapper from "@/components/ui/SectionWrapper";
@@ -52,7 +52,7 @@ const DEFAULT_SERVICES: ServiceEntry[] = [
     day: "1st-3rd",
     dayLabel: "every month",
     name: "As Unto The Lord",
-    time: "6:00 AM & 6:00 PM",
+    time: "",
     description:
       "A monthly consecration gathering to begin the month in worship, prayer, and devotion before the Lord.",
     order: 4,
@@ -90,7 +90,7 @@ const mergeServices = (incoming: ServiceEntry[]) => {
       day: rawService.day || fallback?.day || "",
       dayLabel: rawService.dayLabel ?? fallback?.dayLabel,
       name: rawService.name || fallback?.name || "",
-      time: rawService.time || fallback?.time || "",
+      time: rawService.time != null ? rawService.time : (fallback?.time ?? ""),
       description: rawService.description || fallback?.description || "",
       order: rawService.order ?? fallback?.order,
     });
@@ -138,7 +138,7 @@ function ServiceTabButton({
           isActive ? "text-white" : "text-white/86"
         )}
       >
-        {service.day} {service.time}
+        {service.day}{service.time ? ` ${service.time}` : ""}
       </p>
       <p
         className={clsx(
@@ -159,6 +159,17 @@ function ServiceTabButton({
 export default function ServiceSchedule() {
   const [services, setServices] = useState<ServiceEntry[]>(DEFAULT_SERVICES);
   const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setSelectedServiceKey(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     serviceSchedule
@@ -196,7 +207,7 @@ export default function ServiceSchedule() {
         />
       </FadeIn>
 
-      <StaggerContainer className="mx-auto max-w-5xl" staggerDelay={0.08}>
+      <div ref={containerRef}><StaggerContainer className="mx-auto max-w-5xl" staggerDelay={0.08}>
         <div className="mb-8 flex flex-wrap justify-center gap-3">
           {services.map((service) => {
             const serviceKey = getServiceKey(service);
@@ -237,19 +248,21 @@ export default function ServiceSchedule() {
                   </p>
                 </div>
 
-                <div className="flex items-center border-t border-white/[0.1] px-6 py-5 md:border-t-0 md:border-l">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gold" />
-                    <span className="font-heading text-sm font-bold uppercase tracking-[0.08em] text-white">
-                      {selectedService.time}
-                    </span>
+                {selectedService.time && (
+                  <div className="flex items-center border-t border-white/[0.1] px-6 py-5 md:border-t-0 md:border-l">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gold" />
+                      <span className="font-heading text-sm font-bold uppercase tracking-[0.08em] text-white">
+                        {selectedService.time}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </article>
           </FadeIn>
         ) : null}
-      </StaggerContainer>
+      </StaggerContainer></div>
     </SectionWrapper>
   );
 }
