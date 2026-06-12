@@ -260,10 +260,7 @@ export default function Navbar() {
                         </Link>
 
                         <button
-                          onClick={() => {
-                            logout();
-                            window.location.href = "/";
-                          }}
+                          onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
                           className="mt-2 flex w-full items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-error hover:bg-error/6"
                         >
                           <LogOut size={14} /> Sign Out
@@ -486,10 +483,7 @@ export default function Navbar() {
                       Open Dashboard
                     </Link>
                     <button
-                      onClick={() => {
-                        logout();
-                        window.location.href = "/";
-                      }}
+                      onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
                       className="w-full rounded-2xl border border-white/10 px-4 py-3 text-left font-body text-white/72"
                     >
                       Sign Out

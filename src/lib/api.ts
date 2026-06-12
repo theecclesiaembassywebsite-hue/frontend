@@ -15,7 +15,13 @@ import {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
+// ---------------------------------------------------------------------------
 // Token management
+// The primary auth mechanism is an httpOnly cookie set by the backend on login
+// (not readable by JS, immune to XSS). The localStorage token is kept as a
+// fallback for the Authorization header so the mobile app and any existing
+// sessions continue working without a forced re-login.
+// ---------------------------------------------------------------------------
 export const getToken = (): string | null => {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("auth_token");
@@ -50,12 +56,17 @@ export const fetchAPI = async <T>(
   if (!noAuth) {
     const token = getToken();
     if (token) {
+      // Header fallback — used by mobile app and existing web sessions.
+      // The httpOnly cookie is sent automatically via credentials: 'include'.
       fetchHeaders.Authorization = `Bearer ${token}`;
     }
   }
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...rest,
+    // Send the httpOnly session cookie on every request (cross-origin requires
+    // credentials: 'include'; backend CORS must specify credentials: true).
+    credentials: "include",
     headers: fetchHeaders,
   });
 
@@ -114,6 +125,7 @@ export const uploadFile = async (
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     method: "POST",
+    credentials: "include",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -274,6 +286,13 @@ export const auth = {
     }),
 
   getMe: () => fetchAPI<User>("/auth/me"),
+
+  // Clears the httpOnly session cookie on the backend, then removes the
+  // localStorage token so both auth paths are cleaned up together.
+  logout: async () => {
+    await fetchAPI<void>("/auth/logout", { method: "POST" }).catch(() => {});
+    removeToken();
+  },
 };
 
 // PROFILE ENDPOINTS

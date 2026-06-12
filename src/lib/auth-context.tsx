@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { auth, setToken, removeToken, getToken, type User } from "./api";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { auth, setToken, removeToken, type User } from "./api";
 
 interface AuthContextType {
   user: User | null;
@@ -13,7 +13,7 @@ interface AuthContextType {
     firstName: string;
     lastName: string;
   }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -23,17 +23,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Hydrate user on mount
+  // Hydrate user on mount — tries httpOnly cookie first (via credentials:include
+  // in fetchAPI), then falls back to localStorage token for existing sessions.
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const token = getToken();
-        if (token) {
-          const currentUser = await auth.getMe();
-          setUser(currentUser);
-        }
-      } catch (error) {
-        // Token invalid or expired
+        const currentUser = await auth.getMe();
+        setUser(currentUser);
+      } catch {
         removeToken();
         setUser(null);
       } finally {
@@ -47,7 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await auth.login(email, password);
-      setToken(response.access_token || response.token || '');
+      // By default prefer cookie-based auth (httpOnly cookie set by server).
+      // Only persist token to localStorage if explicitly enabled via
+      // `NEXT_PUBLIC_STORE_TOKEN=true` (useful for mobile / API clients).
+      if (process.env.NEXT_PUBLIC_STORE_TOKEN === 'true') {
+        setToken(response.access_token || response.token || '');
+      }
       setUser(response.user);
     } catch (error) {
       removeToken();
@@ -64,7 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }) => {
     try {
       const response = await auth.register(data);
-      setToken(response.access_token || response.token || '');
+      if (process.env.NEXT_PUBLIC_STORE_TOKEN === 'true') {
+        setToken(response.access_token || response.token || '');
+      }
       setUser(response.user);
     } catch (error) {
       removeToken();
@@ -73,8 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    removeToken();
+  // Calls backend to clear the httpOnly cookie, then wipes localStorage token
+  const logout = async () => {
+    await auth.logout();
     setUser(null);
   };
 
