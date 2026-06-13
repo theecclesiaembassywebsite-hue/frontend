@@ -49,6 +49,16 @@ const coreValues = [
   },
 ];
 
+const beliefSystem = [
+  "We live with a consciousness of God and service to humanity, staying heavenly conscious and earthly relevant.",
+  "We wholly subscribe to the atonement and substitutionary work of Christ Jesus, who paid fully for sin and ended the enmity between God and mankind.",
+  "We believe Jesus lived as our example, showing us how to live for His cause on the earth.",
+  "We believe in Christ's vision for His Church: a body functioning together in love, oneness, and mutual care.",
+  "We keep the right perspective about problems, seeing them as opportunities for growth, endurance, and relevant progress.",
+  "We are responsibility-minded, committed both to doing God's will and to building the capacity required for every assignment He gives.",
+  "We are Kingdom-minded people, conscious of Christ as King and of our ambassadorial responsibility to influence for His Kingdom.",
+];
+
 export default function AboutPage() {
   return (
     <main className="page-bands">
@@ -127,6 +137,27 @@ export default function AboutPage() {
               Worship With Us
             </Link>
           </div>
+        </div>
+      </SectionWrapper>
+
+      <SectionWrapper variant="lavender">
+        <SectionHeading
+          eyebrow="Belief System"
+          title="The convictions that frame our worldview."
+          description="These are the beliefs that shape how we think, endure, serve, and represent Christ in the world."
+          align="center"
+          className="mb-12"
+        />
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {beliefSystem.map((belief) => (
+            <article
+              key={belief}
+              className="rounded-[24px] border border-[rgba(14,11,30,0.08)] bg-white p-6 shadow-[0_16px_36px_rgba(14,11,30,0.05)]"
+            >
+              <p className="text-sm leading-7 text-gray-text">{belief}</p>
+            </article>
+          ))}
         </div>
       </SectionWrapper>
 

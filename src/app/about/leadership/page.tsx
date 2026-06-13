@@ -37,49 +37,57 @@ export default function LeadershipPage() {
 
             <div className="mt-6 space-y-4 font-body text-base leading-relaxed text-white/80">
               <p>
-                The Ecclesia Embassy is the assembly of the called-out ones and the
-                dwelling place of those chosen to showcase the beauty and excellence
-                of Christ. We are committed to raising a people with a thriving
-                relationship with God, operating with Kingdom worldview, for
-                societal relevance.
+                It is with great joy that I welcome you to The Ecclesia Embassy,
+                the assembly of the called-out ones. I strongly believe the Lord
+                has handpicked you for something crucial in His end-time agenda
+                on the earth.
               </p>
               <p>
-                We believe the Church is not just a gathering, but a living
-                Ecclesia: a people called out in Christ and sent as His
-                ambassadors. Our philosophy is simple and demanding: living the
-                Words of Christ, doing the works of Christ, and loving as He loves.
+                By divine privilege, we are on a mission to raise Word-cultured
+                ambassadors capable of bearing God&rsquo;s burden and
+                superimposing Heaven&rsquo;s culture here on earth. It is a huge
+                task, and because of that, we are a people sold out to His cause,
+                surrendered to His will, and committed to His bidding for all the
+                days of our lives.
               </p>
               <p>
-                At The Ecclesia Embassy, every gathering is designed to build you
-                up in faith and purpose. The movement is built on three foundations
-                God gave us in 2016: the Word, Warfare (Prayer), and Worship. Our
-                weekly meetings reflect those priorities:
+                Because that calling demands depth and equipment, we gather three
+                times every week so that our lives can be shaped continually by
+                the Word, Warfare, and Worship:
               </p>
               <ul className="list-disc space-y-1 pl-6">
                 <li>
-                  <span className="font-semibold text-white">Sundays</span> - The Word:
-                  a deep immersion in Scripture for training, clarity, and Kingdom
-                  living.
+                  <span className="font-semibold text-white">Tuesdays at 5:30 PM</span> - a
+                  time of warfare, heartfelt prayer, and intercession as we strongly
+                  engage the Holy Ghost to birth God&rsquo;s will.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">Tuesdays</span> - Prayer and
-                  Warfare: a time to pray, contend, and stand in the spirit.
+                  <span className="font-semibold text-white">Fridays at 5:30 PM</span> - a
+                  time of passionate, spontaneous worship that often culminates in
+                  supernatural encounters.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">Fridays</span> - Worship: a
-                  gathering of reverence, encounter, and wholehearted devotion to
-                  God.
+                  <span className="font-semibold text-white">Sundays at 8:00 AM</span> - a
+                  special moment in God&rsquo;s Word, which we have understood to be
+                  His major instrument of change, furtherance, and growth.
                 </li>
               </ul>
               <p>
-                Whether you are new to the faith or a seasoned believer, there is a
-                place for you here. Come and be part of a community that is
-                passionate about God, serious about His Word, and intentional about
-                Kingdom advancement.
+                A wise man said that in five years you will largely be the same
+                person you are now except for two things: the books you read and
+                the company you keep. That is why I urge you to be part of this
+                loving church family. Keep company with us, and I dare to say
+                your life promises much more than you have currently experienced.
+                It begins with the first step of identifying with us.
+              </p>
+              <p>
+                We would love to hear from you. Take advantage of our physical
+                and virtual platforms, stay apprised of our rich calendar, and
+                give yourself room to grow with what God is doing here.
               </p>
               <p className="font-semibold italic text-white">
-                Welcome to The Ecclesia Embassy - where intentionality, Word,
-                Prayer, and Worship shape ambassadors for Christ.
+                Your best days are not behind you. They are here, because God has
+                much more in mind concerning you.
               </p>
             </div>
           </div>
