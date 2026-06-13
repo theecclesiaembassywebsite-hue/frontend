@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Users, Calendar, Clock, Activity, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { squads as squadsAPI } from "@/lib/api";
@@ -65,8 +66,9 @@ export default function SquadDetailPage({ params }: { params: Promise<{ id: stri
   const [notFound, setNotFound] = useState(false);
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { success, error: showError } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSquad = async () => {
@@ -93,7 +95,7 @@ export default function SquadDetailPage({ params }: { params: Promise<{ id: stri
 
   const handleJoin = async () => {
     if (!isAuthenticated) {
-      showError("Please log in to join a squad.");
+      router.push(`/auth/login?redirect=/kingdom-expressions/squads/${id}`);
       return;
     }
     setJoining(true);
@@ -256,14 +258,17 @@ export default function SquadDetailPage({ params }: { params: Promise<{ id: stri
                     variant="primary"
                     className="w-full bg-[#771996] hover:bg-[#4A1D6E]"
                     onClick={handleJoin}
-                    disabled={joining}
+                    disabled={joining || authLoading}
                     loading={joining}
                   >
                     {joining ? "Joining..." : "Request to Join"}
                   </Button>
-                  {!isAuthenticated && (
+                  {!isAuthenticated && !authLoading && (
                     <p className="mt-4 font-body text-xs text-gray-text text-center">
-                      <Link href="/auth/login" className="text-purple-vivid hover:underline">
+                      <Link
+                        href={`/auth/login?redirect=/kingdom-expressions/squads/${id}`}
+                        className="text-purple-vivid hover:underline"
+                      >
                         Log in
                       </Link>{" "}
                       to join this squad.

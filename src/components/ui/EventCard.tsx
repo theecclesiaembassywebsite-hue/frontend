@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import Button from "./Button";
 
 interface EventCardProps {
   title: string;
@@ -9,6 +8,8 @@ interface EventCardProps {
   day: string;
   month: string;
   href: string;
+  imageUrl?: string;
+  requiresRegistration?: boolean;
   className?: string;
 }
 
@@ -19,41 +20,58 @@ export default function EventCard({
   day,
   month,
   href,
+  imageUrl,
+  requiresRegistration,
   className,
 }: EventCardProps) {
   return (
-    <div
-      className={cn(
-        "flex gap-4 rounded-[4px] border-l-4 border-l-purple bg-white p-4 shadow-sm",
-        "transition-shadow duration-200 hover:shadow-md",
-        className
-      )}
-    >
-      {/* Date badge */}
-      <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-[8px] bg-purple text-white">
-        <span className="font-heading text-lg font-bold leading-tight">
-          {day}
-        </span>
-        <span className="font-heading text-[10px] font-semibold uppercase">
-          {month}
-        </span>
-      </div>
+    <Link href={href} className={cn("block group", className)}>
+      <div
+        className={cn(
+          "flex flex-col rounded-[4px] border-l-4 border-l-purple bg-white shadow-sm overflow-hidden",
+          "transition-shadow duration-200 group-hover:shadow-md"
+        )}
+      >
+        {/* Event image */}
+        {imageUrl && (
+          <div className="h-44 w-full overflow-hidden">
+            <img
+              src={imageUrl}
+              alt={title}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        )}
 
-      {/* Content */}
-      <div className="flex flex-col gap-1 min-w-0">
-        <h3 className="font-heading text-base sm:text-lg font-semibold text-slate truncate">
-          {title}
-        </h3>
-        <p className="font-body text-sm text-gray-text line-clamp-2">
-          {description}
-        </p>
-        <p className="text-body-small mt-1">{date}</p>
-        <Link href={href} className="mt-2 self-start">
-          <Button variant="primary" className="text-xs py-2 px-4 min-w-0">
-            Register
-          </Button>
-        </Link>
+        {/* Content */}
+        <div className="flex gap-4 p-4">
+          {/* Date badge */}
+          <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-[8px] bg-purple text-white">
+            <span className="font-heading text-lg font-bold leading-tight">
+              {day}
+            </span>
+            <span className="font-heading text-[10px] font-semibold uppercase">
+              {month}
+            </span>
+          </div>
+
+          {/* Text */}
+          <div className="flex flex-col gap-1 min-w-0">
+            <h3 className="font-heading text-base sm:text-lg font-semibold text-slate truncate">
+              {title}
+            </h3>
+            <p className="font-body text-sm text-gray-text line-clamp-2">
+              {description}
+            </p>
+            <p className="text-body-small mt-1">{date}</p>
+            {requiresRegistration && (
+              <span className="mt-2 self-start rounded-full bg-purple/10 px-3 py-1 text-xs font-semibold text-purple">
+                Registration Required
+              </span>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

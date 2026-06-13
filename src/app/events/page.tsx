@@ -34,6 +34,8 @@ type Event = {
   date: string;
   location?: string;
   slug?: string;
+  imageUrl?: string;
+  requiresRegistration?: boolean;
 };
 
 const HIDDEN_EVENT_SLUGS = new Set(["as-unto-the-lord"]);
@@ -176,6 +178,8 @@ export default function EventsPage() {
                       day={day}
                       month={month}
                       href={`/events/${event.slug || event.id}`}
+                      imageUrl={event.imageUrl}
+                      requiresRegistration={event.requiresRegistration}
                     />
                   );
                 })}
