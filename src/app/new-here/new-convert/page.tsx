@@ -213,7 +213,8 @@ export default function NewConvertPage() {
               </h3>
               <p className="font-body text-sm text-gray-text">
                 Join a Church In The Home hub near you for midweek fellowship,
-                Bible study, and community.
+                Bible study, and community, or connect through the e-Hub if no
+                physical hub is close to you.
               </p>
             </div>
           </StaggerItem>

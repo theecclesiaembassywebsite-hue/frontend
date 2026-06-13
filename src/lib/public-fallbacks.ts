@@ -56,7 +56,7 @@ export const DEFAULT_ANNOUNCEMENTS = [
     id: "announcement-cith",
     title: "Church in the House Gatherings Continue Across the City",
     content:
-      "Our Church in the House hubs are meeting weekly for prayer, discipleship, and community. Find a hub near you or join the e-Hub online.",
+      "Our Church in the House hubs are meeting weekly for prayer, discipleship, and community. Find a hub near you, or join the e-Hub online if no hub is close to you or you are unable to make your home one.",
     published: true,
     publishDate: "2026-02-02T09:00:00.000Z",
     createdAt: "2026-02-02T09:00:00.000Z",

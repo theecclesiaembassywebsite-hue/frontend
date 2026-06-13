@@ -36,7 +36,7 @@ export default function FeastOfTabernaclesPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-lg mx-auto mb-10">
           {[
             { icon: Calendar, title: "7 Days", desc: "Sep 27 – Oct 3" },
-            { icon: MapPin, title: "Abuja, Nigeria", desc: "The Ecclesia Embassy" },
+            { icon: MapPin, title: "Hosted in Abuja", desc: "Welcoming Ecclesians and guests from around the world" },
           ].map((item) => {
             const Icon = item.icon;
             return (

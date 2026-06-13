@@ -32,11 +32,11 @@ const crimsonText = Crimson_Text({
 export const metadata: Metadata = {
   title: "The Ecclesia Embassy | Welcome Home",
   description:
-    "The Ecclesia Embassy is an apostolic and prophetic ministry in Abuja, Nigeria, raising Word-cultured ambassadors through worship, teaching, prayer, and community.",
+    "The Ecclesia Embassy is a global apostolic and prophetic movement raising Word-cultured ambassadors through worship, teaching, prayer, and community.",
   keywords: [
     "The Ecclesia Embassy",
     "church",
-    "Abuja",
+    "global movement",
     "apostolic",
     "prophetic",
     "Victor Oluwadamilare",

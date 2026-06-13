@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Crown, Heart, Sparkles } from "lucide-react";
+import { Award, BookOpen, Crown, Heart, Shield, Sparkles, Wrench } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -9,25 +9,43 @@ const coreValues = [
     icon: Heart,
     title: "God-Interest",
     description:
-      "We prize the pleasure, priorities, and agenda of God above personal preference and ambition.",
+      "We live with a consciousness of God, prioritising His will and serving humanity from that place.",
   },
   {
     icon: BookOpen,
     title: "Word-Cultured",
     description:
-      "Scripture does not merely inform our doctrine. It forms our habits, identity, and spiritual imagination.",
-  },
-  {
-    icon: Sparkles,
-    title: "Spirit-Led",
-    description:
-      "We stay yielded to the Holy Spirit, cultivating sensitivity, obedience, and holy courage.",
+      "The Word of Christ shapes our convictions, conduct, and the way we interpret everyday life.",
   },
   {
     icon: Crown,
-    title: "Kingdom-Focused",
+    title: "Kingdom-Driven",
     description:
-      "Everything is aimed at advancing Christ's reign in lives, homes, vocations, cities, and nations.",
+      "Our ambassadorial responsibility in the Kingdom is what drives our influence and service.",
+  },
+  {
+    icon: Sparkles,
+    title: "Worship",
+    description:
+      "We remain devoted to God with reverence, surrender, and a life that honours His presence.",
+  },
+  {
+    icon: Award,
+    title: "Excellence",
+    description:
+      "We pursue beauty, order, and quality in our worship, stewardship, and representation of Christ.",
+  },
+  {
+    icon: Wrench,
+    title: "Competent",
+    description:
+      "We build the requisite capacity for every demand that God's call and Kingdom service place on us.",
+  },
+  {
+    icon: Shield,
+    title: "Fidelity",
+    description:
+      "We stay faithful to Christ, to sound conviction, and to the relationships and trust He has given us.",
   },
 ];
 
@@ -36,17 +54,17 @@ export default function AboutPage() {
     <main className="page-bands">
       <PageHero
         eyebrow="About the Embassy"
-        title="We exist to raise Word-cultured ambassadors."
-        subtitle="A people shaped by Scripture, prayer, worship, and Kingdom purpose."
-        description="The Ecclesia Embassy is a vibrant apostolic and prophetic ministry in Abuja, committed to forming believers who know Christ deeply, love His Word thoroughly, and represent Him faithfully in every sphere of life."
+        title="Called out by Christ, sent as His ambassadors."
+        subtitle="The Ecclesia Embassy is the assembly of the called-out ones and the dwelling place of those chosen to showcase His beauty and excellence."
+        description="We are committed to raising a people with a thriving relationship with God, operating with Kingdom worldview, for societal relevance."
         backgroundImage="https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1920&q=80"
         actions={[
           { href: "/about/leadership", label: "Meet the Lead Brother", variant: "primary" },
           { href: "/about/experience", label: "The Ecclesia Experience", variant: "secondary", onDark: true },
         ]}
         stats={[
-          { value: "Word", label: "A house centered on Scripture" },
-          { value: "Kingdom", label: "A people formed for mission" },
+          { value: "Word", label: "A people formed by Christ's Word" },
+          { value: "Prayer", label: "A house trained in warfare" },
           { value: "Worship", label: "A life poured out before God" },
         ]}
       />
@@ -55,39 +73,52 @@ export default function AboutPage() {
         <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <SectionHeading
-              eyebrow="The Vision"
-              title="Raising Word-cultured ambassadors."
-              description="We believe deep transformation happens when believers are immersed in God's Word, shaped by His presence, and sent into everyday life with clarity and conviction."
+              eyebrow="Our Vision"
+              title="The domain of the ambassadors of Christ."
+              description="The Ecclesia Embassy is the assembly of the called-out ones: a people gathered in Christ to represent Him with clarity, beauty, and conviction."
             />
             <div className="mt-8 space-y-5 text-base leading-8 text-gray-text">
               <p>
-                At The Ecclesia Embassy, we are building a community where the Word of God is not
-                peripheral but central. We want believers who do not simply visit truth on Sundays,
-                but live from it daily as authentic representatives of Christ.
+                In Matthew 16:18, the word translated as &ldquo;church&rdquo; comes from the Greek
+                root <span className="font-semibold text-slate">ekklesia</span>, meaning the
+                called-out ones, the special ones, and the chosen ones. That identity is central to
+                who we are.
               </p>
               <p>
-                Under the leadership of <span className="font-semibold text-slate">Victor Oluwadamilare</span>,
-                we cultivate an atmosphere where the Holy Spirit is honoured, mature discipleship is
-                normal, and Kingdom service is intentional.
+                An embassy is the residence of ambassadors or representatives of a foreign nation.
+                In that sense, The Ecclesia Embassy is the dwelling place of those chosen to
+                showcase the beauty and excellence of Christ in the earth.
               </p>
               <p>
-                Our gatherings are designed to produce people who can carry heaven into their homes,
-                vocations, neighbourhoods, and nation with humility, authority, and love.
+                We exist to raise disciples and leaders whose lives are marked by intimacy with God,
+                Kingdom consciousness, and visible relevance in society. Our gatherings, systems,
+                and stewardship are built to form people who live as Christ&rsquo;s ambassadors in
+                every sphere of life.
               </p>
             </div>
           </div>
 
           <div className="mesh-panel rounded-[32px] p-8 shadow-[0_30px_60px_rgba(14,11,30,0.08)]">
             <p className="font-heading text-xs font-semibold uppercase tracking-[0.28em] text-purple-vivid">
-              Our Mandate
+              Mission &amp; Drive
             </p>
             <h3 className="mt-4 font-heading text-3xl font-bold text-slate">
-              To establish a generation that knows the Word and embodies Christ.
+              To raise a people with a thriving relationship with God, operating with Kingdom
+              worldview, for societal relevance.
             </h3>
             <div className="mt-8 space-y-4 text-sm leading-7 text-gray-text">
-              <p>We are committed to deep biblical literacy, spiritual maturity, and a life of surrendered worship.</p>
-              <p>We serve the Kingdom by forming believers who can think scripturally, pray fervently, and live missionally.</p>
-              <p>We are building not spectators, but servants and ambassadors with substance.</p>
+              <p>
+                <span className="font-semibold text-slate">Our drive:</span> Intentionality. We
+                are intentional in all we do.
+              </p>
+              <p>
+                <span className="font-semibold text-slate">Our philosophy:</span> Living the Words
+                of Christ, doing the works of Christ, and loving as He loves.
+              </p>
+              <p>
+                <span className="font-semibold text-slate">What shapes us:</span> Word, Prayer,
+                and Worship remain foundational to how we gather, grow, and serve.
+              </p>
             </div>
             <Link
               href="/new-here"
@@ -103,7 +134,7 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Core Values"
           title="The convictions that shape our culture."
-          description="These are the anchors that govern our ministry life, our relationships, and the way we respond to God's call."
+          description="These are the values named in The Ecclesia Embassy experience documents and embodied across our worship, discipleship, and stewardship."
           align="center"
           className="mb-12"
         />

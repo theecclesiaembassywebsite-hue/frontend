@@ -92,7 +92,7 @@ export default function SquadsPage() {
 
               <div>
                 <h3 className="font-heading text-xl font-bold text-[#0E0B1E] mb-2">THE APPROACH</h3>
-                <p>It is obvious from observations that the needs of people and organizations around us will be cumbersome to be met through one channel. This is the reason for the existence of different Squads within the Kingdom Model Life Squads Initiative.</p>
+                <p>It is obvious from observations that the needs of people and organizations around us will be cumbersome to be met through one channel. This is the reason for the existence of different Squads within the Kingdom Model Life Squads.</p>
                 <p className="font-semibold">Highlights of the fifteen (15) Squads are given below:</p>
                 <div className="space-y-4 mt-4">
                   <div>
@@ -161,7 +161,7 @@ export default function SquadsPage() {
               <div>
                 <h3 className="font-heading text-xl font-bold text-[#0E0B1E] mb-2">OUR TARGET AREA</h3>
                 <p>In reaching out to people, Jesus gave His disciples a pattern in Acts 1:8, saying they should begin from their immediate environment Jerusalem, to Judea, to Samaria, and then to the uttermost part of the earth.</p>
-                <p>In that same light, we would begin again, by reaching out to the great people in our immediate community of Asokoro, spread all over Abuja then spread all over Nigeria, and ultimately to the whole world. In all, no one around us that requires genuine aid must be left unattended to.</p>
+                <p>In that same light, we begin from the communities immediately around us, extend intentionally across cities and nations, and ultimately reach to the whole world. In all, no one around us that requires genuine aid must be left unattended to.</p>
               </div>
 
               <div>

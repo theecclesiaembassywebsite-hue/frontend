@@ -33,7 +33,7 @@ const expectCards = [
   {
     icon: MapPin,
     title: "Our Location",
-    description: "Guzape Hills, Asokoro Extension. Abuja. Nigeria. We look forward to welcoming you in person.",
+    description: "Our Abuja home base is in Guzape Hills, Asokoro Extension, and we look forward to welcoming you in person while staying connected globally.",
   },
 ];
 
@@ -84,7 +84,7 @@ export default function NewHerePage() {
         eyebrow="New Here?"
         title="Welcome to The Ecclesia Embassy."
         subtitle="We're glad you're here."
-        description="Whether this is your first Sunday or your first step toward a deeper faith community — you are welcome. Let us know you're coming and we'll be ready for you."
+        description="Whether this is your first Sunday with us in person or your first step into our global faith community — you are welcome. Let us know you're coming and we'll be ready for you."
         backgroundImage="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=1920&q=80"
         actions={[
           { href: "#plan", label: "Tell Us You're Coming", variant: "primary" },
@@ -132,7 +132,7 @@ export default function NewHerePage() {
                 <SectionHeading
                   eyebrow="Plan Your Visit"
                   title="Tell us about yourself."
-                  description="Help us get to know you so we can serve you well when you arrive."
+                  description="Help us get to know you so we can serve you well, whether you are joining us onsite or connecting from another city or nation."
                   align="center"
                   className="mx-auto mb-10"
                 />
@@ -236,7 +236,7 @@ export default function NewHerePage() {
             <SectionHeading
               eyebrow="Just Said Yes to Jesus?"
               title="Just gave your life to Christ?"
-              description="Congratulations! We want to walk with you on this new journey. Fill out our New Convert form so we can connect you to a growth track, a squad, and a community hub near you."
+              description="Congratulations! We want to walk with you on this new journey. Fill out our New Convert form so we can connect you to a growth track, a squad, and a community expression near you or online."
               align="center"
               className="mx-auto"
               titleClassName="text-white"

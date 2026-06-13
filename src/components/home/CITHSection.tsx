@@ -18,7 +18,8 @@ export default function CITHSection() {
     {
       icon: Globe,
       title: "Join the e-Hub",
-      description: "Connect with our online Church in the House community",
+      description:
+        "Connect with our online Church in the House community if no hub is close to you or you are unable to host one at home",
       cta: "Join Online",
       href: "/cith/ehub",
     },
@@ -38,7 +39,7 @@ export default function CITHSection() {
           <SectionHeading
             eyebrow="Belong Locally"
             title="Church in the House takes fellowship beyond Sunday."
-            description="Our hubs gather believers by neighbourhood and rhythm, making prayer, accountability, hospitality, and discipleship feel personal."
+            description="Our hubs gather believers by neighbourhood and rhythm, while the e-Hub keeps you connected when no nearby CITH hub is available or you are unable to make your home one."
             align="center"
             className="mb-12 md:mb-16"
           />

@@ -67,8 +67,9 @@ export default function EHubPage() {
                 e-Hub Registration
               </h2>
               <p className="font-body text-sm text-[#8A8A90]">
-                No physical hub nearby? Join our online community and participate
-                in virtual fellowship meetings from anywhere in the world.
+                If no CITH hub is close to you, or you are unable to make your home a hub
+                for one reason or another, join our online community and participate in
+                virtual fellowship meetings from anywhere in the world.
               </p>
             </div>
 

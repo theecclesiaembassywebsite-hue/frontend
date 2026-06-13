@@ -82,7 +82,7 @@ const ContactPage = () => {
         eyebrow="Contact Us"
         title="We'd love to hear from you."
         subtitle="Reach out and let us know how we can serve you."
-        description="Whether you have a question, need prayer, or simply want to connect — our team is here. Send us a message and we will get back to you shortly."
+        description="Whether you have a question, need prayer, or want to connect from anywhere in the world — our team is here. Send us a message and we will get back to you shortly."
         backgroundImage="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80"
         actions={[
           { href: "/new-here", label: "Plan Your Visit", variant: "primary" },
@@ -189,7 +189,7 @@ const ContactPage = () => {
                 We are here for you.
               </h3>
               <p className="mt-3 font-body text-sm leading-7 text-gray-text">
-                Our team is available to answer your questions, receive prayer requests, or help you find your next step at the Embassy.
+                Our team is available to answer your questions, receive prayer requests, or help you find your next step at the Embassy from wherever you are joining us.
               </p>
 
               <div className="mt-8 space-y-5">
@@ -221,7 +221,7 @@ const ContactPage = () => {
         <SectionHeading
           eyebrow="Find Us"
           title="Come worship with us."
-          description="Guzape Hills, Asokoro Extension. Abuja. Nigeria"
+          description="Visit our Abuja home base or connect with the movement from anywhere in the world."
           className="mb-10"
         />
         <FadeIn>

@@ -98,7 +98,7 @@ export default function CITHPage() {
               Church in the House
             </h1>
             <p className="font-body text-lg sm:text-xl md:text-2xl text-[#FAFAF8]">
-              Find fellowship near you
+              Find fellowship near you or stay connected online
             </p>
           </div>
         </FadeIn>
@@ -136,7 +136,16 @@ export default function CITHPage() {
                 <span className="font-semibold text-[#0E0B1E]">
                   Evangelism, Training, Fellowship, Worship and Works
                 </span>
-                .
+                . Where a physical hub is not accessible, the e-Hub provides an online
+                expression of that same fellowship for believers who do not have a CITH hub
+                close to them or are unable to make their home one.
+              </p>
+              <p>
+                CITH brings the life of the Church closer to the grassroots of daily life. In
+                smaller fellowship settings, believers are known, cared for, and encouraged to
+                grow actively rather than remain spectators. It creates room for stronger study,
+                spiritual accountability, genuine care, and more natural opportunities for
+                witnessing in homes and neighbourhoods.
               </p>
             </div>
           </div>
@@ -205,7 +214,7 @@ export default function CITHPage() {
                 No hubs found
               </h3>
               <p className="text-[#8A8A90]">
-                Try adjusting your search or register your own hub.
+                Try adjusting your search, join the e-Hub, or register your own hub.
               </p>
             </div>
           )}
@@ -220,8 +229,9 @@ export default function CITHPage() {
               Can't Find a Hub Near You?
             </h2>
             <p className="font-body text-lg text-[#E8E6F0] mb-8 max-w-2xl mx-auto">
-              Join our e-Hub to connect with believers worldwide, or register your home as a hub
-              to lead a fellowship group in your area.
+              Join our e-Hub if there is no CITH hub close to you or if you are unable to make
+              your home one for one reason or another. If you are able, you can also register
+              your home as a hub and lead a fellowship group in your area.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/cith/ehub">

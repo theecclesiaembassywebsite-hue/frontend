@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SectionWrapper from "@/components/ui/SectionWrapper";
 import { Quote } from "lucide-react";
+import SectionWrapper from "@/components/ui/SectionWrapper";
 import { gallery } from "@/lib/api";
 
 const testimonials = [
@@ -46,26 +46,31 @@ export default function ExperiencePage() {
       {/* Narrative */}
       <SectionWrapper variant="white">
         <div className="mx-auto max-w-3xl space-y-6">
-          <h2 className="font-heading text-[28px] font-bold text-slate text-center">
-            An Apostolic &amp; Prophetic Assignment
+          <h2 className="text-center font-heading text-[28px] font-bold text-slate">
+            A Nation Built on Word, Prayer, and Worship
           </h2>
-          <p className="font-body text-base text-gray-text leading-relaxed">
-            The Ecclesia Embassy is not just a church — it is a prophetic
-            community built on the foundation of the apostles, with Christ as
-            the chief cornerstone. Our gatherings are marked by the depth of the
-            Word, the intensity of worship, and the warmth of genuine fellowship.
+          <p className="font-body text-base leading-relaxed text-gray-text">
+            The Ecclesia Embassy is a nation with systems, language, and rhythms that help
+            believers grow together. At the centre of the movement are the three foundations
+            God gave in 2016: the Word, Warfare (Prayer), and Worship.
           </p>
-          <p className="font-body text-base text-gray-text leading-relaxed">
-            From our Sunday Word &amp; Life Services to Tuesday Prayer &amp;
-            Intercession, Friday Worship Encounters, and the monthly As Unto The
-            Lord consecrations — every gathering is designed to bring you closer
-            to God and equip you for your assignment in the earth.
+          <p className="font-body text-base leading-relaxed text-gray-text">
+            That foundation shapes our weekly rhythm. Sundays give priority to the Word,
+            Tuesdays to Prayer and Warfare, and Fridays to Worship. Our monthly{" "}
+            <span className="font-semibold text-slate">As unto the Lord</span> services,
+            held from the 1st to the 3rd of each month, deepens that consecration.
           </p>
-          <p className="font-body text-base text-gray-text leading-relaxed">
-            Through our Church-in-the-Home hubs, Kingdom Life Squads, and the
-            Ecclesia Nation community, we ensure that no member walks alone. You
-            are connected, accountable, and growing — whether you are in Abuja or
-            anywhere in the world through our e-Hub.
+          <p className="font-body text-base leading-relaxed text-gray-text">
+            Life here is also relational and missional. Through Church In the House, the
+            e-Hub, the Kingdom Model Life Squad, the Kingdom Influencing Platform, and the
+            Kingdom International School of Life and Ministry, Ecclesians are discipled,
+            equipped, and sent to live as Christ&rsquo;s ambassadors with clarity and relevance.
+          </p>
+          <p className="font-body text-base leading-relaxed text-gray-text">
+            That culture is expressed intentionally in the way we worship, honour one another,
+            serve sacrificially, and respond to the Word. At The Ecclesia Embassy, worship is
+            not treated as routine, relationships are handled like family, stewardship is seen
+            as service to the King, and the Word is expected to produce real obedience.
           </p>
         </div>
       </SectionWrapper>
@@ -73,14 +78,17 @@ export default function ExperiencePage() {
       {/* Photo Gallery */}
       {images.length > 0 && (
         <SectionWrapper variant="off-white">
-          <div className="text-center mb-10">
+          <div className="mb-10 text-center">
             <h2 className="font-heading text-[28px] font-bold text-slate">
               Life at The Ecclesia Embassy
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {images.map((img) => (
-              <div key={img.id} className="relative aspect-square overflow-hidden rounded-[8px] bg-purple-light">
+              <div
+                key={img.id}
+                className="relative aspect-square overflow-hidden rounded-[8px] bg-purple-light"
+              >
                 <img
                   src={img.url}
                   alt={img.caption || "Ecclesia Embassy"}
@@ -88,7 +96,9 @@ export default function ExperiencePage() {
                 />
                 {img.caption && (
                   <div className="absolute inset-x-0 bottom-0 bg-black/50 px-2 py-1.5">
-                    <p className="font-body text-[11px] text-white/90 line-clamp-1">{img.caption}</p>
+                    <p className="font-body line-clamp-1 text-[11px] text-white/90">
+                      {img.caption}
+                    </p>
                   </div>
                 )}
               </div>
@@ -99,23 +109,23 @@ export default function ExperiencePage() {
 
       {/* Testimonial Carousel */}
       <SectionWrapper variant="dark-purple">
-        <div className="text-center mb-10">
+        <div className="mb-10 text-center">
           <h2 className="font-heading text-[28px] font-bold text-white">
             What Our Members Say
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
+          {testimonials.map((testimonial, index) => (
             <div
-              key={i}
+              key={index}
               className="flex flex-col rounded-[8px] bg-white/5 p-6 backdrop-blur-sm"
             >
-              <Quote className="h-8 w-8 text-purple-vivid mb-3" />
-              <p className="font-serif text-base italic text-white/80 leading-relaxed flex-1">
-                &ldquo;{t.text}&rdquo;
+              <Quote className="mb-3 h-8 w-8 text-purple-vivid" />
+              <p className="flex-1 font-serif text-base italic leading-relaxed text-white/80">
+                &ldquo;{testimonial.text}&rdquo;
               </p>
               <p className="mt-4 font-heading text-sm font-semibold text-purple-light">
-                — {t.name}
+                - {testimonial.name}
               </p>
             </div>
           ))}

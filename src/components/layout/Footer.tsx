@@ -61,8 +61,9 @@ export default function Footer() {
                 Word, Kingdom and Worship.
               </p>
               <p className="mt-4 font-body text-sm leading-7 text-white/62">
-                A worshipping, praying, Scripture-shaped community in Abuja committed to
-                raising Word-cultured ambassadors who carry Christ into every sphere.
+                A worshipping, praying, Scripture-shaped global movement with a home
+                base in Abuja, committed to raising Word-cultured ambassadors who
+                carry Christ into every sphere.
               </p>
               <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-sm text-white/62">
                 <Heart className="h-4 w-4 text-gold" fill="currentColor" />
@@ -151,7 +152,7 @@ export default function Footer() {
         <FadeIn direction="none" delay={0.35}>
           <div className="flex flex-col gap-3 text-center text-xs text-white/46 md:flex-row md:items-center md:justify-between md:text-left">
             <p suppressHydrationWarning>&copy; {year} The Ecclesia Embassy. All rights reserved.</p>
-            <p>Raising Word-cultured ambassadors in Abuja and beyond.</p>
+            <p>Raising Word-cultured ambassadors across cities, nations, and generations.</p>
           </div>
         </FadeIn>
       </div>
