@@ -36,6 +36,10 @@ export default function LeadershipPage() {
             </p>
 
             <div className="mt-6 space-y-4 font-body text-base leading-relaxed text-white/80">
+              <p className="font-semibold text-white">
+                Welcome to The Ecclesia Embassy - where intentionality, Word,
+                Prayer, and Worship shape ambassadors for Christ.
+              </p>
               <p>
                 It is with great joy that I welcome you to The Ecclesia Embassy,
                 the assembly of the called-out ones. I strongly believe the Lord
@@ -81,6 +85,12 @@ export default function LeadershipPage() {
                 It begins with the first step of identifying with us.
               </p>
               <p>
+                Whether you are new to the faith or a seasoned believer, there
+                is a place for you here. Come and be part of a community that
+                is passionate about God, serious about His Word, and intentional
+                about Kingdom advancement.
+              </p>
+              <p>
                 We would love to hear from you. Take advantage of our physical
                 and virtual platforms, stay apprised of our rich calendar, and
                 give yourself room to grow with what God is doing here.
@@ -99,12 +109,14 @@ export default function LeadershipPage() {
           <h2 className="font-heading text-[28px] font-bold text-slate">
             Join Us
           </h2>
-          <p className="mt-4 font-body text-base leading-relaxed text-gray-text">
-            Whether you are joining us onsite or connecting from another city or
-            nation, The Ecclesia Embassy welcomes you. Come experience powerful
-            worship, deep teaching, and a community committed to raising
-            ambassadors for Christ.
-          </p>
+          <div className="mt-4 space-y-4 font-body text-base leading-relaxed text-gray-text">
+            <p>
+              Whether you are joining us onsite or connecting from another city or
+              nation, The Ecclesia Embassy welcomes you. Come experience powerful
+              worship, deep teaching, and a community committed to raising
+              ambassadors for Christ.
+            </p>
+          </div>
         </div>
       </SectionWrapper>
     </>
