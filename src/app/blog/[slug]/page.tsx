@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { ArrowLeft, User, Calendar, Tag } from "lucide-react";
+import DOMPurify from "dompurify";
 import { blog } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
@@ -222,7 +223,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ slug: str
         <div className="prose prose-sm max-w-none mb-8 rounded-[8px] bg-white border border-gray-border p-8 shadow-sm">
           <div
             className="font-body text-base text-slate leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
         </div>
 

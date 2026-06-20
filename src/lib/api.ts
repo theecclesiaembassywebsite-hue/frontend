@@ -1244,9 +1244,8 @@ export const admin = {
     fetchAPI<any>("/admin/analytics/growth"),
 
   exportGiving: (period?: string) => {
-    const token = getToken();
     const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-    window.open(`${base}/admin/giving/export${period ? `?period=${period}` : ""}${token ? `&token=${token}` : ""}`, "_blank");
+    window.open(`${base}/admin/giving/export${period ? `?period=${period}` : ""}`, "_blank");
   },
 
   getMembers: (page = 1, search?: string, role?: string) =>

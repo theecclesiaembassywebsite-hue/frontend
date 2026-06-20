@@ -4,18 +4,32 @@ import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { setToken } from "@/lib/api";
 
+const SAFE_REDIRECTS = new Set(['/dashboard', '/admin', '/auth/login', '/blog']);
+
+function getHashParam(name: string) {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash.replace(/^#/, '');
+  return new URLSearchParams(hash).get(name);
+}
+
+function normalizeRedirect(redirect: string | null): string {
+  if (!redirect) return '/dashboard';
+  if (!redirect.startsWith('/')) return '/dashboard';
+  return SAFE_REDIRECTS.has(redirect) ? redirect : '/dashboard';
+}
+
 function CallbackHandler() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams.get("token");
-    const redirect = searchParams.get("redirect") || "/dashboard";
+    const token = getHashParam('token');
+    const redirect = normalizeRedirect(searchParams.get('redirect'));
 
     if (token) {
       setToken(token);
       window.location.assign(redirect);
     } else {
-      window.location.assign("/auth/login?error=google_failed");
+      window.location.assign('/auth/login?error=google_failed');
     }
   }, [searchParams]);
 
