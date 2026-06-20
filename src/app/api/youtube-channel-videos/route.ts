@@ -41,6 +41,8 @@ interface PlaylistItem {
     videoId?: string;
     videoPublishedAt?: string;
   };
+  // Present on any video that was or is a live broadcast (active, upcoming, or completed replay)
+  liveStreamingDetails?: Record<string, unknown>;
 }
 
 type PlaylistThumbnails = NonNullable<PlaylistItem["snippet"]>["thumbnails"];
@@ -129,7 +131,7 @@ async function fetchVideosTabIds(channelUrl: string) {
 async function fetchVideosTabViaApi(channelUrl: string, apiKey: string) {
   const ids = await fetchVideosTabIds(channelUrl);
   const response = await fetch(
-    `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${ids.join(",")}&key=${apiKey}`,
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${ids.join(",")}&key=${apiKey}`,
     { signal: AbortSignal.timeout(10_000) }
   );
 
@@ -153,9 +155,9 @@ async function fetchVideosTabViaApi(channelUrl: string, apiKey: string) {
     .map((id) => {
       const item = videosById.get(id);
 
-      if (!item) {
-        return null;
-      }
+      if (!item) return null;
+      // Exclude livestreams — active, upcoming, and completed replays all have liveStreamingDetails
+      if (item.liveStreamingDetails) return null;
 
       return normalizeVideo(
         id,
@@ -192,7 +194,28 @@ function parseFeed(xml: string) {
   return videos;
 }
 
-async function fetchUploadsViaRss(channelId: string) {
+async function fetchLiveVideoIds(ids: string[], apiKey: string): Promise<Set<string>> {
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${ids.join(",")}&key=${apiKey}`,
+    { signal: AbortSignal.timeout(10_000) }
+  );
+
+  if (!response.ok) return new Set();
+
+  consumeQuota(VIDEOS_COST);
+  const data = (await response.json()) as { items?: PlaylistItem[] };
+  const liveIds = new Set<string>();
+
+  for (const item of data.items ?? []) {
+    if (item.id && item.liveStreamingDetails) {
+      liveIds.add(item.id);
+    }
+  }
+
+  return liveIds;
+}
+
+async function fetchUploadsViaRss(channelId: string, apiKey?: string) {
   const response = await fetch(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
     { signal: AbortSignal.timeout(10_000) }
@@ -203,7 +226,18 @@ async function fetchUploadsViaRss(channelId: string) {
   }
 
   const xml = await response.text();
-  return parseFeed(xml).slice(0, 12);
+  const videos = parseFeed(xml).slice(0, 12);
+
+  if (apiKey && videos.length > 0 && isQuotaSafe(VIDEOS_COST)) {
+    try {
+      const liveIds = await fetchLiveVideoIds(videos.map((v) => v.id), apiKey);
+      return videos.filter((v) => !liveIds.has(v.id));
+    } catch {
+      // quota or network failure — return unfiltered rather than drop everything
+    }
+  }
+
+  return videos;
 }
 
 async function fetchSingleChannel(
@@ -219,7 +253,7 @@ async function fetchSingleChannel(
   }
 
   try {
-    return await fetchUploadsViaRss(channel.id);
+    return await fetchUploadsViaRss(channel.id, apiKey);
   } catch {
     return [];
   }
