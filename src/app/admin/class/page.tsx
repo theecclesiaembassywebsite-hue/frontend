@@ -9,10 +9,58 @@ import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 
+const phaseSeedData = [
+  {
+    title: "Phase One — Move In",
+    description:
+      "The entry level introduces the basics of the Christian faith and the Ecclesia Embassy. Includes eight teachings across three weeks, or a one-day crash course.",
+    modules: [
+      { title: "ORIENTATION / The History of The Called-Out Breed", order: 1 },
+      { title: "Understanding New Birth", order: 2 },
+      { title: "Knowledge of the Word", order: 3 },
+      { title: "Effective Prayer", order: 4 },
+      { title: "Holy Spirit", order: 5 },
+      { title: "The Ecclesia Embassy Experience 1", order: 6 },
+      { title: "CITH", order: 7 },
+      { title: "Assessment", order: 8 },
+    ],
+  },
+  {
+    title: "Phase Two — Maturity and Ministry",
+    description:
+      "Develops culture, consistency, honor, and stewardship through teachings, assignments, evaluations, and hands-on service experiences.",
+    modules: [
+      { title: "Prayers / Discussion", order: 1 },
+      { title: "Stewardship", order: 2 },
+      { title: "Basics of Christianity", order: 3 },
+      { title: "Christian Conduct", order: 4 },
+      { title: "Prayers / Discussion", order: 5 },
+      { title: "Growing Up Spiritually", order: 6 },
+      { title: "Learning Scriptural Prayers & Pray in Tongues", order: 7 },
+      { title: "The Gospel of the Kingdom", order: 8 },
+      { title: "Prayers / Discussion", order: 9 },
+      { title: "Understanding Ministry", order: 10 },
+      { title: "The Ecclesia Experience 2", order: 11 },
+      { title: "The Ecclesia Experience 3", order: 12 },
+      { title: "Prayers / Discussion", order: 13 },
+      { title: "Homologia", order: 14 },
+      { title: "Learning How to Honour God, Themselves and People", order: 15 },
+      { title: "Continuous Assessment", order: 16 },
+    ],
+  },
+  {
+    title: "Phase Three — Missions and Mandate",
+    description:
+      "Shifts the focus from personal growth to kingdom impact, preparing committed members for evangelism, leadership, and wider responsibility.",
+    modules: [],
+  },
+];
+
 function AdminClassContent() {
   const [stats, setStats] = useState<any>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showModuleModal, setShowModuleModal] = useState(false);
   const [showEditModuleModal, setShowEditModuleModal] = useState(false);
@@ -62,6 +110,41 @@ function AdminClassContent() {
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
+
+  const handleSeedPhases = async () => {
+    if (!window.confirm("This will delete any existing phase courses and recreate them with the correct module structure. Continue?")) return;
+    setSeeding(true);
+    try {
+      const existingPhaseCourses = courses.filter((c) =>
+        phaseSeedData.some((p) => c.title === p.title)
+      );
+      for (const course of existingPhaseCourses) {
+        await intentionalityClass.adminDeleteCourse(course.id);
+      }
+
+      for (const phase of phaseSeedData) {
+        const newCourse = await intentionalityClass.adminCreateCourse({
+          title: phase.title,
+          description: phase.description,
+        });
+        for (const mod of phase.modules) {
+          await intentionalityClass.adminCreateModule({
+            courseId: newCourse.id,
+            title: mod.title,
+            order: mod.order,
+          });
+        }
+      }
+      success("Phase courses recreated successfully!");
+      const updated = await intentionalityClass.adminGetCourses();
+      setCourses(updated || []);
+    } catch (err) {
+      error("Failed to recreate phases. Some courses may have been partially updated.");
+      console.error(err);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const handleCreateCourse = async () => {
     if (!formData.title || !formData.description) {
@@ -258,9 +341,20 @@ function AdminClassContent() {
           <h1 className="font-heading text-2xl font-bold text-slate">Intentionality Class</h1>
           <p className="text-body-small mt-1">Course management, enrollment stats, and exam results</p>
         </div>
-        <Button variant="primary" className="text-xs py-2 px-4 min-w-0" onClick={() => setShowCreateModal(true)}>
-          <Plus size={14} className="mr-1" /> New Course
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            className="text-xs py-2 px-4 min-w-0"
+            onClick={handleSeedPhases}
+            disabled={seeding}
+          >
+            <GraduationCap size={14} className="mr-1" />
+            {seeding ? "Recreating..." : "Reset Phase Courses"}
+          </Button>
+          <Button variant="primary" className="text-xs py-2 px-4 min-w-0" onClick={() => setShowCreateModal(true)}>
+            <Plus size={14} className="mr-1" /> New Course
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}

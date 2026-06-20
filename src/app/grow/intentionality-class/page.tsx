@@ -12,8 +12,10 @@ import { FadeIn } from '@/components/ui/Motion';
 import {
   BookOpen,
   CheckCircle,
+  ClipboardList,
   Clock,
   GraduationCap,
+  Lock,
   Sparkles,
   Users,
 } from 'lucide-react';
@@ -75,6 +77,98 @@ const phaseCards = [
   },
 ];
 
+const curriculum = [
+  {
+    phase: 1,
+    title: 'Phase One — Move In',
+    description:
+      'The entry level introduces the basics of the Christian faith and the Ecclesia Embassy. It includes eight teachings spread across three weeks, or can be completed through a one-day crash course.',
+    available: true,
+    weeks: [
+      {
+        week: 1,
+        teachings: [
+          { title: 'ORIENTATION / The History of The Called-Out Breed', isAssessment: false },
+          { title: 'Understanding New Birth', isAssessment: false },
+          { title: 'Knowledge of the Word', isAssessment: false },
+        ],
+      },
+      {
+        week: 2,
+        teachings: [
+          { title: 'Effective Prayer', isAssessment: false },
+          { title: 'Holy Spirit', isAssessment: false },
+          { title: 'The Ecclesia Embassy Experience 1', isAssessment: false },
+        ],
+      },
+      {
+        week: 3,
+        teachings: [
+          { title: 'CITH', isAssessment: false },
+          { title: 'Assessment', isAssessment: true },
+        ],
+      },
+    ],
+  },
+  {
+    phase: 2,
+    title: 'Phase Two — Maturity and Ministry',
+    description:
+      'Develops culture, consistency, honor, and stewardship through teachings, assignments, evaluations, and hands-on service experiences.',
+    available: true,
+    weeks: [
+      {
+        week: 1,
+        sublevel: 'Maturity',
+        teachings: [
+          { title: 'Prayers / Discussion (10 mins)', isAssessment: false },
+          { title: 'Stewardship', isAssessment: false },
+          { title: 'Basics of Christianity', isAssessment: false },
+          { title: 'Christian Conduct', isAssessment: false },
+        ],
+      },
+      {
+        week: 2,
+        sublevel: 'Ministry',
+        teachings: [
+          { title: 'Prayers / Discussion (10 mins)', isAssessment: false },
+          { title: 'Growing Up Spiritually', isAssessment: false },
+          { title: 'Learning Scriptural Prayers & Pray in Tongues', isAssessment: false },
+          { title: 'The Gospel of the Kingdom', isAssessment: false },
+        ],
+      },
+      {
+        week: 3,
+        sublevel: 'Ministry',
+        teachings: [
+          { title: 'Prayers / Discussion (10 mins)', isAssessment: false },
+          { title: 'Understanding Ministry', isAssessment: false },
+          { title: 'The Ecclesia Experience 2', isAssessment: false },
+          { title: 'The Ecclesia Experience 3', isAssessment: false },
+        ],
+      },
+      {
+        week: 4,
+        sublevel: 'Ministry',
+        teachings: [
+          { title: 'Prayers / Discussion (10 mins)', isAssessment: false },
+          { title: 'Homologia', isAssessment: false },
+          { title: 'Learning How to Honour God, Themselves and People', isAssessment: false },
+          { title: 'Continuous Assessment', isAssessment: true },
+        ],
+      },
+    ],
+  },
+  {
+    phase: 3,
+    title: 'Phase Three — Missions and Mandate',
+    description:
+      'Shifts the focus from personal growth to kingdom impact, preparing committed members for evangelism, leadership, and wider responsibility.',
+    available: false,
+    weeks: [],
+  },
+];
+
 export default function IntentionalityClassPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
@@ -108,7 +202,7 @@ export default function IntentionalityClassPage() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -279,6 +373,100 @@ export default function IntentionalityClassPage() {
             disciplined and service-driven life, and ultimately to embracing leadership and kingdom
             responsibility within the Ecclesia mandate.
           </p>
+        </div>
+      </SectionWrapper>
+
+      <SectionWrapper variant="off-white" id="curriculum">
+        <FadeIn>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-purple">
+              Course Breakdown
+            </p>
+            <h2 className="mt-3 font-heading text-[30px] font-bold text-slate md:text-[34px]">
+              What you will learn
+            </h2>
+            <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
+              Three phases of formation, each building intentionally on the last. Phase One is now
+              open — phases two and three will be released as you progress.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="mt-12 space-y-6">
+          {curriculum.map((phase) => (
+            <FadeIn key={phase.phase} delay={0.06 * phase.phase}>
+              <div
+                className={
+                  phase.available
+                    ? 'overflow-hidden rounded-[28px] border border-gray-border bg-white shadow-sm'
+                    : 'overflow-hidden rounded-[28px] border border-gray-border bg-white/60 shadow-sm opacity-70'
+                }
+              >
+                {/* Phase header */}
+                <div className="bg-[linear-gradient(135deg,#0E0B1E_0%,#2C1D52_100%)] px-6 py-5 md:px-8">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-gold">
+                        Stage {phase.phase}
+                      </p>
+                      <h3 className="mt-1 font-heading text-xl font-bold text-white md:text-2xl">
+                        {phase.title}
+                      </h3>
+                      <p className="mt-2 font-body text-sm leading-6 text-white/68">
+                        {phase.description}
+                      </p>
+                    </div>
+                    {!phase.available && (
+                      <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5">
+                        <Lock className="h-3.5 w-3.5 text-white/60" />
+                        <span className="font-heading text-[10px] font-semibold uppercase tracking-[1.4px] text-white/60">
+                          Coming Soon
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Weeks grid */}
+                {phase.available && phase.weeks.length > 0 && (
+                  <div
+                    className={`grid gap-px bg-gray-border ${
+                      phase.weeks.length === 4
+                        ? 'md:grid-cols-2 lg:grid-cols-4'
+                        : 'md:grid-cols-3'
+                    }`}
+                  >
+                    {phase.weeks.map((week) => (
+                      <div key={week.week} className="bg-white px-6 py-5">
+                        {'sublevel' in week && (
+                          <p className="font-heading text-[10px] font-semibold uppercase tracking-[1.4px] text-gold-dark">
+                            {week.sublevel}
+                          </p>
+                        )}
+                        <p className={`font-heading text-xs font-semibold uppercase tracking-[1.6px] text-purple ${'sublevel' in week ? 'mt-1' : ''}`}>
+                          Week {week.week}
+                        </p>
+                        <ul className="mt-4 space-y-3">
+                          {week.teachings.map((teaching) => (
+                            <li key={teaching.title} className="flex items-start gap-3">
+                              {teaching.isAssessment ? (
+                                <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-gold-dark" />
+                              ) : (
+                                <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-purple" />
+                              )}
+                              <span className="font-body text-sm leading-6 text-slate">
+                                {teaching.title}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </FadeIn>
+          ))}
         </div>
       </SectionWrapper>
 

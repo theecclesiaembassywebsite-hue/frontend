@@ -92,6 +92,146 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+interface DesktopAuthSectionProps {
+  closeMenus: () => void;
+  userMenuOpen: boolean;
+  setUserMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  userMenuRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function DesktopAuthSection({
+  closeMenus,
+  userMenuOpen,
+  setUserMenuOpen,
+  userMenuRef,
+}: DesktopAuthSectionProps) {
+  const { user, logout } = useAuth();
+
+  if (!user) {
+    return (
+      <>
+        <Link
+          href="/auth/login"
+          onClick={closeMenus}
+          className="rounded-full px-3 py-2 text-sm font-medium text-white/70 hover:text-white"
+        >
+          Sign In
+        </Link>
+        <Link
+          href="/give"
+          onClick={closeMenus}
+          className={buttonClasses({ variant: "primary" })}
+        >
+          Give / Sow
+        </Link>
+      </>
+    );
+  }
+
+  return (
+    <div className="relative" ref={userMenuRef}>
+      <button
+        onClick={() => setUserMenuOpen((open) => !open)}
+        className="flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-3 py-2 text-white/86 hover:bg-white/10"
+      >
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold text-slate">
+          <User className="h-4 w-4" />
+        </div>
+        <div className="text-left">
+          <p className="font-heading text-xs uppercase tracking-[0.18em] text-white/52">
+            Account
+          </p>
+          <p className="font-body text-sm">
+            {user.profile?.firstName || "Member"}
+          </p>
+        </div>
+        <ChevronDown size={14} />
+      </button>
+
+      <AnimatePresence>
+        {userMenuOpen ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.18 }}
+            className="absolute right-0 top-full z-50 mt-3 w-60 overflow-hidden rounded-[26px] border border-slate/10 bg-white p-2 shadow-[0_28px_60px_rgba(14,11,30,0.16)]"
+          >
+            <div className="border-b border-slate/8 px-4 py-3">
+              <p className="font-heading text-sm font-semibold text-slate">
+                {user.profile?.firstName} {user.profile?.lastName}
+              </p>
+              <p className="font-body text-xs text-gray-text">{user.email}</p>
+            </div>
+
+            {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
+              <Link
+                href="/admin"
+                onClick={() => setUserMenuOpen(false)}
+                className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate hover:bg-lavender"
+              >
+                <Shield size={14} /> Admin Dashboard
+              </Link>
+            ) : null}
+
+            <Link
+              href="/dashboard"
+              onClick={() => setUserMenuOpen(false)}
+              className="mt-1 flex items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate hover:bg-lavender"
+            >
+              <LayoutDashboard size={14} /> My Dashboard
+            </Link>
+
+            <button
+              onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
+              className="mt-2 flex w-full items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-error hover:bg-error/6"
+            >
+              <LogOut size={14} /> Sign Out
+            </button>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function MobileAuthSection({ closeMenus }: { closeMenus: () => void }) {
+  const { user, logout } = useAuth();
+
+  if (!user) {
+    return (
+      <Link
+        href="/auth/login"
+        onClick={closeMenus}
+        className="block rounded-2xl bg-white/6 px-4 py-3 font-body text-white"
+      >
+        Sign In
+      </Link>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="font-body text-sm text-white/70">
+        Signed in as {user.profile?.firstName || "Member"}
+      </p>
+      <Link
+        href="/dashboard"
+        onClick={closeMenus}
+        className="block rounded-2xl bg-white/6 px-4 py-3 font-body"
+      >
+        Open Dashboard
+      </Link>
+      <button
+        onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
+        className="w-full rounded-2xl border border-white/10 px-4 py-3 text-left font-body text-white/72"
+      >
+        Sign Out
+      </button>
+    </div>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -99,7 +239,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+
   const closeMenus = () => {
     setMobileOpen(false);
     setOpenDropdown(null);
@@ -188,88 +328,12 @@ export default function Navbar() {
 
             {/* Desktop: Sign In + Give/Sow */}
             <div className="hidden items-center gap-3 lg:flex">
-              {!user ? (
-                <>
-                  <Link
-                    href="/auth/login"
-                    onClick={closeMenus}
-                    className="rounded-full px-3 py-2 text-sm font-medium text-white/70 hover:text-white"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/give"
-                    onClick={closeMenus}
-                    className={buttonClasses({ variant: "primary" })}
-                  >
-                    Give / Sow
-                  </Link>
-                </>
-              ) : (
-                <div className="relative" ref={userMenuRef}>
-                  <button
-                    onClick={() => setUserMenuOpen((open) => !open)}
-                    className="flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-3 py-2 text-white/86 hover:bg-white/10"
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold text-slate">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-heading text-xs uppercase tracking-[0.18em] text-white/52">
-                        Account
-                      </p>
-                      <p className="font-body text-sm">
-                        {user.profile?.firstName || "Member"}
-                      </p>
-                    </div>
-                    <ChevronDown size={14} />
-                  </button>
-
-                  <AnimatePresence>
-                    {userMenuOpen ? (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.18 }}
-                        className="absolute right-0 top-full z-50 mt-3 w-60 overflow-hidden rounded-[26px] border border-slate/10 bg-white p-2 shadow-[0_28px_60px_rgba(14,11,30,0.16)]"
-                      >
-                        <div className="border-b border-slate/8 px-4 py-3">
-                          <p className="font-heading text-sm font-semibold text-slate">
-                            {user.profile?.firstName} {user.profile?.lastName}
-                          </p>
-                          <p className="font-body text-xs text-gray-text">{user.email}</p>
-                        </div>
-
-                        {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
-                          <Link
-                            href="/admin"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate hover:bg-lavender"
-                          >
-                            <Shield size={14} /> Admin Dashboard
-                          </Link>
-                        ) : null}
-
-                        <Link
-                          href="/dashboard"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="mt-1 flex items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate hover:bg-lavender"
-                        >
-                          <LayoutDashboard size={14} /> My Dashboard
-                        </Link>
-
-                        <button
-                          onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
-                          className="mt-2 flex w-full items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-error hover:bg-error/6"
-                        >
-                          <LogOut size={14} /> Sign Out
-                        </button>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
-                </div>
-              )}
+              <DesktopAuthSection
+                closeMenus={closeMenus}
+                userMenuOpen={userMenuOpen}
+                setUserMenuOpen={setUserMenuOpen}
+                userMenuRef={userMenuRef}
+              />
             </div>
 
             {/* Mobile hamburger */}
@@ -470,34 +534,7 @@ export default function Navbar() {
               </div>
 
               <div className="mt-8 border-t border-white/10 pt-6">
-                {user ? (
-                  <div className="space-y-3">
-                    <p className="font-body text-sm text-white/70">
-                      Signed in as {user.profile?.firstName || "Member"}
-                    </p>
-                    <Link
-                      href="/dashboard"
-                      onClick={closeMenus}
-                      className="block rounded-2xl bg-white/6 px-4 py-3 font-body"
-                    >
-                      Open Dashboard
-                    </Link>
-                    <button
-                      onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
-                      className="w-full rounded-2xl border border-white/10 px-4 py-3 text-left font-body text-white/72"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    href="/auth/login"
-                    onClick={closeMenus}
-                    className="block rounded-2xl bg-white/6 px-4 py-3 font-body text-white"
-                  >
-                    Sign In
-                  </Link>
-                )}
+                <MobileAuthSection closeMenus={closeMenus} />
               </div>
             </motion.div>
           </div>
