@@ -7,6 +7,7 @@ import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";
 const CACHE_TTL_MS = 60 * 60_000; // 1 hour
 const SEARCH_COST = 100; // units per search.list call
+const VIDEOS_COST = 1; // units per videos.list call
 
 interface YouTubeVideo {
   id: string;
@@ -97,14 +98,50 @@ function parseRSSEntries(xml: string): YouTubeVideo[] {
   return entries;
 }
 
-async function fetchViaRSS(): Promise<YouTubeVideo[]> {
+// Returns the set of video IDs (from the given list) that are livestreams.
+// Costs 1 quota unit — safe to call even when search quota is exhausted.
+async function fetchLiveVideoIds(ids: string[], apiKey: string): Promise<Set<string>> {
+  const res = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${ids.join(",")}&key=${apiKey}`,
+    { signal: AbortSignal.timeout(10_000) }
+  );
+
+  if (!res.ok) return new Set();
+
+  consumeQuota(VIDEOS_COST);
+  const data = (await res.json()) as { items?: Array<{ id?: string; liveStreamingDetails?: unknown }> };
+  const liveIds = new Set<string>();
+
+  for (const item of data.items ?? []) {
+    if (item.id && item.liveStreamingDetails) {
+      liveIds.add(item.id);
+    }
+  }
+
+  return liveIds;
+}
+
+// RSS feeds include all uploads — regular videos and livestream replays alike.
+// When an API key is available we do a cheap secondary call to keep only livestreams.
+// Without a key we can't distinguish, so we return empty rather than pollute "Past Streams".
+async function fetchViaRSS(apiKey?: string): Promise<YouTubeVideo[]> {
   const res = await fetch(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
     { signal: AbortSignal.timeout(10_000) }
   );
   if (!res.ok) throw new Error(`RSS ${res.status}`);
   const xml = await res.text();
-  return parseRSSEntries(xml).slice(0, 3);
+  // Fetch extra entries before filtering so we end up with ~3 livestreams
+  const candidates = parseRSSEntries(xml).slice(0, 12);
+
+  if (!apiKey || candidates.length === 0) return [];
+
+  if (isQuotaSafe(VIDEOS_COST)) {
+    const liveIds = await fetchLiveVideoIds(candidates.map((v) => v.id), apiKey);
+    return candidates.filter((v) => liveIds.has(v.id)).slice(0, 3);
+  }
+
+  return [];
 }
 
 export async function GET() {
@@ -117,9 +154,9 @@ export async function GET() {
 
     if (apiKey && isQuotaSafe(SEARCH_COST)) {
       const result = await fetchViaApi(apiKey);
-      videos = result === "QUOTA_EXCEEDED" ? await fetchViaRSS() : result;
+      videos = result === "QUOTA_EXCEEDED" ? await fetchViaRSS(apiKey) : result;
     } else {
-      videos = await fetchViaRSS();
+      videos = await fetchViaRSS(apiKey);
     }
 
     cached = { videos, expiresAt: now + CACHE_TTL_MS };
