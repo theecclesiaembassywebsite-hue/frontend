@@ -98,12 +98,12 @@ const curriculum = [
         teachings: [
           { title: 'Effective Prayer', isAssessment: false },
           { title: 'Holy Spirit', isAssessment: false },
-          { title: 'The Ecclesia Embassy Experience 1', isAssessment: false },
         ],
       },
       {
         week: 3,
         teachings: [
+          { title: 'The Ecclesia Embassy Experience 1', isAssessment: false },
           { title: 'CITH', isAssessment: false },
           { title: 'Assessment', isAssessment: true },
         ],
