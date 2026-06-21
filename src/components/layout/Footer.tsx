@@ -117,7 +117,7 @@ export default function Footer() {
                     <p className="font-heading text-xs uppercase tracking-[0.18em] text-white/42">
                       Weekly Rhythm
                     </p>
-                    <p className="mt-2 font-body text-sm text-white/74">Sunday Worship · 8:00 AM</p>
+                    <p className="mt-2 font-body text-sm text-white/74">Sunday Word · 8:00 AM</p>
                     <p className="font-body text-sm text-white/74">Tuesday Prayer · 5:30 PM</p>
                     <p className="font-body text-sm text-white/74">Friday Worship · 5:30 PM</p>
                   </div>
