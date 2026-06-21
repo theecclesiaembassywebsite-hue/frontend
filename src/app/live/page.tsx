@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { ExternalLink, Flame, Heart, Radio, Share2, X } from "lucide-react";
-import { livestream, serviceSchedule, engagement } from "@/lib/api";
+import { engagement, livestream, serviceSchedule } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -313,6 +313,8 @@ export default function LivePage() {
 
     const fetchVideos = async () => {
       try {
+        if (!isMounted) return;
+
         const res = await fetch("/api/youtube-videos");
         const data: { videos?: YouTubeVideo[] } = await res.json();
         if (!isMounted) return;
@@ -392,7 +394,6 @@ export default function LivePage() {
     : hasManualOverride
       ? manualEmbedUrl
       : "";
-  // youtube-videos API fetches completed streams, so no active live video to exclude.
   const archivedVideos = videos;
 
   function handleShare() {
@@ -611,7 +612,7 @@ export default function LivePage() {
               Archive
             </p>
             <h2 className="mt-3 font-heading text-3xl font-bold text-slate md:text-4xl">
-              Previous Streams
+              Past Livestreams
             </h2>
           </div>
 

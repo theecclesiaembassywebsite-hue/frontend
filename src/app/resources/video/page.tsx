@@ -5,101 +5,18 @@ import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { ExternalLink, PlayCircle, Search, X } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
-import { media } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
 import { normalizeEmbedUrl } from "@/lib/utils";
 
-const CHANNELS = [
-  {
-    label: "The Ecclesia Embassy",
-    url: "https://www.youtube.com/@TheEcclesiaEmbassy/videos",
-  },
-  {
-    label: "Victor Oluwadamilare",
-    url: "https://www.youtube.com/@VictorOluwadamilarelive/videos",
-  },
-];
-
-interface ChannelVideo {
+interface ManualVideo {
   id: string;
   title: string;
   publishedAt: string;
   thumbnail: string;
   watchUrl: string;
-}
-
-interface PublicVideo extends ChannelVideo {
-  description?: string;
   sourceLabel: string;
-}
-
-function extractYoutubeId(url?: string) {
-  if (!url) return "";
-
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/|youtube\.com\/live\/)([^&\n?#/]+)/
-  );
-
-  return match?.[1] ?? "";
-}
-
-function mergePublicVideos(
-  youtubeUploads: ChannelVideo[],
-  manualEntries: Array<Record<string, unknown>>
-) {
-  const mergedVideos = new Map<string, PublicVideo>();
-
-  youtubeUploads.forEach((video) => {
-    mergedVideos.set(video.id, {
-      ...video,
-      sourceLabel: "YouTube Upload",
-    });
-  });
-
-  manualEntries.forEach((entry) => {
-    const youtubeUrl =
-      typeof entry.youtubeUrl === "string" ? entry.youtubeUrl : "";
-    const videoId = extractYoutubeId(youtubeUrl);
-    const title =
-      typeof entry.title === "string" && entry.title.trim()
-        ? entry.title
-        : "Video Message";
-
-    if (!videoId) {
-      return;
-    }
-
-    const existing = mergedVideos.get(videoId);
-    const speaker =
-      typeof entry.speaker === "string" && entry.speaker.trim()
-        ? entry.speaker
-        : "Manual Video Entry";
-    const description =
-      typeof entry.description === "string" ? entry.description : "";
-    const publishedAt =
-      typeof entry.createdAt === "string"
-        ? entry.createdAt
-        : typeof entry.date === "string"
-          ? entry.date
-          : existing?.publishedAt ?? "";
-
-    mergedVideos.set(videoId, {
-      id: typeof entry.id === "string" ? entry.id : videoId,
-      title,
-      publishedAt,
-      thumbnail:
-        existing?.thumbnail ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      watchUrl: `https://www.youtube.com/watch?v=${videoId}`,
-      description: description || existing?.description,
-      sourceLabel: existing ? `${speaker} + YouTube Upload` : speaker,
-    });
-  });
-
-  return Array.from(mergedVideos.values()).sort(
-    (a, b) =>
-      new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime()
-  );
+  description?: string;
 }
 
 function formatVideoDate(date: string) {
@@ -109,11 +26,21 @@ function formatVideoDate(date: string) {
     : format(parsed, "MMMM d, yyyy");
 }
 
+function extractYoutubeId(url?: string) {
+  if (!url) return "";
+
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|live\/)|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#/]+)/
+  );
+
+  return match?.[1] ?? "";
+}
+
 function VideoPlayer({
   video,
   onClose,
 }: {
-  video: PublicVideo;
+  video: ManualVideo;
   onClose: () => void;
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -185,17 +112,18 @@ function VideoPlayer({
             {video.description}
           </p>
         ) : null}
+
       </div>
     </div>
   );
 }
 
 export default function VideoMessagesPage() {
-  const [videoMessages, setVideoMessages] = useState<PublicVideo[]>([]);
+  const [videoMessages, setVideoMessages] = useState<ManualVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeVideo, setActiveVideo] = useState<PublicVideo | null>(null);
+  const [activeVideo, setActiveVideo] = useState<ManualVideo | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -203,26 +131,65 @@ export default function VideoMessagesPage() {
         setLoading(true);
         setError(null);
 
-        const [youtubeResult, manualResult] = await Promise.allSettled([
-          fetch("/api/youtube-channel-videos"),
-          media.getVideoMessages(),
-        ]);
-
-        const youtubeVideos =
-          youtubeResult.status === "fulfilled"
-            ? ((await youtubeResult.value.json()) as { videos?: ChannelVideo[] }).videos ?? []
+        const response = await fetch("/api/sermons/video");
+        const payload = (await response.json().catch(() => [])) as
+          | Array<Record<string, unknown>>
+          | { videos?: Array<Record<string, unknown>> };
+        const entries = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload.videos)
+            ? payload.videos
             : [];
-        const manualEntries =
-          manualResult.status === "fulfilled"
-            ? ((manualResult.value ?? []) as Array<Record<string, unknown>>)
-            : [];
-        const mergedVideos = mergePublicVideos(youtubeVideos, manualEntries);
 
-        if (mergedVideos.length === 0) {
-          throw new Error("No videos available from YouTube or manual entries");
+        const mappedVideos = entries
+          .map((entry): ManualVideo | null => {
+            const youtubeUrl =
+              typeof entry.youtubeUrl === "string" ? entry.youtubeUrl : "";
+            const videoId = extractYoutubeId(youtubeUrl);
+
+            if (!videoId) {
+              return null;
+            }
+
+            const title =
+              typeof entry.title === "string" && entry.title.trim()
+                ? entry.title
+                : "Video Message";
+            const publishedAt =
+              typeof entry.createdAt === "string"
+                ? entry.createdAt
+                : typeof entry.date === "string"
+                  ? entry.date
+                  : "";
+            const speaker =
+              typeof entry.speaker === "string" && entry.speaker.trim()
+                ? entry.speaker
+                : "Manual Video Entry";
+            const description =
+              typeof entry.description === "string" ? entry.description : undefined;
+
+            return {
+              id: typeof entry.id === "string" ? entry.id : videoId,
+              title,
+              publishedAt,
+              thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+              watchUrl: youtubeUrl,
+              sourceLabel: speaker,
+              description,
+            };
+          })
+          .filter((video): video is ManualVideo => video !== null)
+          .sort(
+            (a, b) =>
+              new Date(b.publishedAt || 0).getTime() -
+              new Date(a.publishedAt || 0).getTime()
+          );
+
+        if (mappedVideos.length === 0) {
+          throw new Error("No manual video entries available");
         }
 
-        setVideoMessages(mergedVideos);
+        setVideoMessages(mappedVideos);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to fetch videos"
@@ -262,22 +229,8 @@ export default function VideoMessagesPage() {
               Video Messages
             </h1>
             <p className="mx-auto max-w-2xl font-body text-lg text-gray-200 md:text-xl">
-              Watch channel uploads and curated manual video entries from The Ecclesia Embassy, including edited reuploads prepared from live services.
+              Browse manually curated video messages from the church library.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              {CHANNELS.map((channel) => (
-                <a
-                  key={channel.url}
-                  href={channel.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-white/16"
-                >
-                  {channel.label}
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
           </FadeIn>
         </div>
       </section>
@@ -364,11 +317,6 @@ export default function VideoMessagesPage() {
                       <p className="mt-3 font-body text-sm text-gray-text">
                         {formatVideoDate(video.publishedAt)}
                       </p>
-                      {video.description ? (
-                        <p className="mt-3 line-clamp-3 font-body text-sm leading-6 text-gray-text">
-                          {video.description}
-                        </p>
-                      ) : null}
                     </div>
                   </button>
                 </article>

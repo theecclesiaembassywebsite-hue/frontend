@@ -71,7 +71,7 @@ test.describe("Livestream page", () => {
     await expect(page.getByText(/^Live$/)).toBeVisible();
   });
 
-  test("renders previous stream thumbnails from YouTube", async ({ page }) => {
+  test("renders past livestreams in the archive", async ({ page }) => {
     await page.goto("/live");
 
     const thumbnail = page.getByAltText(ARCHIVE_TITLE);
@@ -79,5 +79,7 @@ test.describe("Livestream page", () => {
     await thumbnail.scrollIntoViewIfNeeded();
     await expect(thumbnail).toBeVisible();
     await expect(thumbnail).toHaveAttribute("src", ARCHIVE_THUMBNAIL_URL);
+    await expect(page.getByText("Past Livestreams")).toBeVisible();
+    await expect(page.getByText("A Manual Curation")).toHaveCount(0);
   });
 });

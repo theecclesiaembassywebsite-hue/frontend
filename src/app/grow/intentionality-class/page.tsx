@@ -9,6 +9,7 @@ import { intentionalityClass } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/ui/Toast';
 import { FadeIn } from '@/components/ui/Motion';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import {
   BookOpen,
   CheckCircle,
@@ -27,6 +28,27 @@ interface Course {
   description: string;
   modules: Array<{ id: string; title: string; order: number }>;
   _count?: { enrollments: number };
+}
+
+interface UserEnrollment {
+  id: string;
+  status: string;
+  course: { id: string; title: string };
+}
+
+function getPhaseNumber(title: string): number {
+  if (/phase one/i.test(title)) return 1;
+  if (/phase two/i.test(title)) return 2;
+  if (/phase three/i.test(title)) return 3;
+  return 0;
+}
+
+function getMaxAccessiblePhase(enrollments: UserEnrollment[]): number {
+  const passed = (phase: number) =>
+    enrollments.some((e) => getPhaseNumber(e.course.title) === phase && e.status === 'PASSED');
+  if (passed(2)) return 3;
+  if (passed(1)) return 2;
+  return 1;
 }
 
 const journeyCards = [
@@ -169,8 +191,9 @@ const curriculum = [
   },
 ];
 
-export default function IntentionalityClassPage() {
+function IntentionalityClassContent() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [myEnrollments, setMyEnrollments] = useState<UserEnrollment[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [preferredFormat, setPreferredFormat] = useState('hybrid');
@@ -187,10 +210,21 @@ export default function IntentionalityClassPage() {
   }, []);
 
   useEffect(() => {
-    if (courses.length > 0 && !selectedCourseId) {
-      setSelectedCourseId(courses[0].id);
+    if (isAuthenticated) {
+      intentionalityClass.getMyCourses()
+        .then((data) => setMyEnrollments(data || []))
+        .catch(() => {});
     }
-  }, [courses, selectedCourseId]);
+  }, [isAuthenticated]);
+
+  const maxPhase = getMaxAccessiblePhase(myEnrollments);
+  const accessibleCourses = courses.filter((c) => getPhaseNumber(c.title) <= maxPhase);
+
+  useEffect(() => {
+    if (accessibleCourses.length > 0 && !selectedCourseId) {
+      setSelectedCourseId(accessibleCourses[0].id);
+    }
+  }, [accessibleCourses, selectedCourseId]);
 
   const userName = user?.profile
     ? [user.profile.firstName, user.profile.lastName].filter(Boolean).join(' ')
@@ -393,11 +427,18 @@ export default function IntentionalityClassPage() {
         </FadeIn>
 
         <div className="mt-12 space-y-6">
-          {curriculum.map((phase) => (
+          {curriculum.map((phase) => {
+            const phaseAccessible = phase.phase <= maxPhase;
+            const phaseLocked = !phaseAccessible;
+            const lockLabel = phase.phase === 3 && !phase.available
+              ? 'Coming Soon'
+              : `Complete Phase ${phase.phase - 1} First`;
+
+            return (
             <FadeIn key={phase.phase} delay={0.06 * phase.phase}>
               <div
                 className={
-                  phase.available
+                  phaseAccessible && phase.available
                     ? 'overflow-hidden rounded-[28px] border border-gray-border bg-white shadow-sm'
                     : 'overflow-hidden rounded-[28px] border border-gray-border bg-white/60 shadow-sm opacity-70'
                 }
@@ -416,11 +457,11 @@ export default function IntentionalityClassPage() {
                         {phase.description}
                       </p>
                     </div>
-                    {!phase.available && (
+                    {(phaseLocked || !phase.available) && (
                       <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5">
                         <Lock className="h-3.5 w-3.5 text-white/60" />
                         <span className="font-heading text-[10px] font-semibold uppercase tracking-[1.4px] text-white/60">
-                          Coming Soon
+                          {lockLabel}
                         </span>
                       </div>
                     )}
@@ -428,7 +469,7 @@ export default function IntentionalityClassPage() {
                 </div>
 
                 {/* Weeks grid */}
-                {phase.available && phase.weeks.length > 0 && (
+                {phaseAccessible && phase.available && phase.weeks.length > 0 && (
                   <div
                     className={`grid gap-px bg-gray-border ${
                       phase.weeks.length === 4
@@ -466,7 +507,8 @@ export default function IntentionalityClassPage() {
                 )}
               </div>
             </FadeIn>
-          ))}
+            );
+          })}
         </div>
       </SectionWrapper>
 
@@ -552,7 +594,7 @@ export default function IntentionalityClassPage() {
                     </label>
                     {coursesLoading ? (
                       <div className="h-[44px] w-full animate-pulse rounded-lg bg-white" />
-                    ) : courses.length === 0 ? (
+                    ) : accessibleCourses.length === 0 ? (
                       <p className="font-body text-sm italic text-gray-text">
                         No courses are available right now. Please check back later.
                       </p>
@@ -567,7 +609,7 @@ export default function IntentionalityClassPage() {
                           <option value="" disabled>
                             Select a course...
                           </option>
-                          {courses.map((course) => (
+                          {accessibleCourses.map((course) => (
                             <option key={course.id} value={course.id}>
                               {course.title} ({course.modules.length} modules)
                             </option>
@@ -578,6 +620,11 @@ export default function IntentionalityClassPage() {
                             {selectedCourse.description}
                           </p>
                         ) : null}
+                        {maxPhase < 3 && (
+                          <p className="mt-2 font-body text-xs text-gray-text">
+                            Complete your current phase to unlock the next level.
+                          </p>
+                        )}
                       </>
                     )}
                   </div>
@@ -605,15 +652,6 @@ export default function IntentionalityClassPage() {
                     {isLoading ? 'Enrolling...' : 'Enroll Now'}
                   </Button>
 
-                  {!isAuthenticated ? (
-                    <p className="text-center font-body text-sm text-gray-text">
-                      You need to{' '}
-                      <Link href="/auth/login" className="font-semibold text-gold-dark hover:underline">
-                        sign in
-                      </Link>{' '}
-                      to enroll in this class.
-                    </p>
-                  ) : null}
                 </form>
               )}
             </div>
@@ -621,5 +659,13 @@ export default function IntentionalityClassPage() {
         </FadeIn>
       </SectionWrapper>
     </main>
+  );
+}
+
+export default function IntentionalityClassPage() {
+  return (
+    <ProtectedRoute>
+      <IntentionalityClassContent />
+    </ProtectedRoute>
   );
 }
