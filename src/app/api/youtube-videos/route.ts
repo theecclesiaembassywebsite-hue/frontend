@@ -123,7 +123,8 @@ async function fetchLiveVideoIds(ids: string[], apiKey: string): Promise<Set<str
 
 // RSS feeds include all uploads — regular videos and livestream replays alike.
 // When an API key is available we do a cheap secondary call to keep only livestreams.
-// Without a key we can't distinguish, so we return empty rather than pollute "Past Streams".
+// When filtering isn't possible (no key, quota low, or API error) we fall back to
+// returning all recent RSS entries rather than an empty list.
 async function fetchViaRSS(apiKey?: string): Promise<YouTubeVideo[]> {
   const res = await fetch(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
@@ -131,17 +132,23 @@ async function fetchViaRSS(apiKey?: string): Promise<YouTubeVideo[]> {
   );
   if (!res.ok) throw new Error(`RSS ${res.status}`);
   const xml = await res.text();
-  // Fetch extra entries before filtering so we end up with ~3 livestreams
+  // Fetch extra entries before filtering so we end up with ~3 livestreams after filtering
   const candidates = parseRSSEntries(xml).slice(0, 12);
 
-  if (!apiKey || candidates.length === 0) return [];
-
-  if (isQuotaSafe(VIDEOS_COST)) {
-    const liveIds = await fetchLiveVideoIds(candidates.map((v) => v.id), apiKey);
-    return candidates.filter((v) => liveIds.has(v.id)).slice(0, 3);
+  if (apiKey && candidates.length > 0 && isQuotaSafe(VIDEOS_COST)) {
+    try {
+      const liveIds = await fetchLiveVideoIds(candidates.map((v) => v.id), apiKey);
+      if (liveIds.size > 0) {
+        return candidates.filter((v) => liveIds.has(v.id)).slice(0, 3);
+      }
+    } catch {
+      // fall through to unfiltered
+    }
   }
 
-  return [];
+  // No key, quota exhausted, or filter returned nothing — return recent entries as-is.
+  // This channel primarily streams so the RSS list is usually correct anyway.
+  return candidates.slice(0, 3);
 }
 
 export async function GET() {
