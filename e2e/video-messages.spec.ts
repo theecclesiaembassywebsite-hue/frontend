@@ -5,6 +5,10 @@ const SECOND_VIDEO_ID = "vid678def90";
 
 test.describe("Video Messages page", () => {
   test.beforeEach(async ({ page }) => {
+    await page.route("**/api/youtube-channel-videos", async (route) => {
+      await route.fulfill({ json: { videos: [] } });
+    });
+
     await page.route("**/api/sermons/video", async (route) => {
       await route.fulfill({
         json: [
