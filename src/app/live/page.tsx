@@ -66,21 +66,38 @@ function buildYouTubeEmbedUrl(videoId: string) {
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
 }
 
+// Maps known channel handles to their IDs so channel-level live URLs can be embedded.
+const HANDLE_TO_CHANNEL_ID: Record<string, string> = {
+  theecclesiaembassy: CHANNEL_ID,
+  victoroluwadamilarelive: "UCO9vOTvZ6gX3fKZoQF_CHRg",
+};
+
+function channelLiveEmbedUrl(channelId: string) {
+  return `https://www.youtube.com/embed/live_stream?channel=${channelId}`;
+}
+
 function toEmbedUrl(url?: string | null) {
   if (!url) return "";
   if (url.includes("youtube.com/embed/")) return url;
 
-  const match = url.match(
+  // youtube.com/channel/CHANNEL_ID/live
+  const channelIdMatch = url.match(/youtube\.com\/channel\/([^/?#]+)\/live/);
+  if (channelIdMatch?.[1]) return channelLiveEmbedUrl(channelIdMatch[1]);
+
+  // youtube.com/@handle/live
+  const handleMatch = url.match(/youtube\.com\/@([^/?#]+)\/live/i);
+  if (handleMatch?.[1]) {
+    const id = HANDLE_TO_CHANNEL_ID[handleMatch[1].toLowerCase()];
+    if (id) return channelLiveEmbedUrl(id);
+  }
+
+  // youtube.com/watch?v=, youtu.be/, /shorts/
+  const videoMatch = url.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/
   );
+  if (videoMatch?.[1]) return buildYouTubeEmbedUrl(videoMatch[1]);
 
-  if (match?.[1]) {
-    return buildYouTubeEmbedUrl(match[1]);
-  }
-
-  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
-    return buildYouTubeEmbedUrl(url);
-  }
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return buildYouTubeEmbedUrl(url);
 
   return url;
 }
