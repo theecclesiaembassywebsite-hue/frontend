@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import Image from "next/image";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 
 export default function LeadershipPage() {
@@ -22,8 +22,14 @@ export default function LeadershipPage() {
       <SectionWrapper variant="dark-purple">
         <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
           <div className="flex justify-center">
-            <div className="flex h-72 w-72 items-center justify-center overflow-hidden rounded-full bg-purple-light shadow-lg md:h-80 md:w-80">
-              <User className="h-32 w-32 text-purple/40" />
+            <div className="relative h-72 w-72 overflow-hidden rounded-full shadow-lg md:h-80 md:w-80">
+              <Image
+                src="/lead-brother.jpg"
+                alt="Victor Oluwadamilare – The Lead Brother"
+                fill
+                className="object-cover object-top"
+                priority
+              />
             </div>
           </div>
 
