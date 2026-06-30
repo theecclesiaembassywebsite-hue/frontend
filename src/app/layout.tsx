@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Raleway, Crimson_Text } from "next/font/google";
+import { Montserrat, Raleway, Crimson_Text, Anton } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/lib/auth-context";
@@ -29,6 +29,13 @@ const crimsonText = Crimson_Text({
   display: "swap",
 });
 
+const anton = Anton({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "The Ecclesia Embassy | Welcome Home",
   description:
@@ -52,7 +59,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${montserrat.variable} ${raleway.variable} ${crimsonText.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${raleway.variable} ${crimsonText.variable} ${anton.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
