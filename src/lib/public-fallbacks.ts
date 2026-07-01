@@ -40,6 +40,16 @@ export const DEFAULT_SERVICE_SCHEDULE = [
     description:
       "Special consecration services to begin each month in God's presence.",
   },
+  {
+    id: "svc-thursday-healing-incense",
+    day: "Thursday",
+    name: "Healing Incense Service",
+    time: "9:00 AM",
+    description:
+      "A dedicated time of intercession and prophetic ministration for healing and breakthrough.",
+    note:
+      "The online Healing Incense service holds on the last Thursday of every month. All Healing Incense services start by 9:00am every Thursday.",
+  },
 ];
 
 export const DEFAULT_ANNOUNCEMENTS = [

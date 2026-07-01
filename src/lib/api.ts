@@ -581,6 +581,28 @@ export const cith = {
       method: "POST",
     }),
 
+  getMyHubJoinRequests: () => fetchAPI<any[]>("/cith/my-hub/join-requests"),
+
+  reviewMyHubJoinRequest: (id: string, approved: boolean, reason?: string) =>
+    fetchAPI<any>(`/cith/my-hub/join-requests/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        status: approved ? "APPROVED" : "REJECTED",
+        ...(reason ? { reason } : {}),
+      }),
+    }),
+
+  getAdminJoinRequests: () => fetchAPI<any[]>("/admin/cith/join-requests"),
+
+  reviewJoinRequest: (id: string, approved: boolean, reason?: string) =>
+    fetchAPI<any>(`/admin/cith/join-requests/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        status: approved ? "APPROVED" : "REJECTED",
+        ...(reason ? { reason } : {}),
+      }),
+    }),
+
   registerEhub: (data: { name: string; email: string; phone: string; location: string }) =>
     fetchAPI<any>("/cith/ehub/register", {
       method: "POST",

@@ -15,6 +15,7 @@ interface ServiceEntry {
   name: string;
   time: string;
   description: string;
+  note?: string | null;
   order?: number | null;
   active?: boolean | null;
 }
@@ -57,6 +58,17 @@ const DEFAULT_SERVICES: ServiceEntry[] = [
       "A monthly consecration gathering to begin the month in worship, prayer, and devotion before the Lord.",
     order: 4,
   },
+  {
+    id: "svc-thursday-healing-incense",
+    day: "Thu",
+    name: "Healing Incense Service",
+    time: "9:00 AM",
+    description:
+      "A dedicated time of intercession and prophetic ministration for healing and breakthrough.",
+    note:
+      "The online Healing Incense service holds on the last Thursday of every month. All Healing Incense services start by 9:00am every Thursday.",
+    order: 5,
+  },
 ];
 
 const getLookupKey = (name: string) => name.trim().toLowerCase();
@@ -92,6 +104,7 @@ const mergeServices = (incoming: ServiceEntry[]) => {
       name: rawService.name || fallback?.name || "",
       time: rawService.time != null ? rawService.time : (fallback?.time ?? ""),
       description: rawService.description || fallback?.description || "",
+      note: rawService.note ?? fallback?.note,
       order: rawService.order ?? fallback?.order,
     });
   }
@@ -246,6 +259,11 @@ export default function ServiceSchedule() {
                   <p className="mt-3 max-w-2xl font-body text-sm leading-7 text-white/78 md:text-base">
                     {selectedService.description}
                   </p>
+                  {selectedService.note && (
+                    <p className="mt-3 max-w-2xl font-body text-xs italic leading-6 text-gold/86 md:text-sm">
+                      {selectedService.note}
+                    </p>
+                  )}
                 </div>
 
                 {selectedService.time && (

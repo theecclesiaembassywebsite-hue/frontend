@@ -19,12 +19,16 @@ interface HubDetail {
   area?: string;
   city?: string;
   state?: string;
+  address?: string;
   meetingDay?: string;
   meetingTime?: string;
   capacity?: number;
   description?: string;
   _count?: { members: number };
   members?: Array<{ id: string; user?: { profile?: { firstName?: string; lastName?: string } } }>;
+  isMember?: boolean;
+  isLeader?: boolean;
+  myJoinRequestStatus?: "PENDING" | "APPROVED" | "REJECTED" | null;
 }
 
 function getLeaderName(hub: HubDetail): string {
@@ -49,8 +53,8 @@ function HubDetailContent({ hubId }: { hubId: string }) {
   const [hub, setHub] = useState<HubDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [joining, setJoining] = useState(false);
-  const [joined, setJoined] = useState(false);
+  const [requesting, setRequesting] = useState(false);
+  const [justRequested, setJustRequested] = useState(false);
   const { isAuthenticated } = useAuth();
   const { success, error } = useToast();
 
@@ -67,20 +71,20 @@ function HubDetailContent({ hubId }: { hubId: string }) {
       .finally(() => setLoading(false));
   }, [hubId]);
 
-  const handleJoin = async () => {
+  const handleRequestJoin = async () => {
     if (!isAuthenticated) {
-      error("Please sign in to join a hub.");
+      error("Please sign in to request to join a hub.");
       return;
     }
-    setJoining(true);
+    setRequesting(true);
     try {
       await cith.joinHub(hubId);
-      setJoined(true);
-      success("You have joined this hub!");
+      setJustRequested(true);
+      success("Your request to join has been submitted and is pending approval.");
     } catch (err) {
-      error(err instanceof Error ? err.message : "Failed to join hub. Please try again.");
+      error(err instanceof Error ? err.message : "Failed to submit request. Please try again.");
     } finally {
-      setJoining(false);
+      setRequesting(false);
     }
   };
 
@@ -151,6 +155,14 @@ function HubDetailContent({ hubId }: { hubId: string }) {
                   </span>
                   <span className="text-[#241A42]">{location}</span>
                 </div>
+                {hub.address && (
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2 text-[#8A8A8E]">
+                      <MapPin size={14} /> Address
+                    </span>
+                    <span className="text-[#241A42]">{hub.address}</span>
+                  </div>
+                )}
                 {hub.meetingDay && (
                   <div className="flex justify-between items-center">
                     <span className="flex items-center gap-2 text-[#8A8A8E]">
@@ -188,41 +200,53 @@ function HubDetailContent({ hubId }: { hubId: string }) {
 
             {/* Join Button */}
             <div className="rounded-[8px] border border-[#E4E0EF] bg-[#F5F5F5] p-6 text-center">
-              {joined ? (
+              {hub.isMember || hub.isLeader ? (
                 <div>
                   <UserCheck className="mx-auto h-10 w-10 text-[#27AE60] mb-3" />
-                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-1">Welcome to the Hub!</h3>
+                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-1">
+                    {hub.isLeader ? "You Lead This Hub" : "Welcome to the Hub!"}
+                  </h3>
                   <p className="font-body text-sm text-[#8A8A8E]">
                     You are now part of this Church in the House family.
                   </p>
                 </div>
+              ) : justRequested || hub.myJoinRequestStatus === "PENDING" ? (
+                <div>
+                  <Loader2 className="mx-auto h-10 w-10 text-[#C9A84C] mb-3" />
+                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-1">Request Pending</h3>
+                  <p className="font-body text-sm text-[#8A8A8E]">
+                    Your request to join has been sent to the hub leader for approval.
+                  </p>
+                </div>
               ) : (
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-2">Join This Hub</h3>
+                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-2">Request to Join This Hub</h3>
                   <p className="font-body text-sm text-[#8A8A8E] mb-4">
-                    Be part of a loving community that meets regularly for fellowship and growth.
+                    {hub.myJoinRequestStatus === "REJECTED"
+                      ? "Your previous request wasn't approved. You're welcome to submit a new request."
+                      : "Be part of a loving community that meets regularly for fellowship and growth. Your request will be reviewed by the hub leader before you're added."}
                   </p>
                   {isAuthenticated ? (
                     <Button
                       variant="primary"
-                      onClick={handleJoin}
-                      disabled={joining}
+                      onClick={handleRequestJoin}
+                      disabled={requesting}
                       className="inline-flex items-center gap-2"
                     >
-                      {joining ? (
+                      {requesting ? (
                         <>
-                          <Loader2 size={16} className="animate-spin" /> Joining...
+                          <Loader2 size={16} className="animate-spin" /> Submitting...
                         </>
                       ) : (
                         <>
-                          <Users size={16} /> Join Hub
+                          <Users size={16} /> Request to Join
                         </>
                       )}
                     </Button>
                   ) : (
                     <div>
                       <p className="font-body text-sm text-[#8A8A8E] mb-3">
-                        Please sign in to join this hub.
+                        Please sign in to request to join this hub.
                       </p>
                       <Link href="/auth/login">
                         <Button variant="primary">Sign In</Button>

@@ -2,11 +2,12 @@
 
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { ArrowLeft, User, MapPin, Clock, Send } from "lucide-react";
+import { ArrowLeft, User, MapPin, Clock, Send, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cith } from "@/lib/api";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
 
 function HubDashboardContent() {
   const [hubData, setHubData] = useState<any>(null);
@@ -14,6 +15,9 @@ function HubDashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [sent, setSent] = useState(false);
+  const [joinRequests, setJoinRequests] = useState<any[]>([]);
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const { success, error: showError } = useToast();
 
   useEffect(() => {
     const fetchHub = async () => {
@@ -41,8 +45,35 @@ function HubDashboardContent() {
       }
     };
 
+    const fetchJoinRequests = async () => {
+      try {
+        const requests = await cith.getMyHubJoinRequests();
+        setJoinRequests(requests || []);
+      } catch {
+        setJoinRequests([]);
+      }
+    };
+
     fetchHub();
+    fetchJoinRequests();
   }, []);
+
+  const handleReviewRequest = async (id: string, approved: boolean) => {
+    setReviewingId(id);
+    try {
+      await cith.reviewMyHubJoinRequest(id, approved);
+      setJoinRequests((prev) => prev.filter((r) => r.id !== id));
+      success(approved ? "Request approved" : "Request rejected");
+      if (approved) {
+        const data = await cith.getMyHub();
+        setHubData(data);
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to update request");
+    } finally {
+      setReviewingId(null);
+    }
+  };
 
   function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -153,6 +184,52 @@ function HubDashboardContent() {
                 })
               ) : (
                 <p className="font-body text-xs text-gray-text">No members yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Pending Join Requests */}
+          <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
+            <h3 className="font-heading text-base font-bold text-slate mb-3">
+              Pending Join Requests{joinRequests.length > 0 ? ` (${joinRequests.length})` : ""}
+            </h3>
+            <div className="space-y-2">
+              {joinRequests.length > 0 ? (
+                joinRequests.map((r: any) => {
+                  const name = [r.user?.profile?.firstName, r.user?.profile?.lastName].filter(Boolean).join(" ");
+                  return (
+                    <div key={r.id} className="rounded-[4px] bg-off-white px-3 py-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-light shrink-0">
+                          <User className="h-3.5 w-3.5 text-purple/50" />
+                        </div>
+                        <span className="font-body text-sm text-slate truncate">
+                          {name || r.user?.email || "Member"}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="primary"
+                          className="text-[11px] py-1.5 px-3 min-w-0 flex-1"
+                          disabled={reviewingId === r.id}
+                          onClick={() => handleReviewRequest(r.id, true)}
+                        >
+                          <CheckCircle size={12} className="mr-1" /> Approve
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="text-[11px] py-1.5 px-3 min-w-0 flex-1 border text-error border-error hover:bg-error/10"
+                          disabled={reviewingId === r.id}
+                          onClick={() => handleReviewRequest(r.id, false)}
+                        >
+                          <XCircle size={12} className="mr-1" /> Reject
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="font-body text-xs text-gray-text">No pending requests.</p>
               )}
             </div>
           </div>
