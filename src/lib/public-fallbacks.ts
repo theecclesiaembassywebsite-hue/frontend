@@ -32,15 +32,6 @@ export const DEFAULT_SERVICE_SCHEDULE = [
       "An evening of deep worship and encounter with God's presence.",
   },
   {
-    id: "svc-monthly-as-unto",
-    day: "1st - 3rd",
-    dayLabel: "of every month",
-    name: "As Unto The Lord",
-    time: "6:00 AM & 6:00 PM",
-    description:
-      "Special consecration services to begin each month in God's presence.",
-  },
-  {
     id: "svc-thursday-healing-incense",
     day: "Thursday",
     name: "Healing Incense Service",
@@ -49,6 +40,15 @@ export const DEFAULT_SERVICE_SCHEDULE = [
       "A dedicated time of intercession and prophetic ministration for healing and breakthrough.",
     note:
       "The online Healing Incense service holds on the last Thursday of every month. All Healing Incense services start by 9:00am every Thursday.",
+  },
+  {
+    id: "svc-monthly-as-unto",
+    day: "1st - 3rd",
+    dayLabel: "of every month",
+    name: "As Unto The Lord",
+    time: "6:00 AM & 6:00 PM",
+    description:
+      "Special consecration services to begin each month in God's presence.",
   },
 ];
 
