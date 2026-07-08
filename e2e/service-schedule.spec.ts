@@ -7,9 +7,9 @@ test.describe('Service Schedule', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('renders exactly 4 service tabs', async ({ page }) => {
+  test('renders exactly 5 service tabs', async ({ page }) => {
     const tabs = page.locator('button[aria-pressed]')
-    await expect(tabs).toHaveCount(4)
+    await expect(tabs).toHaveCount(5)
   })
 
   test('Worship Service appears exactly once — not duplicated', async ({ page }) => {
@@ -20,8 +20,12 @@ test.describe('Service Schedule', () => {
     expect(worshipMatches).toHaveLength(1)
   })
 
-  test('first tab is active by default and detail card reflects it', async ({ page }) => {
+  test('no tab is active by default; clicking the first tab reveals its detail card', async ({ page }) => {
     const firstTab = page.locator('button[aria-pressed]').first()
+    await expect(firstTab).toHaveAttribute('aria-pressed', 'false')
+    await expect(page.locator('article')).toHaveCount(0)
+
+    await firstTab.click()
     await expect(firstTab).toHaveAttribute('aria-pressed', 'true')
 
     const cardHeading = page.locator('article h3')
