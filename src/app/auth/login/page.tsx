@@ -25,6 +25,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const {
     register,
@@ -39,6 +41,8 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setErrorMessage(null);
+    setUnverifiedEmail(null);
+    setResendState('idle');
 
     try {
       const response = await auth.login(data.email, data.password);
@@ -66,11 +70,27 @@ export default function LoginPage() {
 
       if (message.includes('401') || /invalid/i.test(message)) {
         setErrorMessage('Invalid email or password');
+      } else if (/verify your email/i.test(message)) {
+        setErrorMessage(message);
+        setUnverifiedEmail(data.email);
       } else {
         setErrorMessage(message);
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+    setResendState('sending');
+    try {
+      await auth.resendVerification(unverifiedEmail);
+      setResendState('sent');
+    } catch {
+      // The endpoint doesn't leak whether it failed for a real reason — treat
+      // any error the same as success so we never hint at account existence.
+      setResendState('sent');
     }
   };
 
@@ -142,6 +162,24 @@ export default function LoginPage() {
               className="mb-6 rounded-md bg-[rgba(231,76,60,0.1)] border border-[rgba(231,76,60,0.3)] p-4"
             >
               <p className="text-error font-body text-sm">{errorMessage}</p>
+              {unverifiedEmail && (
+                <div className="mt-3">
+                  {resendState === 'sent' ? (
+                    <p className="text-slate font-body text-sm">
+                      If that account needs verifying, a new link is on its way — check your inbox.
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resendState === 'sending'}
+                      className="text-purple hover:text-purple-vivid font-body text-sm font-medium underline disabled:opacity-60"
+                    >
+                      {resendState === 'sending' ? 'Sending…' : 'Resend verification email'}
+                    </button>
+                  )}
+                </div>
+              )}
             </motion.div>
           )}
 

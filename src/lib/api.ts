@@ -271,6 +271,13 @@ export const auth = {
       noAuth: true,
     }),
 
+  resendVerification: (email: string) =>
+    fetchAPI<{ message: string }>("/auth/resend-verification", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      noAuth: true,
+    }),
+
   forgotPassword: (email: string) =>
     fetchAPI<{ success: boolean }>("/auth/forgot-password", {
       method: "POST",
