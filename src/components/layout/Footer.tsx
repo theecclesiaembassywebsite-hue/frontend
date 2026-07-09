@@ -37,7 +37,7 @@ const contactDetails = [
   {
     icon: Mail,
     label: "Email",
-    value: "hello@theecclesia.org",
+    value: "support@theecclesiaembassy.org",
   },
 ];
 
