@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { auth, setToken, removeToken, type User } from "./api";
 
 interface AuthContextType {
@@ -22,10 +23,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
   // Hydrate user on mount — tries httpOnly cookie first (via credentials:include
   // in fetchAPI), then falls back to localStorage token for existing sessions.
   useEffect(() => {
+    // /auth/callback is mid handoff: the token only exists in the URL until
+    // its own effect stores it, a moment after this one mounts. A getMe()
+    // check fired here always races ahead with no token, fails, and its
+    // removeToken() cleanup can land after — and wipe — the token
+    // /auth/callback just set, losing the session before /dashboard ever
+    // sees it. That page owns establishing auth state itself; skip here.
+    if (pathname.startsWith('/auth/callback')) {
+      setLoading(false);
+      return;
+    }
+
     const initAuth = async () => {
       try {
         const currentUser = await auth.getMe();
@@ -39,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     initAuth();
-  }, []);
+  }, [pathname]);
 
   const login = async (email: string, password: string) => {
     try {
