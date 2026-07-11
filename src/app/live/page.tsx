@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
+import { io } from "socket.io-client";
 import { ExternalLink, Flame, Heart, Radio, Share2, X } from "lucide-react";
 import { engagement, livestream, serviceSchedule } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -365,7 +366,17 @@ export default function LivePage() {
     fetchVideos();
     fetchYoutubeLive();
 
-    const configIntervalId = window.setInterval(fetchConfig, 30000);
+    // Live push for livestream status — falls back to the 2min safety poll
+    // below if the socket never connects or drops (e.g. blocked by a proxy).
+    const apiOrigin = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api").replace(/\/api\/?$/, "");
+    const socket = io(`${apiOrigin}/realtime`, { transports: ["websocket"] });
+    socket.on("livestream:update", (data: LivestreamConfig) => {
+      if (!isMounted) return;
+      setConfig(data ?? {});
+    });
+
+    // Safety-net poll in case the socket silently drops
+    const configIntervalId = window.setInterval(fetchConfig, 120000);
     const youtubeLiveIntervalId = window.setInterval(fetchYoutubeLive, 60000);
     const clockIntervalId = window.setInterval(() => {
       setNow(new Date());
@@ -373,6 +384,7 @@ export default function LivePage() {
 
     return () => {
       isMounted = false;
+      socket.disconnect();
       window.clearInterval(configIntervalId);
       window.clearInterval(youtubeLiveIntervalId);
       window.clearInterval(clockIntervalId);
