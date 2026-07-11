@@ -32,13 +32,22 @@ type Event = {
   title: string;
   description: string;
   date: string;
+  time?: string;
   location?: string;
   slug?: string;
   imageUrl?: string;
   requiresRegistration?: boolean;
+  eventType?: string;
 };
 
 const HIDDEN_EVENT_SLUGS = new Set(["as-unto-the-lord"]);
+
+const EVENT_TYPE_FILTERS: { value: string; label: string }[] = [
+  { value: "ALL", label: "All Events" },
+  { value: "GENERAL", label: "General" },
+  { value: "FEAST_OF_TABERNACLES", label: "Feast of Tabernacles" },
+  { value: "GILGAL_CAMP_MEETING", label: "Gilgal Camp Meeting" },
+];
 
 export default function EventsPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -46,6 +55,7 @@ export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState("ALL");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -71,7 +81,9 @@ export default function EventsPage() {
 
   const filteredEvents = events.filter((event) => {
     const d = new Date(event.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    const inMonth = d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    const matchesType = typeFilter === "ALL" || event.eventType === typeFilter;
+    return inMonth && matchesType;
   });
 
   function prevMonth() {
@@ -124,7 +136,7 @@ export default function EventsPage() {
         <StaggerContainer>
           {/* Month Picker */}
           <StaggerItem>
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mb-12">
+            <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8">
               <button
                 onClick={prevMonth}
                 className="text-gray-text hover:text-purple transition-colors p-3 rounded-full hover:bg-lavender"
@@ -140,6 +152,25 @@ export default function EventsPage() {
               >
                 <ChevronRight size={24} />
               </button>
+            </div>
+          </StaggerItem>
+
+          {/* Event Type Filter */}
+          <StaggerItem>
+            <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2 mb-12">
+              {EVENT_TYPE_FILTERS.map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setTypeFilter(filter.value)}
+                  className={`shrink-0 rounded-full px-5 py-2 font-body text-sm font-semibold transition-colors ${
+                    typeFilter === filter.value
+                      ? "bg-purple text-white"
+                      : "bg-white text-gray-text border border-gray-border hover:border-purple hover:text-purple"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
             </div>
           </StaggerItem>
 
@@ -169,12 +200,19 @@ export default function EventsPage() {
                   const eventDate = new Date(event.date);
                   const day = eventDate.getDate().toString();
                   const month = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                  const formattedDate = eventDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                  });
                   return (
                     <EventCard
                       key={event.id}
                       title={event.title}
                       description={event.description}
-                      date={event.date}
+                      date={formattedDate}
+                      time={event.time}
+                      location={event.location}
                       day={day}
                       month={month}
                       href={`/events/${event.slug || event.id}`}
@@ -192,7 +230,8 @@ export default function EventsPage() {
             <StaggerItem>
               <div className="text-center py-12">
                 <p className="font-body text-gray-text text-lg">
-                  No events scheduled for {months[currentMonth]}.
+                  No {typeFilter === "ALL" ? "" : EVENT_TYPE_FILTERS.find((f) => f.value === typeFilter)?.label + " "}
+                  events scheduled for {months[currentMonth]}.
                 </p>
               </div>
             </StaggerItem>
