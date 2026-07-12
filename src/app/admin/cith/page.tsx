@@ -81,6 +81,8 @@ function AdminCITHContent() {
     assistantChurchServantName: "",
   });
   const [savingMeetingPoint, setSavingMeetingPoint] = useState(false);
+  // Meeting point to assign each pending join request to on approval
+  const [assignMeetingPoint, setAssignMeetingPoint] = useState<Record<string, string>>({});
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -146,9 +148,13 @@ function AdminCITHContent() {
     }
   };
 
-  const handleReviewJoinRequest = async (requestId: string, approved: boolean) => {
+  const handleReviewJoinRequest = async (requestId: string, approved: boolean, meetingPointId?: string) => {
+    if (approved && !meetingPointId) {
+      error("Select a meeting point to assign this member to");
+      return;
+    }
     try {
-      await cith.reviewJoinRequest(requestId, approved);
+      await cith.reviewJoinRequest(requestId, approved, undefined, meetingPointId);
       setJoinRequests(joinRequests.filter((r) => r.id !== requestId));
       const hubsList = await cith.getAdminHubs();
       setHubs(hubsList);
@@ -534,12 +540,25 @@ function AdminCITHContent() {
                 <p className="font-body text-sm text-gray-text">
                   <MapPin size={12} className="inline mr-1" />{req.hub?.name || "Unknown Hub"} &middot; Requested {new Date(req.createdAt || Date.now()).toLocaleDateString()}
                 </p>
+                {req.hub?.meetingPoints?.length > 0 && (
+                  <select
+                    className="mt-2 w-full max-w-xs rounded-[4px] border border-gray-border bg-white px-2 py-1.5 font-body text-xs text-slate focus:border-purple-vivid focus:outline-none"
+                    value={assignMeetingPoint[req.id] || ""}
+                    onChange={(e) => setAssignMeetingPoint({ ...assignMeetingPoint, [req.id]: e.target.value })}
+                  >
+                    <option value="">Assign to meeting point...</option>
+                    {req.hub.meetingPoints.map((mp: any) => (
+                      <option key={mp.id} value={mp.id}>{mp.homeGiverName} &mdash; {mp.address}</option>
+                    ))}
+                  </select>
+                )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Button
                   variant="primary"
                   className="text-[11px] py-1.5 px-3 min-w-0"
-                  onClick={() => handleReviewJoinRequest(req.id, true)}
+                  disabled={!assignMeetingPoint[req.id]}
+                  onClick={() => handleReviewJoinRequest(req.id, true, assignMeetingPoint[req.id])}
                 >
                   <CheckCircle size={12} className="mr-1" /> Approve
                 </Button>

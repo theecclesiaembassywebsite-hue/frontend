@@ -38,13 +38,6 @@ interface HubDetail {
   }>;
 }
 
-function getLeaderName(hub: HubDetail): string {
-  if (!hub.leader) return "Unassigned";
-  if (typeof hub.leader === "string") return hub.leader;
-  const profile = hub.leader.profile;
-  return [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || "Unassigned";
-}
-
 function getHubLocation(hub: HubDetail): string {
   if (hub.location) return hub.location;
   return [hub.area, hub.city, hub.state].filter(Boolean).join(", ") || "Location TBD";
@@ -122,7 +115,6 @@ function HubDetailContent({ hubId }: { hubId: string }) {
     );
   }
 
-  const leaderName = getLeaderName(hub);
   const location = getHubLocation(hub);
   const memberCount = getMemberCount(hub);
 
@@ -150,12 +142,6 @@ function HubDetailContent({ hubId }: { hubId: string }) {
             <div className="rounded-[8px] border border-[#E4E0EF] bg-white p-6 shadow-sm mb-6">
               <h2 className="font-heading text-lg font-bold text-[#241A42] mb-4">Hub Details</h2>
               <div className="space-y-3 text-sm font-body">
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center gap-2 text-[#8A8A8E]">
-                    <UserCheck size={14} /> Leader
-                  </span>
-                  <span className="font-semibold text-[#241A42]">{leaderName}</span>
-                </div>
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-2 text-[#8A8A8E]">
                     <MapPin size={14} /> Location

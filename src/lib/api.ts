@@ -590,23 +590,25 @@ export const cith = {
 
   getMyHubJoinRequests: () => fetchAPI<any[]>("/cith/my-hub/join-requests"),
 
-  reviewMyHubJoinRequest: (id: string, approved: boolean, reason?: string) =>
+  reviewMyHubJoinRequest: (id: string, approved: boolean, reason?: string, meetingPointId?: string) =>
     fetchAPI<any>(`/cith/my-hub/join-requests/${id}`, {
       method: "PUT",
       body: JSON.stringify({
         status: approved ? "APPROVED" : "REJECTED",
         ...(reason ? { reason } : {}),
+        ...(meetingPointId ? { meetingPointId } : {}),
       }),
     }),
 
   getAdminJoinRequests: () => fetchAPI<any[]>("/admin/cith/join-requests"),
 
-  reviewJoinRequest: (id: string, approved: boolean, reason?: string) =>
+  reviewJoinRequest: (id: string, approved: boolean, reason?: string, meetingPointId?: string) =>
     fetchAPI<any>(`/admin/cith/join-requests/${id}`, {
       method: "PUT",
       body: JSON.stringify({
         status: approved ? "APPROVED" : "REJECTED",
         ...(reason ? { reason } : {}),
+        ...(meetingPointId ? { meetingPointId } : {}),
       }),
     }),
 

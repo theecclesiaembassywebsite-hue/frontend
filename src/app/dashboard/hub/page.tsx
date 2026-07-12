@@ -17,6 +17,7 @@ function HubDashboardContent() {
   const [sent, setSent] = useState(false);
   const [joinRequests, setJoinRequests] = useState<any[]>([]);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [assignMeetingPoint, setAssignMeetingPoint] = useState<Record<string, string>>({});
   const { success, error: showError } = useToast();
 
   useEffect(() => {
@@ -58,10 +59,14 @@ function HubDashboardContent() {
     fetchJoinRequests();
   }, []);
 
-  const handleReviewRequest = async (id: string, approved: boolean) => {
+  const handleReviewRequest = async (id: string, approved: boolean, meetingPointId?: string) => {
+    if (approved && !meetingPointId) {
+      showError("Select a meeting point to assign this member to");
+      return;
+    }
     setReviewingId(id);
     try {
-      await cith.reviewMyHubJoinRequest(id, approved);
+      await cith.reviewMyHubJoinRequest(id, approved, undefined, meetingPointId);
       setJoinRequests((prev) => prev.filter((r) => r.id !== id));
       success(approved ? "Request approved" : "Request rejected");
       if (approved) {
@@ -207,12 +212,24 @@ function HubDashboardContent() {
                           {name || r.user?.email || "Member"}
                         </span>
                       </div>
+                      {r.hub?.meetingPoints?.length > 0 && (
+                        <select
+                          className="mb-2 w-full rounded-[4px] border border-gray-border bg-white px-2 py-1.5 font-body text-xs text-slate focus:border-purple-vivid focus:outline-none"
+                          value={assignMeetingPoint[r.id] || ""}
+                          onChange={(e) => setAssignMeetingPoint({ ...assignMeetingPoint, [r.id]: e.target.value })}
+                        >
+                          <option value="">Assign to meeting point...</option>
+                          {r.hub.meetingPoints.map((mp: any) => (
+                            <option key={mp.id} value={mp.id}>{mp.homeGiverName} &mdash; {mp.address}</option>
+                          ))}
+                        </select>
+                      )}
                       <div className="flex gap-2">
                         <Button
                           variant="primary"
                           className="text-[11px] py-1.5 px-3 min-w-0 flex-1"
-                          disabled={reviewingId === r.id}
-                          onClick={() => handleReviewRequest(r.id, true)}
+                          disabled={reviewingId === r.id || !assignMeetingPoint[r.id]}
+                          onClick={() => handleReviewRequest(r.id, true, assignMeetingPoint[r.id])}
                         >
                           <CheckCircle size={12} className="mr-1" /> Approve
                         </Button>

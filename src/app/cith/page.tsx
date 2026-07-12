@@ -322,14 +322,11 @@ export default function CITHPage() {
                         <div className="h-[3px] w-full bg-gradient-to-r from-[#C9A84C] to-[#DFC070] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
                         <div className="p-6 flex flex-col flex-1">
-                          {/* Hub name + leader */}
+                          {/* Hub name */}
                           <div className="mb-5">
                             <h3 className="font-heading text-[17px] font-bold text-[#0E0B1E] group-hover:text-[#C9A84C] transition-colors leading-snug">
                               {hub.name}
                             </h3>
-                            <p className="font-body text-sm text-[#8A8A90] mt-0.5">
-                              Led by {getLeaderName(hub)}
-                            </p>
                           </div>
 
                           {/* Meta */}
