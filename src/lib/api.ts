@@ -682,6 +682,25 @@ export const cith = {
 
   deleteHub: (hubId: string) =>
     fetchAPI<{ message: string }>(`/admin/cith/hubs/${hubId}`, { method: "DELETE" }),
+
+  createMeetingPoint: (hubId: string, data: {
+    homeGiverName: string; address: string; churchServantName: string; assistantChurchServantName?: string;
+  }) =>
+    fetchAPI<any>(`/admin/cith/hubs/${hubId}/meeting-points`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateMeetingPoint: (id: string, data: {
+    homeGiverName?: string; address?: string; churchServantName?: string; assistantChurchServantName?: string;
+  }) =>
+    fetchAPI<any>(`/admin/cith/meeting-points/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deleteMeetingPoint: (id: string) =>
+    fetchAPI<{ message: string }>(`/admin/cith/meeting-points/${id}`, { method: "DELETE" }),
 };
 
 // NATION ENDPOINTS

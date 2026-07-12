@@ -234,6 +234,25 @@ function HubDashboardContent() {
             </div>
           </div>
 
+          {/* Meeting Points — visible because the leader/member is already approved */}
+          {hubData.meetingPoints && hubData.meetingPoints.length > 0 && (
+            <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
+              <h3 className="font-heading text-base font-bold text-slate mb-3">Meeting Points</h3>
+              <div className="space-y-2">
+                {hubData.meetingPoints.map((mp: any) => (
+                  <div key={mp.id} className="rounded-[4px] bg-off-white px-3 py-2">
+                    <p className="font-body text-sm font-semibold text-slate">{mp.homeGiverName}</p>
+                    <p className="font-body text-xs text-gray-text">{mp.address}</p>
+                    <p className="font-body text-xs text-slate mt-1">Servant: {mp.churchServantName}</p>
+                    {mp.assistantChurchServantName && (
+                      <p className="font-body text-xs text-slate">Assistant: {mp.assistantChurchServantName}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Send Announcement */}
           <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
             <h3 className="font-heading text-base font-bold text-slate mb-3">Send Announcement</h3>

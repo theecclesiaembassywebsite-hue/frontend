@@ -15,10 +15,11 @@ const roleOptions = [
   { value: "VISITOR", label: "Visitor" },
   { value: "FIRST_TIMER", label: "First Timer" },
   { value: "MEMBER", label: "Member" },
-  { value: "HUB_LEADER", label: "Hub Leader" },
+  { value: "HUB_LEADER", label: "Church Servant" },
   { value: "SQUAD_LEADER", label: "Squad Leader" },
   { value: "MODERATOR", label: "Moderator" },
   { value: "CONTENT_MANAGER", label: "Content Manager" },
+  { value: "CHURCH_SERVANT_COORDINATOR", label: "Church Servant Coordinator" },
   { value: "ADMIN", label: "Admin" },
 ];
 

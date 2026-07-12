@@ -71,6 +71,16 @@ function AdminCITHContent() {
   // Manage Modal editing state
   const [editingHub, setEditingHub] = useState(false);
   const [hubEditData, setHubEditData] = useState<any>(null);
+  // Meeting point (home fellowship) management within Manage Modal
+  const [showMeetingPointForm, setShowMeetingPointForm] = useState(false);
+  const [editingMeetingPointId, setEditingMeetingPointId] = useState<string | null>(null);
+  const [meetingPointForm, setMeetingPointForm] = useState({
+    homeGiverName: "",
+    address: "",
+    churchServantName: "",
+    assistantChurchServantName: "",
+  });
+  const [savingMeetingPoint, setSavingMeetingPoint] = useState(false);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -303,6 +313,71 @@ function AdminCITHContent() {
     }
   };
 
+  const resetMeetingPointForm = () => {
+    setShowMeetingPointForm(false);
+    setEditingMeetingPointId(null);
+    setMeetingPointForm({ homeGiverName: "", address: "", churchServantName: "", assistantChurchServantName: "" });
+  };
+
+  const startEditMeetingPoint = (mp: any) => {
+    setEditingMeetingPointId(mp.id);
+    setMeetingPointForm({
+      homeGiverName: mp.homeGiverName || "",
+      address: mp.address || "",
+      churchServantName: mp.churchServantName || "",
+      assistantChurchServantName: mp.assistantChurchServantName || "",
+    });
+    setShowMeetingPointForm(true);
+  };
+
+  const refreshManagingHub = async (hubId: string) => {
+    const hubsList = await cith.getAdminHubs();
+    setHubs(hubsList);
+    setManagingHub(hubsList.find((h: any) => h.id === hubId) || null);
+  };
+
+  const handleSaveMeetingPoint = async () => {
+    if (!managingHub) return;
+    if (!meetingPointForm.homeGiverName || !meetingPointForm.address || !meetingPointForm.churchServantName) {
+      error("Please fill in home giver, address, and church servant");
+      return;
+    }
+    try {
+      setSavingMeetingPoint(true);
+      const payload = {
+        homeGiverName: meetingPointForm.homeGiverName,
+        address: meetingPointForm.address,
+        churchServantName: meetingPointForm.churchServantName,
+        assistantChurchServantName: meetingPointForm.assistantChurchServantName || undefined,
+      };
+      if (editingMeetingPointId) {
+        await cith.updateMeetingPoint(editingMeetingPointId, payload);
+        success("Meeting point updated");
+      } else {
+        await cith.createMeetingPoint(managingHub.id, payload);
+        success("Meeting point added");
+      }
+      await refreshManagingHub(managingHub.id);
+      resetMeetingPointForm();
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to save meeting point");
+    } finally {
+      setSavingMeetingPoint(false);
+    }
+  };
+
+  const handleDeleteMeetingPoint = async (id: string) => {
+    if (!managingHub) return;
+    if (!window.confirm("Delete this meeting point? This cannot be undone.")) return;
+    try {
+      await cith.deleteMeetingPoint(id);
+      await refreshManagingHub(managingHub.id);
+      success("Meeting point deleted");
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to delete meeting point");
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 md:p-8">
@@ -391,7 +466,7 @@ function AdminCITHContent() {
                   <td className="px-4 py-3">
                     <button
                       className="text-xs font-heading font-semibold text-purple-vivid hover:underline"
-                      onClick={() => { setManagingHub(h); setReassignSearch(""); setReassignResults([]); setSelectedReassignLeader(null); setEditingHub(false); setHubEditData(null); setShowManageModal(true); }}
+                      onClick={() => { setManagingHub(h); setReassignSearch(""); setReassignResults([]); setSelectedReassignLeader(null); setEditingHub(false); setHubEditData(null); resetMeetingPointForm(); setShowManageModal(true); }}
                     >
                       Manage
                     </button>
@@ -517,7 +592,7 @@ function AdminCITHContent() {
       </Modal>
 
       {/* Manage Hub Modal */}
-      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setEditingHub(false); setHubEditData(null); setReassignSearch(""); setSelectedReassignLeader(null); setReassignResults([]); }} title={`Manage: ${managingHub?.name || "Hub"}`}>
+      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setEditingHub(false); setHubEditData(null); setReassignSearch(""); setSelectedReassignLeader(null); setReassignResults([]); resetMeetingPointForm(); }} title={`Manage: ${managingHub?.name || "Hub"}`}>
         <div className="space-y-4">
           {!editingHub ? (
             <>
@@ -611,6 +686,92 @@ function AdminCITHContent() {
                   >
                     Clear selection
                   </button>
+                )}
+              </div>
+
+              {/* Meeting Points (Home Fellowship Details) */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-heading font-semibold text-slate">
+                    Meeting Points <span className="text-gray-text font-normal">(home giver / servant details — hidden from public view)</span>
+                  </label>
+                  {!showMeetingPointForm && (
+                    <button
+                      className="flex items-center gap-1 text-xs font-heading font-semibold text-purple-vivid hover:underline"
+                      onClick={() => { setEditingMeetingPointId(null); setMeetingPointForm({ homeGiverName: "", address: "", churchServantName: "", assistantChurchServantName: "" }); setShowMeetingPointForm(true); }}
+                    >
+                      <Plus size={13} /> Add
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-2 mb-2">
+                  {(managingHub?.meetingPoints || []).map((mp: any) => (
+                    <div key={mp.id} className="rounded-[4px] bg-off-white p-3 text-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="font-heading font-semibold text-slate">{mp.homeGiverName}</p>
+                          <p className="font-body text-xs text-gray-text">{mp.address}</p>
+                          <p className="font-body text-xs text-slate mt-1">Servant: {mp.churchServantName}</p>
+                          {mp.assistantChurchServantName && (
+                            <p className="font-body text-xs text-slate">Assistant: {mp.assistantChurchServantName}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button className="text-xs font-heading font-semibold text-purple-vivid hover:underline" onClick={() => startEditMeetingPoint(mp)}>
+                            Edit
+                          </button>
+                          <button className="text-xs font-heading font-semibold text-error hover:underline" onClick={() => handleDeleteMeetingPoint(mp.id)}>
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {(!managingHub?.meetingPoints || managingHub.meetingPoints.length === 0) && !showMeetingPointForm && (
+                    <p className="font-body text-xs text-gray-text">No meeting points added yet.</p>
+                  )}
+                </div>
+
+                {showMeetingPointForm && (
+                  <div className="rounded-[4px] border border-gray-border p-3 space-y-2">
+                    <input
+                      type="text"
+                      className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                      placeholder="Home Giver name"
+                      value={meetingPointForm.homeGiverName}
+                      onChange={(e) => setMeetingPointForm({ ...meetingPointForm, homeGiverName: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                      placeholder="Address"
+                      value={meetingPointForm.address}
+                      onChange={(e) => setMeetingPointForm({ ...meetingPointForm, address: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                      placeholder="Church Servant"
+                      value={meetingPointForm.churchServantName}
+                      onChange={(e) => setMeetingPointForm({ ...meetingPointForm, churchServantName: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+                      placeholder="Ass. Church Servant (optional)"
+                      value={meetingPointForm.assistantChurchServantName}
+                      onChange={(e) => setMeetingPointForm({ ...meetingPointForm, assistantChurchServantName: e.target.value })}
+                    />
+                    <div className="flex gap-2 pt-1">
+                      <Button variant="secondary" className="flex-1 text-xs py-1.5" onClick={resetMeetingPointForm}>
+                        Cancel
+                      </Button>
+                      <Button variant="primary" className="flex-1 text-xs py-1.5" disabled={savingMeetingPoint} onClick={handleSaveMeetingPoint}>
+                        {savingMeetingPoint ? "Saving..." : editingMeetingPointId ? "Save Changes" : "Add Meeting Point"}
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -939,7 +1100,7 @@ function AdminCITHContent() {
 
 export default function AdminCITHPage() {
   return (
-    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN", "CHURCH_SERVANT_COORDINATOR"]}>
       <AdminCITHContent />
     </ProtectedRoute>
   );

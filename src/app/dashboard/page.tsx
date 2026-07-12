@@ -49,7 +49,7 @@ export default function DashboardPage() {
         // Determine hub status
         let hubStatus = 'Not Joined'
         if (hubData && hubData.id) {
-          hubStatus = hubData.status === 'ACTIVE' ? 'Hub Leader' : hubData.status || 'Joined'
+          hubStatus = hubData.status === 'ACTIVE' ? 'Church Servant' : hubData.status || 'Joined'
         }
 
         setStats({

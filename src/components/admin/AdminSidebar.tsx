@@ -20,7 +20,7 @@ const allNavItems = [
   { label: "Events",              href: "/admin/events",       icon: Calendar,        roles: ["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"] },
   { label: "Experience Gallery",  href: "/admin/gallery",      icon: Image,           roles: ["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"] },
   { label: "Testimonies",         href: "/admin/testimonies",  icon: Quote,           roles: ["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER"] },
-  { label: "CITH Hubs",           href: "/admin/cith",         icon: MapPin,          roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "CITH Hubs",           href: "/admin/cith",         icon: MapPin,          roles: ["ADMIN", "SUPER_ADMIN", "CHURCH_SERVANT_COORDINATOR"] },
   { label: "Squads",              href: "/admin/squads",       icon: Users,           roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Intentionality Class",href: "/admin/class",        icon: GraduationCap,   roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Training",            href: "/admin/training",     icon: Award,           roles: ["ADMIN", "SUPER_ADMIN"] },

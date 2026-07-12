@@ -29,6 +29,13 @@ interface HubDetail {
   isMember?: boolean;
   isLeader?: boolean;
   myJoinRequestStatus?: "PENDING" | "APPROVED" | "REJECTED" | null;
+  meetingPoints?: Array<{
+    id: string;
+    homeGiverName: string;
+    address: string;
+    churchServantName: string;
+    assistantChurchServantName?: string | null;
+  }>;
 }
 
 function getLeaderName(hub: HubDetail): string {
@@ -189,6 +196,25 @@ function HubDetailContent({ hubId }: { hubId: string }) {
                 </div>
               </div>
             </div>
+
+            {/* Meeting Points — only present once the backend has confirmed membership/leadership */}
+            {hub.meetingPoints && hub.meetingPoints.length > 0 && (
+              <div className="rounded-[8px] border border-[#E4E0EF] bg-white p-6 shadow-sm mb-6">
+                <h2 className="font-heading text-lg font-bold text-[#241A42] mb-4">Meeting Points</h2>
+                <div className="space-y-4">
+                  {hub.meetingPoints.map((mp) => (
+                    <div key={mp.id} className="rounded-[6px] bg-[#F5F5F5] p-4 text-sm font-body">
+                      <p className="font-heading font-semibold text-[#241A42]">{mp.homeGiverName}</p>
+                      <p className="text-[#8A8A8E]">{mp.address}</p>
+                      <p className="text-[#31333B] mt-1">Servant: {mp.churchServantName}</p>
+                      {mp.assistantChurchServantName && (
+                        <p className="text-[#31333B]">Assistant: {mp.assistantChurchServantName}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             {hub.description && (
