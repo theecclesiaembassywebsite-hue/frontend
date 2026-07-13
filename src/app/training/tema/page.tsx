@@ -5,7 +5,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/Motion";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Music,
   Mic,
@@ -21,6 +21,8 @@ import {
   Star,
   ArrowDown,
   Drum,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { training } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
@@ -110,10 +112,19 @@ const programSelectOptions = programs.map((p) => p.name);
 export default function TEMAPage() {
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { success, error } = useToast();
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function toggleVideoSound() {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setVideoMuted(video.muted);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -142,7 +153,26 @@ export default function TEMAPage() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden py-24 md:py-36 text-white bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.22),transparent_38%),linear-gradient(135deg,#0A0718_0%,#12102A_48%,#1E1040_100%)]">
+      <section className="relative overflow-hidden py-24 md:py-36 text-white bg-[#0A0718]">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover opacity-55"
+        >
+          <source src="/tema-hero-video.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.22),transparent_38%),linear-gradient(135deg,rgba(10,7,24,0.7)_0%,rgba(18,16,42,0.7)_48%,rgba(30,16,64,0.7)_100%)]" />
+        <button
+          onClick={toggleVideoSound}
+          aria-label={videoMuted ? "Unmute background video" : "Mute background video"}
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/80 backdrop-blur-sm transition-colors hover:bg-white/20 hover:text-white sm:right-6 sm:top-6"
+        >
+          {videoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </button>
         <div className="absolute inset-x-0 top-0 h-px bg-white/15" />
         <div className="absolute -left-32 top-16 h-72 w-72 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-purple/20 blur-3xl pointer-events-none" />
