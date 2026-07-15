@@ -432,13 +432,17 @@ export default function EcclesiaMusicPage() {
       )}
 
       {/* Hero */}
-      <section
-        className="relative flex h-80 items-center justify-center overflow-hidden bg-cover bg-center"
-        style={{
-          backgroundImage:
-            'url(https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80)',
-        }}
-      >
+      <section className="relative flex h-80 items-center justify-center overflow-hidden bg-[#0E0B1E]">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+        >
+          <source src="/ecclesia-music-hero-video.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-black/55" aria-hidden="true" />
         <div className="relative z-10 px-4 text-center">
           <div className="mb-4 flex justify-center">
