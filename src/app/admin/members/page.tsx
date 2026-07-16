@@ -13,7 +13,6 @@ import { Modal } from "@/components/ui/Modal";
 const roleOptions = [
   { value: "", label: "All Roles" },
   { value: "VISITOR", label: "Visitor" },
-  { value: "FIRST_TIMER", label: "First Timer" },
   { value: "MEMBER", label: "Member" },
   { value: "HUB_LEADER", label: "Church Servant" },
   { value: "SQUAD_LEADER", label: "Squad Leader" },
