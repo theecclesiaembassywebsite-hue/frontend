@@ -6,20 +6,12 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import { media } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { FadeIn, ScaleIn } from "@/components/ui/Motion";
-
-interface Sermon {
-  id: string;
-  title?: string;
-  youtubeId?: string;
-  videoUrl?: string;
-  description?: string;
-}
+import { fetchVideoMessages, extractYoutubeId, type VideoMessage } from "@/lib/videoMessages";
 
 export default function LatestMessage() {
-  const [sermon, setSermon] = useState<Sermon | null>(null);
+  const [sermon, setSermon] = useState<VideoMessage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +20,8 @@ export default function LatestMessage() {
       try {
         setLoading(true);
         setError(null);
-        const data = await media.getLatestSermon();
-        setSermon(data || null);
+        const videos = await fetchVideoMessages();
+        setSermon(videos[0] || null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load latest sermon");
         setSermon(null);
@@ -41,22 +33,7 @@ export default function LatestMessage() {
     fetchLatest();
   }, []);
 
-  const extractYoutubeId = (sermon: Sermon | null): string => {
-    if (!sermon) return "";
-
-    if (sermon.youtubeId) return sermon.youtubeId;
-
-    if (sermon.videoUrl) {
-      const match = sermon.videoUrl.match(
-        /(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([^&\n?#]+)/
-      );
-      if (match?.[1]) return match[1];
-    }
-
-    return "";
-  };
-
-  const youtubeVideoId = extractYoutubeId(sermon);
+  const youtubeVideoId = extractYoutubeId(sermon?.watchUrl);
 
   return (
     <SectionWrapper variant="white" id="latest-message">

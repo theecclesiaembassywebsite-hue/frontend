@@ -8,40 +8,13 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
 import { normalizeEmbedUrl } from "@/lib/utils";
-
-interface ChannelVideo {
-  id: string;
-  title: string;
-  publishedAt: string;
-  thumbnail: string;
-  watchUrl: string;
-}
-
-interface ManualVideo {
-  id: string;
-  title: string;
-  publishedAt: string;
-  thumbnail: string;
-  watchUrl: string;
-  sourceLabel: string;
-  description?: string;
-}
+import { fetchVideoMessages, type VideoMessage as ManualVideo } from "@/lib/videoMessages";
 
 function formatVideoDate(date: string) {
   const parsed = new Date(date);
   return Number.isNaN(parsed.getTime())
     ? "Date unavailable"
     : format(parsed, "MMMM d, yyyy");
-}
-
-function extractYoutubeId(url?: string) {
-  if (!url) return "";
-
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|live\/)|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#/]+)/
-  );
-
-  return match?.[1] ?? "";
 }
 
 function VideoPlayer({
@@ -139,75 +112,7 @@ export default function VideoMessagesPage() {
         setLoading(true);
         setError(null);
 
-        const [channelResult, manualResult] = await Promise.allSettled([
-          fetch("/api/youtube-channel-videos"),
-          fetch("/api/sermons/video"),
-        ]);
-
-        const channelVideos: ChannelVideo[] =
-          channelResult.status === "fulfilled"
-            ? ((await channelResult.value.json().catch(() => ({}))).videos ?? [])
-            : [];
-
-        const manualPayload: unknown =
-          manualResult.status === "fulfilled"
-            ? await manualResult.value.json().catch(() => [])
-            : [];
-
-        const manualEntries: Array<Record<string, unknown>> = Array.isArray(manualPayload)
-          ? manualPayload
-          : Array.isArray((manualPayload as { videos?: unknown }).videos)
-            ? (manualPayload as { videos: Array<Record<string, unknown>> }).videos
-            : [];
-
-        // Base: channel uploads (non-livestream) from both channels
-        const merged = new Map<string, ManualVideo>();
-        channelVideos.forEach((v) => {
-          merged.set(v.id, { ...v, sourceLabel: "YouTube Upload" });
-        });
-
-        manualEntries.forEach((entry) => {
-          const youtubeUrl =
-            typeof entry.youtubeUrl === "string" ? entry.youtubeUrl : "";
-          const videoId = extractYoutubeId(youtubeUrl);
-          if (!videoId) return;
-
-          const speaker =
-            typeof entry.speaker === "string" && entry.speaker.trim()
-              ? entry.speaker
-              : "Manual Entry";
-          const description =
-            typeof entry.description === "string" ? entry.description : undefined;
-          const manualTitle =
-            typeof entry.title === "string" && entry.title.trim()
-              ? entry.title
-              : "Video Message";
-
-          const existing = merged.get(videoId);
-          merged.set(videoId, {
-            id: typeof entry.id === "string" ? entry.id : videoId,
-            title: existing?.title ?? manualTitle,
-            publishedAt:
-              existing?.publishedAt ??
-              (typeof entry.createdAt === "string"
-                ? entry.createdAt
-                : typeof entry.date === "string"
-                  ? entry.date
-                  : ""),
-            thumbnail:
-              existing?.thumbnail ??
-              `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-            watchUrl: youtubeUrl,
-            sourceLabel: speaker,
-            description,
-          });
-        });
-
-        const mappedVideos = Array.from(merged.values()).sort(
-          (a, b) =>
-            new Date(b.publishedAt || 0).getTime() -
-            new Date(a.publishedAt || 0).getTime()
-        );
+        const mappedVideos = await fetchVideoMessages();
 
         if (mappedVideos.length === 0) {
           throw new Error("No videos available");
