@@ -429,7 +429,7 @@ export const serviceSchedule = {
 
   adminCreate: (data: {
     day: string;
-    dayLabel?: string;
+    dayLabel?: string | null;
     name: string;
     time: string;
     description: string;
@@ -445,7 +445,7 @@ export const serviceSchedule = {
     id: string,
     data: {
       day?: string;
-      dayLabel?: string;
+      dayLabel?: string | null;
       name?: string;
       time?: string;
       description?: string;

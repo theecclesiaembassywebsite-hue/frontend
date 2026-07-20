@@ -43,7 +43,7 @@ export const DEFAULT_SERVICE_SCHEDULE = [
   },
   {
     id: "svc-monthly-as-unto",
-    day: "1st - 3rd",
+    day: "1st to 3rd",
     dayLabel: "of every month",
     name: "As Unto The Lord",
     time: "6:00 AM & 6:00 PM",

@@ -61,8 +61,8 @@ const DEFAULT_SERVICES: ServiceEntry[] = [
   },
   {
     id: "svc-monthly-as-unto",
-    day: "1st-3rd",
-    dayLabel: "every month",
+    day: "1st to 3rd",
+    dayLabel: "of every month",
     name: "As Unto The Lord",
     time: "",
     description:
@@ -82,6 +82,9 @@ const getFallbackRank = (service: ServiceEntry) => {
   return index === -1 ? Number.MAX_SAFE_INTEGER : index;
 };
 
+const getSlotKey = (service: ServiceEntry) =>
+  `${(service.day || "").trim().toLowerCase()}|${(service.time || "").trim().toLowerCase()}`;
+
 const mergeServices = (incoming: ServiceEntry[]) => {
   const merged = new Map<string, ServiceEntry>();
 
@@ -89,11 +92,14 @@ const mergeServices = (incoming: ServiceEntry[]) => {
     merged.set(getLookupKey(service.name), service);
   }
 
+  const matchedDefaultKeys = new Set<string>();
+
   for (const rawService of incoming) {
     if (!rawService?.name) continue;
 
     const lookupKey = getLookupKey(rawService.name);
     const fallback = merged.get(lookupKey);
+    if (fallback) matchedDefaultKeys.add(lookupKey);
 
     merged.set(lookupKey, {
       ...fallback,
@@ -109,19 +115,28 @@ const mergeServices = (incoming: ServiceEntry[]) => {
     });
   }
 
-  return Array.from(merged.values()).sort((left, right) => {
-    const leftOrder = left.order ?? getFallbackRank(left);
-    const rightOrder = right.order ?? getFallbackRank(right);
-    return leftOrder !== rightOrder
-      ? leftOrder - rightOrder
-      : left.name.localeCompare(right.name);
-  });
-};
+  // A backend entry saved under a different name than its matching default
+  // (e.g. an admin created a new record instead of editing the original)
+  // still occupies the same day/time slot — drop the stale, unmatched
+  // default so the same service doesn't render as two separate tabs.
+  const incomingSlots = new Set(
+    incoming.filter((s) => s?.name).map(getSlotKey)
+  );
 
-function DayLabel({ label, className }: { label?: string | null; className: string }) {
-  if (!label) return null;
-  return <p className={className}>{label}</p>;
-}
+  return Array.from(merged.values())
+    .filter((service) => {
+      const isUnmatchedDefault = !matchedDefaultKeys.has(getLookupKey(service.name))
+        && !incoming.some((s) => s?.name && getLookupKey(s.name) === getLookupKey(service.name));
+      return !(isUnmatchedDefault && incomingSlots.has(getSlotKey(service)));
+    })
+    .sort((left, right) => {
+      const leftOrder = left.order ?? getFallbackRank(left);
+      const rightOrder = right.order ?? getFallbackRank(right);
+      return leftOrder !== rightOrder
+        ? leftOrder - rightOrder
+        : left.name.localeCompare(right.name);
+    });
+};
 
 function ServiceTabButton({
   service,
@@ -132,6 +147,8 @@ function ServiceTabButton({
   isActive: boolean;
   onClick: () => void;
 }) {
+  const hasDayLabel = Boolean(service.dayLabel);
+
   return (
     <button
       type="button"
@@ -151,20 +168,22 @@ function ServiceTabButton({
           isActive ? "text-white" : "text-white/86"
         )}
       >
-        {service.day}{service.time ? ` ${service.time}` : ""}
+        {service.day}
+        {hasDayLabel ? ` ${service.dayLabel}` : ""}
+        {service.time ? ` ${service.time}` : ""}
       </p>
       <p
         className={clsx(
           "mt-1 font-body text-xs",
-          isActive ? "text-white/90" : "text-white/62"
+          hasDayLabel
+            ? clsx("font-semibold", isActive ? "text-gold" : "text-gold/80")
+            : isActive
+              ? "text-white/90"
+              : "text-white/62"
         )}
       >
         {service.name}
       </p>
-      <DayLabel
-        label={service.dayLabel}
-        className="mt-1 font-body text-[10px] uppercase tracking-[0.14em] text-gold/82"
-      />
     </button>
   );
 }
@@ -245,10 +264,11 @@ export default function ServiceSchedule() {
                     <p className="font-heading text-xl font-bold text-white">
                       {selectedService.day}
                     </p>
-                    <DayLabel
-                      label={selectedService.dayLabel}
-                      className="mt-1 font-body text-[11px] uppercase tracking-[0.18em] text-gold/84"
-                    />
+                    {selectedService.dayLabel && (
+                      <p className="mt-1 font-body text-[11px] uppercase tracking-[0.18em] text-gold/84">
+                        {selectedService.dayLabel}
+                      </p>
+                    )}
                   </div>
                 </div>
 

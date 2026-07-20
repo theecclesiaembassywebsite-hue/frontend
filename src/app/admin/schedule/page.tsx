@@ -91,7 +91,7 @@ export default function AdminSchedulePage() {
     try {
       const payload = {
         day: form.day,
-        dayLabel: form.dayLabel || undefined,
+        dayLabel: form.dayLabel.trim() === "" ? null : form.dayLabel,
         name: form.name,
         time: form.time,
         description: form.description,
