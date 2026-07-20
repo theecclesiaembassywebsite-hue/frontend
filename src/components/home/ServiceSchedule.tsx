@@ -23,7 +23,7 @@ interface ServiceEntry {
 const DEFAULT_SERVICES: ServiceEntry[] = [
   {
     id: "svc-sunday-word-life",
-    day: "Sun",
+    day: "Sunday",
     name: "Word & Life Service",
     time: "8:00 AM",
     description:
@@ -32,7 +32,7 @@ const DEFAULT_SERVICES: ServiceEntry[] = [
   },
   {
     id: "svc-tuesday-prayer",
-    day: "Tue",
+    day: "Tuesday",
     name: "Prayer Service",
     time: "5:30 PM",
     description:
@@ -41,7 +41,7 @@ const DEFAULT_SERVICES: ServiceEntry[] = [
   },
   {
     id: "svc-friday-worship",
-    day: "Fri",
+    day: "Friday",
     name: "Worship Service",
     time: "5:30 PM",
     description:
@@ -50,7 +50,7 @@ const DEFAULT_SERVICES: ServiceEntry[] = [
   },
   {
     id: "svc-thursday-healing-incense",
-    day: "Thu",
+    day: "Thursday",
     name: "Healing Incense Service",
     time: "9:00 AM",
     description:
