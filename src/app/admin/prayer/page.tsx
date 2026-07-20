@@ -165,7 +165,7 @@ function AdminPrayerContent() {
                   <span>{r.email}</span>
                   <span>&middot;</span>
                   <span>{new Date(r.createdAt || Date.now()).toLocaleDateString()}</span>
-                  {r.isPublic && <span className="rounded-full bg-info/10 text-info px-1.5 py-0.5">Public</span>}
+                  {r.isPublic && <span className="rounded-full bg-info/10 text-info px-1.5 py-0.5">Not Anonymous</span>}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0 flex-wrap">
@@ -231,7 +231,7 @@ function AdminPrayerContent() {
             </div>
             {viewingRequest.isPublic && (
               <div>
-                <span className="rounded-full bg-info/10 text-info px-2 py-0.5 text-[10px] font-heading font-semibold">Public Request</span>
+                <span className="rounded-full bg-info/10 text-info px-2 py-0.5 text-[10px] font-heading font-semibold">Okay to share name (not anonymous)</span>
               </div>
             )}
           </div>

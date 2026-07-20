@@ -106,7 +106,7 @@ export default function DashboardPage() {
           {/* Quick Stats */}
           <div className="mb-12">
             <StaggerContainer>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 {/* My Giving Card */}
                 <StaggerItem>
                   <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">

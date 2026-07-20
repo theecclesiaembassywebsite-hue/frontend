@@ -127,7 +127,7 @@ function MyClassesContent() {
                     </div>
                   )}
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Link href={`/dashboard/class/${enrollment.course.id}?enrollmentId=${enrollment.id}`}>
                       <Button variant="primary" className="text-xs py-2 px-4 min-w-0">
                         {enrollment.status === "EXAM_READY" ? "Take Exam" : "Continue Learning"}

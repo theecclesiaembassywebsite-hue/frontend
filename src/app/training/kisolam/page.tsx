@@ -32,7 +32,6 @@ const programs: Program[] = [
   {
     id: "DTD",
     name: "Discipleship Training Deluge",
-    shortName: "DTD",
     duration: "3 months",
     desc: "An intensive discipleship track designed to ground believers in the foundations of faith, kingdom identity, and missional living.",
     feeType: "paid",
@@ -51,7 +50,6 @@ const programs: Program[] = [
   {
     id: "SMIT",
     name: "Six Months Intensive Training",
-    shortName: "SMIT",
     duration: "6 months",
     desc: "A comprehensive curriculum covering doctrine, church planting, leadership, and practical ministry in one immersive season.",
     feeType: "paid",

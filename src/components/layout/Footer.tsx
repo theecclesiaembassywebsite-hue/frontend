@@ -77,10 +77,10 @@ export default function Footer() {
               <h4 className="font-heading text-sm font-bold uppercase tracking-[0.24em] text-gold">
                 Explore
               </h4>
-              <ul className="mt-5 space-y-3">
+              <ul className="mt-5 space-y-0.5">
                 {siteLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="font-body text-sm text-white/74 hover:text-white">
+                    <Link href={link.href} className="block py-2 font-body text-sm text-white/74 hover:text-white">
                       {link.label}
                     </Link>
                   </li>
@@ -94,10 +94,10 @@ export default function Footer() {
               <h4 className="font-heading text-sm font-bold uppercase tracking-[0.24em] text-gold">
                 Next Steps
               </h4>
-              <ul className="mt-5 space-y-3">
+              <ul className="mt-5 space-y-0.5">
                 {nextSteps.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="font-body text-sm text-white/74 hover:text-white">
+                    <Link href={link.href} className="block py-2 font-body text-sm text-white/74 hover:text-white">
                       {link.label}
                     </Link>
                   </li>

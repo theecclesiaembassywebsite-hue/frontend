@@ -222,7 +222,7 @@ function CourseContent({ courseId }: { courseId: string }) {
                 </div>
 
                 {q.type === "MCQ" && q.options ? (
-                  <div className="space-y-2 ml-10">
+                  <div className="space-y-2 ml-4 sm:ml-10">
                     {q.options.map((option, oi) => (
                       <label
                         key={oi}
@@ -286,7 +286,7 @@ function CourseContent({ courseId }: { courseId: string }) {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
           {/* Module sidebar */}
           <div className="lg:col-span-1">
-            <div className="rounded-[8px] border border-gray-border bg-white shadow-sm overflow-hidden sticky top-20">
+            <div className="rounded-[8px] border border-gray-border bg-white shadow-sm overflow-hidden lg:sticky lg:top-20">
               <div className="bg-purple-vivid px-4 py-3">
                 <h2 className="font-heading text-sm font-bold text-white">Modules</h2>
               </div>

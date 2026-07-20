@@ -332,7 +332,7 @@ function ProfileEditContent() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 pt-6 border-t border-gray-border">
+            <div className="flex flex-wrap gap-3 pt-6 border-t border-gray-border">
               <Button
                 type="submit"
                 variant="primary"

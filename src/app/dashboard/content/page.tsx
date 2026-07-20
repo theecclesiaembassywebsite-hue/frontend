@@ -81,11 +81,11 @@ export default function ContentEditorPage() {
     <ProtectedRoute>
       <main className="min-h-screen bg-[#FAFAF8] py-10">
         <div className="mx-auto max-w-[1200px] px-4">
-          <div className="rounded-[24px] border border-[#E8E6F0] bg-white p-10 shadow-sm">
+          <div className="rounded-[24px] border border-[#E8E6F0] bg-white p-6 shadow-sm md:p-10">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-[#C9A84C] font-semibold">Content Editor</p>
-                <h1 className="text-4xl font-heading font-bold text-[#0E0B1E] mt-2">
+                <h1 className="text-2xl font-heading font-bold text-[#0E0B1E] mt-2 md:text-4xl">
                   Edit website write-ups & page images
                 </h1>
               </div>
@@ -135,7 +135,7 @@ export default function ContentEditorPage() {
                 </div>
 
                 <div className="rounded-[20px] border border-[#E8E6F0] bg-white p-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-xl font-semibold text-[#0E0B1E]">Images</h2>
                       <p className="text-sm text-[#8A8A90]">Upload or paste image URLs for this page.</p>
@@ -143,7 +143,7 @@ export default function ContentEditorPage() {
                     <Button
                       type="button"
                       variant="secondary"
-                      className="inline-flex items-center gap-2"
+                      className="inline-flex items-center gap-2 self-start sm:self-auto"
                       onClick={() => document.getElementById('image-upload-input')?.click()}
                     >
                       <ImagePlus className="w-4 h-4" /> Upload
@@ -210,7 +210,7 @@ export default function ContentEditorPage() {
               <div className="text-sm text-[#8A8A90]">
                 <p className="font-semibold text-[#0E0B1E]">Display Notes</p>
                 <p>
-                  To render this content on the target page, add <code className="rounded bg-[#FAFAF8] px-1 py-0.5 font-mono text-xs">&lt;EditableContent pagePath="{pagePath}" /&gt;</code> in that page's component tree.
+                  To render this content on the target page, add <code className="break-words rounded bg-[#FAFAF8] px-1 py-0.5 font-mono text-xs">&lt;EditableContent pagePath="{pagePath}" /&gt;</code> in that page's component tree.
                 </p>
               </div>
               <Button

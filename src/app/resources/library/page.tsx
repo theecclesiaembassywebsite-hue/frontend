@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SectionWrapper from '@/components/ui/SectionWrapper';
 import { media } from '@/lib/api';
 import { SkeletonGroup } from '@/components/ui/Skeleton';
@@ -9,7 +9,6 @@ import { StaggerContainer, StaggerItem } from '@/components/ui/Motion';
 import { BookOpen, Download, Search, ShoppingCart, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/ui/Toast';
-import Script from 'next/script';
 
 interface LibraryItem {
   id: string;
@@ -38,6 +37,19 @@ export default function EcclesialibraryPage() {
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
   const { success, error } = useToast();
+  const paystackFormRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    // next/script always portals lazyOnload scripts to <body>, so a JSX <form>
+    // wrapper doesn't actually nest the tag in the DOM. Paystack's inline.js
+    // requires its own <script> tag to be a descendant of a <form>, so it's
+    // inserted manually here instead.
+    if (window.PaystackPop || !paystackFormRef.current) return;
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    paystackFormRef.current.appendChild(script);
+  }, []);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -144,7 +156,9 @@ export default function EcclesialibraryPage() {
 
   return (
     <main className="min-h-screen">
-      <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
+      {/* Mount point for Paystack's inline.js — it requires its <script> tag to be
+          a descendant of a <form>, injected manually via paystackFormRef above */}
+      <form ref={paystackFormRef} className="hidden" aria-hidden="true" />
 
       {/* Hero Section */}
       <section className="relative h-80 flex items-center justify-center overflow-hidden">

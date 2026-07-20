@@ -306,7 +306,7 @@ function AlbumAudioSection({
                 canEmbed ? (
                   <button
                     onClick={() => onPlayAudio(track)}
-                    className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 font-heading text-[11px] font-bold uppercase tracking-[0.14em] transition-opacity hover:opacity-80 ${
+                    className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-3.5 py-3 font-heading text-[11px] font-bold uppercase tracking-[0.14em] transition-opacity hover:opacity-80 ${
                       type === 'spotify'
                         ? 'bg-[#1DB954] text-white'
                         : 'bg-[#C9A84C] text-[#0E0B1E]'
@@ -320,7 +320,7 @@ function AlbumAudioSection({
                     href={track.audioUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-[#F26522] px-3.5 py-1.5 font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-80"
+                    className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-[#F26522] px-3.5 py-3 font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-80"
                   >
                     <ExternalLink className="h-3 w-3" />
                     Boomplay

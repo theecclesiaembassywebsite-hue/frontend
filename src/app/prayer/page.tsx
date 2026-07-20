@@ -127,16 +127,16 @@ export default function PrayerPage() {
                   <Select
                     id="privacy"
                     name="privacy"
-                    label="Privacy"
+                    label="Anonymity"
                     required
                     options={[
                       {
                         value: 'public',
-                        label: 'Public (shared for corporate prayer)',
+                        label: 'Not anonymous (share my name)',
                       },
                       {
                         value: 'private',
-                        label: 'Private (pastoral team only)',
+                        label: 'Anonymous (keep my name private)',
                       },
                     ]}
                   />

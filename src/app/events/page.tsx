@@ -157,20 +157,25 @@ export default function EventsPage() {
 
           {/* Event Type Filter */}
           <StaggerItem>
-            <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2 mb-12">
-              {EVENT_TYPE_FILTERS.map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => setTypeFilter(filter.value)}
-                  className={`shrink-0 rounded-full px-5 py-2 font-body text-sm font-semibold transition-colors ${
-                    typeFilter === filter.value
-                      ? "bg-purple text-white"
-                      : "bg-white text-gray-text border border-gray-border hover:border-purple hover:text-purple"
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
+            <div className="relative mb-12">
+              <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2">
+                {EVENT_TYPE_FILTERS.map((filter) => (
+                  <button
+                    key={filter.value}
+                    onClick={() => setTypeFilter(filter.value)}
+                    className={`shrink-0 rounded-full px-5 py-2 font-body text-sm font-semibold transition-colors ${
+                      typeFilter === filter.value
+                        ? "bg-purple text-white"
+                        : "bg-white text-gray-text border border-gray-border hover:border-purple hover:text-purple"
+                    }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+              {/* Scroll hint fades — only relevant when the row overflows, which happens on narrow screens */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#FAFAF8] to-transparent sm:hidden" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#FAFAF8] to-transparent sm:hidden" />
             </div>
           </StaggerItem>
 

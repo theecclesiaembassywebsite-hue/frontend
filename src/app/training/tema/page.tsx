@@ -5,7 +5,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/Motion";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Music,
   Mic,
@@ -109,23 +109,66 @@ const experiences = [
 
 const programSelectOptions = programs.map((p) => p.name);
 
+const heroVideos = [
+  { mobile: "/tema-hero-video-mobile.mp4", desktop: "/tema-hero-video.mp4" },
+  { mobile: "/tema-hero-video-2-mobile.mp4", desktop: "/tema-hero-video-2.mp4" },
+] as const;
+
 export default function TEMAPage() {
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [videoMuted, setVideoMuted] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [activeHeroSlot, setActiveHeroSlot] = useState<0 | 1>(0);
+  const heroVideoRefA = useRef<HTMLVideoElement>(null);
+  const heroVideoRefB = useRef<HTMLVideoElement>(null);
   const { success, error } = useToast();
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function toggleVideoSound() {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = !video.muted;
-    setVideoMuted(video.muted);
+  function heroVideoRef(slot: 0 | 1) {
+    return slot === 0 ? heroVideoRefA : heroVideoRefB;
   }
+
+  function toggleVideoSound() {
+    const next = !videoMuted;
+    if (heroVideoRefA.current) heroVideoRefA.current.muted = next;
+    if (heroVideoRefB.current) heroVideoRefB.current.muted = next;
+    setVideoMuted(next);
+  }
+
+  function playHeroSlot(slot: 0 | 1, muted: boolean) {
+    const video = heroVideoRef(slot).current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.muted = muted;
+    video.play().catch(() => {});
+  }
+
+  function advanceHeroSlot(fromSlot: 0 | 1) {
+    const finishedVideo = heroVideoRef(fromSlot).current;
+    if (finishedVideo) finishedVideo.currentTime = 0;
+    const nextSlot: 0 | 1 = fromSlot === 0 ? 1 : 0;
+    setActiveHeroSlot(nextSlot);
+    playHeroSlot(nextSlot, videoMuted);
+  }
+
+  // Try to start the hero video with sound; browsers that block unmuted
+  // autoplay reject the play() promise, so fall back to muted playback.
+  useEffect(() => {
+    const video = heroVideoRefA.current;
+    if (!video) return;
+    video.muted = false;
+    video.play()
+      .then(() => setVideoMuted(false))
+      .catch(() => {
+        video.muted = true;
+        setVideoMuted(true);
+        video.play().catch(() => {});
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -155,15 +198,26 @@ export default function TEMAPage() {
       {/* ── HERO ── */}
       <section className="relative overflow-hidden py-24 md:py-36 text-white bg-[#0A0718]">
         <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
+          ref={heroVideoRefA}
           playsInline
           preload="auto"
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
+          onEnded={() => advanceHeroSlot(0)}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          style={{ opacity: activeHeroSlot === 0 ? 0.55 : 0 }}
         >
-          <source src="/tema-hero-video.mp4" type="video/mp4" />
+          <source media="(max-width: 767px)" src={heroVideos[0].mobile} type="video/mp4" />
+          <source src={heroVideos[0].desktop} type="video/mp4" />
+        </video>
+        <video
+          ref={heroVideoRefB}
+          playsInline
+          preload="auto"
+          onEnded={() => advanceHeroSlot(1)}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          style={{ opacity: activeHeroSlot === 1 ? 0.55 : 0 }}
+        >
+          <source media="(max-width: 767px)" src={heroVideos[1].mobile} type="video/mp4" />
+          <source src={heroVideos[1].desktop} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.22),transparent_38%),linear-gradient(135deg,rgba(10,7,24,0.7)_0%,rgba(18,16,42,0.7)_48%,rgba(30,16,64,0.7)_100%)]" />
         <button
@@ -185,13 +239,13 @@ export default function TEMAPage() {
           </FadeIn>
 
           <FadeIn direction="up" delay={0.1}>
-            <div className="mx-auto mt-8 max-w-md rounded-[30px] border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
-              <div className="overflow-hidden rounded-[24px] bg-white p-4 sm:p-5">
+            <div className="mx-auto mt-6 max-w-lg">
+              <div className="overflow-hidden">
                 <Image
-                  src="/tema-academy-logo.jpeg"
+                  src="/tema-academy-logo.png"
                   alt="The Ecclesia Music and Arts Academy logo"
-                  width={1024}
-                  height={1024}
+                  width={488}
+                  height={423}
                   loading="eager"
                   fetchPriority="high"
                   className="h-auto w-full object-contain"
@@ -201,7 +255,7 @@ export default function TEMAPage() {
           </FadeIn>
 
           <FadeIn direction="up" delay={0.18}>
-            <h1 className="mt-8 font-heading text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
+            <h1 className="mt-4 font-heading text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
               The Call
             </h1>
           </FadeIn>
