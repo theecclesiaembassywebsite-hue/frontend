@@ -120,7 +120,7 @@ export default function GivePage() {
         eyebrow="Give / Sow"
         title="Your generosity fuels the Kingdom."
         subtitle="Give what the Lord has put in your heart."
-        description="Every gift sown into this house is an act of worship and Kingdom partnership. Whether by card, transfer, or standing order — your giving matters."
+        description="Every gift sown is an act of worship and Kingdom partnership."
         backgroundImage="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1920&q=80"
         compact
       />

@@ -234,7 +234,7 @@ export default function NewHerePage() {
               <Heart className="h-6 w-6 text-gold" />
             </div>
             <SectionHeading
-              eyebrow="Just Said Yes to Jesus?"
+              eyebrow="New Convert?"
               title="Just gave your life to Christ?"
               description="Congratulations! We want to walk with you on this new journey. Fill out our New Convert form so we can connect you to a growth track, a squad, and a community expression near you or online."
               align="center"
