@@ -1,0 +1,34 @@
+{
+  // Worker name — must match "frontend" from https://frontend.theecclesiaembassywebsite.workers.dev
+  "name": "frontend",
+
+  "compatibility_date": "2026-07-25",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Entry point produced by `@opennextjs/cloudflare` (`opennextjs-cloudflare build`).
+  // This package is NOT yet installed/configured in this repo — the dashboard build
+  // is doing this some other way. Adjust this path once the actual build command is
+  // confirmed (see Settings → Build in the dashboard).
+  "main": ".open-next/worker.js",
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  "observability": {
+    "enabled": false,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  }
+}
