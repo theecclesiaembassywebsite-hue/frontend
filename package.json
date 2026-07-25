@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "next build",
     "dev": "next dev",
     "dev:frontend": "next dev",
-    "build": "next build",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -15,10 +15,15 @@
     "backend:dev": "npm --prefix backend run start:dev",
     "backend:start": "npm --prefix backend run start",
     "backend:build": "npm --prefix backend run build",
-    "backend:test": "npm --prefix backend run test"
+    "backend:test": "npm --prefix backend run test",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@types/dompurify": "^3.0.5",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -49,6 +54,7 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.7",
+    "wrangler": "^4.114.0"
   }
 }
