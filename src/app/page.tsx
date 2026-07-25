@@ -9,9 +9,9 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <ServiceSchedule />
-      <CITHSection />
       <QuickLinks />
+      <CITHSection />
+      <ServiceSchedule />
       <Announcements />
       <LatestMessage />
     </>

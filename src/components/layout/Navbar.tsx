@@ -79,11 +79,6 @@ const navLinks = [
   { label: "CONTACT", href: "/contact" },
 ];
 
-const utilityLinks = [
-  { label: "Plan Your Visit", href: "/new-here" },
-  { label: "Watch Live", href: "/live" },
-];
-
 function isActivePath(pathname: string, href: string) {
   if (href === "/") {
     return pathname === "/";
@@ -277,34 +272,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Utility top bar */}
-      <div className="relative z-[70] border-b border-white/10 bg-charcoal text-white">
-        <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:py-2.5">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.22em] text-white/58">
-            <span>Sunday Worship 8:00 AM</span>
-            <span className="hidden text-white/16 lg:inline">|</span>
-            <span>Tuesday Prayer 5:30 PM</span>
-            <span className="hidden text-white/16 lg:inline">|</span>
-            <span>Friday Worship 5:30 PM</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {utilityLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={closeMenus}
-                className={cn(
-                  "flex items-center rounded-full border border-white/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/72",
-                  "hover:border-gold/50 hover:bg-white/5 hover:text-gold"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Main sticky header */}
       <header
         className={cn(
