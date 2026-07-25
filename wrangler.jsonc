@@ -6,9 +6,6 @@
   "compatibility_flags": ["nodejs_compat"],
 
   // Entry point produced by `@opennextjs/cloudflare` (`opennextjs-cloudflare build`).
-  // This package is NOT yet installed/configured in this repo — the dashboard build
-  // is doing this some other way. Adjust this path once the actual build command is
-  // confirmed (see Settings → Build in the dashboard).
   "main": ".open-next/worker.js",
 
   "assets": {
@@ -17,7 +14,7 @@
   },
 
   "observability": {
-    "enabled": false,
+    "enabled": true,
     "head_sampling_rate": 1,
     "logs": {
       "enabled": true,
