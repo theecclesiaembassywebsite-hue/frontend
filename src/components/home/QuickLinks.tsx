@@ -49,9 +49,9 @@ export default function QuickLinks() {
     <SectionWrapper variant="off-white" id="quick-links">
       <FadeIn>
         <SectionHeading
-          eyebrow="Explore the House"
-          title="Move through the life of the Embassy with clarity."
-          description="Whether you are visiting for the first time, catching up on a message, or looking for your next community step, these pages get you there quickly."
+          eyebrow="Welcome Home"
+          title="Be a part of this growing family of God"
+          description="Whether you are visiting for the first time, catching up on a message, or looking for your next step within this community, these pages get you there quickly."
           align="center"
           className="mb-12"
         />

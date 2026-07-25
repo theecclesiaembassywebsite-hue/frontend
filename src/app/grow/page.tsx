@@ -12,25 +12,25 @@ const growthPaths = [
   {
     icon: GraduationCap,
     title: "Intentionality Class",
-    desc: "A foundational training track to deepen understanding, establish rhythms, and prepare you for active growth.",
+    desc: "A foundational training track to deepen understanding in the word and become an active member of The Ecclesia Embassy.",
     href: "/grow/intentionality-class",
   },
   {
     icon: Users,
     title: "Church in the House",
-    desc: "Find a local fellowship rhythm where spiritual formation becomes relational, practical, and consistent.",
+    desc: "Find a hub fellowship in your neighbourhood, grow in the word and build intentional community.",
     href: "/cith",
   },
   {
     icon: BookOpen,
     title: "Kingdom Life Squads",
-    desc: "Join a serving team that helps you steward your gifts while contributing meaningfully to the life of the house.",
+    desc: "Our life in the Kingdom is lived out in service. Join a squad and commit to Kingdom service across various areas.",
     href: "/kingdom-expressions/squads",
   },
   {
     icon: Music,
     title: "Ecclesia Music",
-    desc: "Stay close to the sound of worship that shapes our gatherings and supports your private devotion.",
+    desc: "Listen to music birthed from the word of God and build your faith.",
     href: "/resources/music",
   },
 ];
@@ -41,8 +41,7 @@ export default function GrowPage() {
       <PageHero
         eyebrow="Grow"
         title="Take your next intentional step with us."
-        subtitle="Formation is strongest when it is relational, structured, and steady."
-        description="Whether you are new to the Embassy or ready for a deeper commitment, these pathways help you build rhythm, find community, and grow in purpose."
+        description="Whether you are new to The Ecclesia Embassy or ready for a deeper commitment, these pathways help you grow in your faith and be a committed part of this community."
         backgroundImage="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1920&q=80"
         actions={[
           { href: "/new-here", label: "Start Here", variant: "primary" },
@@ -54,8 +53,8 @@ export default function GrowPage() {
       <SectionWrapper variant="white">
         <SectionHeading
           eyebrow="Growth Pathways"
-          title="Choose the path that matches your next season."
-          description="At the Embassy, growth is never abstract. It becomes practical through classes, hubs, teams, and worshipping community."
+          title="Choose the path that matches your next step with us."
+          description="At The Ecclesia Embassy, growth is practical through classes, hub meetings and an intentional community."
           className="mb-12"
         />
 

@@ -619,7 +619,7 @@ export default function LivePage() {
             Community
           </p>
           <h3 className="mt-4 font-heading text-2xl font-bold text-white md:text-3xl">
-            Join the conversation in Ecclesia Nation
+            Join the conversation
           </h3>
           <p className="mt-3 font-body text-sm text-white/60 max-w-lg mx-auto">
             Connect with the community between services — share, pray, and grow together.
@@ -628,7 +628,7 @@ export default function LivePage() {
             href="/nation"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-gold px-8 py-3 font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-slate shadow-[0_14px_28px_rgba(201,168,76,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark"
           >
-            Enter the Nation
+            Get Connected
           </Link>
         </div>
       </section>

@@ -34,8 +34,8 @@ export default function LeadershipPage() {
               A word from the Lead Brother.
             </h1>
             <p className="mt-5 max-w-2xl font-serif text-xl italic leading-8 text-white/84 md:text-2xl">
-              Victor Oluwadamilare shares the heartbeat, calling, and rhythm of
-              the house.
+              Victor Oluwadamilare shares the heartbeat and vision behind the
+              movement.
             </p>
           </div>
         </div>

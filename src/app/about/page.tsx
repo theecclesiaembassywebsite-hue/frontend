@@ -63,7 +63,7 @@ export default function AboutPage() {
   return (
     <main className="page-bands">
       <PageHero
-        eyebrow="About the Embassy"
+        eyebrow="About The Ecclesia Embassy"
         title="Called out by Christ, sent as His ambassadors."
         subtitle="The Ecclesia Embassy is the assembly of the called-out ones and the dwelling place of those chosen to showcase His beauty and excellence."
         description="We are committed to raising a people with a thriving relationship with God, operating with Kingdom worldview, for societal relevance."

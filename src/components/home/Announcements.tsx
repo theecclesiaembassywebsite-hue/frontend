@@ -62,9 +62,9 @@ export default function Announcements() {
         {/* Header */}
         <FadeIn>
           <SectionHeading
-            eyebrow="Stay Current"
-            title="News, updates, and moments worth noting."
-            description="Catch the latest rhythm of the house, upcoming opportunities, and important community information in one place."
+            eyebrow="Stay Up-to-date"
+            title="Upcoming events and updates from The Ecclesia Embassy"
+            description="Never miss an update and be on top of every upcoming event from our community all in one place"
             className="mb-12"
           />
         </FadeIn>

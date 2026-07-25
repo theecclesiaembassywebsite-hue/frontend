@@ -231,8 +231,8 @@ export default function ServiceSchedule() {
       <FadeIn>
         <SectionHeading
           eyebrow="When We Gather"
-          title="A steady weekly rhythm of worship, prayer, and formation."
-          description="Build your week around the moments where the house gathers to behold Christ, hear the Word, and pray together."
+          title="Special times of Prayer, Worship and the Word"
+          description="Join us every week as we gather in honour of our King, to be discipled for kingdom impact and to fellowship with the brethren."
           align="center"
           className="mb-12 [&>p:last-child]:mx-auto [&>p:last-child]:text-white/68"
           titleClassName="text-white"

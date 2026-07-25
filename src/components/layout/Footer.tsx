@@ -61,7 +61,7 @@ export default function Footer() {
                 Word, Kingdom and Worship.
               </p>
               <p className="mt-4 font-body text-sm leading-7 text-white/62">
-                A worshipping, praying, Scripture-shaped global movement with a home
+                A worshipping, praying, Kingdom focused global movement with a home
                 base in Abuja, committed to raising Word-cultured ambassadors who
                 carry Christ into every sphere.
               </p>

@@ -41,9 +41,9 @@ export default function LatestMessage() {
         {/* Header */}
         <FadeIn>
           <SectionHeading
-            eyebrow="Fresh Teaching"
-            title="Catch the latest message from the house."
-            description="Revisit the most recent sermon, share it with someone else, or continue into the full archive when you are ready to go deeper."
+            eyebrow="New Teaching"
+            title="Catch the latest teachings from The Ecclesia Embassy."
+            description="Revisit the most recent sermon, share it with someone, or continue into the full archive when you are ready to go deeper"
             className="mb-12"
           />
         </FadeIn>

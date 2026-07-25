@@ -28,7 +28,7 @@ const expectCards = [
   {
     icon: Clock,
     title: "Service Times",
-    description: "Sunday Worship at 8:00 AM. Join us for worship, the Word, and genuine community.",
+    description: "Sunday Word and Life Service starts at 8:00 AM. Join us for worship, the Word, and Kingdom discipleship.",
   },
   {
     icon: MapPin,
@@ -236,7 +236,7 @@ export default function NewHerePage() {
             <SectionHeading
               eyebrow="New Convert?"
               title="Just gave your life to Christ?"
-              description="Congratulations! We want to walk with you on this new journey. Fill out our New Convert form so we can connect you to a growth track, a squad, and a community expression near you or online."
+              description="Congratulations! We want to walk with you on this new journey. Fill out our New Convert form so we can connect you to a growth track and get connected to our community near you or online."
               align="center"
               className="mx-auto"
               titleClassName="text-white"

@@ -158,7 +158,7 @@ export default function VideoMessagesPage() {
               Video Messages
             </h1>
             <p className="mx-auto max-w-2xl font-body text-lg text-gray-200 md:text-xl">
-              Browse manually curated video messages from the church library.
+              Browse video messages and teachings from The Ecclesia Embassy
             </p>
           </FadeIn>
         </div>

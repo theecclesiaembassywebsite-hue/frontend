@@ -8,7 +8,7 @@ export default function HeroSection() {
       eyebrow="Welcome Home"
       title="A house for worship, the Word, and Kingdom formation."
       subtitle="Word, Kingdom and Worship."
-      description="Join a praying, Scripture-shaped global movement where believers are discipled deeply, friendships are formed intentionally, and every gathering points us back to Christ."
+      description="Join a praying, Word-cultured global movement where believers are discipled deeply, communities are formed intentionally, and every gathering points us back to Christ."
       backgroundImage="https://images.unsplash.com/photo-1507692049790-de58290a4334?w=1920&q=80"
       actions={[
         { href: "/new-here", label: "Plan Your Visit", variant: "primary" },
