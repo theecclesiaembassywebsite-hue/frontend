@@ -58,7 +58,7 @@ export default function Footer() {
                 className="h-[58px] w-auto object-contain"
               />
               <p className="mt-6 font-serif text-xl italic text-white/78">
-                Word, Kingdom and Worship.
+                Word, Prayer and Worship.
               </p>
               <p className="mt-4 font-body text-sm leading-7 text-white/62">
                 A worshipping, praying, Kingdom focused global movement with a home
