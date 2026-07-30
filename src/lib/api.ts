@@ -222,13 +222,19 @@ export interface Event {
 
 export interface Post {
   id: string;
-  userId: string;
+  authorId: string;
   content: string;
   imageUrl?: string;
-  likes: number;
-  comments: number;
+  groupId?: string | null;
+  flagged: boolean;
+  hidden: boolean;
   createdAt: string;
   updatedAt: string;
+  author?: {
+    id: string;
+    profile?: { firstName?: string; lastName?: string; photoUrl?: string } | null;
+  };
+  _count?: { likes: number; comments: number };
 }
 
 export interface Group {
@@ -755,6 +761,11 @@ export const nation = {
     fetchAPI<{ success: boolean }>(`/nation/posts/${postId}/flag`, {
       method: "POST",
       body: JSON.stringify({ reason }),
+    }),
+
+  deleteOwnPost: (postId: string) =>
+    fetchAPI<any>(`/nation/posts/${postId}`, {
+      method: "DELETE",
     }),
 
   getConversations: () =>

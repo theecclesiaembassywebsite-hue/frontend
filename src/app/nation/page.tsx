@@ -112,7 +112,14 @@ export default function NationPage() {
 
   function handleLikePost(postId: string) {
     // PostCard already called the API internally; just sync parent state.
-    setPosts(posts.map(p => p.id === postId ? { ...p, likes: (p.likes ?? 0) + 1 } : p));
+    setPosts(posts.map(p => p.id === postId
+      ? { ...p, _count: { likes: (p._count?.likes ?? 0) + 1, comments: p._count?.comments ?? 0 } }
+      : p
+    ));
+  }
+
+  function handleDeletePost(postId: string) {
+    setPosts(posts.filter(p => p.id !== postId));
   }
 
   return (
@@ -192,8 +199,20 @@ export default function NationPage() {
                   posts.map((post) => (
                     <PostCard
                       key={post.id}
-                      {...post}
+                      id={post.id}
+                      authorId={post.authorId}
+                      content={post.content}
+                      imageUrl={post.imageUrl}
+                      likes={post._count?.likes ?? 0}
+                      comments={post._count?.comments ?? 0}
+                      createdAt={post.createdAt}
+                      authorName={
+                        post.author?.profile?.firstName
+                          ? `${post.author.profile.firstName} ${post.author.profile.lastName || ""}`.trim()
+                          : "Member"
+                      }
                       onLike={() => handleLikePost(post.id)}
+                      onDelete={() => handleDeletePost(post.id)}
                     />
                   ))
                 )}
