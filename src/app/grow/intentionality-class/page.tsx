@@ -54,7 +54,7 @@ function getMaxAccessiblePhase(enrollments: UserEnrollment[]): number {
 const journeyCards = [
   {
     icon: Clock,
-    title: 'Paced formation',
+    title: 'Paced growth',
     desc: 'A guided journey that helps learners move with intention instead of drifting through growth.',
   },
   {
@@ -76,7 +76,7 @@ const outcomeCards = [
   },
   {
     title: 'Transformation',
-    desc: 'Character formation, discipline, and a healthy work culture for kingdom service and stewardship.',
+    desc: 'Character growth, discipline, and a healthy work culture for kingdom service and stewardship.',
   },
   {
     title: 'Responsibility',
@@ -268,27 +268,27 @@ function IntentionalityClassContent() {
       <ProgramHero
         eyebrow="Growth Pathway"
         title="The Intentionality Class"
-        subtitle="Level 1-3: Move-In | Maturity | Ministry"
-        description="A step-by-step formation journey that helps believers grow in faith, align with culture, and mature into service, stewardship, and leadership."
+        subtitle="Phase 1-3: Move-In | Maturity & Ministry | Missions & Mandate"
+        description="A step-by-step journey that helps believers grow in faith, align with culture, and mature into service, stewardship, and leadership."
         logoSrc="/intentionality-class-logo.png"
         logoAlt="The Intentionality Class"
-        logoWidth={1200}
-        logoHeight={480}
+        logoWidth={1960}
+        logoHeight={918}
         chips={[
           'Foundational faith',
           'Culture and stewardship',
-          'Leadership formation',
+          'Leadership development',
         ]}
         stats={[
-          { value: '3', label: 'formation levels' },
+          { value: '3', label: 'phases' },
           { value: 'Hybrid', label: 'delivery options' },
           { value: 'Step-by-step', label: 'growth model' },
         ]}
         backgroundClassName="bg-[radial-gradient(circle_at_top_left,rgba(52,152,219,0.2),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(201,168,76,0.2),transparent_30%),linear-gradient(135deg,#0E0B1E_0%,#351E63_48%,#1D6CB0_100%)]"
         overlayClassName="bg-[linear-gradient(180deg,rgba(14,11,30,0.12),rgba(14,11,30,0.45))]"
-        logoCardClassName="bg-white/8"
-        logoWrapClassName="bg-[linear-gradient(180deg,#ffffff_0%,#faf9ff_100%)]"
-        logoClassName="max-w-[560px]"
+        logoCardClassName="!border-0 !bg-transparent !shadow-none !backdrop-blur-none !p-0"
+        logoWrapClassName="!bg-transparent !shadow-none !min-h-0 !p-0"
+        logoClassName="max-w-full rounded-[24px] drop-shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
         aside={
           <div>
             <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
@@ -420,7 +420,7 @@ function IntentionalityClassContent() {
               What you will learn
             </h2>
             <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
-              Three phases of formation, each building intentionally on the last. Phase One is now
+              Three progressive phases, each building intentionally on the last. Phase One is now
               open — phases two and three will be released as you progress.
             </p>
           </div>

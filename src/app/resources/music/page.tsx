@@ -446,7 +446,12 @@ export default function EcclesiaMusicPage() {
         <div className="absolute inset-0 bg-black/55" aria-hidden="true" />
         <div className="relative z-10 px-4 text-center">
           <div className="mb-4 flex justify-center">
-            <Music className="h-14 w-14 text-[#C9A84C]" />
+            <img
+              src="/ecclesia-music-icon.png"
+              alt=""
+              aria-hidden="true"
+              className="h-20 w-auto drop-shadow-[0_0_28px_rgba(201,168,76,0.35)]"
+            />
           </div>
           <h1 className="mb-2 font-heading text-5xl font-bold text-white">Ecclesia Music</h1>
           <p className="font-body text-base text-white/70">Worship in spirit and truth</p>

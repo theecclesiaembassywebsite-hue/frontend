@@ -79,7 +79,7 @@ export default function ProgramHero({
             </FadeIn>
 
             <FadeIn direction="up" delay={0.16}>
-              <p className="mt-4 max-w-2xl font-serif text-lg text-white/85 md:text-[22px]">
+              <p className="mt-4 max-w-2xl font-serif !text-xl text-white/85 md:!text-[26px]">
                 {subtitle}
               </p>
             </FadeIn>

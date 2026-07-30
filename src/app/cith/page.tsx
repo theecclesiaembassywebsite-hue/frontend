@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Search, Users, Globe, Calendar } from 'lucide-react';
+import { MapPin, Search, Globe, Calendar } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import { cith } from '@/lib/api';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/Motion';
@@ -18,7 +18,6 @@ interface Hub {
   city?: string;
   meetingDay?: string;
   meetingTime?: string;
-  _count?: { members: number };
 }
 
 function getLeaderName(hub: Hub): string {
@@ -31,10 +30,6 @@ function getLeaderName(hub: Hub): string {
 function getHubLocation(hub: Hub): string {
   if (hub.location) return hub.location;
   return [hub.area, hub.city].filter(Boolean).join(', ') || 'Location TBD';
-}
-
-function getMemberCount(hub: Hub): number {
-  return hub._count?.members ?? 0;
 }
 
 const purposes = [
@@ -346,12 +341,6 @@ export default function CITHPage() {
                                 </span>
                               </div>
                             )}
-                            <div className="flex items-center gap-2.5">
-                              <Users className="w-[14px] h-[14px] text-[#C9A84C] shrink-0" />
-                              <span className="font-body text-[13px] text-[#3A3740]">
-                                {getMemberCount(hub)} members
-                              </span>
-                            </div>
                           </div>
 
                           {/* Footer CTA */}

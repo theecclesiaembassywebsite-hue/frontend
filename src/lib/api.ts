@@ -583,9 +583,10 @@ export const cith = {
   getHub: (id: string) =>
     fetchAPI<any>(`/cith/hubs/${id}`, { noAuth: true }),
 
-  joinHub: (id: string) =>
+  joinHub: (id: string, reason?: string) =>
     fetchAPI<{ success: boolean }>(`/cith/hubs/${id}/join`, {
       method: "POST",
+      body: JSON.stringify({ reason }),
     }),
 
   getMyHubJoinRequests: () => fetchAPI<any[]>("/cith/my-hub/join-requests"),

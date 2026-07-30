@@ -20,7 +20,7 @@ const admissionsHighlights = [
   {
     icon: BookOpen,
     title: "Balanced Curriculum",
-    desc: "A learning model that combines academic excellence with spiritual formation and intentional values.",
+    desc: "A learning model that combines academic excellence with spiritual growth and intentional values.",
   },
   {
     icon: Calendar,
@@ -47,7 +47,7 @@ const familyReasons = [
   },
   {
     icon: BookOpen,
-    title: "Kingdom-centered formation",
+    title: "Kingdom-centered growth",
     desc: "Education is approached as more than academics, shaping values and worldview alongside skill.",
   },
 ];
@@ -95,11 +95,11 @@ export default function EISPage() {
         description="A learning environment where academic excellence meets spiritual intentionality, helping children grow with clarity, confidence, and kingdom values."
         logoSrc="/eis-logo.png"
         logoAlt="EIS - Ecclesia International School"
-        logoWidth={2150}
-        logoHeight={1252}
+        logoWidth={987}
+        logoHeight={600}
         chips={[
           "Academic excellence",
-          "Intentional values formation",
+          "Intentional values education",
           "Parent-guided admissions journey",
         ]}
         stats={[
@@ -110,8 +110,8 @@ export default function EISPage() {
         backgroundClassName="bg-[radial-gradient(circle_at_top_right,rgba(52,152,219,0.2),transparent_28%),linear-gradient(135deg,#0E0B1E_0%,#33204F_55%,#5B2D8E_100%)]"
         overlayClassName="bg-[linear-gradient(180deg,rgba(14,11,30,0.16),rgba(14,11,30,0.48))]"
         logoCardClassName="bg-white/8"
-        logoWrapClassName="bg-[linear-gradient(180deg,#ffffff_0%,#f9f8ff_100%)]"
-        logoClassName="max-w-[620px]"
+        logoWrapClassName="!bg-transparent shadow-none"
+        logoClassName="max-w-[720px] drop-shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
         aside={
           <div>
             <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
@@ -150,7 +150,7 @@ export default function EISPage() {
           </h2>
           <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
             EIS is presented as more than a school identity mark. It communicates a learning culture
-            where academic structure, values formation, and healthy family partnership work together.
+            where academic structure, values education, and healthy family partnership work together.
           </p>
         </div>
 

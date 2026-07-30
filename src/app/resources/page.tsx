@@ -26,7 +26,7 @@ const resourceCards = [
   {
     icon: BookOpen,
     title: "Ecclesia Music",
-    description: "Return to songs and sounds that support worship, reflection, and spiritual formation.",
+    description: "Return to songs and sounds that support worship, reflection, and spiritual growth.",
     href: "/resources/music",
   },
 ];

@@ -24,8 +24,6 @@ interface HubDetail {
   meetingTime?: string;
   capacity?: number;
   description?: string;
-  _count?: { members: number };
-  members?: Array<{ id: string; user?: { profile?: { firstName?: string; lastName?: string } } }>;
   isMember?: boolean;
   isLeader?: boolean;
   myJoinRequestStatus?: "PENDING" | "APPROVED" | "REJECTED" | null;
@@ -43,18 +41,14 @@ function getHubLocation(hub: HubDetail): string {
   return [hub.area, hub.city, hub.state].filter(Boolean).join(", ") || "Location TBD";
 }
 
-function getMemberCount(hub: HubDetail): number {
-  if (hub._count?.members !== undefined) return hub._count.members;
-  if (hub.members) return hub.members.length;
-  return 0;
-}
-
 function HubDetailContent({ hubId }: { hubId: string }) {
   const [hub, setHub] = useState<HubDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [justRequested, setJustRequested] = useState(false);
+  const [myHub, setMyHub] = useState<{ id: string; name: string } | null>(null);
+  const [reassignReason, setReassignReason] = useState("");
   const { isAuthenticated } = useAuth();
   const { success, error } = useToast();
 
@@ -71,16 +65,36 @@ function HubDetailContent({ hubId }: { hubId: string }) {
       .finally(() => setLoading(false));
   }, [hubId]);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setMyHub(null);
+      return;
+    }
+    cith.getMyHub()
+      .then((data) => setMyHub(data ? { id: data.id, name: data.name } : null))
+      .catch(() => setMyHub(null));
+  }, [isAuthenticated]);
+
+  const isReassignment = !!myHub && myHub.id !== hubId;
+
   const handleRequestJoin = async () => {
     if (!isAuthenticated) {
       error("Please sign in to request to join a hub.");
       return;
     }
+    if (isReassignment && !reassignReason.trim()) {
+      error("Please tell us why you'd like to move to this hub.");
+      return;
+    }
     setRequesting(true);
     try {
-      await cith.joinHub(hubId);
+      await cith.joinHub(hubId, isReassignment ? reassignReason.trim() : undefined);
       setJustRequested(true);
-      success("Your request to join has been submitted and is pending approval.");
+      success(
+        isReassignment
+          ? "Your reassignment request has been submitted and is pending approval."
+          : "Your request to join has been submitted and is pending approval."
+      );
     } catch (err) {
       error(err instanceof Error ? err.message : "Failed to submit request. Please try again.");
     } finally {
@@ -116,7 +130,6 @@ function HubDetailContent({ hubId }: { hubId: string }) {
   }
 
   const location = getHubLocation(hub);
-  const memberCount = getMemberCount(hub);
 
   return (
     <main className="min-h-screen">
@@ -172,14 +185,6 @@ function HubDetailContent({ hubId }: { hubId: string }) {
                     <span className="text-[#241A42]">{hub.meetingTime}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center gap-2 text-[#8A8A8E]">
-                    <Users size={14} /> Members
-                  </span>
-                  <span className="font-semibold text-[#241A42]">
-                    {memberCount}{hub.capacity ? ` / ${hub.capacity}` : ""}
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -232,29 +237,45 @@ function HubDetailContent({ hubId }: { hubId: string }) {
                 </div>
               ) : (
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-2">Request to Join This Hub</h3>
+                  <h3 className="font-heading text-lg font-bold text-[#241A42] mb-2">
+                    {isReassignment ? "Request Reassignment" : "Request to Join This Hub"}
+                  </h3>
                   <p className="font-body text-sm text-[#8A8A8E] mb-4">
-                    {hub.myJoinRequestStatus === "REJECTED"
-                      ? "Your previous request wasn't approved. You're welcome to submit a new request."
-                      : "Be part of a loving community that meets regularly for fellowship and growth. Your request will be reviewed by the hub leader before you're added."}
+                    {isReassignment
+                      ? `You're currently part of ${myHub?.name}. Tell us why you'd like to move to ${hub.name}.`
+                      : hub.myJoinRequestStatus === "REJECTED"
+                        ? "Your previous request wasn't approved. You're welcome to submit a new request."
+                        : "Be part of a loving community that meets regularly for fellowship and growth. Your request will be reviewed by the hub leader before you're added."}
                   </p>
                   {isAuthenticated ? (
-                    <Button
-                      variant="primary"
-                      onClick={handleRequestJoin}
-                      disabled={requesting}
-                      className="inline-flex items-center gap-2"
-                    >
-                      {requesting ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin" /> Submitting...
-                        </>
-                      ) : (
-                        <>
-                          <Users size={16} /> Request to Join
-                        </>
+                    <div>
+                      {isReassignment && (
+                        <textarea
+                          value={reassignReason}
+                          onChange={(e) => setReassignReason(e.target.value)}
+                          placeholder="Reason for reassignment…"
+                          rows={3}
+                          className="block w-full max-w-sm mx-auto mb-4 rounded-[6px] border border-[#E4E0EF] p-3 font-body text-sm text-[#241A42] focus:border-[#771996] focus:outline-none"
+                        />
                       )}
-                    </Button>
+                      <Button
+                        variant="primary"
+                        onClick={handleRequestJoin}
+                        disabled={requesting || (isReassignment && !reassignReason.trim())}
+                        className="inline-flex items-center gap-2"
+                      >
+                        {requesting ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" /> Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <Users size={16} />
+                            {isReassignment ? "Request Reassignment" : "Request to Join"}
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   ) : (
                     <div>
                       <p className="font-body text-sm text-[#8A8A8E] mb-3">

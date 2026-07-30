@@ -212,6 +212,11 @@ function HubDashboardContent() {
                           {name || r.user?.email || "Member"}
                         </span>
                       </div>
+                      {r.reason && (
+                        <p className="font-body text-xs text-gray-text mb-2 italic">
+                          Reason: {r.reason}
+                        </p>
+                      )}
                       {r.hub?.meetingPoints?.length > 0 && (
                         <select
                           className="mb-2 w-full rounded-[4px] border border-gray-border bg-white px-2 py-1.5 font-body text-xs text-slate focus:border-purple-vivid focus:outline-none"

@@ -540,6 +540,11 @@ function AdminCITHContent() {
                 <p className="font-body text-sm text-gray-text">
                   <MapPin size={12} className="inline mr-1" />{req.hub?.name || "Unknown Hub"} &middot; Requested {new Date(req.createdAt || Date.now()).toLocaleDateString()}
                 </p>
+                {req.reason && (
+                  <p className="font-body text-xs text-gray-text mt-1 italic">
+                    Reason: {req.reason}
+                  </p>
+                )}
                 {req.hub?.meetingPoints?.length > 0 && (
                   <select
                     className="mt-2 w-full max-w-xs rounded-[4px] border border-gray-border bg-white px-2 py-1.5 font-body text-xs text-slate focus:border-purple-vivid focus:outline-none"

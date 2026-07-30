@@ -42,7 +42,7 @@ const programs: Program[] = [
     id: "SENATE",
     name: "Senate of Ambassadorial Army",
     duration: "6 months",
-    desc: "Advanced formation for those called to ambassadorial ministry, with strategic, apostolic, and prophetic depth.",
+    desc: "Advanced training for those called to ambassadorial ministry, with strategic, apostolic, and prophetic depth.",
     feeType: "paid",
     fee: 25000,
     feeCurrency: "NGN ",
@@ -74,14 +74,14 @@ const programs: Program[] = [
   },
 ];
 
-const formationPillars = [
+const trainingPillars = [
   {
     title: "Doctrine and Identity",
     desc: "Courses are built to establish a strong biblical foundation and kingdom consciousness.",
     icon: BookOpen,
   },
   {
-    title: "Ministerial Formation",
+    title: "Ministerial Training",
     desc: "Students are trained in service, leadership, and responsible ministry expression.",
     icon: GraduationCap,
   },
@@ -192,7 +192,7 @@ export default function KISOLAMPage() {
         chips={[
           "Foundational discipleship",
           "Leadership development",
-          "Practical ministry formation",
+          "Practical ministry training",
         ]}
         stats={[
           { value: "5", label: "program tracks" },
@@ -202,8 +202,8 @@ export default function KISOLAMPage() {
         backgroundClassName="bg-[radial-gradient(circle_at_top_left,rgba(201,168,76,0.2),transparent_30%),linear-gradient(135deg,#0E0B1E_0%,#1A1530_45%,#45266C_100%)]"
         overlayClassName="bg-[linear-gradient(180deg,rgba(14,11,30,0.14),rgba(14,11,30,0.52))]"
         logoCardClassName="bg-white/8"
-        logoWrapClassName="bg-[radial-gradient(circle_at_top,#fff6da_0%,#ffffff_48%,#f4efff_100%)]"
-        logoClassName="max-w-[220px]"
+        logoWrapClassName="!bg-transparent shadow-none"
+        logoClassName="max-w-[260px] drop-shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
         aside={
           <div>
             <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
@@ -238,7 +238,7 @@ export default function KISOLAMPage() {
       <SectionWrapper variant="white">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
-            A formation pathway with depth and direction
+            A training pathway with depth and direction
           </h2>
           <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
             KISOLAM is designed to move learners from conviction to competence. Each program is built
@@ -248,7 +248,7 @@ export default function KISOLAMPage() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {formationPillars.map((pillar) => {
+          {trainingPillars.map((pillar) => {
             const Icon = pillar.icon;
 
             return (
