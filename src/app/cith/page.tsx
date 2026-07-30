@@ -121,7 +121,7 @@ export default function CITHPage() {
             </h1>
 
             <p className="mt-7 font-body text-[16px] leading-[1.75] text-white/72 md:text-[17px]">
-              One Saturday each month, believers gather across the city to share
+              On Selected Saturdays each month, believers gather across the city to share
               the Word, break bread, and grow together in smaller, intentional
               expressions of church. When a home hub isn&apos;t close by, the
               e-Hub keeps you connected.
@@ -164,7 +164,7 @@ export default function CITHPage() {
                 <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/36 px-3 py-1.5 backdrop-blur-md">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
                   <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.22em] text-white/78">
-                    CITH invite
+                    CITH
                   </span>
                 </div>
               </div>
