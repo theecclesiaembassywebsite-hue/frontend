@@ -18,6 +18,21 @@ function CallbackHandler() {
     const token = searchParams.get('token');
     const redirect = normalizeRedirect(searchParams.get('redirect'));
 
+    // Opened as a popup from the Google sign-in button: relay the result to
+    // the opener window and close, instead of navigating this popup itself.
+    if (window.opener && window.opener !== window) {
+      if (token) {
+        window.opener.postMessage(
+          { type: 'google-auth-success', token, redirect },
+          window.location.origin
+        );
+      } else {
+        window.opener.postMessage({ type: 'google-auth-error' }, window.location.origin);
+      }
+      window.close();
+      return;
+    }
+
     if (token) {
       setToken(token);
       window.location.assign(redirect);

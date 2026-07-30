@@ -186,6 +186,12 @@ export interface Testimony {
   content: string;
   videoUrl?: string;
   status: "pending" | "approved" | "rejected";
+  // Whether the submitter consented to being named if published — set once
+  // at submission, not editable afterward.
+  shareName: boolean;
+  // Whether an admin has actually published this testimony — independent
+  // of `status`; a testimony can be approved but still unpublished.
+  isPublic: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -196,6 +202,9 @@ export interface PublicTestimony {
   content: string;
   photoUrl?: string;
   createdAt: string;
+  // The submitter's name if they consented to being named, null otherwise —
+  // render as "Anonymous" when absent.
+  authorName?: string | null;
 }
 
 export interface Event {
@@ -499,7 +508,7 @@ export const testimonies = {
     title: string;
     content: string;
     photoUrl?: string;
-    isPublic?: boolean;
+    shareName?: boolean;
   }) =>
     fetchAPI<Testimony>("/testimonies", {
       method: "POST",
@@ -515,10 +524,21 @@ export const testimonies = {
   getPendingTestimonies: () =>
     fetchAPI<Testimony[]>("/testimonies/admin/pending"),
 
+  // Approved but not necessarily published yet — for the admin to manage
+  // publish state independently of content moderation.
+  getApprovedTestimonies: () =>
+    fetchAPI<Testimony[]>("/testimonies/admin/approved"),
+
   updateTestimonyStatus: (id: string, status: "APPROVED" | "REJECTED") =>
     fetchAPI<Testimony>(`/testimonies/admin/${id}`, {
       method: "PUT",
       body: JSON.stringify({ status }),
+    }),
+
+  setTestimonyVisibility: (id: string, isPublic: boolean) =>
+    fetchAPI<Testimony>(`/testimonies/admin/${id}/visibility`, {
+      method: "PUT",
+      body: JSON.stringify({ isPublic }),
     }),
 };
 

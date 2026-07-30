@@ -9,6 +9,7 @@ import { z } from 'zod';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { auth } from '@/lib/api';
+import { useGoogleAuthPopup } from '@/lib/useGoogleAuthPopup';
 import { FadeIn, HeroText } from '@/components/ui/Motion';
 import { motion } from 'framer-motion';
 
@@ -40,6 +41,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { openGoogleAuth } = useGoogleAuthPopup((message) => setErrorMessage(message));
 
   const {
     register,
@@ -421,8 +423,9 @@ export default function SignupPage() {
               <div className="flex-1 border-t border-lavender" />
             </div>
 
-            <a
-              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
+            <button
+              type="button"
+              onClick={openGoogleAuth}
               className="flex w-full items-center justify-center gap-3 rounded-[8px] border border-lavender bg-white px-4 py-3 font-body text-sm font-medium text-slate transition-colors hover:bg-off-white"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -444,7 +447,7 @@ export default function SignupPage() {
                 />
               </svg>
               Continue with Google
-            </a>
+            </button>
           </FadeIn>
 
           {/* Sign In Link */}

@@ -20,12 +20,13 @@ interface ApprovedTestimony {
   content: string
   photoUrl?: string
   createdAt: string
+  authorName?: string | null
 }
 
 export default function TestimoniesPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [agreeToShare, setAgreeToShare] = useState(false)
+  const [shareName, setShareName] = useState(false)
   const [approvedTestimonies, setApprovedTestimonies] = useState<ApprovedTestimony[]>([])
   const [loadingTestimonies, setLoadingTestimonies] = useState(true)
   const { isAuthenticated } = useAuth()
@@ -60,12 +61,12 @@ export default function TestimoniesPage() {
       await testimonies.submitTestimony({
         title: formData.get('title') as string,
         content: formData.get('testimony') as string,
-        isPublic: agreeToShare,
+        shareName,
       })
       success('Your testimony has been received.')
       setSubmitted(true)
       ;(e.target as HTMLFormElement).reset()
-      setAgreeToShare(false)
+      setShareName(false)
     } catch (err) {
       error(
         err instanceof Error
@@ -178,11 +179,16 @@ export default function TestimoniesPage() {
                     />
                   </div>
                   <Checkbox
-                    id="agreeToShare"
-                    label="Share my testimony publicly (optional)"
-                    checked={agreeToShare}
-                    onChange={() => setAgreeToShare(!agreeToShare)}
+                    id="shareName"
+                    label="Share my name publicly (optional)"
+                    checked={shareName}
+                    onChange={() => setShareName(!shareName)}
                   />
+                  <p className="font-body text-xs text-[#8A8A90] -mt-3">
+                    If our team publishes your testimony, should we credit you
+                    by name, or keep it anonymous? Whether it&apos;s published
+                    at all is our team&apos;s call, not this checkbox.
+                  </p>
                   <Button
                     type="submit"
                     variant="primary"
@@ -239,13 +245,18 @@ export default function TestimoniesPage() {
                         ? `${t.content.slice(0, 200)}...`
                         : t.content}
                     </p>
-                    <p className="font-body text-xs text-[#8A8A90] mt-auto pt-3 border-t border-[#E8E6F0]">
-                      {new Date(t.createdAt).toLocaleDateString('en-NG', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
+                    <div className="mt-auto pt-3 border-t border-[#E8E6F0]">
+                      <p className="font-body text-xs font-semibold text-[#C9A84C]">
+                        {t.authorName?.trim() || 'Anonymous'}
+                      </p>
+                      <p className="font-body text-xs text-[#8A8A90]">
+                        {new Date(t.createdAt).toLocaleDateString('en-NG', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </FadeIn>
               ))}
