@@ -42,6 +42,16 @@ interface FetchOptions extends RequestInit {
   noAuth?: boolean;
 }
 
+// Only GET requests are safe to retry automatically — retrying a POST/PUT/DELETE
+// whose response was lost to a network blip risks re-submitting it (e.g. a giving
+// charge or a join request going through twice).
+const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
+const MAX_ATTEMPTS = 6;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const backoffMs = (attempt: number) => Math.min(400 * 2 ** (attempt - 1), 6000) + Math.random() * 200;
+
 export const fetchAPI = async <T>(
   endpoint: string,
   options: FetchOptions = {}
@@ -62,36 +72,59 @@ export const fetchAPI = async <T>(
     }
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...rest,
-    // Send the httpOnly session cookie on every request (cross-origin requires
-    // credentials: 'include'; backend CORS must specify credentials: true).
-    credentials: "include",
-    headers: fetchHeaders,
-  });
+  const method = (rest.method || "GET").toUpperCase();
+  const isRetryable = method === "GET";
+  const maxAttempts = isRetryable ? MAX_ATTEMPTS : 1;
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    const message = error.message || `API Error: ${response.status}`;
-    throw new Error(message);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let response: Response;
+    try {
+      response = await fetch(`${BASE_URL}${endpoint}`, {
+        ...rest,
+        // Send the httpOnly session cookie on every request (cross-origin requires
+        // credentials: 'include'; backend CORS must specify credentials: true).
+        credentials: "include",
+        headers: fetchHeaders,
+      });
+    } catch (err) {
+      if (attempt < maxAttempts) {
+        await sleep(backoffMs(attempt));
+        continue;
+      }
+      throw err instanceof Error ? err : new Error("Network error");
+    }
+
+    if (!response.ok) {
+      if (isRetryable && RETRYABLE_STATUS.has(response.status) && attempt < maxAttempts) {
+        const retryAfter = Number(response.headers.get("Retry-After"));
+        await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : backoffMs(attempt));
+        continue;
+      }
+      const error = await response.json().catch(() => ({}));
+      const message = error.message || `API Error: ${response.status}`;
+      throw new Error(message);
+    }
+
+    // Handle empty responses (204 No Content, or null body)
+    const contentLength = response.headers.get("content-length");
+    if (response.status === 204 || contentLength === "0") {
+      return null as T;
+    }
+
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return null as T;
+    }
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return null as T;
+    }
   }
 
-  // Handle empty responses (204 No Content, or null body)
-  const contentLength = response.headers.get("content-length");
-  if (response.status === 204 || contentLength === "0") {
-    return null as T;
-  }
-
-  const text = await response.text();
-  if (!text || text.trim() === "") {
-    return null as T;
-  }
-
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    return null as T;
-  }
+  // Unreachable — the loop always returns or throws — but keeps TS satisfied.
+  throw new Error("Request failed");
 };
 
 const isEmptyFallbackCandidate = (value: unknown) =>
