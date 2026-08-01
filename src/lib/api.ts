@@ -1308,8 +1308,48 @@ export const engagement = {
 };
 
 // TRAINING ENDPOINTS
+export type TrainingCourseStatus = "UPCOMING" | "IN_SESSION" | "ENDED";
+
+export interface TrainingCourse {
+  id: string;
+  program: "KISOLAM" | "TEMA";
+  code: string;
+  name: string;
+  description: string;
+  duration: string;
+  feeType: "FIXED" | "VARIABLE";
+  fee: number | null;
+  feeCurrency: string;
+  streams: string[];
+  startDate: string | null;
+  endDate: string | null;
+  registrationOpen: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  status: TrainingCourseStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrainingCourseInput {
+  program: "KISOLAM" | "TEMA";
+  code: string;
+  name: string;
+  description: string;
+  duration: string;
+  feeType: "FIXED" | "VARIABLE";
+  fee?: number;
+  feeCurrency?: string;
+  streams?: string[];
+  startDate?: string;
+  endDate?: string;
+  registrationOpen?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
 export const training = {
-  enrollTraining: (program: string, data: { name: string; email: string; phone: string; additionalInfo?: Record<string, unknown> }) =>
+  enrollTraining: (program: string, data: { name: string; email: string; phone: string; courseId?: string; additionalInfo?: Record<string, unknown> }) =>
     fetchAPI<{ message: string; id: string }>(`/training/${program}/enroll`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -1340,6 +1380,29 @@ export const training = {
 
   adminDeleteEnrollment: (id: string) =>
     fetchAPI<{ message: string }>(`/training/admin/enrollments/${id}`, {
+      method: "DELETE",
+    }),
+
+  getCourses: (program?: string) =>
+    fetchAPI<TrainingCourse[]>(`/training/courses${program ? `?program=${program}` : ""}`, { noAuth: true }),
+
+  getAdminCourses: (program?: string) =>
+    fetchAPI<TrainingCourse[]>(`/training/admin/courses${program ? `?program=${program}` : ""}`),
+
+  createCourse: (data: TrainingCourseInput) =>
+    fetchAPI<TrainingCourse>("/training/admin/courses", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateCourse: (id: string, data: Partial<TrainingCourseInput>) =>
+    fetchAPI<TrainingCourse>(`/training/admin/courses/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deleteCourse: (id: string) =>
+    fetchAPI<{ message: string }>(`/training/admin/courses/${id}`, {
       method: "DELETE",
     }),
 };

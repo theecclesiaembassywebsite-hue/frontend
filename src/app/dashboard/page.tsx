@@ -85,7 +85,7 @@ export default function DashboardPage() {
     { label: 'My Giving History', href: '/dashboard/giving', icon: Gift },
     { label: 'My Prayer Requests', href: '/dashboard/prayer', icon: Heart },
     { label: 'My Hub', href: '/dashboard/hub', icon: Users },
-    { label: 'Ecclesia Nation', href: '/nation', icon: BookOpen },
+    { label: 'Ecclesia Embassy Community', href: '/community', icon: BookOpen },
     { label: 'Submit Testimony', href: '/testimonies', icon: Clock },
   ]
 

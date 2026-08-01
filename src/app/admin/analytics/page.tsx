@@ -53,7 +53,7 @@ function AdminAnalyticsContent() {
     { label: "Weekly Active Users", value: overview?.activeUsers?.toString() || "0", icon: Eye, target: "500+", progress: Math.min((overview?.activeUsers / 500) * 100, 100) || 0 },
     { label: "Online Giving", value: overview?.totalGiving ? `$${Number(overview.totalGiving).toLocaleString()}` : "$0", icon: Gift, target: "40%", progress: 0 },
     { label: "Active CITH Hubs", value: overview?.cithHubs?.toString() || "0", icon: MapPin, target: "30+", progress: Math.min((overview?.cithHubs / 30) * 100, 100) || 0 },
-    { label: "Ecclesia Nation (Monthly)", value: overview?.nationPosts?.toString() || "0", icon: MessageCircle, target: "200+", progress: Math.min((overview?.nationPosts / 200) * 100, 100) || 0 },
+    { label: "Ecclesia Embassy Community (Monthly)", value: overview?.nationPosts?.toString() || "0", icon: MessageCircle, target: "200+", progress: Math.min((overview?.nationPosts / 200) * 100, 100) || 0 },
     { label: "Class Enrollments", value: overview?.classEnrollments?.toString() || "0", icon: GraduationCap, target: "50+", progress: Math.min((overview?.classEnrollments / 50) * 100, 100) || 0 },
     { label: "Event Registrations", value: overview?.eventRegistrations?.toString() || "0", icon: Calendar, target: "100+", progress: Math.min((overview?.eventRegistrations / 100) * 100, 100) || 0 },
     { label: "Total Badges", value: engagement?.totalBadges?.toString() || "0", icon: BookOpen, target: "100+", progress: Math.min((engagement?.totalBadges / 100) * 100, 100) || 0 },

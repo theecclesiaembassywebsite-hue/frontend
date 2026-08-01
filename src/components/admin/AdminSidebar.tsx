@@ -24,7 +24,7 @@ const allNavItems = [
   { label: "Squads",              href: "/admin/squads",       icon: Users,           roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Intentionality Class",href: "/admin/class",        icon: GraduationCap,   roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Training",            href: "/admin/training",     icon: Award,           roles: ["ADMIN", "SUPER_ADMIN"] },
-  { label: "Ecclesia Nation",     href: "/admin/nation",       icon: MessageCircle,   roles: ["ADMIN", "SUPER_ADMIN", "MODERATOR"] },
+  { label: "Ecclesia Embassy Community", href: "/admin/community", icon: MessageCircle,   roles: ["ADMIN", "SUPER_ADMIN", "MODERATOR"] },
   { label: "Resources",           href: "/admin/resources",    icon: BookOpen,        roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Service Schedule",    href: "/admin/schedule",     icon: Clock,           roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Livestream",          href: "/admin/livestream",   icon: Radio,           roles: ["ADMIN", "SUPER_ADMIN"] },

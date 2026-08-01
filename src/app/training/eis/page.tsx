@@ -1,20 +1,19 @@
 "use client";
 
 import SectionWrapper from "@/components/ui/SectionWrapper";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import ProgramHero from "@/components/training/ProgramHero";
-import { useState } from "react";
 import {
   BookOpen,
   Calendar,
-  Check,
+  ExternalLink,
   GraduationCap,
   Phone,
   Users,
 } from "lucide-react";
-import { training } from "@/lib/api";
-import { useToast } from "@/components/ui/Toast";
+
+// EIS is managed on its own external site. Replace this once that site is live.
+const EIS_WEBSITE_URL = "https://eis.example.com"; // TODO: replace with live EIS site URL once available
 
 const admissionsHighlights = [
   {
@@ -53,37 +52,8 @@ const familyReasons = [
 ];
 
 export default function EISPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { success, error } = useToast();
-
   function scrollToSection(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      await training.enrollTraining("EIS", {
-        name: formData.get("parentName") as string,
-        email: formData.get("email") as string,
-        phone: formData.get("phone") as string,
-        additionalInfo: {
-          childName: formData.get("childName") as string,
-          childAge: parseInt(formData.get("childAge") as string, 10) || undefined,
-        },
-      });
-      success("Inquiry submitted. Our admissions team will contact you shortly.");
-      setSubmitted(true);
-      e.currentTarget.reset();
-    } catch (err) {
-      error(err instanceof Error ? err.message : "Failed to submit inquiry. Please try again.");
-    } finally {
-      setLoading(false);
-    }
   }
 
   return (
@@ -133,8 +103,8 @@ export default function EISPage() {
         }
         actions={
           <>
-            <Button variant="primary" onClick={() => scrollToSection("inquiry")}>
-              Start Inquiry
+            <Button variant="primary" onClick={() => window.open(EIS_WEBSITE_URL, "_blank", "noopener,noreferrer")}>
+              Visit the EIS Website
             </Button>
             <Button variant="secondary" onDark onClick={() => scrollToSection("overview")}>
               View Overview
@@ -174,7 +144,7 @@ export default function EISPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="off-white" id="inquiry">
+      <SectionWrapper variant="off-white" id="visit">
         <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="rounded-[28px] bg-[linear-gradient(135deg,#0E0B1E_0%,#261A40_100%)] p-6 text-white shadow-xl md:p-8">
             <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
@@ -184,8 +154,8 @@ export default function EISPage() {
               A calm and clear admissions entry point
             </h2>
             <p className="mt-3 font-body text-sm leading-7 text-white/72 md:text-base">
-              Start by telling us about your family and child. The inquiry gives the admissions team
-              what they need to follow up with guidance, next steps, and the right school-fit details.
+              Admissions, tours, fees, and enrollment are managed directly on the EIS website. This
+              page is here to introduce the school and its identity.
             </p>
 
             <div className="mt-8 space-y-4">
@@ -212,72 +182,24 @@ export default function EISPage() {
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-gray-border bg-white p-6 shadow-lg md:p-8">
-            <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
-              Admission Inquiry
+          <div className="flex flex-col items-center justify-center rounded-[28px] border border-gray-border bg-white p-6 shadow-lg text-center md:p-10">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple text-white shadow-purple">
+              <ExternalLink className="h-7 w-7" />
+            </div>
+            <h2 className="mt-6 font-heading text-2xl font-bold text-slate md:text-[28px]">
+              Ready to learn more?
             </h2>
-            <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
-              Share a few details and our admissions team will contact you shortly.
+            <p className="mt-3 max-w-sm font-body text-sm leading-7 text-gray-text">
+              Tours, admissions, fees, and enrollment for EIS are all handled on the school's own
+              website.
             </p>
-
-            {submitted ? (
-              <div className="mt-8 rounded-[24px] border border-success/30 bg-success/10 p-8 text-center">
-                <Check className="mx-auto h-10 w-10 text-success" />
-                <h3 className="mt-4 font-heading text-xl font-bold text-success">Inquiry Submitted</h3>
-                <p className="mt-3 font-body text-sm leading-7 text-gray-text">
-                  Thank you. Our admissions team will reach out with the next steps.
-                </p>
-                <Button variant="primary" className="mt-6" onClick={() => setSubmitted(false)}>
-                  Submit Another Inquiry
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
-                <Input
-                  id="parentName"
-                  name="parentName"
-                  label="Parent / Guardian Name"
-                  placeholder="Full name"
-                  required
-                />
-                <Input
-                  id="email"
-                  name="email"
-                  label="Email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                />
-                <Input
-                  id="phone"
-                  name="phone"
-                  label="Phone"
-                  type="tel"
-                  placeholder="+234..."
-                  required
-                />
-                <Input
-                  id="childName"
-                  name="childName"
-                  label="Child's Name"
-                  placeholder="Full name"
-                  required
-                />
-                <Input
-                  id="childAge"
-                  name="childAge"
-                  label="Child's Age"
-                  type="number"
-                  min="2"
-                  max="12"
-                  placeholder="e.g. 5"
-                  required
-                />
-                <Button type="submit" variant="primary" className="mt-2 w-full" disabled={loading}>
-                  {loading ? "Submitting..." : "Submit Inquiry"}
-                </Button>
-              </form>
-            )}
+            <Button
+              variant="primary"
+              className="mt-8 gap-2"
+              onClick={() => window.open(EIS_WEBSITE_URL, "_blank", "noopener,noreferrer")}
+            >
+              Visit the EIS Website <ExternalLink size={15} />
+            </Button>
           </div>
         </div>
       </SectionWrapper>

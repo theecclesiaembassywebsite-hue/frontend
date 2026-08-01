@@ -49,7 +49,7 @@ const navLinks = [
     ],
   },
   { label: "LIVESTREAM", href: "/live" },
-  { label: "ECCLESIA NATION", href: "/nation" },
+  { label: "ECCLESIA EMBASSY COMMUNITY", href: "/community" },
   {
     label: "GROW",
     href: "/grow",

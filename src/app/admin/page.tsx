@@ -52,7 +52,7 @@ function AdminOverviewContent() {
     { label: "Total Giving (Month)", value: overview?.totalGivingMonth || "0", icon: Gift, color: "text-success", trend: overview?.givingTrend || "+0%" },
     { label: "Weekly Active Users", value: overview?.weeklyActiveUsers?.toString() || "0", icon: Eye, color: "text-info", trend: overview?.activeTrend || "+0%" },
     { label: "Active CITH Hubs", value: overview?.activeCithHubs?.toString() || "0", icon: MapPin, color: "text-purple-vivid", trend: overview?.hubsTrend || "+0 new" },
-    { label: "Ecclesia Nation Posts", value: overview?.totalPosts?.toString() || "0", icon: MessageCircle, color: "text-warning", trend: "this month" },
+    { label: "Ecclesia Embassy Community Posts", value: overview?.totalPosts?.toString() || "0", icon: MessageCircle, color: "text-warning", trend: "this month" },
     { label: "Class Enrollments", value: overview?.classEnrollments?.toString() || "0", icon: GraduationCap, color: "text-purple", trend: overview?.classCompleted || "0 completed" },
     { label: "Event Registrations", value: overview?.eventRegistrations?.toString() || "0", icon: Calendar, color: "text-info", trend: overview?.upcomingEvents || "0 upcoming" },
     { label: "Avg Watch Streak", value: overview?.avgWatchStreak || "0", icon: Flame, color: "text-warning", trend: "days" },

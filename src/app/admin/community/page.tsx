@@ -84,7 +84,7 @@ function AdminNationContent() {
   if (loading) {
     return (
       <div className="p-6 md:p-8">
-        <h1 className="font-heading text-2xl font-bold text-slate mb-6">Ecclesia Nation Moderation</h1>
+        <h1 className="font-heading text-2xl font-bold text-slate mb-6">Ecclesia Embassy Community Moderation</h1>
         <SkeletonGroup count={5} />
       </div>
     );
@@ -95,7 +95,7 @@ function AdminNationContent() {
 
   return (
     <div className="p-6 md:p-8">
-      <h1 className="font-heading text-2xl font-bold text-slate mb-1">Ecclesia Nation Moderation</h1>
+      <h1 className="font-heading text-2xl font-bold text-slate mb-1">Ecclesia Embassy Community Moderation</h1>
       <p className="text-body-small mb-6">Review flagged content, manage suspensions, and maintain community standards</p>
 
       {/* Stats */}

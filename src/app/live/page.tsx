@@ -612,7 +612,7 @@ export default function LivePage() {
         </div>
       </section>
 
-      {/* Ecclesia Nation CTA */}
+      {/* Ecclesia Embassy Community CTA */}
       <section className="bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.18),_transparent_42%),linear-gradient(180deg,_#161129_0%,_#0E0B1E_100%)] py-14">
         <div className="mx-auto max-w-[1240px] px-4 sm:px-6 md:px-8 text-center">
           <p className="font-heading text-xs font-semibold uppercase tracking-[0.3em] text-gold">
@@ -625,7 +625,7 @@ export default function LivePage() {
             Connect with the community between services — share, pray, and grow together.
           </p>
           <Link
-            href="/nation"
+            href="/community"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-gold px-8 py-3 font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-slate shadow-[0_14px_28px_rgba(201,168,76,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark"
           >
             Get Connected

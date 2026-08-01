@@ -4,18 +4,26 @@ import { useEffect, useMemo, useState } from "react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
-import { Search, GraduationCap, CreditCard, Clock, CheckCircle, Download, Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  Search, GraduationCap, CreditCard, Clock, CheckCircle, Download, Eye, Pencil, Trash2, Plus, BookOpen,
+} from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { training } from "@/lib/api";
+import { training, TrainingCourse, TrainingCourseInput } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { cn } from "@/lib/utils";
 
 const programOptions = [
   { value: "", label: "All Programs" },
   { value: "KISOLAM", label: "KISOLAM" },
   { value: "TEMA", label: "TEMA Academy" },
-  { value: "EIS", label: "EIS" },
+];
+
+const managedProgramOptions = [
+  { value: "", label: "All Programs" },
+  { value: "KISOLAM", label: "KISOLAM" },
+  { value: "TEMA", label: "TEMA Academy" },
 ];
 
 const trackingOptions = [
@@ -46,7 +54,425 @@ const paymentStatusIcon: Record<string, any> = {
   FAILED: () => null,
 };
 
-function AdminTrainingContent() {
+const courseStatusBadge: Record<TrainingCourse["status"], string> = {
+  UPCOMING: "bg-info/10 text-info",
+  IN_SESSION: "bg-success/10 text-success",
+  ENDED: "bg-gray-text/10 text-gray-text",
+};
+
+const courseStatusLabel: Record<TrainingCourse["status"], string> = {
+  UPCOMING: "Upcoming",
+  IN_SESSION: "In Session",
+  ENDED: "Ended",
+};
+
+const emptyCourseForm = {
+  program: "KISOLAM" as "KISOLAM" | "TEMA",
+  code: "",
+  name: "",
+  description: "",
+  duration: "",
+  feeType: "FIXED" as "FIXED" | "VARIABLE",
+  fee: "",
+  feeCurrency: "NGN",
+  streams: "",
+  startDate: "",
+  endDate: "",
+  registrationOpen: true,
+  isActive: true,
+  displayOrder: 0,
+};
+
+function toDateInputValue(iso: string | null) {
+  return iso ? iso.slice(0, 10) : "";
+}
+
+function CoursesTab() {
+  const [courses, setCourses] = useState<TrainingCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [programFilter, setProgramFilter] = useState("");
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<TrainingCourse | null>(null);
+  const [form, setForm] = useState(emptyCourseForm);
+  const [saving, setSaving] = useState(false);
+  const { success, error } = useToast();
+
+  const reload = async (program?: string) => {
+    try {
+      setCourses(await training.getAdminCourses(program || undefined));
+    } catch (err) {
+      error("Failed to load courses");
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      await reload(programFilter);
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [programFilter]);
+
+  function openCreate() {
+    setEditingCourse(null);
+    setForm(emptyCourseForm);
+    setShowFormModal(true);
+  }
+
+  function openEdit(course: TrainingCourse) {
+    setEditingCourse(course);
+    setForm({
+      program: course.program,
+      code: course.code,
+      name: course.name,
+      description: course.description,
+      duration: course.duration,
+      feeType: course.feeType,
+      fee: course.fee != null ? String(course.fee) : "",
+      feeCurrency: course.feeCurrency,
+      streams: course.streams.join(", "),
+      startDate: toDateInputValue(course.startDate),
+      endDate: toDateInputValue(course.endDate),
+      registrationOpen: course.registrationOpen,
+      isActive: course.isActive,
+      displayOrder: course.displayOrder,
+    });
+    setShowFormModal(true);
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (form.feeType === "FIXED" && form.fee.trim() === "") {
+      error("Enter a fee amount for a fixed-fee course.");
+      return;
+    }
+
+    const payload: TrainingCourseInput = {
+      program: form.program,
+      code: form.code.trim(),
+      name: form.name.trim(),
+      description: form.description.trim(),
+      duration: form.duration.trim(),
+      feeType: form.feeType,
+      fee: form.feeType === "FIXED" ? Number(form.fee) : undefined,
+      feeCurrency: form.feeCurrency.trim() || "NGN",
+      streams: form.streams.split(",").map((s) => s.trim()).filter(Boolean),
+      startDate: form.startDate ? new Date(form.startDate).toISOString() : undefined,
+      endDate: form.endDate ? new Date(form.endDate).toISOString() : undefined,
+      registrationOpen: form.registrationOpen,
+      isActive: form.isActive,
+      displayOrder: Number(form.displayOrder) || 0,
+    };
+
+    setSaving(true);
+    try {
+      if (editingCourse) {
+        const updated = await training.updateCourse(editingCourse.id, payload);
+        setCourses(courses.map((c) => (c.id === editingCourse.id ? updated : c)));
+        success("Course updated");
+      } else {
+        const created = await training.createCourse(payload);
+        setCourses([...courses, created]);
+        success("Course created");
+      }
+      setShowFormModal(false);
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to save course");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function toggleField(course: TrainingCourse, field: "registrationOpen" | "isActive") {
+    try {
+      const updated = await training.updateCourse(course.id, { [field]: !course[field] });
+      setCourses(courses.map((c) => (c.id === course.id ? updated : c)));
+    } catch (err) {
+      error("Failed to update course");
+      console.error(err);
+    }
+  }
+
+  async function deleteCourse(id: string) {
+    if (!confirm("Delete this course? This cannot be undone.")) return;
+    try {
+      await training.deleteCourse(id);
+      setCourses(courses.filter((c) => c.id !== id));
+      success("Course deleted");
+    } catch (err) {
+      error("Failed to delete course");
+      console.error(err);
+    }
+  }
+
+  const formatFee = (course: TrainingCourse) =>
+    course.feeType === "VARIABLE" ? "Variable" : `${course.feeCurrency}${(course.fee || 0).toLocaleString()}`;
+
+  const formatSchedule = (course: TrainingCourse) => {
+    const start = course.startDate ? new Date(course.startDate).toLocaleDateString() : null;
+    const end = course.endDate ? new Date(course.endDate).toLocaleDateString() : null;
+    if (!start && !end) return "No schedule set";
+    return `${start || "—"} – ${end || "—"}`;
+  };
+
+  if (loading) {
+    return <SkeletonGroup count={5} />;
+  }
+
+  return (
+    <div>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-4">
+        <div className="w-full md:w-56">
+          <Select
+            id="course-program"
+            options={managedProgramOptions}
+            value={programFilter}
+            onChange={(e) => setProgramFilter(e.target.value)}
+          />
+        </div>
+        <Button variant="primary" className="text-xs py-2 px-4 min-w-0" onClick={openCreate}>
+          <Plus size={14} className="mr-1" /> New Course
+        </Button>
+      </div>
+
+      <div className="overflow-x-auto rounded-[8px] border border-gray-border bg-white shadow-sm mb-4">
+        <table className="w-full min-w-[1100px]">
+          <thead>
+            <tr className="border-b border-gray-border bg-off-white">
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Program</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Course</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Duration</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Fee</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Schedule</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Registration</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Visible</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-border">
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <tr key={course.id} className="hover:bg-off-white/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <span className="font-heading text-xs font-bold uppercase tracking-wider text-purple-vivid">{course.program}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="font-heading text-sm font-semibold text-slate">{course.code}</span>
+                    <span className="block font-body text-[11px] text-gray-text">{course.name}</span>
+                  </td>
+                  <td className="px-4 py-3 font-body text-sm text-slate">{course.duration}</td>
+                  <td className="px-4 py-3 font-body text-sm text-slate">{formatFee(course)}</td>
+                  <td className="px-4 py-3 font-body text-xs text-gray-text">{formatSchedule(course)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${courseStatusBadge[course.status]}`}>
+                      {courseStatusLabel[course.status]}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => toggleField(course, "registrationOpen")}
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold transition-colors",
+                        course.registrationOpen ? "bg-success/10 text-success" : "bg-error/10 text-error"
+                      )}
+                    >
+                      {course.registrationOpen ? "Open" : "Closed"}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => toggleField(course, "isActive")}
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold transition-colors",
+                        course.isActive ? "bg-success/10 text-success" : "bg-gray-text/10 text-gray-text"
+                      )}
+                    >
+                      {course.isActive ? "Shown" : "Hidden"}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <button
+                        className="rounded-[4px] p-1.5 text-purple-vivid hover:bg-purple/10 transition-colors"
+                        title="Edit"
+                        onClick={() => openEdit(course)}
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
+                        title="Delete"
+                        onClick={() => deleteCourse(course.id)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={9} className="px-4 py-8 text-center font-body text-sm text-gray-text">
+                  No courses found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-body-small">{courses.length} course{courses.length !== 1 ? "s" : ""}</p>
+
+      <Modal
+        isOpen={showFormModal}
+        onClose={() => setShowFormModal(false)}
+        title={editingCourse ? "Edit Course" : "New Course"}
+        size="lg"
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Program</label>
+              <Select
+                id="form-program"
+                options={[{ value: "KISOLAM", label: "KISOLAM" }, { value: "TEMA", label: "TEMA Academy" }]}
+                value={form.program}
+                onChange={(e) => setForm({ ...form, program: e.target.value as "KISOLAM" | "TEMA" })}
+              />
+            </div>
+            <Input
+              id="form-code"
+              label="Code"
+              placeholder="e.g. DTD"
+              value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })}
+              required
+            />
+          </div>
+
+          <Input
+            id="form-name"
+            label="Course Name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+
+          <div>
+            <label className="block text-sm font-heading font-semibold text-slate mb-1">Description</label>
+            <textarea
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              rows={3}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              id="form-duration"
+              label="Duration"
+              placeholder="e.g. 3 months"
+              value={form.duration}
+              onChange={(e) => setForm({ ...form, duration: e.target.value })}
+              required
+            />
+            <div>
+              <label className="block text-sm font-heading font-semibold text-slate mb-1">Fee Type</label>
+              <Select
+                id="form-feetype"
+                options={[{ value: "FIXED", label: "Fixed" }, { value: "VARIABLE", label: "Variable" }]}
+                value={form.feeType}
+                onChange={(e) => setForm({ ...form, feeType: e.target.value as "FIXED" | "VARIABLE" })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              id="form-fee"
+              label={form.feeType === "FIXED" ? "Fee Amount" : "Fee Amount (optional)"}
+              type="number"
+              min="0"
+              placeholder={form.feeType === "FIXED" ? "e.g. 20000" : "Leave blank if it varies"}
+              value={form.fee}
+              onChange={(e) => setForm({ ...form, fee: e.target.value })}
+            />
+            <Input
+              id="form-currency"
+              label="Currency"
+              value={form.feeCurrency}
+              onChange={(e) => setForm({ ...form, feeCurrency: e.target.value })}
+            />
+          </div>
+
+          <Input
+            id="form-streams"
+            label="Streams / tags (comma-separated, optional)"
+            placeholder="e.g. Classical, Contemporary, Percussion"
+            value={form.streams}
+            onChange={(e) => setForm({ ...form, streams: e.target.value })}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              id="form-start"
+              label="Start Date (optional)"
+              type="date"
+              value={form.startDate}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+            />
+            <Input
+              id="form-end"
+              label="End Date (optional)"
+              type="date"
+              value={form.endDate}
+              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+            />
+          </div>
+          <p className="text-[11px] text-gray-text -mt-2">
+            Leaving both dates blank keeps the course always "In Session". Set an end date to have it
+            automatically switch to "Not in Session" once it passes.
+          </p>
+
+          <div className="flex items-center gap-6">
+            <label className="flex items-center gap-2 font-body text-sm text-slate">
+              <input
+                type="checkbox"
+                checked={form.registrationOpen}
+                onChange={(e) => setForm({ ...form, registrationOpen: e.target.checked })}
+              />
+              Registration open
+            </label>
+            <label className="flex items-center gap-2 font-body text-sm text-slate">
+              <input
+                type="checkbox"
+                checked={form.isActive}
+                onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+              />
+              Visible on public site
+            </label>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="secondary" className="flex-1" onClick={() => setShowFormModal(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" className="flex-1" disabled={saving}>
+              {saving ? "Saving..." : editingCourse ? "Save Changes" : "Create Course"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}
+
+function EnrollmentsTab() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [filteredEnrollments, setFilteredEnrollments] = useState<any[]>([]);
   const [search, setSearch] = useState("");
@@ -164,21 +590,12 @@ function AdminTrainingContent() {
   }, [enrollments]);
 
   if (loading) {
-    return (
-      <div className="p-6 md:p-8">
-        <h1 className="font-heading text-2xl font-bold text-slate mb-6">Training Management</h1>
-        <SkeletonGroup count={5} />
-      </div>
-    );
+    return <SkeletonGroup count={5} />;
   }
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-slate">Training Management</h1>
-          <p className="text-body-small mt-1">KISOLAM, TEMA Academy and EIS enrollments</p>
-        </div>
+    <div>
+      <div className="flex items-center justify-end mb-6">
         <Button variant="secondary" className="text-xs py-2 px-4 min-w-0" onClick={exportCSV}>
           <Download size={14} className="mr-1" /> Export CSV
         </Button>
@@ -443,6 +860,42 @@ function AdminTrainingContent() {
           </div>
         )}
       </Modal>
+    </div>
+  );
+}
+
+function AdminTrainingContent() {
+  const [tab, setTab] = useState<"courses" | "enrollments">("courses");
+
+  return (
+    <div className="p-6 md:p-8">
+      <div className="mb-6">
+        <h1 className="font-heading text-2xl font-bold text-slate">Training Management</h1>
+        <p className="text-body-small mt-1">KISOLAM and TEMA Academy courses, pricing, and enrollments</p>
+      </div>
+
+      <div className="flex gap-1 mb-6 border-b border-gray-border">
+        <button
+          onClick={() => setTab("courses")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2.5 font-heading text-sm font-semibold border-b-2 -mb-px transition-colors",
+            tab === "courses" ? "border-purple text-purple" : "border-transparent text-gray-text hover:text-slate"
+          )}
+        >
+          <BookOpen size={15} /> Courses
+        </button>
+        <button
+          onClick={() => setTab("enrollments")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2.5 font-heading text-sm font-semibold border-b-2 -mb-px transition-colors",
+            tab === "enrollments" ? "border-purple text-purple" : "border-transparent text-gray-text hover:text-slate"
+          )}
+        >
+          <GraduationCap size={15} /> Enrollments
+        </button>
+      </div>
+
+      {tab === "courses" ? <CoursesTab /> : <EnrollmentsTab />}
     </div>
   );
 }

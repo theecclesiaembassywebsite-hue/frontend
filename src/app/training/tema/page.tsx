@@ -4,6 +4,7 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/Motion";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -21,63 +22,34 @@ import {
   Star,
   ArrowDown,
   Drum,
+  Sparkles,
   Volume2,
   VolumeX,
+  type LucideIcon,
 } from "lucide-react";
-import { training } from "@/lib/api";
+import { training, TrainingCourse } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 
-const programs = [
-  {
-    id: "IM",
-    name: "Instrument Mastery",
-    icon: Music,
-    desc: "Build mastery across three dynamic streams — Classical (violin, viola, cello, flute, trumpet and more), Contemporary (keyboard, guitars, saxophone and more), and Percussion (drums, talking drum, conga, cymbals and more — strengthen timing and rhythm).",
-    streams: ["Classical", "Contemporary", "Percussion"],
-  },
-  {
-    id: "VOICES",
-    name: "Voices",
-    icon: Mic,
-    desc: "Develop your voice, singing, and vocal expressions with proven techniques that unlock the full potential of your sound.",
-    streams: [],
-  },
-  {
-    id: "MCP",
-    name: "Music Composition & Production",
-    icon: Layers,
-    desc: "Create, arrange, and produce music that carries purpose. From arrangement to final mix, learn to craft sound with intentionality.",
-    streams: [],
-  },
-  {
-    id: "DANCE",
-    name: "Dance and Movement",
-    icon: Zap,
-    desc: "Learn to express beauty, rhythm, and grace through inspired movement — a ministry in itself.",
-    streams: [],
-  },
-  {
-    id: "MLT",
-    name: "Music Leadership Training",
-    icon: Users,
-    desc: "Develop leadership and team management skills to lead creatives, choirs, orchestras, and music institutions with wisdom and excellence.",
-    streams: [],
-  },
-  {
-    id: "AD",
-    name: "Artistry and Design",
-    icon: Palette,
-    desc: "Showcase Heaven's creativity through drawing, painting, design, and more — visual art in service of the kingdom.",
-    streams: [],
-  },
-  {
-    id: "SAL",
-    name: "Stories and Lights",
-    icon: Film,
-    desc: "Develop acting, storytelling, and stage presence for live and screen ministrations. A studio and theatre course for expressive communicators.",
-    streams: [],
-  },
-];
+// Icons are a purely visual, code-driven lookup — new courses an admin creates
+// later just fall back to the generic Sparkles icon.
+const programIcons: Record<string, LucideIcon> = {
+  IM: Music,
+  VOICES: Mic,
+  MCP: Layers,
+  DANCE: Zap,
+  MLT: Users,
+  AD: Palette,
+  SAL: Film,
+};
+
+const statusLabel: Record<TrainingCourse["status"], string> = {
+  UPCOMING: "Upcoming",
+  IN_SESSION: "Open",
+  ENDED: "Not in Session",
+};
+
+const isJoinable = (course: TrainingCourse) =>
+  course.registrationOpen && course.status === "IN_SESSION";
 
 const experiences = [
   {
@@ -107,14 +79,14 @@ const experiences = [
   },
 ];
 
-const programSelectOptions = programs.map((p) => p.name);
-
 const heroVideos = [
   { mobile: "/tema-hero-video-mobile.mp4", desktop: "/tema-hero-video.mp4" },
   { mobile: "/tema-hero-video-2-mobile.mp4", desktop: "/tema-hero-video-2.mp4" },
 ] as const;
 
 export default function TEMAPage() {
+  const [courses, setCourses] = useState<TrainingCourse[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [videoMuted, setVideoMuted] = useState(true);
@@ -170,6 +142,19 @@ export default function TEMAPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        setCourses(await training.getCourses("TEMA"));
+      } catch {
+        error("Failed to load programs. Please refresh the page.");
+      } finally {
+        setCoursesLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
@@ -179,9 +164,7 @@ export default function TEMAPage() {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
         phone: formData.get("phone") as string,
-        additionalInfo: {
-          course: formData.get("course") as string,
-        },
+        courseId: formData.get("course") as string,
       });
       success("Enrollment successful! Welcome to TEMA.");
       setEnrolled(true);
@@ -389,44 +372,60 @@ export default function TEMAPage() {
         </div>
 
         <div className="mt-12 grid gap-5 md:grid-cols-2">
-          {programs.map((program) => {
-            const Icon = program.icon;
-            return (
-              <div
-                key={program.id}
-                className="rounded-[28px] border border-gray-border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1E1040,#3B1F80)] text-white shadow-sm">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-purple px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[1.5px] text-white">
-                        {program.id}
-                      </span>
+          {coursesLoading ? (
+            <SkeletonGroup count={6} variant="card" className="md:col-span-2" />
+          ) : courses.length === 0 ? (
+            <p className="md:col-span-2 text-center font-body text-sm text-gray-text">
+              No programs are currently listed. Please check back soon.
+            </p>
+          ) : (
+            courses.map((course) => {
+              const Icon = programIcons[course.code] || Sparkles;
+              const joinable = isJoinable(course);
+              return (
+                <div
+                  key={course.id}
+                  className="rounded-[28px] border border-gray-border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1E1040,#3B1F80)] text-white shadow-sm">
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-2 font-heading text-base font-bold text-slate">
-                      {program.name}
-                    </h3>
-                    <p className="mt-2 font-body text-sm leading-6 text-gray-text">{program.desc}</p>
-                    {program.streams.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {program.streams.map((s) => (
-                          <span
-                            key={s}
-                            className="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 font-heading text-[10px] font-semibold uppercase tracking-[1.2px] text-slate"
-                          >
-                            {s}
-                          </span>
-                        ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-purple px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[1.5px] text-white">
+                          {course.code}
+                        </span>
+                        <span
+                          className={`rounded-full px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[1.5px] ${
+                            joinable ? "bg-success/10 text-success" : "bg-gray-text/10 text-gray-text"
+                          }`}
+                        >
+                          {statusLabel[course.status]}
+                        </span>
                       </div>
-                    )}
+                      <h3 className="mt-2 font-heading text-base font-bold text-slate">
+                        {course.name}
+                      </h3>
+                      <p className="mt-2 font-body text-sm leading-6 text-gray-text">{course.description}</p>
+                      {course.streams.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {course.streams.map((s) => (
+                            <span
+                              key={s}
+                              className="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 font-heading text-[10px] font-semibold uppercase tracking-[1.2px] text-slate"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         <p className="mt-8 text-center font-body text-sm italic text-gray-text">
@@ -509,8 +508,10 @@ export default function TEMAPage() {
                   className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] placeholder:text-[#8A8A90] focus:outline-none focus:border-[#C9A84C] transition-colors"
                 >
                   <option value="" disabled>Select a program...</option>
-                  {programSelectOptions.map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id} disabled={!isJoinable(course)}>
+                      {course.name}{!isJoinable(course) ? ` (${statusLabel[course.status]})` : ""}
+                    </option>
                   ))}
                 </select>
                 <Button type="submit" variant="giving" className="w-full mt-1" disabled={loading}>

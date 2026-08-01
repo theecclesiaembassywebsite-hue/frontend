@@ -4,8 +4,9 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { SkeletonGroup } from "@/components/ui/Skeleton";
 import ProgramHero from "@/components/training/ProgramHero";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -14,65 +15,22 @@ import {
   GraduationCap,
   User,
 } from "lucide-react";
-import { training } from "@/lib/api";
+import { training, TrainingCourse } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 
-type Program = {
-  id: string;
-  name: string;
-  shortName?: string;
-  duration: string;
-  desc: string;
-  feeType: "paid" | "variable";
-  fee?: number;
-  feeCurrency?: string;
+const statusLabel: Record<TrainingCourse["status"], string> = {
+  UPCOMING: "Upcoming",
+  IN_SESSION: "Open for Enrollment",
+  ENDED: "Not in Session",
 };
 
-const programs: Program[] = [
-  {
-    id: "DTD",
-    name: "Discipleship Training Deluge",
-    duration: "3 months",
-    desc: "An intensive discipleship track designed to ground believers in the foundations of faith, kingdom identity, and missional living.",
-    feeType: "paid",
-    fee: 20000,
-    feeCurrency: "NGN ",
-  },
-  {
-    id: "SENATE",
-    name: "Senate of Ambassadorial Army",
-    duration: "6 months",
-    desc: "Advanced training for those called to ambassadorial ministry, with strategic, apostolic, and prophetic depth.",
-    feeType: "paid",
-    fee: 25000,
-    feeCurrency: "NGN ",
-  },
-  {
-    id: "SMIT",
-    name: "Six Months Intensive Training",
-    duration: "6 months",
-    desc: "A comprehensive curriculum covering doctrine, church planting, leadership, and practical ministry in one immersive season.",
-    feeType: "paid",
-    fee: 30000,
-    feeCurrency: "NGN ",
-  },
-  {
-    id: "SPOUDAZO",
-    name: "Summer Spoudazo",
-    duration: "4-6 weeks",
-    desc: "A seasonal intensive for all ages. Program fees vary by session and schedule.",
-    feeType: "variable",
-    feeCurrency: "NGN ",
-  },
-  {
-    id: "WORKSHOP",
-    name: "Special Workshop Program",
-    duration: "1-3 days",
-    desc: "Short topic-focused workshops throughout the year. Some sessions are free while others require registration.",
-    feeType: "variable",
-    feeCurrency: "NGN ",
-  },
-];
+const isJoinable = (course: TrainingCourse) =>
+  course.registrationOpen && course.status === "IN_SESSION";
+
+const formatFee = (course: TrainingCourse) => {
+  if (course.feeType === "VARIABLE") return "Variable";
+  return `${course.feeCurrency || "NGN "}${(course.fee || 0).toLocaleString()}`;
+};
 
 const trainingPillars = [
   {
@@ -98,21 +56,31 @@ const facultyRoles = [
   "Guest Faculty",
 ];
 
-const formatFee = (program: Program) => {
-  if (program.feeType === "variable") return "Variable";
-  return `${program.feeCurrency || "NGN "}${(program.fee || 0).toLocaleString()}`;
-};
-
 export default function KISOLAMPage() {
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+  const [courses, setCourses] = useState<TrainingCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCourse, setSelectedCourse] = useState<TrainingCourse | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<"form" | "processing">("form");
   const [customAmount, setCustomAmount] = useState("");
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const { success, error } = useToast();
 
-  function openEnroll(program: Program) {
-    setSelectedProgram(program);
+  useEffect(() => {
+    (async () => {
+      try {
+        setCourses(await training.getCourses("KISOLAM"));
+      } catch {
+        error("Failed to load programs. Please refresh the page.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function openEnroll(course: TrainingCourse) {
+    setSelectedCourse(course);
     setFormData({ name: "", email: "", phone: "" });
     setCustomAmount("");
     setStep("form");
@@ -125,18 +93,18 @@ export default function KISOLAMPage() {
 
   async function handleEnrollAndPay(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedProgram) return;
+    if (!selectedCourse) return;
 
-    const amount = selectedProgram.feeType === "paid"
-      ? selectedProgram.fee!
+    const amount = selectedCourse.feeType === "FIXED"
+      ? selectedCourse.fee!
       : Number(customAmount);
 
-    if (selectedProgram.feeType === "variable" && customAmount === "") {
+    if (selectedCourse.feeType === "VARIABLE" && customAmount === "") {
       error("Please enter the program fee. Enter 0 for free sessions.");
       return;
     }
 
-    if (selectedProgram.feeType === "variable" && amount < 0) {
+    if (selectedCourse.feeType === "VARIABLE" && amount < 0) {
       error("Amount cannot be negative.");
       return;
     }
@@ -147,10 +115,7 @@ export default function KISOLAMPage() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        additionalInfo: {
-          program: selectedProgram.name,
-          programId: selectedProgram.id,
-        },
+        courseId: selectedCourse.id,
       });
 
       if (amount === 0) {
@@ -165,7 +130,7 @@ export default function KISOLAMPage() {
         amount,
         email: formData.email,
         name: formData.name,
-        program: selectedProgram.name,
+        program: selectedCourse.name,
       });
 
       window.location.href = payment.authorization_url +
@@ -195,7 +160,7 @@ export default function KISOLAMPage() {
           "Practical ministry training",
         ]}
         stats={[
-          { value: "5", label: "program tracks" },
+          { value: String(courses.length || 5), label: "program tracks" },
           { value: "Jan / Jul", label: "session starts" },
           { value: "3-6 mo", label: "core duration" },
         ]}
@@ -225,7 +190,14 @@ export default function KISOLAMPage() {
         }
         actions={
           <>
-            <Button variant="primary" onClick={() => openEnroll(programs[0])}>
+            <Button
+              variant="primary"
+              disabled={!courses.some(isJoinable)}
+              onClick={() => {
+                const first = courses.find(isJoinable);
+                if (first) openEnroll(first);
+              }}
+            >
               Start Enrollment
             </Button>
             <Button variant="secondary" onDark onClick={() => scrollToSection("programs")}>
@@ -278,47 +250,63 @@ export default function KISOLAMPage() {
         </div>
 
         <div className="mx-auto mt-12 max-w-4xl space-y-5">
-          {programs.map((program) => (
-            <div
-              key={program.id}
-              className="rounded-[28px] border border-gray-border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg md:p-7"
-            >
-              <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-purple text-[10px] font-heading font-bold uppercase tracking-[1.5px] text-white px-3 py-1.5">
-                      {program.id}
-                    </span>
-                    {program.shortName ? (
-                      <span className="rounded-full bg-purple-light px-3 py-1.5 text-[10px] font-heading font-bold uppercase tracking-[1.5px] text-purple">
-                        {program.shortName}
-                      </span>
-                    ) : null}
-                  </div>
+          {loading ? (
+            <SkeletonGroup count={5} variant="card" />
+          ) : courses.length === 0 ? (
+            <p className="text-center font-body text-sm text-gray-text">
+              No programs are currently listed. Please check back soon.
+            </p>
+          ) : (
+            courses.map((course) => {
+              const joinable = isJoinable(course);
+              return (
+                <div
+                  key={course.id}
+                  className="rounded-[28px] border border-gray-border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg md:p-7"
+                >
+                  <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-purple text-[10px] font-heading font-bold uppercase tracking-[1.5px] text-white px-3 py-1.5">
+                          {course.code}
+                        </span>
+                        <span
+                          className={`rounded-full px-3 py-1.5 text-[10px] font-heading font-bold uppercase tracking-[1.5px] ${
+                            joinable
+                              ? "bg-success/10 text-success"
+                              : "bg-gray-text/10 text-gray-text"
+                          }`}
+                        >
+                          {statusLabel[course.status]}
+                        </span>
+                      </div>
 
-                  <h3 className="mt-4 font-heading text-xl font-bold text-slate">{program.name}</h3>
-                  <p className="mt-3 font-body text-sm leading-7 text-gray-text">{program.desc}</p>
+                      <h3 className="mt-4 font-heading text-xl font-bold text-slate">{course.name}</h3>
+                      <p className="mt-3 font-body text-sm leading-7 text-gray-text">{course.description}</p>
 
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <span className="rounded-full border border-purple-light bg-purple-light/50 px-4 py-2 font-heading text-[11px] font-semibold uppercase tracking-[1.4px] text-slate">
-                      Duration: {program.duration}
-                    </span>
-                    <span className="rounded-full border border-gold/20 bg-gold/10 px-4 py-2 font-heading text-[11px] font-semibold uppercase tracking-[1.4px] text-slate">
-                      Fee: {formatFee(program)}
-                    </span>
+                      <div className="mt-5 flex flex-wrap gap-3">
+                        <span className="rounded-full border border-purple-light bg-purple-light/50 px-4 py-2 font-heading text-[11px] font-semibold uppercase tracking-[1.4px] text-slate">
+                          Duration: {course.duration}
+                        </span>
+                        <span className="rounded-full border border-gold/20 bg-gold/10 px-4 py-2 font-heading text-[11px] font-semibold uppercase tracking-[1.4px] text-slate">
+                          Fee: {formatFee(course)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="primary"
+                      className="shrink-0 text-sm"
+                      disabled={!joinable}
+                      onClick={() => openEnroll(course)}
+                    >
+                      {joinable ? <>Enroll <ArrowRight size={14} /></> : statusLabel[course.status]}
+                    </Button>
                   </div>
                 </div>
-
-                <Button
-                  variant="primary"
-                  className="shrink-0 text-sm"
-                  onClick={() => openEnroll(program)}
-                >
-                  Enroll <ArrowRight size={14} />
-                </Button>
-              </div>
-            </div>
-          ))}
+              );
+            })
+          )}
         </div>
       </SectionWrapper>
 
@@ -397,7 +385,7 @@ export default function KISOLAMPage() {
         onClose={() => {
           if (step !== "processing") setShowModal(false);
         }}
-        title={`Enroll - ${selectedProgram?.name || ""}`}
+        title={`Enroll - ${selectedCourse?.name || ""}`}
       >
         {step === "processing" ? (
           <div className="flex flex-col items-center justify-center gap-4 py-10">
@@ -407,11 +395,11 @@ export default function KISOLAMPage() {
         ) : (
           <form onSubmit={handleEnrollAndPay} className="space-y-4">
             <div className="rounded-[10px] bg-purple-light/40 px-4 py-3 text-sm">
-              <p className="font-heading font-semibold text-slate">{selectedProgram?.name}</p>
-              <p className="text-[12px] text-gray-text">Duration: {selectedProgram?.duration}</p>
+              <p className="font-heading font-semibold text-slate">{selectedCourse?.name}</p>
+              <p className="text-[12px] text-gray-text">Duration: {selectedCourse?.duration}</p>
               <p className="mt-1 font-heading text-[13px] font-bold text-purple">
-                {selectedProgram?.feeType === "paid"
-                  ? `Fee: ${selectedProgram?.feeCurrency}${(selectedProgram?.fee || 0).toLocaleString()}`
+                {selectedCourse?.feeType === "FIXED"
+                  ? `Fee: ${selectedCourse?.feeCurrency}${(selectedCourse?.fee || 0).toLocaleString()}`
                   : "Fee varies per session. Enter the correct amount below."}
               </p>
             </div>
@@ -443,7 +431,7 @@ export default function KISOLAMPage() {
               required
             />
 
-            {selectedProgram?.feeType === "variable" && (
+            {selectedCourse?.feeType === "VARIABLE" && (
               <Input
                 id="amount"
                 label="Program Fee (NGN)"
@@ -467,7 +455,7 @@ export default function KISOLAMPage() {
               </Button>
               <Button type="submit" variant="giving" className="flex-1 justify-center gap-2">
                 <BadgeCheck size={15} />
-                {selectedProgram?.feeType === "paid" || Number(customAmount) > 0
+                {selectedCourse?.feeType === "FIXED" || Number(customAmount) > 0
                   ? "Enroll and Pay"
                   : "Enroll Free"}
               </Button>

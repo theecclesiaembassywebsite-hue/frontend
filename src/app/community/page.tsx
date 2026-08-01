@@ -131,7 +131,7 @@ export default function NationPage() {
           <div className="absolute inset-0 bg-[rgba(14,0,22,0.84)]" />
           <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
             <h1 className="font-heading text-3xl font-bold text-white md:text-4xl">
-              Ecclesia Nation
+              Ecclesia Embassy Community
             </h1>
             <h6 className="mt-2 font-serif text-base font-light text-off-white">
               Connect, share, and grow with the community
@@ -158,13 +158,13 @@ export default function NationPage() {
                   </div>
                   <nav className="space-y-1">
                     <Link
-                      href="/nation/messages"
+                      href="/community/messages"
                       className="flex items-center gap-2 rounded-[4px] px-3 py-2 font-body text-sm text-slate hover:bg-lavender transition-colors"
                     >
                       <MessageCircle size={16} /> Messages
                     </Link>
                     <Link
-                      href="/nation/groups"
+                      href="/community/groups"
                       className="flex items-center gap-2 rounded-[4px] px-3 py-2 font-body text-sm text-slate hover:bg-lavender transition-colors"
                     >
                       <Users size={16} /> Groups
@@ -229,7 +229,7 @@ export default function NationPage() {
                     {groups.map((group) => (
                       <Link
                         key={group.id}
-                        href="/nation/groups"
+                        href="/community/groups"
                         className="block rounded-[4px] px-3 py-2 font-body text-sm text-slate hover:bg-lavender transition-colors"
                       >
                         {group.name}
