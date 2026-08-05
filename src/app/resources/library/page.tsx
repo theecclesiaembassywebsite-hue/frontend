@@ -115,16 +115,23 @@ export default function EcclesialibraryPage() {
           { display_name: 'Type', variable_name: 'type', value: 'library_purchase' },
         ],
       },
-      callback: () => {
-        success('Payment successful! Your download will begin shortly.');
-        setPurchasingId(null);
-        // Trigger download after successful payment
-        if (item.fileUrl) {
-          const link = document.createElement('a');
-          link.href = item.fileUrl;
-          link.download = item.title;
-          link.click();
-        }
+      callback: (response: { reference: string }) => {
+        // Payment popup succeeding is not proof of payment — the backend
+        // independently re-verifies the reference with Paystack before it
+        // will ever hand back the real file URL.
+        media
+          .verifyLibraryPurchase(item.id, response.reference)
+          .then((result) => {
+            success('Payment successful! Your download will begin shortly.');
+            const link = document.createElement('a');
+            link.href = result.fileUrl;
+            link.download = item.title;
+            link.click();
+          })
+          .catch(() => {
+            error('We could not verify your payment. Please contact support with your reference: ' + response.reference);
+          })
+          .finally(() => setPurchasingId(null));
       },
       onClose: () => {
         setPurchasingId(null);

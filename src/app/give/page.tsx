@@ -87,8 +87,8 @@ export default function GivePage() {
           name,
         });
         success("Payment initiated via PayPal. Redirecting...");
-        if (response.orderId) {
-          window.location.href = `https://www.paypal.com/checkoutnow?token=${response.orderId}`;
+        if (response.approvalUrl) {
+          window.location.href = response.approvalUrl;
         }
       } else {
         const response = await giving.initializePaystack({

@@ -11,33 +11,54 @@ function PaymentCallbackContent() {
   const searchParams = useSearchParams();
   const reference =
     searchParams.get("reference") || searchParams.get("trxref");
+  // PayPal's redirect back from checkout carries its order id as `token`
+  // (and a `PayerID`) rather than `reference`/`trxref`.
+  const paypalToken = searchParams.get("token");
   const [status, setStatus] = useState<"verifying" | "success" | "failed">("verifying");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!reference) {
+    if (reference) {
+      giving
+        .verifyPaystack(reference)
+        .then((res) => {
+          if (res.status === "SUCCESS") {
+            setStatus("success");
+            setMessage("Your giving has been received. Thank you for your generosity!");
+          } else {
+            setStatus("failed");
+            setMessage(res.message || "Payment could not be verified.");
+          }
+        })
+        .catch(() => {
+          setStatus("failed");
+          setMessage("Unable to verify payment. Please contact support if you were charged.");
+        });
       return;
     }
 
-    giving
-      .verifyPaystack(reference)
-      .then((res) => {
-        if (res.status === "SUCCESS") {
-          setStatus("success");
-          setMessage("Your giving has been received. Thank you for your generosity!");
-        } else {
+    if (paypalToken) {
+      giving
+        .capturePaypal(paypalToken)
+        .then((res) => {
+          if (res.status === "SUCCESS") {
+            setStatus("success");
+            setMessage("Your giving has been received. Thank you for your generosity!");
+          } else {
+            setStatus("failed");
+            setMessage(res.message || "Payment could not be captured.");
+          }
+        })
+        .catch(() => {
           setStatus("failed");
-          setMessage(res.message || "Payment could not be verified.");
-        }
-      })
-      .catch(() => {
-        setStatus("failed");
-        setMessage("Unable to verify payment. Please contact support if you were charged.");
-      });
-  }, [reference]);
+          setMessage("Unable to capture payment. Please contact support if you were charged.");
+        });
+    }
+  }, [reference, paypalToken]);
 
-  const resolvedStatus = reference ? status : "failed";
-  const resolvedMessage = reference
+  const hasIdentifier = !!(reference || paypalToken);
+  const resolvedStatus = hasIdentifier ? status : "failed";
+  const resolvedMessage = hasIdentifier
     ? message
     : "No payment reference found.";
 

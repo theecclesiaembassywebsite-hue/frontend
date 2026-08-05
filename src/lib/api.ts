@@ -611,7 +611,7 @@ export const giving = {
     email: string;
     name?: string;
   }) =>
-    fetchAPI<{ orderId: string; reference: string }>("/giving/initialize-paypal", {
+    fetchAPI<{ orderId: string; reference: string; approvalUrl: string }>("/giving/initialize-paypal", {
       method: "POST",
       body: JSON.stringify(data),
       noAuth: true,
@@ -1090,7 +1090,16 @@ export const media = {
     }),
 
   downloadLibraryResource: (id: string) =>
-    fetchAPI<{ downloadUrl: string }>(`/library/${id}/download`, { noAuth: true }),
+    fetchAPI<{ downloadUrl: string }>(`/library/${id}/download`),
+
+  getLibraryAccess: (id: string) =>
+    fetchAPI<{ fileUrl: string }>(`/library/${id}/access`),
+
+  verifyLibraryPurchase: (id: string, reference: string) =>
+    fetchAPI<{ fileUrl: string }>(`/library/${id}/purchase/verify`, {
+      method: "POST",
+      body: JSON.stringify({ reference }),
+    }),
 
   getMusic: () =>
     fetchWithFallback(
