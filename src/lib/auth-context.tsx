@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { auth, setToken, removeToken, type User } from "./api";
+import { auth, persistTokenIfEnabled, removeToken, type User } from "./api";
 
 interface AuthContextType {
   user: User | null;
@@ -57,12 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await auth.login(email, password);
-      // By default prefer cookie-based auth (httpOnly cookie set by server).
-      // Only persist token to localStorage if explicitly enabled via
-      // `NEXT_PUBLIC_STORE_TOKEN=true` (useful for mobile / API clients).
-      if (process.env.NEXT_PUBLIC_STORE_TOKEN === 'true') {
-        setToken(response.access_token || response.token || '');
-      }
+      // Cookie-based auth is primary; the JS-readable copy is written only
+      // when NEXT_PUBLIC_STORE_TOKEN is on. persistTokenIfEnabled owns that
+      // decision for every sign-in path.
+      persistTokenIfEnabled(response.access_token || response.token);
       setUser(response.user);
     } catch (error) {
       removeToken();
@@ -79,9 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }) => {
     try {
       const response = await auth.register(data);
-      if (process.env.NEXT_PUBLIC_STORE_TOKEN === 'true') {
-        setToken(response.access_token || response.token || '');
-      }
+      persistTokenIfEnabled(response.access_token || response.token);
       setUser(response.user);
     } catch (error) {
       removeToken();

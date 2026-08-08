@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SectionWrapper from '@/components/ui/SectionWrapper';
 import { media } from '@/lib/api';
 import { SkeletonGroup } from '@/components/ui/Skeleton';
@@ -22,34 +22,47 @@ interface LibraryItem {
   isFree?: boolean;
 }
 
-declare global {
-  interface Window {
-    PaystackPop?: {
-      setup: (config: Record<string, unknown>) => { openIframe: () => void };
-    };
-  }
-}
+// Survives the round trip to Paystack's hosted checkout and back.
+const PENDING_PURCHASE_KEY = 'library:pendingPurchase';
 
 export default function EcclesialibraryPage() {
   const [items, setItems] = useState<LibraryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { success, error } = useToast();
-  const paystackFormRef = useRef<HTMLFormElement>(null);
 
+  // Paystack redirects back here with ?reference=... once checkout finishes.
+  // Landing on this page is not proof of payment — the backend re-verifies the
+  // reference against Paystack, and against what it recorded as owed, before it
+  // will hand back a file URL.
   useEffect(() => {
-    // next/script always portals lazyOnload scripts to <body>, so a JSX <form>
-    // wrapper doesn't actually nest the tag in the DOM. Paystack's inline.js
-    // requires its own <script> tag to be a descendant of a <form>, so it's
-    // inserted manually here instead.
-    if (window.PaystackPop || !paystackFormRef.current) return;
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.async = true;
-    paystackFormRef.current.appendChild(script);
-  }, []);
+    const params = new URLSearchParams(window.location.search);
+    const reference = params.get('reference');
+    const resourceId = sessionStorage.getItem(PENDING_PURCHASE_KEY);
+    if (!reference || !resourceId) return;
+
+    sessionStorage.removeItem(PENDING_PURCHASE_KEY);
+    // Drop the reference from the address bar so a refresh doesn't re-run this.
+    window.history.replaceState({}, '', window.location.pathname);
+
+    setPurchasingId(resourceId);
+    media
+      .verifyLibraryPurchase(resourceId, reference)
+      .then((result) => {
+        success('Payment confirmed. Your download will begin shortly.');
+        const link = document.createElement('a');
+        link.href = result.fileUrl;
+        link.click();
+      })
+      .catch(() => {
+        error(
+          `We could not confirm that payment. If you were charged, contact support with reference ${reference}.`,
+        );
+      })
+      .finally(() => setPurchasingId(null));
+  }, [success, error]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -90,83 +103,57 @@ export default function EcclesialibraryPage() {
     return `₦${Number(price).toLocaleString()}`;
   };
 
-  const handlePurchase = (item: LibraryItem) => {
+  // The server creates the transaction — at its own price, with its own
+  // reference — and we redirect to the checkout it returns. The browser states
+  // no amount and mints no reference, so there is nothing here for a buyer to
+  // tamper with; the price is read from the database on the way out and the
+  // settled amount is compared against it on the way back.
+  const handlePurchase = async (item: LibraryItem) => {
     if (!isAuthenticated) {
       error('Please sign in to purchase this resource.');
       return;
     }
 
-    if (!window.PaystackPop) {
-      error('Payment system is loading. Please try again in a moment.');
-      return;
-    }
-
     setPurchasingId(item.id);
-
-    const handler = window.PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
-      email: (user as any)?.email || '',
-      amount: Math.round((item.price || 0) * 100), // Paystack expects kobo
-      currency: 'NGN',
-      ref: `LIB-${item.id}-${Date.now()}`,
-      metadata: {
-        custom_fields: [
-          { display_name: 'Resource', variable_name: 'resource', value: item.title },
-          { display_name: 'Type', variable_name: 'type', value: 'library_purchase' },
-        ],
-      },
-      callback: (response: { reference: string }) => {
-        // Payment popup succeeding is not proof of payment — the backend
-        // independently re-verifies the reference with Paystack before it
-        // will ever hand back the real file URL.
-        media
-          .verifyLibraryPurchase(item.id, response.reference)
-          .then((result) => {
-            success('Payment successful! Your download will begin shortly.');
-            const link = document.createElement('a');
-            link.href = result.fileUrl;
-            link.download = item.title;
-            link.click();
-          })
-          .catch(() => {
-            error('We could not verify your payment. Please contact support with your reference: ' + response.reference);
-          })
-          .finally(() => setPurchasingId(null));
-      },
-      onClose: () => {
-        setPurchasingId(null);
-      },
-    });
-
-    handler.openIframe();
+    try {
+      const { authorization_url } = await media.initializeLibraryPurchase(item.id);
+      // Remember which resource this checkout was for, so the return trip knows
+      // what to verify. The reference itself comes back in the callback URL.
+      sessionStorage.setItem(PENDING_PURCHASE_KEY, item.id);
+      window.location.href = authorization_url;
+    } catch (err) {
+      setPurchasingId(null);
+      error(
+        err instanceof Error && err.message
+          ? err.message
+          : 'We could not start that purchase. Please try again.',
+      );
+    }
   };
 
+  // Always goes through /download, which re-checks entitlement server-side and
+  // returns the url. The previous fallback to `item.fileUrl` on error surfaced
+  // whatever the public listing happened to carry; that field is null for priced
+  // resources, so it could never have leaked one — but it also meant a genuine
+  // "you don't own this" was swallowed into a silent no-op instead of being said.
   const handleDownload = async (item: LibraryItem) => {
     try {
       const result = await media.downloadLibraryResource(item.id);
-      if (result?.downloadUrl || item.fileUrl) {
-        const link = document.createElement('a');
-        link.href = result?.downloadUrl || item.fileUrl || '';
-        link.download = item.title;
-        link.click();
+      if (!result?.downloadUrl) {
+        error('That download is not available right now.');
+        return;
       }
+      const link = document.createElement('a');
+      link.href = result.downloadUrl;
+      link.download = item.title;
+      link.click();
     } catch {
-      // Fallback to direct file URL
-      if (item.fileUrl) {
-        const link = document.createElement('a');
-        link.href = item.fileUrl;
-        link.download = item.title;
-        link.click();
-      }
+      error('We could not start that download. Please try again.');
     }
   };
 
   return (
     <main className="min-h-screen">
-      {/* Mount point for Paystack's inline.js — it requires its <script> tag to be
-          a descendant of a <form>, injected manually via paystackFormRef above */}
-      <form ref={paystackFormRef} className="hidden" aria-hidden="true" />
-
       {/* Hero Section */}
       <section className="relative h-80 flex items-center justify-center overflow-hidden">
         <div

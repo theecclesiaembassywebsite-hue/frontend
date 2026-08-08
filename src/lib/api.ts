@@ -37,6 +37,26 @@ export const removeToken = (): void => {
   localStorage.removeItem("auth_token");
 };
 
+/**
+ * The only way a login flow should persist a token.
+ *
+ * The backend sets an httpOnly session cookie, and `fetchAPI` sends it with
+ * `credentials: "include"`, so on the web the localStorage copy is redundant —
+ * it exists solely as an opt-in for clients that need an Authorization header.
+ * Keeping the JS-readable copy off by default means a script-execution bug
+ * anywhere on the origin steals a page session rather than a 7-day bearer token.
+ *
+ * The gate used to live inline in `auth-context`, which meant every other
+ * sign-in path (the login page, the OAuth callback, the Google popup) simply
+ * called `setToken` and bypassed it — so the protection was never actually on.
+ * Routing all of them through here is what makes it a real setting.
+ */
+export const persistTokenIfEnabled = (token: string | undefined | null): void => {
+  if (process.env.NEXT_PUBLIC_STORE_TOKEN !== "true") return;
+  if (!token) return;
+  setToken(token);
+};
+
 // Base fetch wrapper with JWT auth
 interface FetchOptions extends RequestInit {
   noAuth?: boolean;
@@ -1095,8 +1115,18 @@ export const media = {
   getLibraryAccess: (id: string) =>
     fetchAPI<{ fileUrl: string }>(`/library/${id}/access`),
 
+  // Creates the Paystack transaction on the server, at the price the server
+  // holds for this resource. The browser no longer states an amount or invents
+  // a reference — doing so let a buyer charge themselves ₦100 for a ₦20,000
+  // resource, since nothing server-side had recorded what was owed.
+  initializeLibraryPurchase: (id: string) =>
+    fetchAPI<{ reference: string; authorization_url: string; access_code: string }>(
+      `/library/${id}/purchase/initialize`,
+      { method: "POST" },
+    ),
+
   verifyLibraryPurchase: (id: string, reference: string) =>
-    fetchAPI<{ fileUrl: string }>(`/library/${id}/purchase/verify`, {
+    fetchAPI<{ fileUrl: string; message?: string }>(`/library/${id}/purchase/verify`, {
       method: "POST",
       body: JSON.stringify({ reference }),
     }),

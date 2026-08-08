@@ -2,12 +2,24 @@
 
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { setToken } from "@/lib/api";
 
 function normalizeRedirect(redirect: string | null): string {
   if (!redirect) return '/dashboard';
-  // Block external URLs and protocol-relative URLs (//evil.com)
-  if (!redirect.startsWith('/') || redirect.startsWith('//')) return '/dashboard';
+
+  // An allowlist rather than a denylist: the value must look like an in-app
+  // path and nothing else. Written this way because the interesting bypasses
+  // are all things a denylist forgets — a backslash (`/\evil.com`, which
+  // browsers normalize to the protocol-relative `//evil.com`), a tab or a
+  // newline spliced in, a stray control character. None of those are in the
+  // allowed set, so none need to be enumerated.
+  if (!/^\/[A-Za-z0-9\-._~!$&'()*+,;=:@/?%[\]]*$/.test(redirect)) {
+    return '/dashboard';
+  }
+
+  // Still rejected explicitly: a leading `//` is protocol-relative and points
+  // off-site even though every character in it is allowed above.
+  if (redirect.startsWith('//')) return '/dashboard';
+
   return redirect;
 }
 
@@ -15,26 +27,26 @@ function CallbackHandler() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    // The session arrives as the httpOnly cookie the backend set before
+    // redirecting here — never as a token in this URL. Reaching this route with
+    // status=success means Passport verified the Google callback server-side.
+    const succeeded = searchParams.get('status') === 'success';
     const redirect = normalizeRedirect(searchParams.get('redirect'));
 
     // Opened as a popup from the Google sign-in button: relay the result to
     // the opener window and close, instead of navigating this popup itself.
     if (window.opener && window.opener !== window) {
-      if (token) {
-        window.opener.postMessage(
-          { type: 'google-auth-success', token, redirect },
-          window.location.origin
-        );
-      } else {
-        window.opener.postMessage({ type: 'google-auth-error' }, window.location.origin);
-      }
+      window.opener.postMessage(
+        succeeded
+          ? { type: 'google-auth-success', redirect }
+          : { type: 'google-auth-error' },
+        window.location.origin
+      );
       window.close();
       return;
     }
 
-    if (token) {
-      setToken(token);
+    if (succeeded) {
       window.location.assign(redirect);
     } else {
       window.location.assign('/auth/login?error=google_failed');

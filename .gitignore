@@ -60,3 +60,6 @@ playwright-report/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Stray local Python venv; never part of this app.
+.venv/

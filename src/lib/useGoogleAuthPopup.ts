@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { setToken } from "@/lib/api";
 
 type GoogleAuthMessage =
-  | { type: "google-auth-success"; token: string; redirect: string }
+  | { type: "google-auth-success"; redirect: string }
   | { type: "google-auth-error" };
 
 function isGoogleAuthMessage(data: unknown): data is GoogleAuthMessage {
@@ -21,7 +20,8 @@ export function useGoogleAuthPopup(onError?: (message: string) => void) {
 
       if (event.data.type === "google-auth-success") {
         popupRef.current?.close();
-        setToken(event.data.token);
+        // No token to stash: the backend already set the session cookie, and
+        // it is deliberately not passed through the URL or this message.
         window.location.assign(event.data.redirect || "/dashboard");
       } else if (event.data.type === "google-auth-error") {
         popupRef.current?.close();

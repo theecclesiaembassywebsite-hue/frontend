@@ -9,7 +9,7 @@ import { z } from 'zod';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/ui/Checkbox';
-import { auth, setToken } from '@/lib/api';
+import { auth, persistTokenIfEnabled } from '@/lib/api';
 import { useGoogleAuthPopup } from '@/lib/useGoogleAuthPopup';
 import { FadeIn, HeroText } from '@/components/ui/Motion';
 import { motion } from 'framer-motion';
@@ -55,7 +55,9 @@ export default function LoginPage() {
         return;
       }
 
-      setToken(token);
+      // Gated: the httpOnly cookie the backend just set is what actually
+      // authenticates this session on the web.
+      persistTokenIfEnabled(token);
       reset();
 
       const destination =
