@@ -100,7 +100,7 @@ function AdminGalleryContent() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {images.map((img) => (
             <div key={img.id} className="group relative aspect-square overflow-hidden rounded-[8px] bg-gray-border shadow-sm">
-              <img src={img.url} alt={img.caption || "Gallery photo"} className="h-full w-full object-cover" />
+              <img loading="lazy" decoding="async" src={img.url} alt={img.caption || "Gallery photo"} className="h-full w-full object-cover" />
               {img.caption && (
                 <div className="absolute inset-x-0 bottom-0 bg-black/55 px-2 py-1.5">
                   <p className="font-body text-[11px] text-white/90 line-clamp-1">{img.caption}</p>

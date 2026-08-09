@@ -1,5 +1,6 @@
 ﻿'use client'
 
+import Image from 'next/image'
 import SectionWrapper from '@/components/ui/SectionWrapper'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -81,13 +82,19 @@ export default function TestimoniesPage() {
   return (
     <main className="min-h-screen bg-[#FAFAF8]">
       {/* Hero */}
-      <section
-        className="relative flex items-center justify-center py-24 md:py-32 bg-cover bg-center"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1920&q=80')`,
-        }}
-      >
-        <div className="absolute inset-0 bg-[rgba(36, 26, 66, 0.75)]" />
+      <section className="relative isolate flex items-center justify-center overflow-hidden py-24 md:py-32">
+        <Image
+          src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1920&q=80"
+          alt=""
+          aria-hidden="true"
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover object-center"
+        />
+        {/* Was `bg-[rgba(36, 26, 66, 0.75)]` — the spaces stopped Tailwind
+            compiling it, so this hero had no scrim behind its white text. */}
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[rgba(36,26,66,0.75)]" />
         <div className="relative z-10 mx-auto max-w-[1200px] px-4 text-center sm:px-6 md:px-8">
           <h1 className="font-heading text-4xl font-bold text-white md:text-[42px] md:leading-[48px]">
             Share Your Testimony

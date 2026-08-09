@@ -114,7 +114,7 @@ function AudioModal({ track, onClose }: { track: MusicTrack; onClose: () => void
               loading="lazy"
               title={track.album}
             />
-            <p className="mt-3 font-body text-[11px] leading-relaxed text-white/40">
+            <p className="mt-3 font-body text-[11px] leading-relaxed text-white/55">
               {spEmbed.isArtist
                 ? <>Search for <span className="font-semibold text-white/65">"{track.title}"</span> in the Spotify app for full access. 30-second previews are free below.</>
                 : <>Select <span className="font-semibold text-white/65">"{track.title}"</span> in the player above. 30-second previews are free — sign in to Spotify for full playback.</>}
@@ -140,7 +140,7 @@ function AudioModal({ track, onClose }: { track: MusicTrack; onClose: () => void
             <div className="flex items-center gap-4 rounded-2xl bg-white/6 p-4">
               <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-[#1a1630]">
                 {track.artworkUrl ? (
-                  <img src={track.artworkUrl} alt={track.title} className="h-full w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={track.artworkUrl} alt={track.title} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
                     <Music className="h-7 w-7 text-[#C9A84C]" />
@@ -149,7 +149,7 @@ function AudioModal({ track, onClose }: { track: MusicTrack; onClose: () => void
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-heading text-sm font-bold text-white">{track.title}</p>
-                <p className="mt-0.5 font-body text-xs text-white/50">{track.album}</p>
+                <p className="mt-0.5 font-body text-xs text-white/55">{track.album}</p>
                 {/* Progress bar */}
                 <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/15">
                   <div
@@ -169,7 +169,7 @@ function AudioModal({ track, onClose }: { track: MusicTrack; onClose: () => void
               </button>
             </div>
             {track.duration && (
-              <p className="mt-2 text-center font-body text-xs text-white/35">{track.duration}</p>
+              <p className="mt-2 text-center font-body text-xs text-white/55">{track.duration}</p>
             )}
           </div>
         )}
@@ -253,7 +253,7 @@ function AlbumAudioSection({
       <div className="mb-4 flex items-center gap-4">
         <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl bg-[#F0EEF8]">
           {artwork ? (
-            <img src={artwork} alt={albumName} className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={artwork} alt={albumName} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <Music className="h-6 w-6 text-[#C9A84C]" />
@@ -283,7 +283,7 @@ function AlbumAudioSection({
               {/* Thumbnail */}
               <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-[#F0EEF8]">
                 {track.artworkUrl ? (
-                  <img src={track.artworkUrl} alt={track.title} className="h-full w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={track.artworkUrl} alt={track.title} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
                     <Music className="h-4 w-4 text-[#C9A84C]" />
@@ -366,7 +366,7 @@ function AlbumVideoSection({
               <button onClick={() => onPlay(track)} className="group block w-full text-left">
                 <div className="relative aspect-video w-full overflow-hidden bg-[#E8E6F0]">
                   {thumb && (
-                    <img src={thumb} alt={track.title} className="h-full w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={thumb} alt={track.title} className="h-full w-full object-cover" />
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-[#0E0B1E]/30 opacity-0 transition-opacity group-hover:opacity-100">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg">
@@ -438,7 +438,8 @@ export default function EcclesiaMusicPage() {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
+          poster="/site/music-hero-poster.jpg"
           className="absolute inset-0 h-full w-full object-cover opacity-60"
         >
           <source src="/ecclesia-music-hero-video.mp4" type="video/mp4" />
@@ -446,7 +447,7 @@ export default function EcclesiaMusicPage() {
         <div className="absolute inset-0 bg-black/55" aria-hidden="true" />
         <div className="relative z-10 px-4 text-center">
           <div className="mb-4 flex justify-center">
-            <img
+            <img decoding="async"
               src="/ecclesia-music-icon.png"
               alt=""
               aria-hidden="true"

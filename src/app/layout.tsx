@@ -61,12 +61,19 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${montserrat.variable} ${raleway.variable} ${crimsonText.variable} ${anton.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      {/* The default brand field. Individual destinations re-declare
+          `data-brand` on their own root to shift the whole page's palette. */}
+      <body data-brand="embassy" className="min-h-full flex flex-col">
         <AuthProvider>
           <ToastProvider>
             <MotionProvider>
+              <a href="#main-content" className="skip-link">
+                Skip to content
+              </a>
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main id="main-content" tabIndex={-1} className="flex-1">
+                {children}
+              </main>
               <Footer />
             </MotionProvider>
           </ToastProvider>

@@ -9,7 +9,11 @@ export default function HeroSection() {
       title="A House for Worship, the Word, and Kingdom Life."
       subtitle="Word, Kingdom and Worship."
       description="Join a praying, Word-cultured global movement where believers are discipled deeply, communities are formed intentionally, and every gathering points us back to Christ."
-      backgroundImage="https://images.unsplash.com/photo-1507692049790-de58290a4334?w=1920&q=80"
+      // The same opening footage the main Ecclesia Embassy site leads with.
+      // The poster is a frame lifted from it, so the hero looks identical
+      // before the video arrives or where autoplay is refused.
+      backgroundVideo="/home-hero-video.mp4"
+      backgroundImage="/site/home-hero-poster.jpg"
       actions={[
         { href: "/new-here", label: "Plan Your Visit", variant: "primary" },
         { href: "/live", label: "Watch Live", variant: "secondary", onDark: true },

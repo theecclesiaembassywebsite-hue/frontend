@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { ExternalLink, PlayCircle, Search, X } from "lucide-react";
+import { ExternalLink, PlayCircle, Search, X, Film } from "lucide-react";
+import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
+import SectionIntro from "@/components/ui/SectionIntro";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Motion";
+import { StaggerContainer, StaggerItem } from "@/components/ui/Motion";
 import { normalizeEmbedUrl } from "@/lib/utils";
 import { fetchVideoMessages, type VideoMessage as ManualVideo } from "@/lib/videoMessages";
 
@@ -43,10 +45,10 @@ function VideoPlayer({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      <div className="relative w-full max-w-4xl rounded-[20px] overflow-hidden bg-[#0E0B1E] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+      <div className="relative w-full max-w-4xl overflow-hidden rounded-[24px] border border-white/12 bg-[var(--brand-ink)] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
         <div className="flex items-start justify-between gap-4 px-5 py-4">
           <div className="min-w-0">
-            <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-vivid">
+            <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--brand-accent-text)]">
               {video.sourceLabel}
             </p>
             <h2 className="mt-1 line-clamp-2 font-heading text-base font-bold text-white">
@@ -82,7 +84,7 @@ function VideoPlayer({
               className="h-full w-full"
             />
           ) : (
-            <div className="flex h-full items-center justify-center font-body text-sm text-white/50">
+            <div className="flex h-full items-center justify-center font-body text-sm text-white/55">
               Unable to load video
             </div>
           )}
@@ -137,122 +139,127 @@ export default function VideoMessagesPage() {
   );
 
   return (
-    <div>
+    <div data-brand="resources">
       {activeVideo ? (
         <VideoPlayer video={activeVideo} onClose={() => setActiveVideo(null)} />
       ) : null}
 
-      <section
-        className="relative flex h-96 items-center justify-center overflow-hidden text-center text-white"
-        style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1920&q=80)",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 px-4">
-          <FadeIn>
-            <h1 className="mb-4 font-heading text-5xl font-bold md:text-6xl">
-              Video Messages
-            </h1>
-            <p className="mx-auto max-w-2xl font-body text-lg text-gray-200 md:text-xl">
-              Browse video messages and teachings from The Ecclesia Embassy
-            </p>
-          </FadeIn>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Video Messages"
+        title="Watch the Word again."
+        subtitle="Teachings and messages from The Ecclesia Embassy."
+        description="Every message we publish, gathered in one place and searchable by title — play it here, or open it on YouTube."
+        backgroundImage="/site/teaching.jpg"
+        backgroundPosition="center 25%"
+        compact
+      />
 
-      <SectionWrapper variant="white" className="py-12">
-        <div className="mx-auto mb-8 max-w-3xl">
-          <div className="relative">
+      <SectionWrapper variant="paper">
+        <SectionIntro
+          eyebrow="The archive"
+          title="Browse every message"
+          description="Search by title to find a teaching, then play it without leaving the page."
+        />
+
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full max-w-md">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-text" />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search videos by title"
-              className="w-full rounded-full border border-gray-border bg-white py-3 pl-11 pr-4 font-body text-sm text-slate shadow-sm outline-none transition focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15"
+              className="w-full rounded-full border border-slate/10 bg-white py-3.5 pl-11 pr-4 font-body text-sm text-slate shadow-sm outline-none transition focus:border-[var(--brand-accent)]"
             />
           </div>
           {!loading && !error ? (
-            <p className="mt-3 text-sm font-body text-gray-text">
-              {filteredVideos.length} video{filteredVideos.length === 1 ? "" : "s"} found
+            <p className="font-heading text-[11px] font-bold uppercase tracking-[0.16em] text-gray-text">
+              {filteredVideos.length} video{filteredVideos.length === 1 ? "" : "s"}
             </p>
           ) : null}
         </div>
 
+        <div className="mt-12">
         {loading ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <SkeletonGroup count={6} variant="card" />
-          </div>
-        ) : error ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-gray-text">{error}</p>
-          </div>
-        ) : videoMessages.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-gray-text">
-              No videos available yet.
-            </p>
-          </div>
-        ) : filteredVideos.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base text-gray-text">
-              No videos matched your search.
+          <SkeletonGroup count={6} variant="card" columns={3} />
+        ) : error || videoMessages.length === 0 || filteredVideos.length === 0 ? (
+          <div className="brand-card brand-card--static mx-auto max-w-md p-12 text-center">
+            <div className="brand-tile mx-auto h-14 w-14">
+              <Film className="h-6 w-6" />
+            </div>
+            <h3 className="mt-5 font-heading text-xl font-bold text-slate">
+              {error ? "Nothing to play right now" : "No messages found"}
+            </h3>
+            <p className="mx-auto mt-2 max-w-xs font-body text-sm text-gray-text">
+              {error
+                ? `${error}. Please try again later.`
+                : videoMessages.length === 0
+                  ? "No videos have been published yet. Check back soon."
+                  : "No videos matched your search. Try a different title."}
             </p>
           </div>
         ) : (
           <StaggerContainer className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {filteredVideos.map((video) => (
               <StaggerItem key={video.id}>
-                <article className="overflow-hidden rounded-[24px] border border-[rgba(14,11,30,0.08)] bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1">
+                <article className="brand-card flex h-full flex-col overflow-hidden">
+                  {/* One button covers the thumbnail and title — the YouTube
+                      link sits outside it, since an anchor nested inside a
+                      button is invalid and swallows the click on some browsers. */}
                   <button
                     onClick={() => setActiveVideo(video)}
-                    className="group block w-full text-left"
+                    className="group block flex-1 text-left"
                   >
-                    <div className="relative aspect-video overflow-hidden bg-lavender">
+                    <div className="relative aspect-video overflow-hidden bg-[image:var(--brand-band)]">
                       <Image
                         src={video.thumbnail}
-                        alt={video.title}
+                        alt=""
                         fill
                         unoptimized
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         style={{ opacity: 1 }}
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate/80 via-slate/15 to-transparent" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_18px_40px_rgba(14,11,30,0.28)] backdrop-blur-sm transition group-hover:bg-red-600/92">
-                          <PlayCircle className="h-9 w-9" />
-                        </div>
-                      </div>
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(11,9,24,0.78)_100%)]"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/14 text-white backdrop-blur-sm transition group-hover:border-transparent group-hover:bg-[var(--brand-accent)] group-hover:text-[var(--brand-on-accent)]">
+                          <PlayCircle className="h-8 w-8" />
+                        </span>
+                      </span>
                     </div>
 
                     <div className="p-6">
-                      <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.24em] text-purple-vivid">
+                      <p className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--brand-accent-text)]">
                         {video.sourceLabel}
                       </p>
-                      <a
-                        href={video.watchUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(event) => event.stopPropagation()}
-                        className="mt-3 block line-clamp-2 font-heading text-xl font-bold text-slate transition-colors hover:text-purple-vivid"
-                      >
+                      <h3 className="mt-3 line-clamp-2 font-heading text-lg font-bold leading-snug text-slate transition-colors group-hover:text-[var(--brand-accent-text)]">
                         {video.title}
-                      </a>
-                      <p className="mt-3 font-body text-sm text-gray-text">
+                      </h3>
+                      <p className="mt-3 font-body text-xs text-gray-text">
                         {formatVideoDate(video.publishedAt)}
                       </p>
                     </div>
                   </button>
+
+                  <div className="border-t border-slate/8 px-6 py-3.5">
+                    <a
+                      href={video.watchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-gray-text transition-colors hover:text-slate"
+                    >
+                      Watch on YouTube <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
                 </article>
               </StaggerItem>
             ))}
           </StaggerContainer>
         )}
+        </div>
       </SectionWrapper>
     </div>
   );

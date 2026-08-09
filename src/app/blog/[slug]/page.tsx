@@ -180,7 +180,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ slug: str
 
         {/* Featured image */}
         {post.imageUrl ? (
-          <img
+          <img decoding="async"
             src={post.imageUrl}
             alt={post.title}
             className="w-full h-80 object-cover rounded-[8px] mb-8"

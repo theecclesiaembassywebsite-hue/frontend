@@ -72,7 +72,7 @@ export default function CreatePost({ onSubmit }: CreatePostProps) {
       {/* Image preview */}
       {imageUrl && (
         <div className="mt-3 relative inline-block">
-          <img src={imageUrl} alt="Selected post attachment" className="h-24 rounded-[8px] object-cover" />
+          <img loading="lazy" decoding="async" src={imageUrl} alt="Selected post attachment" className="h-24 rounded-[8px] object-cover" />
           <button type="button" onClick={() => setImageUrl(null)} className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-error text-white flex items-center justify-center">
             <X size={12} />
           </button>

@@ -262,7 +262,7 @@ export default function NewConvertPage() {
                       className={`h-8 w-8 rounded-full flex items-center justify-center font-heading text-sm font-bold transition-colors ${
                         step >= s
                           ? "bg-white text-purple-dark"
-                          : "bg-white/20 text-white/50"
+                          : "bg-white/20 text-white/55"
                       }`}
                     >
                       {s}

@@ -12,6 +12,8 @@ const siteLinks = [
   { label: "Events", href: "/events" },
   { label: "Livestream", href: "/live" },
   { label: "Give", href: "/give" },
+  // Conventionally footer-linked so it is findable from every page.
+  { label: "Accessibility", href: "/accessibility" },
 ];
 
 const nextSteps = [

@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 function normalizeRedirect(redirect: string | null): string {
   if (!redirect) return '/dashboard';
@@ -23,15 +22,23 @@ function normalizeRedirect(redirect: string | null): string {
   return redirect;
 }
 
-function CallbackHandler() {
-  const searchParams = useSearchParams();
-
+export default function AuthCallbackPage() {
   useEffect(() => {
+    // Read the query string straight off the URL instead of through
+    // useSearchParams(). This route is statically prerendered, so the hook can
+    // still be empty on the first client render — and "no status" is exactly
+    // our failure signal, which turned successful sign-ins into
+    // "Google sign-in failed. Please try again." intermittently in production.
+    // window.location.search is populated before any React code runs, needs no
+    // Suspense boundary, and is the right source for a popup handler.
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const redirect = normalizeRedirect(params.get('redirect'));
+
     // The session arrives as the httpOnly cookie the backend set before
-    // redirecting here — never as a token in this URL. Reaching this route with
-    // status=success means Passport verified the Google callback server-side.
-    const succeeded = searchParams.get('status') === 'success';
-    const redirect = normalizeRedirect(searchParams.get('redirect'));
+    // redirecting here — never as a token in this URL. status=success means
+    // Passport verified the Google callback server-side.
+    const succeeded = status === 'success';
 
     // Opened as a popup from the Google sign-in button: relay the result to
     // the opener window and close, instead of navigating this popup itself.
@@ -39,7 +46,7 @@ function CallbackHandler() {
       window.opener.postMessage(
         succeeded
           ? { type: 'google-auth-success', redirect }
-          : { type: 'google-auth-error' },
+          : { type: 'google-auth-error', reason: params.get('reason') },
         window.location.origin
       );
       window.close();
@@ -49,9 +56,12 @@ function CallbackHandler() {
     if (succeeded) {
       window.location.assign(redirect);
     } else {
-      window.location.assign('/auth/login?error=google_failed');
+      const reason = params.get('reason');
+      window.location.assign(
+        `/auth/login?error=google_failed${reason ? `&reason=${encodeURIComponent(reason)}` : ''}`
+      );
     }
-  }, [searchParams]);
+  }, []);
 
   return (
     <div className="flex h-screen items-center justify-center bg-off-white">
@@ -60,19 +70,5 @@ function CallbackHandler() {
         <p className="font-body text-sm text-gray-text">Completing sign-in…</p>
       </div>
     </div>
-  );
-}
-
-export default function AuthCallbackPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen items-center justify-center bg-off-white">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-lavender border-t-gold" />
-        </div>
-      }
-    >
-      <CallbackHandler />
-    </Suspense>
   );
 }

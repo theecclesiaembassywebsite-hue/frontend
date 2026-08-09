@@ -171,7 +171,7 @@ export default function MessagesPage() {
                           }`}
                         >
                           <p className="font-body text-sm">{msg.content}</p>
-                          <p className={`text-[10px] mt-1 ${msg.sender === "me" ? "text-white/50" : "text-gray-text"}`}>
+                          <p className={`text-[10px] mt-1 ${msg.sender === "me" ? "text-white/55" : "text-gray-text"}`}>
                             {new Date(msg.createdAt).toLocaleTimeString()}
                           </p>
                         </div>

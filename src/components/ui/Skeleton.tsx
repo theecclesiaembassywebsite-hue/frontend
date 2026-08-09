@@ -27,17 +27,26 @@ export function Skeleton({
   );
 }
 
+const columnStyles: Record<2 | 3 | 4, string> = {
+  2: "grid gap-5 md:grid-cols-2",
+  3: "grid gap-5 md:grid-cols-2 lg:grid-cols-3",
+  4: "grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+};
+
 export function SkeletonGroup({
   count = 3,
   variant = "text",
+  /** Lay the placeholders out as a grid so they stand in for the real cards. */
+  columns,
   className,
 }: {
   count?: number;
   variant?: "text" | "circle" | "card" | "table-row";
+  columns?: 2 | 3 | 4;
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn(columns ? columnStyles[columns] : "space-y-3", className)}>
       {Array.from({ length: count }).map((_, i) => (
         <Skeleton key={i} variant={variant} />
       ))}

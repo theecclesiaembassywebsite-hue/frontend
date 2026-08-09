@@ -32,7 +32,11 @@
   --color-white: #FFFFFF;
   --color-off-white: #FAFAF8;
   --color-lavender: #E8E6F0;
-  --color-gray-text: #8A8A90;
+  /* #8A8A90 measured 3.43:1 on white and 3.04:1 on cream — below the 4.5:1
+     WCAG AA floor for body text. #6B6B74 is the lightest value that clears it
+     on all three light surfaces (5.28 / 5.05 / 4.68), so it is the smallest
+     visual change that makes muted text readable. */
+  --color-gray-text: #6B6B74;
   --color-gray-border: #EAEAEA;
   --color-cream: #F5F1E8;
   --color-ink: #211535;
@@ -84,6 +88,49 @@
   --overlay-scrim: rgba(0, 0, 0, 0.3);
   --border-soft: rgba(14, 11, 30, 0.08);
   --shadow-soft: 0 20px 45px rgba(14, 11, 30, 0.08);
+}
+
+/* ============================================
+   BRAND FIELDS
+   ------------------------------------------------
+   One palette for the whole site: the near-black plum
+   ink and gold the live site already uses. Pages still
+   declare `data-brand` on their root, so a destination
+   can be re-tinted later by adding an override block —
+   but by default every page resolves to these values,
+   and the differences between pages come from layout
+   rather than colour.
+
+   Values match production exactly:
+     hero  — PageHero's gradient
+     band  — SectionWrapper's "dark-purple"
+     tile  — the icon plate used on the programme cards
+   ============================================ */
+[data-brand] {
+  --brand-accent: #c9a84c;
+  --brand-accent-strong: #dfc070;
+  --brand-accent-soft: rgba(201, 168, 76, 0.12);
+  --brand-accent-line: rgba(201, 168, 76, 0.32);
+  --brand-on-accent: #0e0b1e;
+
+  /* Gold measures 8.47:1 against the dark ink — excellent — but only 2.29:1 on
+     white, far below AA for the small bold caps it gets used for. Text keeps
+     the bright gold by default (so a dark surface can never accidentally go
+     dark-on-dark); light surfaces opt into the darkened gold below. Failing in
+     that direction is the safe one: a missed light surface stays as it is
+     today, a missed dark surface would be unreadable. */
+  --brand-accent-text: var(--brand-accent);
+
+  --brand-tint: #5b2d8e;
+  --brand-tint-soft: rgba(91, 45, 142, 0.12);
+  --brand-ink: #0e0b1e;
+  --brand-glow: rgba(201, 168, 76, 0.18);
+
+  --brand-hero: radial-gradient(circle at top, rgba(201, 168, 76, 0.22), transparent 34%),
+    linear-gradient(135deg, #09071a 0%, #0e0b1e 48%, #211237 100%);
+  --brand-band: radial-gradient(circle at top, rgba(201, 168, 76, 0.18), transparent 42%),
+    linear-gradient(180deg, #161129 0%, #0e0b1e 100%);
+  --brand-tile: linear-gradient(135deg, #1e1040, #3b1f80);
 }
 
 /* ---- Base Styles ---- */
@@ -177,6 +224,29 @@ a {
   outline-offset: 2px;
 }
 
+/* Skip link: off-screen until focused, then pinned over the header. Keyboard
+   users would otherwise tab through the whole nav on every page load. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 100;
+  border-radius: 9999px;
+  background: var(--color-primary-vivid);
+  color: #0e0b1e;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  transition: top 160ms ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -240,4 +310,234 @@ a {
   background:
     radial-gradient(circle at top, rgba(201, 168, 76, 0.07), transparent 30%),
     linear-gradient(180deg, rgba(250, 250, 248, 0.72) 0%, rgba(245, 241, 232, 0.38) 100%);
+}
+
+/* ============================================
+   REVEAL SYSTEM
+   ------------------------------------------------
+   Scroll reveals are plain CSS transitions toggled by one shared
+   IntersectionObserver (see components/ui/reveal.ts). Previously every
+   revealed element mounted its own animation component and its own
+   observer — roughly 130 of them across the site — to produce exactly
+   this result.
+   ============================================ */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(var(--reveal-x, 0), var(--reveal-y, 0), 0) scale(var(--reveal-scale, 1));
+  transition:
+    opacity var(--reveal-duration, 600ms) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+    transform var(--reveal-duration, 600ms) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+}
+
+[data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Children of a stagger container ride the container's reveal, offset by
+   position. nth-child is resolved against each item's own parent, so this
+   works whether the items are direct children of the container or sit
+   inside an intervening grid wrapper. */
+[data-stagger-item] {
+  opacity: 0;
+  transform: translate3d(var(--reveal-x, 0), var(--reveal-y, 24px), 0);
+  transition:
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-stagger][data-revealed] [data-stagger-item] {
+  opacity: 1;
+  transform: none;
+}
+
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(1) { transition-delay: 0ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(2) { transition-delay: 70ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(3) { transition-delay: 140ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(4) { transition-delay: 210ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(5) { transition-delay: 280ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(6) { transition-delay: 350ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(7) { transition-delay: 420ms; }
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(8) { transition-delay: 480ms; }
+/* Past the eighth card the reader has stopped reading the sequence as a
+   sequence, so the delay stops growing rather than dragging on. */
+[data-stagger][data-revealed] [data-stagger-item]:nth-child(n + 9) { transition-delay: 540ms; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Subtle continuous bob, used for hero identity panels. */
+@keyframes brand-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+
+.brand-float {
+  animation: brand-float 4s ease-in-out infinite;
+}
+
+/* Interactive lift, formerly a JS-driven whileHover. */
+.brand-hover-lift {
+  transition: transform 250ms ease;
+}
+
+.brand-hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.brand-hover-lift:active {
+  transform: scale(0.98);
+}
+
+/* Anyone who has asked for less motion gets the end state with no travel. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-stagger-item] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .brand-float {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   SHARED MOTIFS
+   The handful of shapes repeated on every page so
+   destinations feel related even when their layouts differ.
+   ============================================ */
+
+/* The house eyebrow: a short rule, then small caps. */
+/* Any surface light enough that bright gold and #8A8A90 grey stop being
+   legible on it. Applied by SectionWrapper's light variants and the Modal. */
+.surface-light {
+  --brand-accent-text: #8c6414;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--brand-accent-text, #c9a84c);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 2rem;
+  height: 1px;
+  flex: none;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.eyebrow--centered {
+  justify-content: center;
+}
+
+.eyebrow--centered::after {
+  content: "";
+  width: 2rem;
+  height: 1px;
+  flex: none;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+/* Soft blurred field light. Sized/positioned by utilities at the call site. */
+.brand-orb {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--brand-glow, rgba(201, 168, 76, 0.18));
+  filter: blur(64px);
+  pointer-events: none;
+}
+
+/* Hairline that separates a dark band from what precedes it. */
+.brand-hairline {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--brand-accent-line, rgba(201, 168, 76, 0.32)),
+    transparent
+  );
+}
+
+/* Light-surface card: one radius, one shadow, one lift — everywhere. */
+.brand-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(14, 11, 30, 0.04);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+.brand-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--brand-accent-line, rgba(201, 168, 76, 0.32));
+  box-shadow: 0 18px 40px rgba(14, 11, 30, 0.1);
+}
+
+/* Same surface, but for panels that are containers rather than targets. */
+.brand-card--static:hover {
+  transform: none;
+  border-color: var(--border-soft);
+  box-shadow: 0 1px 2px rgba(14, 11, 30, 0.04);
+}
+
+/* Dark-surface card, for use inside brand bands. */
+.brand-card-dark {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.brand-card-dark:hover {
+  transform: translateY(-4px);
+  border-color: var(--brand-accent-line, rgba(201, 168, 76, 0.32));
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* Icon plate that sits at the top of a feature card. */
+.brand-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--brand-tile, linear-gradient(135deg, #1e1040, #3b1f80));
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(14, 11, 30, 0.22);
+}
+
+/* Duotone wash laid over photography so type stays readable
+   and every photo picks up the page's field colour.
+   Heroes want the photograph to still read as a photograph, so they use
+   the lighter wash; content sections carry body copy over the image and
+   need the deep one — a bright crowd shot will otherwise swallow the text. */
+.brand-photo-wash {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand-ink) 34%, transparent) 0%, color-mix(in srgb, var(--brand-ink) 88%, transparent) 100%),
+    linear-gradient(120deg, color-mix(in srgb, var(--brand-tint) 34%, transparent) 0%, transparent 62%);
+}
+
+.brand-photo-wash-deep {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand-ink) 82%, transparent) 0%, color-mix(in srgb, var(--brand-ink) 94%, transparent) 100%),
+    linear-gradient(120deg, color-mix(in srgb, var(--brand-tint) 30%, transparent) 0%, transparent 58%);
 }

@@ -1,13 +1,15 @@
 ﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import PageHero from '@/components/ui/PageHero';
 import SectionWrapper from '@/components/ui/SectionWrapper';
+import SectionIntro from '@/components/ui/SectionIntro';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import { media } from '@/lib/api';
 import { SkeletonGroup } from '@/components/ui/Skeleton';
-import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/Motion';
-import { Search, Play, Pause, Clock, Calendar, ExternalLink, X } from 'lucide-react';
+import { StaggerContainer, StaggerItem } from '@/components/ui/Motion';
+import { Search, Play, Pause, Clock, Calendar, ExternalLink, X, AudioLines } from 'lucide-react';
 
 interface SpotifyEpisode {
   id: string;
@@ -84,7 +86,7 @@ function EpisodePlayer({ episode, onClose }: { episode: SpotifyEpisode; onClose:
       <div className="mx-auto max-w-4xl px-4 py-3 flex items-center gap-4">
         {/* Thumbnail */}
         {episode.image ? (
-          <img src={episode.image} alt={episode.name} className="h-12 w-12 shrink-0 rounded-[8px] object-cover" />
+          <img loading="lazy" decoding="async" src={episode.image} alt={episode.name} className="h-12 w-12 shrink-0 rounded-[8px] object-cover" />
         ) : (
           <div className="h-12 w-12 shrink-0 rounded-[8px] bg-[#1DB954]/15 flex items-center justify-center">
             <span className="h-5 w-5 text-[#1DB954]">{SPOTIFY_ICON}</span>
@@ -94,7 +96,7 @@ function EpisodePlayer({ episode, onClose }: { episode: SpotifyEpisode; onClose:
         {/* Title (hidden on small screens) */}
         <div className="min-w-0 w-44 shrink-0 hidden sm:block">
           <p className="line-clamp-1 font-heading text-sm font-bold text-white">{episode.name}</p>
-          <p className="mt-0.5 font-body text-[11px] text-white/40 truncate">{episode.duration}</p>
+          <p className="mt-0.5 font-body text-[11px] text-white/55 truncate">{episode.duration}</p>
         </div>
 
         {/* Controls */}
@@ -108,7 +110,7 @@ function EpisodePlayer({ episode, onClose }: { episode: SpotifyEpisode; onClose:
               : <Play className="h-4 w-4 text-black ml-0.5" />}
           </button>
           <div className="flex w-full items-center gap-2">
-            <span className="font-body text-[10px] text-white/40 w-9 text-right tabular-nums">
+            <span className="font-body text-[10px] text-white/55 w-9 text-right tabular-nums">
               {fmt(currentTime)}
             </span>
             <div
@@ -120,7 +122,7 @@ function EpisodePlayer({ episode, onClose }: { episode: SpotifyEpisode; onClose:
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <span className="font-body text-[10px] text-white/40 w-9 tabular-nums">
+            <span className="font-body text-[10px] text-white/55 w-9 tabular-nums">
               {fmt(totalDuration)}
             </span>
           </div>
@@ -132,7 +134,7 @@ function EpisodePlayer({ episode, onClose }: { episode: SpotifyEpisode; onClose:
           className="shrink-0 rounded-full p-1.5 hover:bg-white/10 transition-colors"
           aria-label="Close player"
         >
-          <X className="h-4 w-4 text-white/50" />
+          <X className="h-4 w-4 text-white/55" />
         </button>
       </div>
     </div>
@@ -202,31 +204,17 @@ export default function AudioArchivePage() {
   });
 
   return (
-    <div className={activeEpisode ? "pb-24" : ""}>
-      {/* Hero Section */}
-      <section
-        className="relative h-96 flex items-center justify-center text-center text-white overflow-hidden"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=1920&q=80)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 px-4">
-          <FadeIn>
-            <h1 className="font-heading text-5xl md:text-6xl font-bold mb-4">
-              Audio Archive
-            </h1>
-            <p className="font-body text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">
-              Listen to past messages and teachings
-            </p>
-          </FadeIn>
-        </div>
-      </section>
+    <div data-brand="resources" className={activeEpisode ? "pb-24" : ""}>
+      <PageHero
+        eyebrow="Audio Archive"
+        title="Listen again, wherever you are."
+        subtitle="Past messages, teachings, and podcast episodes."
+        description="Stream the archive here, or follow the podcast on Spotify and take it with you."
+        compact
+      />
 
       {/* Spotify Podcasts */}
-      <SectionWrapper variant="dark-purple" className="py-14">
+      <SectionWrapper variant="brand-band" hairline density="compact">
         {(() => {
           const SPOTIFY_ICON = (
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full">
@@ -279,7 +267,7 @@ export default function AudioArchivePage() {
                       <p className="font-heading text-sm font-bold text-white leading-snug">
                         {podcast.name}
                       </p>
-                      <p className="mt-0.5 font-body text-xs leading-5 text-white/50 line-clamp-1">
+                      <p className="mt-0.5 font-body text-xs leading-5 text-white/55 line-clamp-1">
                         {podcast.desc}
                       </p>
                     </div>
@@ -310,7 +298,7 @@ export default function AudioArchivePage() {
                   href={active.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 font-body text-xs text-white/35 hover:text-[#1DB954] transition-colors"
+                  className="inline-flex items-center gap-1.5 font-body text-xs text-white/55 hover:text-[#1DB954] transition-colors"
                 >
                   Open in Spotify
                   <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -321,7 +309,7 @@ export default function AudioArchivePage() {
 
               {/* Recent episodes */}
               <div className="mt-10">
-                <p className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                <p className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">
                   Recent Episodes
                 </p>
 
@@ -347,7 +335,7 @@ export default function AudioArchivePage() {
                         >
                           <div className="relative shrink-0">
                             {ep.image ? (
-                              <img src={ep.image} alt={ep.name} className="h-14 w-14 rounded-[10px] object-cover" />
+                              <img loading="lazy" decoding="async" src={ep.image} alt={ep.name} className="h-14 w-14 rounded-[10px] object-cover" />
                             ) : (
                               <div className="flex h-14 w-14 items-center justify-center rounded-[10px] bg-[#1DB954]/15 text-[#1DB954]">
                                 <span className="h-6 w-6">{SPOTIFY_ICON}</span>
@@ -363,7 +351,7 @@ export default function AudioArchivePage() {
                             <p className={`line-clamp-1 font-heading text-sm font-bold transition-colors ${isActive ? "text-[#1DB954]" : "text-white group-hover:text-[#1DB954]"}`}>
                               {ep.name}
                             </p>
-                            <div className="mt-1 flex items-center gap-3 font-body text-xs text-white/40">
+                            <div className="mt-1 flex items-center gap-3 font-body text-xs text-white/55">
                               <span>{new Date(ep.releaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
@@ -384,7 +372,7 @@ export default function AudioArchivePage() {
                           className="group flex items-center gap-4 rounded-[16px] border border-white/8 bg-white/5 p-4 transition-all duration-200 hover:border-[#1DB954]/30 hover:bg-[#1DB954]/6"
                         >
                           {ep.image ? (
-                            <img src={ep.image} alt={ep.name} className="h-14 w-14 shrink-0 rounded-[10px] object-cover" />
+                            <img loading="lazy" decoding="async" src={ep.image} alt={ep.name} className="h-14 w-14 shrink-0 rounded-[10px] object-cover" />
                           ) : (
                             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[10px] bg-[#1DB954]/15 text-[#1DB954]">
                               <span className="h-6 w-6">{SPOTIFY_ICON}</span>
@@ -394,7 +382,7 @@ export default function AudioArchivePage() {
                             <p className="line-clamp-1 font-heading text-sm font-bold text-white group-hover:text-[#1DB954] transition-colors">
                               {ep.name}
                             </p>
-                            <div className="mt-1 flex items-center gap-3 font-body text-xs text-white/40">
+                            <div className="mt-1 flex items-center gap-3 font-body text-xs text-white/55">
                               <span>{new Date(ep.releaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
@@ -409,7 +397,7 @@ export default function AudioArchivePage() {
                   </div>
                 ) : (
                   <p className="font-body text-xs text-white/30">
-                    Episodes unavailable — add <code className="text-white/50">SPOTIFY_CLIENT_ID</code> and <code className="text-white/50">SPOTIFY_CLIENT_SECRET</code> to your environment.
+                    Episodes unavailable — add <code className="text-white/55">SPOTIFY_CLIENT_ID</code> and <code className="text-white/55">SPOTIFY_CLIENT_SECRET</code> to your environment.
                   </p>
                 )}
               </div>
@@ -419,8 +407,13 @@ export default function AudioArchivePage() {
       </SectionWrapper>
 
       {/* Search & Sort Section */}
-      <SectionWrapper variant="off-white" className="py-8">
-        <div className="max-w-4xl mx-auto flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
+      <SectionWrapper variant="paper" density="compact">
+        <SectionIntro
+          eyebrow="The archive"
+          title="Every message on record"
+          description="Search by title or speaker, and play any message right here in the page."
+        />
+        <div className="mt-10 flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
           <div className="flex-1 relative">
             <Input
               placeholder="Search by title or speaker..."
@@ -433,6 +426,8 @@ export default function AudioArchivePage() {
             />
           </div>
           <Select
+            id="sortOrder"
+            aria-label="Sort messages"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
             options={[
@@ -444,35 +439,31 @@ export default function AudioArchivePage() {
       </SectionWrapper>
 
       {/* Audio List Section */}
-      <SectionWrapper variant="white" className="py-12">
+      <SectionWrapper variant="white">
         {loading ? (
           <SkeletonGroup count={5} variant="table-row" />
-        ) : error ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base" style={{ color: '#8A8A90' }}>
-              {error}
-            </p>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="font-body text-base" style={{ color: '#8A8A90' }}>
-              No audio messages found matching your search.
+        ) : error || filtered.length === 0 ? (
+          <div className="brand-card brand-card--static mx-auto max-w-md p-12 text-center">
+            <div className="brand-tile mx-auto h-14 w-14">
+              <AudioLines className="h-6 w-6" />
+            </div>
+            <h3 className="mt-5 font-heading text-xl font-bold text-slate">
+              {error ? 'Nothing to play right now' : 'No messages found'}
+            </h3>
+            <p className="mx-auto mt-2 max-w-xs font-body text-sm text-gray-text">
+              {error
+                ? `${error}. Please try again later.`
+                : 'No audio messages matched your search. Try a different title or speaker.'}
             </p>
           </div>
         ) : (
           <StaggerContainer className="space-y-4">
-            <p className="text-sm font-body mb-6" style={{ color: '#8A8A90' }}>
-              {filtered.length} message{filtered.length !== 1 ? 's' : ''} found
+            <p className="mb-6 font-heading text-[11px] font-bold uppercase tracking-[0.16em] text-gray-text">
+              {filtered.length} message{filtered.length !== 1 ? 's' : ''}
             </p>
             {filtered.map((audio) => (
               <StaggerItem key={audio.id}>
-                <div
-                  className="p-6 rounded-lg border transition-all duration-300 hover:shadow-md"
-                  style={{
-                    backgroundColor: '#FAFAF8',
-                    borderColor: '#E8E6F0',
-                  }}
-                >
+                <div className="brand-card p-6">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-4">
@@ -480,37 +471,36 @@ export default function AudioArchivePage() {
                           onClick={() =>
                             setActiveAudio(activeAudio === audio.id ? null : audio.id)
                           }
-                          className="flex-shrink-0 p-3 rounded-full transition-colors"
-                          style={{ backgroundColor: '#E8E6F0' }}
+                          aria-label={
+                            activeAudio === audio.id
+                              ? `Hide player for ${audio.title}`
+                              : `Play ${audio.title}`
+                          }
+                          className="brand-tile h-12 w-12 shrink-0 !rounded-full transition-transform hover:scale-105"
                         >
-                          <Play
-                            size={20}
-                            style={{ color: '#C9A84C' }}
-                            className="ml-0.5"
-                          />
+                          {activeAudio === audio.id ? (
+                            <Pause size={18} />
+                          ) : (
+                            <Play size={18} className="ml-0.5" />
+                          )}
                         </button>
                         <div className="min-w-0 flex-1">
-                          <h3
-                            className="font-heading text-lg font-semibold mb-2 truncate"
-                            style={{ color: '#0E0B1E' }}
-                          >
+                          <h3 className="truncate font-heading text-lg font-bold text-slate">
                             {audio.title}
                           </h3>
-                          <div className="flex flex-wrap gap-3 items-center text-sm">
-                            <span style={{ color: '#8A8A90' }}>
-                              {audio.speaker}
-                            </span>
-                            <div className="flex items-center gap-1" style={{ color: '#8A8A90' }}>
-                              <Calendar size={14} />
+                          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-body text-[13px] text-gray-text">
+                            <span className="font-semibold text-[#3A3740]">{audio.speaker}</span>
+                            <span className="flex items-center gap-1.5">
+                              <Calendar size={13} className="text-[var(--brand-accent-text)]" />
                               {new Date(
                                 audio.createdAt || audio.date || 0
                               ).toLocaleDateString()}
-                            </div>
+                            </span>
                             {audio.duration && (
-                              <div className="flex items-center gap-1" style={{ color: '#8A8A90' }}>
-                                <Clock size={14} />
+                              <span className="flex items-center gap-1.5">
+                                <Clock size={13} className="text-[var(--brand-accent-text)]" />
                                 {audio.duration}
-                              </div>
+                              </span>
                             )}
                           </div>
                         </div>
@@ -520,13 +510,8 @@ export default function AudioArchivePage() {
 
                   {/* Inline Audio Player */}
                   {activeAudio === audio.id && audio.audioUrl && (
-                    <div className="mt-4 pt-4 border-t" style={{ borderColor: '#E8E6F0' }}>
-                      <audio
-                        controls
-                        src={audio.audioUrl}
-                        className="w-full"
-                        style={{ backgroundColor: '#FAFAF8' }}
-                      />
+                    <div className="mt-5 border-t border-slate/8 pt-5">
+                      <audio controls src={audio.audioUrl} className="w-full" />
                     </div>
                   )}
                 </div>

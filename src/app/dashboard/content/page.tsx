@@ -187,7 +187,7 @@ export default function ContentEditorPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {images.map((url, index) => (
                           <div key={url + index} className="group relative overflow-hidden rounded-3xl border border-[#E8E6F0] bg-[#F7F5FF]">
-                            <img src={url} alt={`Page media ${index + 1}`} className="h-36 w-full object-cover" />
+                            <img loading="lazy" decoding="async" src={url} alt={`Page media ${index + 1}`} className="h-36 w-full object-cover" />
                             <button
                               type="button"
                               onClick={() => setImages((current) => current.filter((_, idx) => idx !== index))}

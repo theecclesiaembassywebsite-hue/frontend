@@ -201,7 +201,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
           <div className="lg:col-span-2 space-y-6">
             {/* Featured image */}
             {eventData.imageUrl ? (
-              <img
+              <img decoding="async"
                 src={eventData.imageUrl}
                 alt={eventData.title}
                 className="w-full h-96 object-cover rounded-[8px]"

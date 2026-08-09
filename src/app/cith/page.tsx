@@ -3,8 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Search, Globe, Calendar } from 'lucide-react';
+import { MapPin, Search, Globe, Calendar, ArrowRight } from 'lucide-react';
 import Input from '@/components/ui/Input';
+import Eyebrow from '@/components/ui/Eyebrow';
+import SectionIntro from '@/components/ui/SectionIntro';
+import SectionWrapper from '@/components/ui/SectionWrapper';
 import { cith } from '@/lib/api';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/Motion';
 import { SkeletonGroup } from '@/components/ui/Skeleton';
@@ -33,12 +36,14 @@ function getHubLocation(hub: Hub): string {
 }
 
 const purposes = [
-  { label: 'Knowledge', icon: '📖' },
-  { label: 'Transformation', icon: '✦' },
-  { label: 'Government', icon: '⚖' },
-  { label: 'Authority', icon: '🔑' },
-  { label: 'Discipleship', icon: '🤝' },
+  { label: 'Knowledge', detail: 'The Word taught close enough to be asked questions of.' },
+  { label: 'Transformation', detail: 'Lives reshaped in the company of people who notice.' },
+  { label: 'Government', detail: 'Heaven’s order practised in an ordinary living room.' },
+  { label: 'Authority', detail: 'Believers who know what they carry, and use it.' },
+  { label: 'Discipleship', detail: 'Growth passed hand to hand, not broadcast from a stage.' },
 ];
+
+const operations = ['Evangelism', 'Training', 'Fellowship', 'Worship', 'Works'];
 
 export default function CITHPage() {
   const [hubs, setHubs] = useState<Hub[]>([]);
@@ -89,26 +94,29 @@ export default function CITHPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div data-brand="cith" className="min-h-screen">
 
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative isolate overflow-hidden bg-[#0B0914]">
-        {/* Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(201,168,76,0.18),_transparent_32%),radial-gradient(circle_at_80%_15%,_rgba(91,45,142,0.24),_transparent_30%),linear-gradient(135deg,_#13101F_0%,_#0E0B1E_55%,_#09071A_100%)]" />
+      {/* ── HERO ─────────────────────────────────────────────────────
+          The Anton display headline is CITH's own signature and stays —
+          it is the one destination on the site that shouts rather than
+          speaks. Everything around it now draws from the shared field. */}
+      <section className="relative isolate overflow-hidden bg-[image:var(--brand-hero)]">
+        <div aria-hidden="true" className="brand-orb -left-32 top-0 h-80 w-80" />
+        <div aria-hidden="true" className="brand-orb -right-24 bottom-0 h-72 w-72 opacity-70" />
 
-        <div className="relative mx-auto grid min-h-[700px] max-w-[1320px] gap-10 px-4 py-16 sm:px-6 md:px-8 lg:grid-cols-2 lg:items-center lg:py-24">
+        <div className="relative mx-auto grid min-h-[680px] max-w-[1320px] gap-12 px-4 py-16 sm:px-6 md:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-24">
 
-          {/* Left: copy */}
           <div className="max-w-xl">
-            {/* Badge */}
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-1.5 font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-[#DFC070] backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+            <span className="inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-white/6 px-4 py-1.5 font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: 'var(--brand-accent)' }}
+              />
               Selected Saturdays · Every Month
             </span>
 
-            {/* Headline — Anton display font */}
             <h1
-              className="mt-6 uppercase text-white"
+              className="mt-7 uppercase text-white"
               style={{
                 fontFamily: 'var(--font-display)',
                 fontWeight: 400,
@@ -120,18 +128,17 @@ export default function CITHPage() {
               Church<br />in the<br />House
             </h1>
 
-            <p className="mt-7 font-body text-[16px] leading-[1.75] text-white/72 md:text-[17px]">
-              On Selected Saturdays each month, believers gather across the city to share
+            <p className="mt-7 font-body text-[16px] leading-[1.75] text-white/70 md:text-[17px]">
+              On selected Saturdays each month, believers gather across the city to share
               the Word, break bread, and grow together in smaller, intentional
               expressions of church. When a home hub isn&apos;t close by, the
               e-Hub keeps you connected.
             </p>
 
-            {/* CTAs */}
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={scrollToHubs}
-                className="inline-flex items-center justify-center rounded-full bg-[#C9A84C] px-8 py-[14px] font-heading text-[13px] font-bold uppercase tracking-[0.16em] text-[#0E0B1E] transition-all hover:bg-[#DFC070] hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center rounded-full bg-[var(--brand-accent)] px-8 py-[14px] font-heading text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--brand-on-accent)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-accent-strong)]"
               >
                 Find a hub near you
               </button>
@@ -144,11 +151,10 @@ export default function CITHPage() {
             </div>
           </div>
 
-          {/* Right: image card */}
           <div className="relative mx-auto w-full max-w-[600px] lg:ml-auto">
-            {/* Gold glow */}
-            <div className="absolute -inset-6 rounded-[44px] bg-[radial-gradient(circle,_rgba(201,168,76,0.18),_transparent_70%)] blur-3xl pointer-events-none" />
-            <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/4 p-3 shadow-[0_24px_72px_rgba(0,0,0,0.4)] backdrop-blur">
+            <div aria-hidden="true" className="brand-orb -inset-8 h-auto w-auto rounded-[52px]" />
+
+            <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/4 p-3 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-[#14111F]">
                 <Image
                   src="/cith-advert-design.jpg"
@@ -158,15 +164,19 @@ export default function CITHPage() {
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover object-center"
                 />
-                {/* Subtle bottom fade */}
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(9,7,26,0.5)_100%)]" />
-                {/* Tag */}
-                <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/36 px-3 py-1.5 backdrop-blur-md">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(9,7,26,0.55)_100%)]"
+                />
+                <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 backdrop-blur-md">
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ background: 'var(--brand-accent)' }}
+                  />
                   <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.22em] text-white/78">
                     CITH
                   </span>
-                </div>
+                </span>
               </div>
             </div>
           </div>
@@ -174,52 +184,32 @@ export default function CITHPage() {
         </div>
       </section>
 
-      {/* ── ABOUT ────────────────────────────────────────────────────── */}
-      <section className="bg-white py-20 px-6">
+      {/* ── ABOUT ────────────────────────────────────────────────────
+          A long-form editorial column. CITH is the one page on the site
+          that asks to be read rather than scanned. */}
+      <SectionWrapper variant="white" density="roomy">
         <FadeIn>
-          <div className="max-w-6xl mx-auto">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:items-start lg:gap-20">
 
-            {/* Two-column layout on desktop */}
-            <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:items-start">
+            <div className="lg:sticky lg:top-24">
+              <Eyebrow>About CITH</Eyebrow>
+              <h2 className="mt-5 font-heading text-3xl font-bold leading-tight text-slate md:text-[42px]">
+                The Church<br className="hidden lg:block" /> in The House
+              </h2>
 
-              {/* Left: title + scripture anchor */}
-              <div className="lg:sticky lg:top-24">
-                <p className="font-body text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A84C] mb-4">
-                  About CITH
+              <blockquote className="mt-8 border-l-[3px] border-[var(--brand-accent)] pl-5">
+                <p className="font-serif text-[17px] italic leading-[1.7] text-[#3A3740]">
+                  &ldquo;I will build My Church and the gates of hell shall not prevail against it.&rdquo;
                 </p>
-                <h2 className="font-heading text-3xl md:text-4xl font-bold text-[#0E0B1E] leading-tight mb-6">
-                  The Church<br className="hidden lg:block" /> in The House
-                </h2>
-                {/* Scripture pull */}
-                <blockquote className="border-l-[3px] border-[#C9A84C] pl-5 mt-8">
-                  <p className="font-serif italic text-[17px] leading-[1.7] text-[#3A3740]">
-                    &ldquo;I will build My Church and the gates of hell shall not prevail against it.&rdquo;
-                  </p>
-                  <footer className="mt-2 font-body text-xs font-semibold uppercase tracking-widest text-[#C9A84C]">
-                    Matthew 16:18
-                  </footer>
-                </blockquote>
+                <footer className="mt-2 font-body text-xs font-semibold uppercase tracking-widest text-[var(--brand-accent-text)]">
+                  Matthew 16:18
+                </footer>
+              </blockquote>
 
-                {/* Purpose pillars */}
-                <div className="mt-10 space-y-2">
-                  <p className="font-body text-[11px] font-bold uppercase tracking-[0.12em] text-[#8A8A90] mb-3">
-                    Purposes
-                  </p>
-                  {purposes.map((p, i) => (
-                    <div key={p.label} className="flex items-center gap-3">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAFAF8] border border-[#E8E6F0] font-heading text-[11px] font-bold text-[#C9A84C]">
-                        {i + 1}
-                      </span>
-                      <span className="font-body text-sm font-semibold text-[#0E0B1E]">
-                        {p.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            </div>
 
-              {/* Right: prose */}
-              <div className="space-y-5 font-body text-[15.5px] md:text-[17px] leading-[1.8] text-[#3A3740]">
+            <div>
+              <div className="space-y-5 font-body text-[15.5px] leading-[1.8] text-[#3A3740] md:text-[17px]">
                 <p>
                   The Church in The House (CITH) is the arm of The Ecclesia Embassy commissioned
                   for the gathering together of God&apos;s people to serve Christ in the home. Jesus
@@ -230,11 +220,11 @@ export default function CITHPage() {
                 <p>
                   The CITH is mandated to operate with the template of the revelation we have in
                   The Ecclesia Embassy concerning the Church. Its purposes are for{' '}
-                  <span className="font-semibold text-[#0E0B1E]">
+                  <span className="font-semibold text-slate">
                     Knowledge, Transformation, Government, Authority and Discipleship
                   </span>{' '}
                   — while its operations are expressed through{' '}
-                  <span className="font-semibold text-[#0E0B1E]">
+                  <span className="font-semibold text-slate">
                     Evangelism, Training, Fellowship, Worship and Works
                   </span>
                   .
@@ -248,17 +238,43 @@ export default function CITHPage() {
                 </p>
                 <p>
                   Where a physical hub is not accessible, the{' '}
-                  <span className="font-semibold text-[#0E0B1E]">e-Hub</span> provides an online
+                  <span className="font-semibold text-slate">e-Hub</span> provides an online
                   expression of that same fellowship for believers who do not have a CITH hub
                   close to them or are unable to make their home one.
                 </p>
+              </div>
 
-                {/* Operations chips */}
-                <div className="pt-4 flex flex-wrap gap-2">
-                  {['Evangelism', 'Training', 'Fellowship', 'Worship', 'Works'].map(op => (
+              {/* Purposes as a numbered rail — CITH's own structural motif. */}
+              <div className="mt-12">
+                <Eyebrow>The five purposes</Eyebrow>
+                <ol className="mt-6 divide-y divide-slate/8 border-y border-slate/8">
+                  {purposes.map((purpose, i) => (
+                    <li key={purpose.label} className="flex items-baseline gap-5 py-4">
+                      <span className="font-heading text-[13px] font-bold tracking-[0.18em] text-[var(--brand-accent-text)]">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <div>
+                        <p className="font-heading text-base font-bold text-slate">
+                          {purpose.label}
+                        </p>
+                        <p className="mt-1 font-body text-sm leading-6 text-gray-text">
+                          {purpose.detail}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="mt-10">
+                <p className="font-body text-[11px] font-bold uppercase tracking-[0.14em] text-gray-text">
+                  Expressed through
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {operations.map(op => (
                     <span
                       key={op}
-                      className="inline-flex items-center rounded-full bg-[#FAFAF8] border border-[#E8E6F0] px-4 py-1.5 font-body text-xs font-bold uppercase tracking-wider text-[#3A3740]"
+                      className="inline-flex items-center rounded-full border border-[var(--brand-accent-line)] bg-[var(--brand-accent-soft)] px-4 py-1.5 font-body text-xs font-bold uppercase tracking-wider text-slate"
                     >
                       {op}
                     </span>
@@ -268,73 +284,64 @@ export default function CITHPage() {
             </div>
           </div>
         </FadeIn>
-      </section>
+      </SectionWrapper>
 
-      {/* ── HUB DIRECTORY ────────────────────────────────────────────── */}
+      {/* ── HUB DIRECTORY ── */}
       <section
         id="find-hub"
         ref={hubSectionRef}
-        className="bg-[#FAFAF8] py-20 px-6"
+        className="relative isolate overflow-hidden bg-[linear-gradient(180deg,_#FFFDF8_0%,_#F5F1E8_100%)] py-18 md:py-24"
       >
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto max-w-[1240px] px-4 sm:px-6 md:px-8">
           <FadeIn>
-            {/* Section header */}
-            <div className="text-center mb-10">
-              <p className="font-body text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A84C] mb-3">
-                Hub Directory
-              </p>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-[#0E0B1E]">
-                Find Your Hub
-              </h2>
-              <p className="mt-3 font-body text-[15px] text-[#8A8A90]">
-                Search by location, area, or hub leader
-              </p>
-            </div>
+            <SectionIntro
+              align="center"
+              eyebrow="Hub Directory"
+              title="Find your hub"
+              description="Search by location, area, or hub leader — then open a hub to see when and where it meets."
+            />
 
-            {/* Search */}
-            <div className="relative max-w-md mx-auto mb-14">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A8A90] w-4 h-4 pointer-events-none" />
+            <div className="relative mx-auto mb-14 mt-10 max-w-md">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-text" />
               <Input
                 placeholder="Search hubs…"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
-                className="pl-11 w-full !rounded-full !bg-white"
+                className="w-full pl-11 !rounded-full !bg-white"
               />
             </div>
           </FadeIn>
 
-          {/* Grid */}
           {isLoading ? (
-            <SkeletonGroup count={6} variant="card" />
+            <SkeletonGroup count={6} variant="card" columns={3} />
           ) : filteredHubs.length > 0 ? (
             <StaggerContainer>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                 {filteredHubs.map(hub => (
                   <StaggerItem key={hub.id}>
-                    <Link href={`/cith/${hub.id}`} className="block group h-full">
-                      <div className="relative bg-white rounded-2xl border border-[#E8E6F0] overflow-hidden h-full flex flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5">
-                        {/* Gold top accent bar */}
-                        <div className="h-[3px] w-full bg-gradient-to-r from-[#C9A84C] to-[#DFC070] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    <Link href={`/cith/${hub.id}`} className="group block h-full">
+                      <div className="brand-card flex h-full flex-col overflow-hidden">
+                        <span
+                          aria-hidden="true"
+                          className="h-[3px] w-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                          style={{ background: 'var(--brand-tile)' }}
+                        />
 
-                        <div className="p-6 flex flex-col flex-1">
-                          {/* Hub name */}
-                          <div className="mb-5">
-                            <h3 className="font-heading text-[17px] font-bold text-[#0E0B1E] group-hover:text-[#C9A84C] transition-colors leading-snug">
-                              {hub.name}
-                            </h3>
-                          </div>
+                        <div className="flex flex-1 flex-col p-6">
+                          <h3 className="font-heading text-[17px] font-bold leading-snug text-slate transition-colors group-hover:text-[var(--brand-accent-text)]">
+                            {hub.name}
+                          </h3>
 
-                          {/* Meta */}
-                          <div className="space-y-2.5 flex-1 mb-6">
+                          <div className="mb-6 mt-5 flex-1 space-y-2.5">
                             <div className="flex items-start gap-2.5">
-                              <MapPin className="w-[14px] h-[14px] text-[#C9A84C] mt-[3px] shrink-0" />
-                              <span className="font-body text-[13px] text-[#3A3740] leading-snug">
+                              <MapPin className="mt-[3px] h-[14px] w-[14px] shrink-0 text-[var(--brand-accent-text)]" />
+                              <span className="font-body text-[13px] leading-snug text-[#3A3740]">
                                 {getHubLocation(hub)}
                               </span>
                             </div>
                             {hub.meetingDay && (
                               <div className="flex items-center gap-2.5">
-                                <Calendar className="w-[14px] h-[14px] text-[#C9A84C] shrink-0" />
+                                <Calendar className="h-[14px] w-[14px] shrink-0 text-[var(--brand-accent-text)]" />
                                 <span className="font-body text-[13px] text-[#3A3740]">
                                   {hub.meetingDay}
                                   {hub.meetingTime ? ` · ${hub.meetingTime}` : ''}
@@ -343,14 +350,11 @@ export default function CITHPage() {
                             )}
                           </div>
 
-                          {/* Footer CTA */}
-                          <div className="pt-4 border-t border-[#F0EEF8] flex items-center justify-between">
-                            <span className="font-heading text-[12px] font-bold uppercase tracking-[0.14em] text-[#C9A84C] group-hover:tracking-[0.2em] transition-all duration-200">
+                          <div className="flex items-center justify-between border-t border-slate/8 pt-4">
+                            <span className="font-heading text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--brand-accent-text)]">
                               View Hub
                             </span>
-                            <span className="text-[#C9A84C] text-sm font-bold translate-x-0 group-hover:translate-x-1 transition-transform duration-200">
-                              →
-                            </span>
+                            <ArrowRight className="h-4 w-4 text-[var(--brand-accent-text)] transition-transform duration-200 group-hover:translate-x-1" />
                           </div>
                         </div>
                       </div>
@@ -360,59 +364,59 @@ export default function CITHPage() {
               </div>
             </StaggerContainer>
           ) : (
-            <div className="text-center py-20">
-              <div className="w-14 h-14 rounded-2xl bg-[#E8E6F0] flex items-center justify-center mx-auto mb-5">
-                <Globe className="w-6 h-6 text-[#8A8A90]" />
+            <div className="brand-card brand-card--static mx-auto max-w-md p-12 text-center">
+              <div className="brand-tile mx-auto h-14 w-14">
+                <Globe className="h-6 w-6" />
               </div>
-              <h3 className="font-heading text-xl font-bold text-[#0E0B1E] mb-2">
-                No hubs found
-              </h3>
-              <p className="font-body text-sm text-[#8A8A90] max-w-xs mx-auto">
+              <h3 className="mt-5 font-heading text-xl font-bold text-slate">No hubs found</h3>
+              <p className="mx-auto mt-2 max-w-xs font-body text-sm text-gray-text">
                 Try a different search, or join the e-Hub to stay connected online.
               </p>
+              <Link
+                href="/cith/ehub"
+                className="mt-6 inline-flex items-center justify-center rounded-full bg-[var(--brand-accent)] px-7 py-3 font-heading text-[12px] font-bold uppercase tracking-[0.16em] text-[var(--brand-on-accent)] transition-colors hover:bg-[var(--brand-accent-strong)]"
+              >
+                Join e-Hub
+              </Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* ── BOTTOM CTA ───────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[#09071A] py-24 px-6">
-        {/* Subtle radial glow */}
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(201,168,76,0.1),_transparent_65%)]" />
-
-        <div className="relative max-w-3xl mx-auto text-center">
-          <FadeIn>
-            <p className="font-body text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A84C] mb-4">
-              Can&apos;t find a hub near you?
-            </p>
-            <h2 className="font-heading text-3xl md:text-[2.6rem] font-bold text-white leading-tight mb-5">
-              Stay Connected,<br className="hidden sm:block" /> Wherever You Are
+      {/* ── BOTTOM CTA ── */}
+      <SectionWrapper
+        variant="brand-ink"
+        hairline
+        density="roomy"
+        width="narrow"
+      >
+        <FadeIn>
+          <div className="text-center">
+            <Eyebrow align="center">Can&apos;t find a hub near you?</Eyebrow>
+            <h2 className="mt-6 font-heading text-3xl font-bold leading-tight text-white md:text-[44px]">
+              Stay connected,<br className="hidden sm:block" /> wherever you are
             </h2>
-
-            {/* Divider line */}
-            <div className="mx-auto w-12 h-[2px] bg-[#C9A84C] rounded-full mb-7 opacity-60" />
-
-            <p className="font-body text-[15.5px] text-white/60 mb-10 max-w-lg mx-auto leading-relaxed">
+            <p className="mx-auto mt-6 max-w-lg font-body text-[15.5px] leading-8 text-white/64">
               Join our e-Hub if there is no CITH hub close to you, or register your home
               to lead a fellowship group in your area.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 href="/cith/ehub"
-                className="inline-flex items-center justify-center rounded-full bg-[#C9A84C] px-8 py-[14px] font-heading text-[13px] font-bold uppercase tracking-[0.16em] text-[#0E0B1E] hover:bg-[#DFC070] transition-colors"
+                className="inline-flex items-center justify-center rounded-full bg-[var(--brand-accent)] px-8 py-[14px] font-heading text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--brand-on-accent)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-accent-strong)]"
               >
                 Join e-Hub
               </Link>
               <Link
                 href="/cith/register"
-                className="inline-flex items-center justify-center rounded-full border border-white/18 px-8 py-[14px] font-heading text-[13px] font-bold uppercase tracking-[0.16em] text-white hover:bg-white/6 transition-colors"
+                className="inline-flex items-center justify-center rounded-full border border-white/18 px-8 py-[14px] font-heading text-[13px] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-white/8"
               >
                 Register a Hub
               </Link>
             </div>
-          </FadeIn>
-        </div>
-      </section>
+          </div>
+        </FadeIn>
+      </SectionWrapper>
 
     </div>
   );

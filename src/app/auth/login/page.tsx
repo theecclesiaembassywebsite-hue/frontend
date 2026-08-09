@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -29,6 +29,25 @@ export default function LoginPage() {
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle');
   const { openGoogleAuth } = useGoogleAuthPopup((message) => setErrorMessage(message));
+
+  // When the sign-in popup is blocked, the Google flow runs as a full-page
+  // redirect and lands back here with ?error=google_failed. Without this the
+  // failure was silent — the user simply arrived back at a blank login form.
+  // Read from window.location rather than useSearchParams(): this page is
+  // statically prerendered, where that hook can be empty on first render.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') !== 'google_failed') return;
+
+    setErrorMessage(
+      params.get('reason') === 'cancelled'
+        ? 'Google sign-in was cancelled.'
+        : 'Google sign-in failed. Please try again.'
+    );
+
+    // Drop the params so a refresh doesn't re-show the message.
+    window.history.replaceState({}, '', window.location.pathname);
+  }, []);
 
   const {
     register,
@@ -232,6 +251,8 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-text hover:text-slate transition-colors"
                   >
                     {showPassword ? (
@@ -249,10 +270,15 @@ export default function LoginPage() {
               </div>
 
               <div className="flex items-center justify-between pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox {...register('rememberMe')} className="border-lavender" />
-                  <span className="text-sm font-body text-gray-text">Remember me</span>
-                </label>
+                {/* Checkbox renders its own <label>. Wrapping it in a second
+                    one nested the labels, which is invalid and left the input
+                    with no accessible name at all. Its `label` prop instead. */}
+                <Checkbox
+                  id="rememberMe"
+                  label="Remember me"
+                  className="border-lavender"
+                  {...register('rememberMe')}
+                />
                 <Link
                   href="/auth/forgot-password"
                   className="text-sm font-body text-purple hover:text-purple-vivid transition-colors"

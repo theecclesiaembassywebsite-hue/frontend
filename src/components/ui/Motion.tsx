@@ -1,17 +1,34 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { ReactNode, useRef } from "react";
+import { CSSProperties, ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { useReveal } from "@/components/ui/reveal";
 
 /* ============================================
    THE ECCLESIA EMBASSY — Animation System
-   Reusable Framer Motion Components
+
+   The public API here is unchanged, but the implementation is now CSS
+   transitions driven by a single shared IntersectionObserver rather than a
+   motion component per element. Same reveals, a fraction of the work.
    ============================================ */
 
-// ---- Shared transition presets ----
-const springSmooth = { type: "spring" as const, stiffness: 80, damping: 20 };
-const easeOut = { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
-const easeOutSlow = { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
+type Direction = "up" | "down" | "left" | "right" | "none";
+
+/** Travel offsets, applied as custom properties the CSS reads. */
+function offsetVars(direction: Direction, distance: number): CSSProperties {
+  switch (direction) {
+    case "up":
+      return { "--reveal-y": `${distance}px` } as CSSProperties;
+    case "down":
+      return { "--reveal-y": `${-distance}px` } as CSSProperties;
+    case "left":
+      return { "--reveal-x": `${distance}px` } as CSSProperties;
+    case "right":
+      return { "--reveal-x": `${-distance}px` } as CSSProperties;
+    default:
+      return {};
+  }
+}
 
 // ---- Fade In (basic reveal) ----
 interface FadeInProps {
@@ -19,8 +36,9 @@ interface FadeInProps {
   delay?: number;
   duration?: number;
   className?: string;
-  direction?: "up" | "down" | "left" | "right" | "none";
+  direction?: Direction;
   distance?: number;
+  /** Retained for API compatibility; reveals have always been one-way. */
   once?: boolean;
 }
 
@@ -31,29 +49,24 @@ export function FadeIn({
   className,
   direction = "up",
   distance = 30,
-  once = true,
 }: FadeInProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once, margin: "-50px" });
-
-  const directionMap = {
-    up: { y: distance },
-    down: { y: -distance },
-    left: { x: distance },
-    right: { x: -distance },
-    none: {},
-  };
+  const ref = useReveal<HTMLDivElement>();
 
   return (
-    <motion.div
+    <div
       ref={ref}
+      data-reveal=""
       className={className}
-      initial={{ opacity: 0, ...directionMap[direction] }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, ...directionMap[direction] }}
-      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
+      style={
+        {
+          ...offsetVars(direction, distance),
+          "--reveal-delay": `${delay * 1000}ms`,
+          "--reveal-duration": `${duration * 1000}ms`,
+        } as CSSProperties
+      }
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -61,32 +74,18 @@ export function FadeIn({
 interface StaggerContainerProps {
   children: ReactNode;
   className?: string;
+  /** Kept for API compatibility; the cascade is defined in CSS. */
   staggerDelay?: number;
   once?: boolean;
 }
 
-export function StaggerContainer({
-  children,
-  className,
-  staggerDelay = 0.12,
-  once = true,
-}: StaggerContainerProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once, margin: "-50px" });
+export function StaggerContainer({ children, className }: StaggerContainerProps) {
+  const ref = useReveal<HTMLDivElement>();
 
   return (
-    <motion.div
-      ref={ref}
-      className={className}
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: staggerDelay } },
-      }}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-    >
+    <div ref={ref} data-stagger="" className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -98,23 +97,14 @@ interface StaggerItemProps {
 }
 
 export function StaggerItem({ children, className, direction = "up" }: StaggerItemProps) {
-  const dirMap = {
-    up: { y: 24 },
-    down: { y: -24 },
-    left: { x: 24 },
-    right: { x: -24 },
-  };
-
   return (
-    <motion.div
+    <div
+      data-stagger-item=""
       className={className}
-      variants={{
-        hidden: { opacity: 0, ...dirMap[direction] },
-        visible: { opacity: 1, x: 0, y: 0, transition: easeOut },
-      }}
+      style={offsetVars(direction, 24)}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -126,20 +116,24 @@ interface ScaleInProps {
   once?: boolean;
 }
 
-export function ScaleIn({ children, delay = 0, className, once = true }: ScaleInProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once, margin: "-50px" });
+export function ScaleIn({ children, delay = 0, className }: ScaleInProps) {
+  const ref = useReveal<HTMLDivElement>();
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      className={className}
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.85 }}
-      transition={{ ...springSmooth, delay }}
+      data-reveal=""
+      className={cn("origin-center", className)}
+      style={
+        {
+          "--reveal-scale": "0.85",
+          "--reveal-delay": `${delay * 1000}ms`,
+          "--reveal-duration": "700ms",
+        } as CSSProperties
+      }
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -157,22 +151,14 @@ export function AnimatedCounter({
   prefix = "",
   className,
 }: AnimatedCounterProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  const ref = useReveal<HTMLSpanElement>();
 
   return (
-    <motion.span
-      ref={ref}
-      className={className}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-    >
+    <span ref={ref} data-reveal="" className={className}>
       {prefix}
-      <motion.span>
-        {isInView ? value : 0}
-      </motion.span>
+      {value}
       {suffix}
-    </motion.span>
+    </span>
   );
 }
 
@@ -183,16 +169,7 @@ interface PageTransitionProps {
 }
 
 export function PageTransition({ children, className }: PageTransitionProps) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={cn("animate-[fadeIn_400ms_ease-out]", className)}>{children}</div>;
 }
 
 // ---- Hero Text Animation ----
@@ -203,15 +180,23 @@ interface HeroTextProps {
 }
 
 export function HeroText({ children, className, delay = 0 }: HeroTextProps) {
+  const ref = useReveal<HTMLDivElement>();
+
   return (
-    <motion.div
+    <div
+      ref={ref}
+      data-reveal=""
       className={className}
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...easeOutSlow, delay }}
+      style={
+        {
+          "--reveal-y": "40px",
+          "--reveal-delay": `${delay * 1000}ms`,
+          "--reveal-duration": "800ms",
+        } as CSSProperties
+      }
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -222,17 +207,8 @@ interface ParallaxBgProps {
   speed?: number;
 }
 
-export function ParallaxBg({ children, className, speed = 0.3 }: ParallaxBgProps) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ scale: 1.1 }}
-      animate={{ scale: 1 }}
-      transition={{ duration: 1.2 / Math.max(speed, 0.1), ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
+export function ParallaxBg({ children, className }: ParallaxBgProps) {
+  return <div className={className}>{children}</div>;
 }
 
 // ---- Hover Lift (for interactive cards) ----
@@ -242,40 +218,28 @@ interface HoverLiftProps {
   lift?: number;
 }
 
-export function HoverLift({ children, className, lift = -4 }: HoverLiftProps) {
-  return (
-    <motion.div
-      className={className}
-      whileHover={{ y: lift, transition: { duration: 0.25 } }}
-      whileTap={{ scale: 0.98 }}
-    >
-      {children}
-    </motion.div>
-  );
+export function HoverLift({ children, className }: HoverLiftProps) {
+  return <div className={cn("brand-hover-lift", className)}>{children}</div>;
 }
 
 // ---- Shimmer / Glow Line ----
 export function ShimmerLine({ className }: { className?: string }) {
+  const ref = useReveal<HTMLDivElement>();
+
   return (
-    <motion.div
-      className={`h-[2px] bg-gradient-to-r from-transparent via-purple-vivid to-transparent ${className || ""}`}
-      initial={{ scaleX: 0, opacity: 0 }}
-      whileInView={{ scaleX: 1, opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: 0.3 }}
+    <div
+      ref={ref}
+      data-reveal=""
+      className={cn(
+        "h-[2px] origin-left bg-gradient-to-r from-transparent via-purple-vivid to-transparent",
+        className
+      )}
+      style={{ "--reveal-duration": "800ms", "--reveal-delay": "300ms" } as CSSProperties}
     />
   );
 }
 
 // ---- Floating element (subtle bob animation) ----
 export function Float({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <motion.div
-      className={className}
-      animate={{ y: [0, -8, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={cn("brand-float", className)}>{children}</div>;
 }

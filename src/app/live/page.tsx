@@ -260,7 +260,7 @@ function StreamPlayer({
           />
         </div>
 
-        <p className="px-5 py-3 font-body text-xs text-white/40">
+        <p className="px-5 py-3 font-body text-xs text-white/55">
           {video.publishedAt ? format(new Date(video.publishedAt), "MMMM d, yyyy") : ""}
         </p>
       </div>
@@ -546,7 +546,7 @@ export default function LivePage() {
 
             {/* Right: Social handles */}
             <div className="flex items-center gap-1">
-              <span className="mr-2 font-heading text-[10px] uppercase tracking-[0.2em] text-white/35">
+              <span className="mr-2 font-heading text-[10px] uppercase tracking-[0.2em] text-white/55">
                 Follow Us
               </span>
               {[

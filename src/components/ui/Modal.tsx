@@ -1,8 +1,12 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Everything focusable, minus anything explicitly removed from the tab order.
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,21 +23,62 @@ export function Modal({
   children,
   size = "md",
 }: ModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleEscape = (e: KeyboardEvent) => {
+    // Remember where focus came from so it can be handed back on close —
+    // without this, dismissing the dialog drops keyboard users at the top of
+    // the document and they have to tab all the way back.
+    const opener = document.activeElement as HTMLElement | null;
+
+    const handleKeydown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      // Focus trap. Tab is otherwise free to walk out of the dialog and into
+      // the page behind it, which is still visible but inert to the eye.
+      const panel = panelRef.current;
+      if (!panel) return;
+      const items = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null || el === document.activeElement
+      );
+      if (items.length === 0) {
+        e.preventDefault();
+        panel.focus();
+        return;
+      }
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
 
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("keydown", handleKeydown);
     document.body.style.overflow = "hidden";
 
+    // Move focus into the dialog: the first control if there is one, else the
+    // panel itself so the screen reader announces the dialog rather than
+    // leaving focus stranded on the page behind.
+    const panel = panelRef.current;
+    const firstFocusable = panel?.querySelector<HTMLElement>(FOCUSABLE);
+    (firstFocusable ?? panel)?.focus();
+
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", handleKeydown);
       document.body.style.overflow = "unset";
+      opener?.focus?.();
     };
   }, [isOpen, onClose]);
 
@@ -56,15 +101,21 @@ export function Modal({
 
       {/* Modal */}
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : "Dialog"}
+        tabIndex={-1}
         className={cn(
-          "relative bg-white rounded-lg shadow-xl w-full mx-4 max-h-[90vh] overflow-y-auto",
+          "surface-light relative bg-white rounded-lg shadow-xl w-full mx-4 max-h-[90vh] overflow-y-auto outline-none",
           sizes[size]
         )}
       >
         {/* Header */}
         {title && (
           <div className="sticky top-0 flex items-center justify-between bg-purple px-6 py-4 border-b">
-            <h2 className="font-heading text-xl font-bold text-white">
+            <h2 id={titleId} className="font-heading text-xl font-bold text-white">
               {title}
             </h2>
             <button

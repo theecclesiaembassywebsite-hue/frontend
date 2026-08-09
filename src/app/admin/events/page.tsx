@@ -369,7 +369,7 @@ function AdminEventsContent() {
           <div className="space-y-4">
             {viewingEvent.imageUrl && (
               <div className="rounded-[8px] overflow-hidden border border-gray-border">
-                <img src={viewingEvent.imageUrl} alt={viewingEvent.title} className="w-full h-48 object-cover" />
+                <img loading="lazy" decoding="async" src={viewingEvent.imageUrl} alt={viewingEvent.title} className="w-full h-48 object-cover" />
               </div>
             )}
             <div>
@@ -491,7 +491,7 @@ function AdminEventsContent() {
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Image</label>
             {editImagePreview ? (
               <div className="relative rounded-[8px] overflow-hidden border border-gray-border">
-                <img src={editImagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                <img loading="lazy" decoding="async" src={editImagePreview} alt="Preview" className="w-full h-40 object-cover" />
                 <button
                   type="button"
                   className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
@@ -616,7 +616,7 @@ function AdminEventsContent() {
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Image</label>
             {createImagePreview ? (
               <div className="relative rounded-[8px] overflow-hidden border border-gray-border">
-                <img src={createImagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                <img loading="lazy" decoding="async" src={createImagePreview} alt="Preview" className="w-full h-40 object-cover" />
                 <button
                   type="button"
                   className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"

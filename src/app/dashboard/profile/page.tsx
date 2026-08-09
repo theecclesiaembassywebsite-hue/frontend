@@ -293,7 +293,7 @@ function ProfileEditContent() {
                 <div className="flex flex-col gap-1.5">
                   <label className="font-body text-sm font-medium text-slate">Profile Photo</label>
                   {formData.photoUrl && (
-                    <img src={formData.photoUrl} alt="Profile" className="h-20 w-20 rounded-full object-cover border border-gray-border" />
+                    <img loading="lazy" decoding="async" src={formData.photoUrl} alt="Profile" className="h-20 w-20 rounded-full object-cover border border-gray-border" />
                   )}
                   <input
                     type="file"

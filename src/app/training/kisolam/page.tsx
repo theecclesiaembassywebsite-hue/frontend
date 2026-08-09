@@ -1,11 +1,17 @@
 "use client";
 
 import SectionWrapper from "@/components/ui/SectionWrapper";
+import SectionIntro from "@/components/ui/SectionIntro";
+import Eyebrow from "@/components/ui/Eyebrow";
+import FeatureTile from "@/components/ui/FeatureTile";
+import MediaFrame from "@/components/ui/MediaFrame";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import ProgramHero from "@/components/training/ProgramHero";
+import { FadeIn } from "@/components/ui/Motion";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -50,10 +56,15 @@ const trainingPillars = [
   },
 ];
 
-const facultyRoles = [
-  "Lead Faculty",
-  "Associate Faculty",
-  "Guest Faculty",
+const facultyRoles = ["Lead Faculty", "Associate Faculty", "Guest Faculty"];
+
+const academicCalendar = [
+  { title: "Session 1", detail: "January to June 2026" },
+  { title: "Session 2", detail: "July to December 2026" },
+  {
+    title: "Application window",
+    detail: "Closes two weeks before each session begins",
+  },
 ];
 
 export default function KISOLAMPage() {
@@ -144,7 +155,7 @@ export default function KISOLAMPage() {
   }
 
   return (
-    <>
+    <div data-brand="kisolam">
       <ProgramHero
         eyebrow="Kingdom Training"
         title="KISOLAM"
@@ -154,24 +165,17 @@ export default function KISOLAMPage() {
         logoAlt="KISOLAM"
         logoWidth={422}
         logoHeight={456}
-        chips={[
-          "Foundational discipleship",
-          "Leadership development",
-          "Practical ministry training",
-        ]}
-        stats={[
-          { value: String(courses.length || 5), label: "program tracks" },
-          { value: "Jan / Jul", label: "session starts" },
-          { value: "3-6 mo", label: "core duration" },
-        ]}
-        backgroundClassName="bg-[radial-gradient(circle_at_top_left,rgba(201,168,76,0.2),transparent_30%),linear-gradient(135deg,#0E0B1E_0%,#1A1530_45%,#45266C_100%)]"
-        overlayClassName="bg-[linear-gradient(180deg,rgba(14,11,30,0.14),rgba(14,11,30,0.52))]"
-        logoCardClassName="bg-white/8"
-        logoWrapClassName="!bg-transparent shadow-none"
-        logoClassName="max-w-[260px] drop-shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
+        logoClassName="mx-auto max-w-[240px]"
+        backgroundImage="/site/kisolam-graduation.jpg"
+        backgroundPosition="center 30%"
+        // No chips here on purpose. The three chips this hero used to carry
+        // ("Foundational discipleship", "Leadership development", "Practical
+        // ministry training") were the same three points the aside below makes
+        // in full sentences, so the hero said everything twice. The aside wins:
+        // it is more specific, and it gives the logo panel something to hold.
         aside={
           <div>
-            <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
+            <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">
               Inside the school
             </p>
             <div className="mt-4 space-y-3">
@@ -181,13 +185,21 @@ export default function KISOLAMPage() {
                 "Flexible options for intensive sessions and short workshops.",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
-                  <span className="mt-2 h-2 w-2 rounded-full bg-gold" />
-                  <p className="font-body text-sm leading-6 text-white/80">{item}</p>
+                  <span
+                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: "var(--brand-accent)" }}
+                  />
+                  <p className="font-body text-sm leading-6 text-white/78">{item}</p>
                 </div>
               ))}
             </div>
           </div>
         }
+        stats={[
+          { value: String(courses.length || 5), label: "Program tracks" },
+          { value: "Jan / Jul", label: "Session starts" },
+          { value: "3–6 months", label: "Core duration" },
+        ]}
         actions={
           <>
             <Button
@@ -207,49 +219,71 @@ export default function KISOLAMPage() {
         }
       />
 
-      <SectionWrapper variant="white">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
-            A training pathway with depth and direction
-          </h2>
-          <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
-            KISOLAM is designed to move learners from conviction to competence. Each program is built
-            to strengthen scriptural understanding, shape character, and prepare people for faithful
-            kingdom expression.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {trainingPillars.map((pillar) => {
-            const Icon = pillar.icon;
-
-            return (
-              <div
-                key={pillar.title}
-                className="rounded-[24px] border border-gray-border bg-off-white p-6 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple text-white shadow-purple">
-                  <Icon className="h-6 w-6" />
-                </div>
-                <h3 className="mt-5 font-heading text-lg font-bold text-slate">{pillar.title}</h3>
-                <p className="mt-3 font-body text-sm leading-7 text-gray-text">{pillar.desc}</p>
-              </div>
-            );
-          })}
+      {/* ── ADVERT ───────────────────────────────────────────────────
+          Centred and full-width, unlike TEMA's side-by-side advert, so the
+          two academies don't open into the same shape. */}
+      <SectionWrapper variant="brand-band" hairline width="narrow">
+        <SectionIntro
+          align="center"
+          tone="dark"
+          eyebrow="Featured KISOLAM advert"
+          title="See the school. Feel the calling."
+          description="Take a closer look at the Kingdom International School of Life and Ministry and discover a training pathway built for depth, direction, and faithful service."
+        />
+        <div className="mt-12">
+          <MediaFrame glow badge="KISOLAM">
+            <video
+              className="h-full w-full object-cover"
+              controls
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="/kisolam-advert-poster.jpg"
+              aria-label="KISOLAM advert"
+            >
+              <source src="/kisolam-advert.mp4" type="video/mp4" />
+              Your browser does not support embedded video. Please download the advert to watch it.
+            </video>
+          </MediaFrame>
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="off-white" id="programs">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-heading text-[30px] font-bold text-slate md:text-[34px]">
-            Programs offered
-          </h2>
-          <p className="mt-3 font-body text-sm leading-7 text-gray-text md:text-base">
-            Choose the pathway that best fits your current season of growth and service.
-          </p>
-        </div>
+      {/* ── PILLARS ── */}
+      <SectionWrapper variant="white">
+        <SectionIntro
+          align="center"
+          eyebrow="The KISOLAM model"
+          title="A training pathway with depth and direction"
+          description="KISOLAM is designed to move learners from conviction to competence — strengthening scriptural understanding, shaping character, and preparing people for faithful kingdom expression."
+        />
 
-        <div className="mx-auto mt-12 max-w-4xl space-y-5">
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {trainingPillars.map((pillar, index) => (
+            <FadeIn key={pillar.title} direction="up" delay={index * 0.06}>
+              <FeatureTile
+                icon={pillar.icon}
+                title={pillar.title}
+                description={pillar.desc}
+              />
+            </FadeIn>
+          ))}
+        </div>
+      </SectionWrapper>
+
+      {/* ── PROGRAMS ─────────────────────────────────────────────────
+          Enrollable rows with a field-coloured spine on the left edge —
+          the structural motif that belongs to KISOLAM. */}
+      <SectionWrapper variant="paper" id="programs">
+        <SectionIntro
+          align="center"
+          eyebrow="Programs offered"
+          title="Choose your season of growth"
+          description="Each pathway carries its own duration and fee. Pick the one that fits where you are, and enroll in a couple of steps."
+        />
+
+        <div className="mx-auto mt-14 max-w-4xl space-y-5">
           {loading ? (
             <SkeletonGroup count={5} variant="card" />
           ) : courses.length === 0 ? (
@@ -262,16 +296,25 @@ export default function KISOLAMPage() {
               return (
                 <div
                   key={course.id}
-                  className="rounded-[28px] border border-gray-border bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg md:p-7"
+                  className="brand-card relative overflow-hidden p-6 pl-8 md:p-7 md:pl-9"
                 >
-                  <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 w-1.5"
+                    style={{
+                      background: joinable
+                        ? "var(--brand-tile)"
+                        : "rgba(138,138,144,0.25)",
+                    }}
+                  />
+                  <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-purple text-[10px] font-heading font-bold uppercase tracking-[1.5px] text-white px-3 py-1.5">
+                        <span className="rounded-full bg-[var(--brand-ink)] px-3 py-1.5 font-heading text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                           {course.code}
                         </span>
                         <span
-                          className={`rounded-full px-3 py-1.5 text-[10px] font-heading font-bold uppercase tracking-[1.5px] ${
+                          className={`rounded-full px-3 py-1.5 font-heading text-[10px] font-bold uppercase tracking-[0.16em] ${
                             joinable
                               ? "bg-success/10 text-success"
                               : "bg-gray-text/10 text-gray-text"
@@ -281,17 +324,31 @@ export default function KISOLAMPage() {
                         </span>
                       </div>
 
-                      <h3 className="mt-4 font-heading text-xl font-bold text-slate">{course.name}</h3>
-                      <p className="mt-3 font-body text-sm leading-7 text-gray-text">{course.description}</p>
+                      <h3 className="mt-4 font-heading text-xl font-bold text-slate">
+                        {course.name}
+                      </h3>
+                      <p className="mt-3 font-body text-sm leading-7 text-gray-text">
+                        {course.description}
+                      </p>
 
-                      <div className="mt-5 flex flex-wrap gap-3">
-                        <span className="rounded-full border border-purple-light bg-purple-light/50 px-4 py-2 font-heading text-[11px] font-semibold uppercase tracking-[1.4px] text-slate">
-                          Duration: {course.duration}
-                        </span>
-                        <span className="rounded-full border border-gold/20 bg-gold/10 px-4 py-2 font-heading text-[11px] font-semibold uppercase tracking-[1.4px] text-slate">
-                          Fee: {formatFee(course)}
-                        </span>
-                      </div>
+                      <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
+                        <div>
+                          <dt className="font-heading text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-text">
+                            Duration
+                          </dt>
+                          <dd className="mt-1 font-heading text-sm font-bold text-slate">
+                            {course.duration}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="font-heading text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-text">
+                            Fee
+                          </dt>
+                          <dd className="mt-1 font-heading text-sm font-bold text-slate">
+                            {formatFee(course)}
+                          </dd>
+                        </div>
+                      </dl>
                     </div>
 
                     <Button
@@ -300,7 +357,13 @@ export default function KISOLAMPage() {
                       disabled={!joinable}
                       onClick={() => openEnroll(course)}
                     >
-                      {joinable ? <>Enroll <ArrowRight size={14} /></> : statusLabel[course.status]}
+                      {joinable ? (
+                        <>
+                          Enroll <ArrowRight size={14} />
+                        </>
+                      ) : (
+                        statusLabel[course.status]
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -310,14 +373,15 @@ export default function KISOLAMPage() {
         </div>
       </SectionWrapper>
 
+      {/* ── FACULTY + CALENDAR ── */}
       <SectionWrapper variant="white" id="calendar">
-        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-[28px] border border-gray-border bg-off-white p-6 md:p-8">
-            <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-purple-vivid">
-              Faculty support
-            </p>
-            <h2 className="mt-3 font-heading text-[28px] font-bold text-slate">Guided by seasoned voices</h2>
-            <p className="mt-3 font-body text-sm leading-7 text-gray-text">
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="brand-card brand-card--static p-6 md:p-8">
+            <Eyebrow>Faculty support</Eyebrow>
+            <h2 className="mt-5 font-heading text-[28px] font-bold leading-tight text-slate">
+              Guided by seasoned voices
+            </h2>
+            <p className="mt-4 font-body text-sm leading-7 text-gray-text">
               KISOLAM faculty combines doctrinal strength, pastoral care, and practical ministry
               experience to guide learners with clarity and accountability.
             </p>
@@ -326,55 +390,57 @@ export default function KISOLAMPage() {
               {facultyRoles.map((role) => (
                 <div
                   key={role}
-                  className="rounded-[20px] border border-white bg-white p-5 text-center shadow-sm"
+                  className="rounded-[20px] border border-slate/8 bg-off-white p-5 text-center"
                 >
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-purple-light">
-                    <User className="h-6 w-6 text-purple" />
+                  <div className="brand-tile mx-auto h-12 w-12 !rounded-full">
+                    <User className="h-5 w-5" />
                   </div>
                   <p className="mt-4 font-heading text-sm font-semibold text-slate">{role}</p>
                 </div>
               ))}
             </div>
+
+            <div className="relative mt-8 aspect-[16/8] overflow-hidden rounded-[20px] border border-slate/8">
+              <Image
+                src="/site/kisolam-graduation.jpg"
+                alt="KISOLAM graduands at a commencement service"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
           </div>
 
-          <div className="rounded-[28px] bg-[linear-gradient(135deg,#0E0B1E_0%,#24183D_100%)] p-6 text-white shadow-xl md:p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                <Calendar className="h-6 w-6 text-gold" />
-              </div>
-              <div>
-                <p className="font-heading text-xs font-semibold uppercase tracking-[1.8px] text-white/60">
-                  Academic rhythm
-                </p>
-                <h2 className="font-heading text-[28px] font-bold text-white">2026 calendar</h2>
-              </div>
-            </div>
-
-            <div className="mt-8 space-y-4">
-              {[
-                {
-                  title: "Session 1",
-                  detail: "January to June 2026",
-                },
-                {
-                  title: "Session 2",
-                  detail: "July to December 2026",
-                },
-                {
-                  title: "Application window",
-                  detail: "Closes two weeks before each session begins",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-[22px] border border-white/10 bg-white/8 p-5 backdrop-blur-sm"
-                >
-                  <p className="font-heading text-sm font-semibold uppercase tracking-[1.6px] text-gold">
-                    {item.title}
-                  </p>
-                  <p className="mt-2 font-body text-sm leading-7 text-white/75">{item.detail}</p>
+          <div className="relative overflow-hidden rounded-[24px] bg-[image:var(--brand-band)] p-6 text-white shadow-[0_28px_70px_rgba(15,11,34,0.3)] md:p-8">
+            <div aria-hidden="true" className="brand-orb -right-16 top-0 h-56 w-56" />
+            <div className="relative">
+              <div className="flex items-center gap-4">
+                <div className="brand-tile h-12 w-12">
+                  <Calendar className="h-5 w-5" />
                 </div>
-              ))}
+                <div>
+                  <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
+                    Academic rhythm
+                  </p>
+                  <h2 className="font-heading text-[28px] font-bold text-white">2026 calendar</h2>
+                </div>
+              </div>
+
+              <ol className="mt-9 space-y-0 border-l border-white/12 pl-7">
+                {academicCalendar.map((item) => (
+                  <li key={item.title} className="relative pb-8 last:pb-0">
+                    <span
+                      aria-hidden="true"
+                      className="absolute -left-[35px] top-1.5 h-3 w-3 rounded-full border-2 border-[var(--brand-ink)]"
+                      style={{ background: "var(--brand-accent)" }}
+                    />
+                    <p className="font-heading text-sm font-semibold uppercase tracking-[0.16em] text-[var(--brand-accent-text)]">
+                      {item.title}
+                    </p>
+                    <p className="mt-2 font-body text-sm leading-7 text-white/72">{item.detail}</p>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </div>
@@ -463,6 +529,6 @@ export default function KISOLAMPage() {
           </form>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

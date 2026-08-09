@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import Input from "@/components/ui/Input";
 import { blog } from "@/lib/api";
@@ -80,17 +81,17 @@ export default function BlogPage() {
   return (
     <main>
       {/* Hero Section */}
-      <section
-        className="relative h-96 flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=1920&q=80)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/50"></div>
+      <section className="relative isolate flex h-96 items-center justify-center overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=1920&q=80"
+          alt=""
+          aria-hidden="true"
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover object-center"
+        />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/50" />
 
         {/* Content */}
         <FadeIn className="relative z-10 text-center px-4 max-w-2xl">
@@ -174,7 +175,7 @@ export default function BlogPage() {
                     {/* Image Placeholder */}
                     <div className="h-48 bg-gradient-to-br from-purple-dark to-purple relative overflow-hidden">
                       {post.imageUrl ? (
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={post.imageUrl}
                           alt={post.title}
                           className="w-full h-full object-cover"

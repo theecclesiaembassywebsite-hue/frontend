@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, Clock, ArrowRight } from "lucide-react";
 
 interface EventCardProps {
   title: string;
@@ -16,6 +16,11 @@ interface EventCardProps {
   className?: string;
 }
 
+/**
+ * A gathering, on the shelf. The date sits as a torn-ticket block over the
+ * image so a scan down the grid reads as dates first — which is what someone
+ * browsing events is actually looking for.
+ */
 export default function EventCard({
   title,
   description,
@@ -30,65 +35,68 @@ export default function EventCard({
   className,
 }: EventCardProps) {
   return (
-    <Link href={href} className={cn("block group", className)}>
-      <div
-        className={cn(
-          "flex flex-col rounded-[4px] border-l-4 border-l-purple bg-white shadow-sm overflow-hidden",
-          "transition-shadow duration-200 group-hover:shadow-md"
-        )}
-      >
-        {/* Event image */}
-        {imageUrl && (
-          <div className="h-44 w-full overflow-hidden">
-            <img
+    <Link href={href} className={cn("group block h-full", className)}>
+      <article className="brand-card flex h-full flex-col overflow-hidden">
+        <div className="relative h-44 w-full overflow-hidden bg-[image:var(--brand-band)]">
+          {imageUrl && (
+            /* Event artwork is admin-supplied from arbitrary hosts. */
+            <img loading="lazy" decoding="async"
               src={imageUrl}
-              alt={title}
+              alt=""
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
-          </div>
-        )}
+          )}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(11,9,20,0.72)_100%)]"
+          />
 
-        {/* Content */}
-        <div className="flex gap-4 p-4">
-          {/* Date badge */}
-          <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-[8px] bg-purple text-white">
-            <span className="font-heading text-lg font-bold leading-tight">
-              {day}
-            </span>
-            <span className="font-heading text-[10px] font-semibold uppercase">
+          <div className="absolute left-4 top-4 flex h-14 w-14 flex-col items-center justify-center rounded-[14px] bg-[var(--brand-accent)] text-[var(--brand-on-accent)] shadow-lg">
+            <span className="font-heading text-lg font-bold leading-none">{day}</span>
+            <span className="mt-0.5 font-heading text-[10px] font-bold uppercase tracking-[0.1em]">
               {month}
             </span>
           </div>
 
-          {/* Text */}
-          <div className="flex flex-col gap-1 min-w-0">
-            <h3 className="font-heading text-base sm:text-lg font-semibold text-slate truncate">
-              {title}
-            </h3>
-            <p className="font-body text-sm text-gray-text line-clamp-2">
-              {description}
-            </p>
-            <div className="mt-1 space-y-1">
-              <p className="text-body-small">{date}{time ? ` · ${time}` : ""}</p>
-              {location && (
-                <p className="flex items-center gap-1 text-body-small">
-                  <MapPin size={12} className="shrink-0" />
-                  <span className="truncate">{location}</span>
-                </p>
-              )}
-            </div>
-            {requiresRegistration && (
-              <span className="mt-2 self-start rounded-full bg-purple/10 px-3 py-1 text-xs font-semibold text-purple">
-                Registration Required
-              </span>
-            )}
-            <span className="mt-2 inline-flex items-center gap-1 font-heading text-sm font-semibold text-purple-vivid transition-transform group-hover:translate-x-1">
-              {requiresRegistration ? "Register Now" : "View Details"}
-              <ArrowRight size={14} />
+          {requiresRegistration && (
+            <span className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/45 px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-md">
+              Registration
             </span>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col p-6">
+          <h3 className="font-heading text-lg font-bold leading-snug text-slate transition-colors group-hover:text-[var(--brand-accent-text)]">
+            {title}
+          </h3>
+          <p className="mt-2.5 line-clamp-2 font-body text-sm leading-6 text-gray-text">
+            {description}
+          </p>
+
+          <dl className="mt-5 space-y-2">
+            <div className="flex items-center gap-2.5">
+              <Clock className="h-[14px] w-[14px] shrink-0 text-[var(--brand-accent-text)]" />
+              <dd className="font-body text-[13px] text-[#3A3740]">
+                {date}
+                {time ? ` · ${time}` : ""}
+              </dd>
+            </div>
+            {location && (
+              <div className="flex items-center gap-2.5">
+                <MapPin className="h-[14px] w-[14px] shrink-0 text-[var(--brand-accent-text)]" />
+                <dd className="truncate font-body text-[13px] text-[#3A3740]">{location}</dd>
+              </div>
+            )}
+          </dl>
+
+          <div className="mt-auto flex items-center justify-between border-t border-slate/8 pt-4">
+            <span className="font-heading text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--brand-accent-text)]">
+              {requiresRegistration ? "Register Now" : "View Details"}
+            </span>
+            <ArrowRight className="h-4 w-4 text-[var(--brand-accent-text)] transition-transform duration-200 group-hover:translate-x-1" />
           </div>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }

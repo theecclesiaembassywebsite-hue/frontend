@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
+import SectionIntro from "@/components/ui/SectionIntro";
 import { events as eventsAPI } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
-import {
-  FadeIn,
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/Motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { StaggerContainer, StaggerItem } from "@/components/ui/Motion";
+import { ChevronLeft, ChevronRight, CalendarDays, ArrowRight } from "lucide-react";
 import EventCard from "@/components/ui/EventCard";
 
 const months = [
@@ -47,6 +46,23 @@ const EVENT_TYPE_FILTERS: { value: string; label: string }[] = [
   { value: "GENERAL", label: "General" },
   { value: "FEAST_OF_TABERNACLES", label: "Feast of Tabernacles" },
   { value: "GILGAL_CAMP_MEETING", label: "Gilgal Camp Meeting" },
+];
+
+const SIGNATURE_GATHERINGS = [
+  {
+    href: "/events/feast-of-tabernacles",
+    kicker: "Annual anniversary",
+    title: "Feast of Tabernacles",
+    detail:
+      "Seven days of celebration each September, hosted in Abuja and open to all \u2014 no registration required.",
+  },
+  {
+    href: "/events/gilgal",
+    kicker: "Tri-annual retreat",
+    title: "Gilgal Camp Meeting",
+    detail:
+      "A prophetic camp meeting for realignment, renewal, and refiring. Free, with accommodation and meals.",
+  },
 ];
 
 export default function EventsPage() {
@@ -105,52 +121,43 @@ export default function EventsPage() {
   }
 
   return (
-    <main>
-      {/* Hero Section */}
-      <section
-        className="relative min-h-[260px] sm:h-80 md:h-96 flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&q=80)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/50"></div>
-
-        {/* Content */}
-        <FadeIn className="relative z-10 text-center px-4 max-w-2xl">
-          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">
-            Events & Programs
-          </h1>
-          <p className="font-body text-lg md:text-xl text-gray-100 mb-6">
-            What's happening at the Embassy
-          </p>
-          <div className="h-1 w-16 bg-gradient-to-r from-purple to-purple-vivid mx-auto"></div>
-        </FadeIn>
-      </section>
+    <main data-brand="events">
+      <PageHero
+        eyebrow="Events & Programs"
+        title="What's happening at the Embassy"
+        subtitle="Gatherings, feasts, and camp meetings."
+        description="Browse the calendar month by month, or go straight to the anniversary Feast of Tabernacles and the Gilgal camp meeting."
+        backgroundImage="/site/embassy-building.jpg"
+        backgroundPosition="center 82%"
+        wash="deep"
+        compact
+      />
 
       {/* All Events Section */}
-      <SectionWrapper variant="off-white">
+      <SectionWrapper variant="paper">
         <StaggerContainer>
           {/* Month Picker */}
           <StaggerItem>
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8">
+            <div className="mx-auto mb-10 flex max-w-md items-center gap-3 rounded-full border border-slate/10 bg-white p-2 shadow-sm">
               <button
                 onClick={prevMonth}
-                className="text-gray-text hover:text-purple transition-colors p-3 rounded-full hover:bg-lavender"
+                aria-label="Previous month"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-gray-text transition-colors hover:bg-[var(--brand-accent-soft)] hover:text-slate"
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={20} />
               </button>
-              <h2 className="font-heading text-xl sm:text-2xl font-bold text-slate w-44 sm:w-64 text-center" suppressHydrationWarning>
+              <h2
+                className="flex-1 text-center font-heading text-lg font-bold text-slate sm:text-xl"
+                suppressHydrationWarning
+              >
                 {months[currentMonth]} {currentYear}
               </h2>
               <button
                 onClick={nextMonth}
-                className="text-gray-text hover:text-purple transition-colors p-3 rounded-full hover:bg-lavender"
+                aria-label="Next month"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-gray-text transition-colors hover:bg-[var(--brand-accent-soft)] hover:text-slate"
               >
-                <ChevronRight size={24} />
+                <ChevronRight size={20} />
               </button>
             </div>
           </StaggerItem>
@@ -163,10 +170,11 @@ export default function EventsPage() {
                   <button
                     key={filter.value}
                     onClick={() => setTypeFilter(filter.value)}
-                    className={`shrink-0 rounded-full px-5 py-2 font-body text-sm font-semibold transition-colors ${
+                    aria-pressed={typeFilter === filter.value}
+                    className={`shrink-0 rounded-full border px-5 py-2.5 font-heading text-[11px] font-bold uppercase tracking-[0.12em] transition-colors ${
                       typeFilter === filter.value
-                        ? "bg-purple text-white"
-                        : "bg-white text-gray-text border border-gray-border hover:border-purple hover:text-purple"
+                        ? "border-transparent bg-[var(--brand-ink)] text-white"
+                        : "border-slate/12 bg-white text-gray-text hover:border-[var(--brand-accent-line)] hover:text-slate"
                     }`}
                   >
                     {filter.label}
@@ -174,25 +182,23 @@ export default function EventsPage() {
                 ))}
               </div>
               {/* Scroll hint fades — only relevant when the row overflows, which happens on narrow screens */}
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#FAFAF8] to-transparent sm:hidden" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#FAFAF8] to-transparent sm:hidden" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#FFFDF8] to-transparent sm:hidden" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#FFFDF8] to-transparent sm:hidden" />
             </div>
           </StaggerItem>
 
           {/* Loading State */}
           {loading && (
             <StaggerItem>
-              <SkeletonGroup count={3} variant="card" />
+              <SkeletonGroup count={6} variant="card" columns={3} />
             </StaggerItem>
           )}
 
           {/* Error State */}
           {error && !loading && (
             <StaggerItem>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-12">
-                <p className="font-body text-red-700">
-                  {error}. Please try again later.
-                </p>
+              <div className="mx-auto mb-12 max-w-md rounded-[20px] border border-error/25 bg-error/8 p-6 text-center">
+                <p className="font-body text-sm text-error">{error}. Please try again later.</p>
               </div>
             </StaggerItem>
           )}
@@ -233,15 +239,53 @@ export default function EventsPage() {
           {/* Empty State */}
           {!loading && filteredEvents.length === 0 && !error && (
             <StaggerItem>
-              <div className="text-center py-12">
-                <p className="font-body text-gray-text text-lg">
+              <div className="brand-card brand-card--static mx-auto max-w-md p-12 text-center">
+                <div className="brand-tile mx-auto h-14 w-14">
+                  <CalendarDays className="h-6 w-6" />
+                </div>
+                <h3 className="mt-5 font-heading text-xl font-bold text-slate">Nothing this month</h3>
+                <p className="mx-auto mt-2 max-w-xs font-body text-sm text-gray-text">
                   No {typeFilter === "ALL" ? "" : EVENT_TYPE_FILTERS.find((f) => f.value === typeFilter)?.label + " "}
-                  events scheduled for {months[currentMonth]}.
+                  events are scheduled for {months[currentMonth]}. Try another month.
                 </p>
               </div>
             </StaggerItem>
           )}
         </StaggerContainer>
+      </SectionWrapper>
+
+      {/* SIGNATURE GATHERINGS
+          The two occasions the calendar always returns to, given their own
+          band so they are reachable without hunting through months. */}
+      <SectionWrapper variant="brand-band" hairline>
+        <SectionIntro
+          align="center"
+          tone="dark"
+          eyebrow="On every calendar"
+          title="The gatherings we always come back to"
+        />
+
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
+          {SIGNATURE_GATHERINGS.map((item) => (
+            <Link key={item.href} href={item.href} className="group block h-full">
+              <div className="brand-card-dark flex h-full flex-col p-7 md:p-8">
+                <p className="font-heading text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--brand-accent-text)]">
+                  {item.kicker}
+                </p>
+                <h3 className="mt-3 font-heading text-2xl font-bold text-white md:text-[28px]">
+                  {item.title}
+                </h3>
+                <p className="mt-4 flex-1 font-body text-sm leading-7 text-white/64">
+                  {item.detail}
+                </p>
+                <span className="mt-7 inline-flex items-center gap-2 font-heading text-[12px] font-bold uppercase tracking-[0.14em] text-white">
+                  Read more
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </SectionWrapper>
     </main>
   );

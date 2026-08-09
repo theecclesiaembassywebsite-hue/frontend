@@ -42,7 +42,6 @@ export default function GrowPage() {
         eyebrow="Grow"
         title="Take your next intentional step with us."
         description="Whether you are new to The Ecclesia Embassy or ready for a deeper commitment, these pathways help you grow in your faith and be a committed part of this community."
-        backgroundImage="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1920&q=80"
         actions={[
           { href: "/new-here", label: "Start Here", variant: "primary" },
           { href: "/cith", label: "Find Community", variant: "secondary", onDark: true },

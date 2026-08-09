@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 type GoogleAuthMessage =
   | { type: "google-auth-success"; redirect: string }
-  | { type: "google-auth-error" };
+  | { type: "google-auth-error"; reason?: string | null };
 
 function isGoogleAuthMessage(data: unknown): data is GoogleAuthMessage {
   return typeof data === "object" && data !== null && "type" in data;
@@ -25,7 +25,14 @@ export function useGoogleAuthPopup(onError?: (message: string) => void) {
         window.location.assign(event.data.redirect || "/dashboard");
       } else if (event.data.type === "google-auth-error") {
         popupRef.current?.close();
-        onError?.("Google sign-in failed. Please try again.");
+        // A cancelled consent screen is not an error worth alarming anyone
+        // about — it is the user changing their mind, and it used to surface
+        // as a bare 401 inside the popup with no message at all.
+        onError?.(
+          event.data.reason === "cancelled"
+            ? "Google sign-in was cancelled."
+            : "Google sign-in failed. Please try again."
+        );
       }
     }
 

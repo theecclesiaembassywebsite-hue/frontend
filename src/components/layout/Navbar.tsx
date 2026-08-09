@@ -474,7 +474,7 @@ export default function Navbar() {
                         )}
                       >
                         <span>{link.label}</span>
-                        {link.children ? <ChevronDown size={14} className="text-white/50" /> : null}
+                        {link.children ? <ChevronDown size={14} className="text-white/55" /> : null}
                       </Link>
                       {link.children ? (
                         <div className="mt-3 space-y-1 border-t border-white/8 pt-3">
