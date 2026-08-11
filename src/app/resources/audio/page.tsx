@@ -52,7 +52,14 @@ function EpisodePlayer({ episode, onClose }: { episode: SpotifyEpisode; onClose:
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    playing ? audio.pause() : audio.play();
+    if (playing) {
+      audio.pause();
+      return;
+    }
+    // play() rejects when the browser blocks playback or a pause interrupts
+    // it. The autoplay call above already swallows that; this one did not, so
+    // tapping play at the wrong moment surfaced an unhandled rejection.
+    audio.play().catch(() => {});
   };
 
   const seek = (e: React.MouseEvent<HTMLDivElement>) => {

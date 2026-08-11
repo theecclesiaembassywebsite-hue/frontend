@@ -5,7 +5,6 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { gallery, upload } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { Trash2, Upload, ImagePlus } from "lucide-react";
-import Button from "@/components/ui/Button";
 
 function AdminGalleryContent() {
   const [images, setImages] = useState<any[]>([]);
