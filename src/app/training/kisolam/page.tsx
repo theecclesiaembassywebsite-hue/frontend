@@ -136,12 +136,14 @@ export default function KISOLAMPage() {
         return;
       }
 
+      // `amount` still matters here: a variable-fee course has no stored price,
+      // and this is the one place the figure is known. Email, name and
+      // programme are deliberately not sent — the backend takes them from the
+      // enrollment it just created, so a request cannot bill a payment to an
+      // address of its own choosing.
       const payment = await training.initializePayment({
         enrollmentId: enrollment.id,
         amount,
-        email: formData.email,
-        name: formData.name,
-        program: selectedCourse.name,
       });
 
       window.location.href = payment.authorization_url +

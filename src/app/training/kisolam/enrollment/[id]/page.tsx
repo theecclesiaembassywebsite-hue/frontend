@@ -7,15 +7,18 @@ import { training } from "@/lib/api";
 import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 
+// Mirrors GET /training/enrollment/:id, which is deliberately unauthenticated
+// and therefore deliberately thin. The enrollment id reaches this page through
+// a Paystack callback URL, so it lives in browser history and in any shared
+// link — the endpoint no longer returns the registrant's email, phone,
+// payment reference or free-form additionalInfo, and `name` arrives as a first
+// name only. See TrainingService.getEnrollmentStatus.
 interface Enrollment {
   id: string;
   program: string;
+  courseName?: string | null;
   name: string;
-  email: string;
-  phone: string;
   paymentStatus?: string;
-  paymentRef?: string;
-  additionalInfo?: { program?: string; programId?: string };
   createdAt: string;
 }
 
@@ -64,22 +67,27 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
   const handlePayNow = async () => {
     if (!enrollment) return;
     try {
-      const additionalInfo = enrollment.additionalInfo as any;
-      const programName = additionalInfo?.program || enrollment.program;
-      // Re-initialize payment (amount stored in additionalInfo or ask user — we'll redirect to page)
+      // Only the enrollment id is sent. The backend reads the payer's email,
+      // name and programme from the enrollment row and bills the course's own
+      // fee, so there is nothing here worth this page knowing — which is what
+      // lets the status endpoint withhold it. A variable-fee course has no
+      // stored price and answers with a message telling the user to re-enrol,
+      // rather than the silent 0-naira charge this used to send.
       const payment = await training.initializePayment({
         enrollmentId: enrollment.id,
-        amount: 0, // Will be set by backend from stored amount or needs re-entry
-        email: enrollment.email,
-        name: enrollment.name,
-        program: programName,
       });
       window.location.href = payment.authorization_url +
         `?callback_url=${encodeURIComponent(
           `${window.location.origin}/training/kisolam/enrollment/${enrollment.id}?ref=${payment.reference}`
         )}`;
     } catch (err) {
-      error("Could not initialize payment. Please go back and re-enrol.");
+      // Surface the backend's reason when it gave one — "this enrolment has no
+      // fixed fee" is actionable, "could not initialize" is not.
+      error(
+        err instanceof Error && err.message
+          ? err.message
+          : "Could not initialize payment. Please go back and re-enrol."
+      );
     }
   };
 
@@ -115,8 +123,7 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
 
   if (!enrollment) return null;
 
-  const additionalInfo = enrollment.additionalInfo as any;
-  const programName = additionalInfo?.program || enrollment.program;
+  const programName = enrollment.courseName || enrollment.program;
   const isPaid = enrollment.paymentStatus === "SUCCESS";
   const isPending = !enrollment.paymentStatus || enrollment.paymentStatus === "PENDING";
 
@@ -156,17 +163,13 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
               <span className="text-gray-text">Programme</span>
               <span className="font-semibold text-slate">{programName}</span>
             </div>
+            {/* First name only. Anyone with the link can open this page, so it
+                shows just enough for the registrant to recognise their own
+                enrolment without publishing their contact details to whoever
+                the link reaches. */}
             <div className="flex justify-between">
               <span className="text-gray-text">Name</span>
               <span className="text-slate">{enrollment.name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-text">Email</span>
-              <span className="text-slate">{enrollment.email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-text">Phone</span>
-              <span className="text-slate">{enrollment.phone}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-text">Date Applied</span>
@@ -186,7 +189,7 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
         </div>
 
         {/* Pay Now (if pending) */}
-        {isPending && enrollment.paymentRef && (
+        {isPending && (
           <div className="rounded-[8px] border border-warning/30 bg-warning/5 p-5 mb-5">
             <p className="font-body text-sm text-slate mb-3">
               Your enrolment is reserved but your spot is not confirmed until payment is received.
@@ -200,7 +203,7 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
         {isPaid && (
           <div className="rounded-[8px] border border-success/20 bg-success/5 p-5 text-center">
             <p className="font-body text-sm text-gray-text">
-              A confirmation has been sent to <strong>{enrollment.email}</strong>. Our team will be in touch with next steps and session details.
+              A confirmation has been sent to the email address you enrolled with. Our team will be in touch with next steps and session details.
             </p>
           </div>
         )}

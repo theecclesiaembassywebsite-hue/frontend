@@ -1398,7 +1398,11 @@ export const training = {
   getEnrollment: (id: string) =>
     fetchAPI<any>(`/training/enrollment/${id}`, { noAuth: true }),
 
-  initializePayment: (data: { enrollmentId: string; amount: number; email: string; name: string; program: string }) =>
+  // The backend reads the payer's email, name and programme from the
+  // enrollment row rather than the request body, so only `enrollmentId` is
+  // required. `amount` is consulted for variable-fee courses only — a
+  // fixed-fee course always bills its own price.
+  initializePayment: (data: { enrollmentId: string; amount?: number }) =>
     fetchAPI<{ reference: string; authorization_url: string; enrollmentId: string }>("/training/payment/initialize", {
       method: "POST",
       body: JSON.stringify(data),
