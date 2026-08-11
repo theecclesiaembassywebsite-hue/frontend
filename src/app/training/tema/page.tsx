@@ -31,6 +31,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { training, TrainingCourse } from "@/lib/api";
+import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
 
 // Icons are a purely visual, code-driven lookup — new courses an admin creates
@@ -45,14 +46,8 @@ const programIcons: Record<string, LucideIcon> = {
   SAL: Film,
 };
 
-const statusLabel: Record<TrainingCourse["status"], string> = {
-  UPCOMING: "Upcoming",
-  IN_SESSION: "Open",
-  ENDED: "Not in Session",
-};
-
 const isJoinable = (course: TrainingCourse) =>
-  course.registrationOpen && course.status === "IN_SESSION";
+  getCourseAvailability(course).joinable;
 
 const experiences = [
   {
@@ -485,7 +480,8 @@ export default function TEMAPage() {
           ) : (
             courses.map((course) => {
               const Icon = programIcons[course.code] || Sparkles;
-              const joinable = isJoinable(course);
+              const availability = getCourseAvailability(course);
+              const joinable = availability.joinable;
               return (
                 <div key={course.id} className="brand-card p-6 md:p-7">
                   <div className="flex items-start gap-5">
@@ -504,7 +500,7 @@ export default function TEMAPage() {
                               : "bg-gray-text/10 text-gray-text"
                           }`}
                         >
-                          {statusLabel[course.status]}
+                          {availability.shortLabel}
                         </span>
                       </div>
                       <h3 className="mt-3 font-heading text-lg font-bold text-slate">
@@ -624,7 +620,7 @@ export default function TEMAPage() {
                   {courses.map((course) => (
                     <option key={course.id} value={course.id} disabled={!isJoinable(course)}>
                       {course.name}
-                      {!isJoinable(course) ? ` (${statusLabel[course.status]})` : ""}
+                      {!isJoinable(course) ? ` (${getCourseAvailability(course).shortLabel})` : ""}
                     </option>
                   ))}
                 </select>

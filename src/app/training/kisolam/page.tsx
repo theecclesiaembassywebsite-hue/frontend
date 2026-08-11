@@ -22,16 +22,11 @@ import {
   User,
 } from "lucide-react";
 import { training, TrainingCourse } from "@/lib/api";
+import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
 
-const statusLabel: Record<TrainingCourse["status"], string> = {
-  UPCOMING: "Upcoming",
-  IN_SESSION: "Open for Enrollment",
-  ENDED: "Not in Session",
-};
-
 const isJoinable = (course: TrainingCourse) =>
-  course.registrationOpen && course.status === "IN_SESSION";
+  getCourseAvailability(course).joinable;
 
 // The backend computes the price (including any running discount) and sends it
 // as `pricing`. Reading it here rather than re-deriving from fee/discount keeps
@@ -284,7 +279,8 @@ export default function KISOLAMPage() {
             </p>
           ) : (
             courses.map((course) => {
-              const joinable = isJoinable(course);
+              const availability = getCourseAvailability(course);
+              const joinable = availability.joinable;
               return (
                 <div
                   key={course.id}
@@ -312,7 +308,7 @@ export default function KISOLAMPage() {
                               : "bg-gray-text/10 text-gray-text"
                           }`}
                         >
-                          {statusLabel[course.status]}
+                          {availability.label}
                         </span>
                       </div>
 
@@ -354,7 +350,7 @@ export default function KISOLAMPage() {
                           Enroll <ArrowRight size={14} />
                         </>
                       ) : (
-                        statusLabel[course.status]
+                        availability.label
                       )}
                     </Button>
                   </div>
