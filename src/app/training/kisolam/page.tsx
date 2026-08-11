@@ -33,9 +33,13 @@ const statusLabel: Record<TrainingCourse["status"], string> = {
 const isJoinable = (course: TrainingCourse) =>
   course.registrationOpen && course.status === "IN_SESSION";
 
+// The backend computes the price (including any running discount) and sends it
+// as `pricing`. Reading it here rather than re-deriving from fee/discount keeps
+// the advertised figure and the charged figure identical by construction.
 const formatFee = (course: TrainingCourse) => {
-  if (course.feeType === "VARIABLE") return "Variable";
-  return `${course.feeCurrency || "NGN "}${(course.fee || 0).toLocaleString()}`;
+  const { pricing } = course;
+  if (pricing.isFree) return "Free";
+  return `${course.feeCurrency || "NGN "}${pricing.effectiveFee.toLocaleString()}`;
 };
 
 const trainingPillars = [
@@ -73,7 +77,6 @@ export default function KISOLAMPage() {
   const [selectedCourse, setSelectedCourse] = useState<TrainingCourse | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<"form" | "processing">("form");
-  const [customAmount, setCustomAmount] = useState("");
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const { success, error } = useToast();
 
@@ -93,7 +96,6 @@ export default function KISOLAMPage() {
   function openEnroll(course: TrainingCourse) {
     setSelectedCourse(course);
     setFormData({ name: "", email: "", phone: "" });
-    setCustomAmount("");
     setStep("form");
     setShowModal(true);
   }
@@ -106,19 +108,10 @@ export default function KISOLAMPage() {
     e.preventDefault();
     if (!selectedCourse) return;
 
-    const amount = selectedCourse.feeType === "FIXED"
-      ? selectedCourse.fee!
-      : Number(customAmount);
-
-    if (selectedCourse.feeType === "VARIABLE" && customAmount === "") {
-      error("Please enter the program fee. Enter 0 for free sessions.");
-      return;
-    }
-
-    if (selectedCourse.feeType === "VARIABLE" && amount < 0) {
-      error("Amount cannot be negative.");
-      return;
-    }
+    // The enrollee no longer supplies an amount: the course's own price, and
+    // any discount running against it, decide this. The backend recomputes it
+    // regardless, so this only governs whether to show the payment step.
+    const isFree = selectedCourse.pricing.isFree;
 
     setStep("processing");
     try {
@@ -129,21 +122,18 @@ export default function KISOLAMPage() {
         courseId: selectedCourse.id,
       });
 
-      if (amount === 0) {
+      if (isFree) {
         success("Registration successful. Check your email for details.");
         setShowModal(false);
         window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
         return;
       }
 
-      // `amount` still matters here: a variable-fee course has no stored price,
-      // and this is the one place the figure is known. Email, name and
-      // programme are deliberately not sent — the backend takes them from the
-      // enrollment it just created, so a request cannot bill a payment to an
-      // address of its own choosing.
+      // Only the enrollment id is sent. The backend reads the payer's identity
+      // from the enrollment row and the price from the course, so neither the
+      // amount nor the email can be chosen by the browser.
       const payment = await training.initializePayment({
         enrollmentId: enrollment.id,
-        amount,
       });
 
       window.location.href = payment.authorization_url +
@@ -465,11 +455,32 @@ export default function KISOLAMPage() {
             <div className="rounded-[10px] bg-purple-light/40 px-4 py-3 text-sm">
               <p className="font-heading font-semibold text-slate">{selectedCourse?.name}</p>
               <p className="text-[12px] text-gray-text">Duration: {selectedCourse?.duration}</p>
-              <p className="mt-1 font-heading text-[13px] font-bold text-purple">
-                {selectedCourse?.feeType === "FIXED"
-                  ? `Fee: ${selectedCourse?.feeCurrency}${(selectedCourse?.fee || 0).toLocaleString()}`
-                  : "Fee varies per session. Enter the correct amount below."}
-              </p>
+              {selectedCourse?.pricing.isFree ? (
+                <p className="mt-1 font-heading text-[13px] font-bold text-purple">
+                  Fee: Free — no payment required
+                </p>
+              ) : (
+                <>
+                  <p className="mt-1 font-heading text-[13px] font-bold text-purple">
+                    Fee: {selectedCourse?.feeCurrency}
+                    {selectedCourse?.pricing.effectiveFee.toLocaleString()}
+                    {selectedCourse?.pricing.isDiscountActive && (
+                      <span className="ml-2 font-body text-[12px] font-normal text-gray-text line-through">
+                        {selectedCourse.feeCurrency}
+                        {(selectedCourse.pricing.baseFee ?? 0).toLocaleString()}
+                      </span>
+                    )}
+                  </p>
+                  {selectedCourse?.pricing.isDiscountActive && (
+                    <p className="text-[12px] text-purple">
+                      {selectedCourse.pricing.activeDiscountPercent}% off
+                      {selectedCourse.pricing.discountEndsAt
+                        ? ` until ${new Date(selectedCourse.pricing.discountEndsAt).toLocaleDateString()}`
+                        : ""}
+                    </p>
+                  )}
+                </>
+              )}
             </div>
 
             <Input
@@ -499,19 +510,6 @@ export default function KISOLAMPage() {
               required
             />
 
-            {selectedCourse?.feeType === "VARIABLE" && (
-              <Input
-                id="amount"
-                label="Program Fee (NGN)"
-                type="number"
-                placeholder="Enter 0 for free, or the current session fee"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                required
-                min="0"
-              />
-            )}
-
             <div className="flex gap-2 pt-2">
               <Button
                 type="button"
@@ -523,9 +521,7 @@ export default function KISOLAMPage() {
               </Button>
               <Button type="submit" variant="giving" className="flex-1 justify-center gap-2">
                 <BadgeCheck size={15} />
-                {selectedCourse?.feeType === "FIXED" || Number(customAmount) > 0
-                  ? "Enroll and Pay"
-                  : "Enroll Free"}
+                {selectedCourse?.pricing.isFree ? "Enroll Free" : "Enroll and Pay"}
               </Button>
             </div>
           </form>

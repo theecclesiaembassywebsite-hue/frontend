@@ -72,8 +72,11 @@ const emptyCourseForm = {
   name: "",
   description: "",
   duration: "",
-  feeType: "FIXED" as "FIXED" | "VARIABLE",
+  feeType: "FIXED" as "FIXED" | "FREE",
   fee: "",
+  discountPercent: "",
+  discountStartsAt: "",
+  discountEndsAt: "",
   feeCurrency: "NGN",
   streams: "",
   startDate: "",
@@ -131,6 +134,9 @@ function CoursesTab() {
       duration: course.duration,
       feeType: course.feeType,
       fee: course.fee != null ? String(course.fee) : "",
+      discountPercent: course.discountPercent != null ? String(course.discountPercent) : "",
+      discountStartsAt: toDateInputValue(course.discountStartsAt),
+      discountEndsAt: toDateInputValue(course.discountEndsAt),
       feeCurrency: course.feeCurrency,
       streams: course.streams.join(", "),
       startDate: toDateInputValue(course.startDate),
@@ -145,8 +151,33 @@ function CoursesTab() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
-    if (form.feeType === "FIXED" && form.fee.trim() === "") {
-      error("Enter a fee amount for a fixed-fee course.");
+    const isFree = form.feeType === "FREE";
+
+    if (!isFree && form.fee.trim() === "") {
+      error("Enter a fee amount, or set the fee type to Free.");
+      return;
+    }
+
+    const discountPercent = form.discountPercent.trim()
+      ? Number(form.discountPercent)
+      : null;
+
+    if (discountPercent !== null && (discountPercent < 1 || discountPercent > 100)) {
+      error("Discount must be between 1% and 100%.");
+      return;
+    }
+
+    if (discountPercent === null && (form.discountStartsAt || form.discountEndsAt)) {
+      error("Enter a discount percentage, or clear the discount dates.");
+      return;
+    }
+
+    if (
+      form.discountStartsAt &&
+      form.discountEndsAt &&
+      new Date(form.discountEndsAt) < new Date(form.discountStartsAt)
+    ) {
+      error("The discount end date must be after the start date.");
       return;
     }
 
@@ -157,7 +188,16 @@ function CoursesTab() {
       description: form.description.trim(),
       duration: form.duration.trim(),
       feeType: form.feeType,
-      fee: form.feeType === "FIXED" ? Number(form.fee) : undefined,
+      // A free course carries no price and no offer. Sending null rather than
+      // undefined so switching an existing course to Free actually clears them.
+      fee: isFree ? undefined : Number(form.fee),
+      discountPercent: isFree ? null : discountPercent,
+      discountStartsAt: isFree || !form.discountStartsAt
+        ? null
+        : new Date(form.discountStartsAt).toISOString(),
+      discountEndsAt: isFree || !form.discountEndsAt
+        ? null
+        : new Date(form.discountEndsAt).toISOString(),
       feeCurrency: form.feeCurrency.trim() || "NGN",
       streams: form.streams.split(",").map((s) => s.trim()).filter(Boolean),
       startDate: form.startDate ? new Date(form.startDate).toISOString() : undefined,
@@ -208,8 +248,37 @@ function CoursesTab() {
     }
   }
 
-  const formatFee = (course: TrainingCourse) =>
-    course.feeType === "VARIABLE" ? "Variable" : `${course.feeCurrency}${(course.fee || 0).toLocaleString()}`;
+  // Shows the admin what the enrollee will actually pay, while they type.
+  // Deliberately a preview only — the amount charged is recomputed on the
+  // server from the saved row, so this can never be the number that bills.
+  const discountPreview = (() => {
+    if (form.feeType === "FREE") return null;
+    const base = Number(form.fee);
+    const percent = Number(form.discountPercent);
+    if (!form.fee.trim() || !Number.isFinite(base) || base <= 0) return null;
+    if (!form.discountPercent.trim() || !Number.isFinite(percent) || percent <= 0) return null;
+
+    const effective = Math.max(0, Math.round((base * (100 - Math.min(percent, 100))) / 100));
+    const currency = form.feeCurrency.trim() || "NGN";
+    const window =
+      form.discountStartsAt || form.discountEndsAt
+        ? ` between ${form.discountStartsAt || "now"} and ${form.discountEndsAt || "no end date"}`
+        : " immediately, with no end date";
+
+    return effective === 0
+      ? `Enrollees pay nothing${window}.`
+      : `Enrollees pay ${currency}${effective.toLocaleString()} instead of ${currency}${base.toLocaleString()}${window}.`;
+  })();
+
+  // Reads the backend's computed pricing rather than re-deriving it, so this
+  // column always matches what an enrollee is actually charged.
+  const formatFee = (course: TrainingCourse) => {
+    const p = course.pricing;
+    if (p.isFree) return "Free";
+    const amount = `${course.feeCurrency}${p.effectiveFee.toLocaleString()}`;
+    if (!p.isDiscountActive) return amount;
+    return `${amount} (${p.activeDiscountPercent}% off ${course.feeCurrency}${(p.baseFee ?? 0).toLocaleString()})`;
+  };
 
   const formatSchedule = (course: TrainingCourse) => {
     const start = course.startDate ? new Date(course.startDate).toLocaleDateString() : null;
@@ -385,30 +454,82 @@ function CoursesTab() {
               <label className="block text-sm font-heading font-semibold text-slate mb-1">Fee Type</label>
               <Select
                 id="form-feetype"
-                options={[{ value: "FIXED", label: "Fixed" }, { value: "VARIABLE", label: "Variable" }]}
+                options={[{ value: "FIXED", label: "Fixed" }, { value: "FREE", label: "Free" }]}
                 value={form.feeType}
-                onChange={(e) => setForm({ ...form, feeType: e.target.value as "FIXED" | "VARIABLE" })}
+                onChange={(e) => setForm({ ...form, feeType: e.target.value as "FIXED" | "FREE" })}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              id="form-fee"
-              label={form.feeType === "FIXED" ? "Fee Amount" : "Fee Amount (optional)"}
-              type="number"
-              min="0"
-              placeholder={form.feeType === "FIXED" ? "e.g. 20000" : "Leave blank if it varies"}
-              value={form.fee}
-              onChange={(e) => setForm({ ...form, fee: e.target.value })}
-            />
-            <Input
-              id="form-currency"
-              label="Currency"
-              value={form.feeCurrency}
-              onChange={(e) => setForm({ ...form, feeCurrency: e.target.value })}
-            />
-          </div>
+          {form.feeType === "FREE" ? (
+            <p className="rounded-[6px] border border-gray-border bg-off-white px-4 py-3 font-body text-sm text-gray-text">
+              This course is free. Enrollees will not be asked for payment, and no
+              fee or discount is stored for it.
+            </p>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  id="form-fee"
+                  label="Fee Amount"
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 20000"
+                  value={form.fee}
+                  onChange={(e) => setForm({ ...form, fee: e.target.value })}
+                />
+                <Input
+                  id="form-currency"
+                  label="Currency"
+                  value={form.feeCurrency}
+                  onChange={(e) => setForm({ ...form, feeCurrency: e.target.value })}
+                />
+              </div>
+
+              <fieldset className="rounded-[6px] border border-gray-border p-4">
+                <legend className="px-1 font-heading text-sm font-semibold text-slate">
+                  Discount (optional)
+                </legend>
+                <p className="mb-3 font-body text-xs text-gray-text">
+                  A percentage off the fee while the window below is open. Leave
+                  the dates blank for a discount that starts now and does not
+                  expire. Enrollees are charged the discounted amount
+                  automatically.
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    id="form-discount-percent"
+                    label="Percent off"
+                    type="number"
+                    min="1"
+                    max="100"
+                    placeholder="e.g. 25"
+                    value={form.discountPercent}
+                    onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
+                  />
+                  <Input
+                    id="form-discount-start"
+                    label="Starts (optional)"
+                    type="date"
+                    value={form.discountStartsAt}
+                    onChange={(e) => setForm({ ...form, discountStartsAt: e.target.value })}
+                  />
+                  <Input
+                    id="form-discount-end"
+                    label="Ends (optional)"
+                    type="date"
+                    value={form.discountEndsAt}
+                    onChange={(e) => setForm({ ...form, discountEndsAt: e.target.value })}
+                  />
+                </div>
+                {discountPreview && (
+                  <p className="mt-3 font-body text-sm text-slate">
+                    {discountPreview}
+                  </p>
+                )}
+              </fieldset>
+            </>
+          )}
 
           <Input
             id="form-streams"

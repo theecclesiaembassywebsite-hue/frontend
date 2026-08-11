@@ -1349,6 +1349,23 @@ export const engagement = {
 // TRAINING ENDPOINTS
 export type TrainingCourseStatus = "UPCOMING" | "IN_SESSION" | "ENDED";
 
+/**
+ * What a course costs right now, computed by the backend
+ * (src/training/course-pricing.ts) and sent with every course.
+ *
+ * Read this rather than re-deriving from fee/feeType/discount — the admin
+ * list, the public cards and the amount actually charged all come from this
+ * one calculation, and duplicating the rules here is how they drift apart.
+ */
+export interface CoursePricing {
+  isFree: boolean;
+  baseFee: number | null;
+  effectiveFee: number;
+  activeDiscountPercent: number | null;
+  isDiscountActive: boolean;
+  discountEndsAt: string | null;
+}
+
 export interface TrainingCourse {
   id: string;
   program: "KISOLAM" | "TEMA";
@@ -1356,9 +1373,13 @@ export interface TrainingCourse {
   name: string;
   description: string;
   duration: string;
-  feeType: "FIXED" | "VARIABLE";
+  feeType: "FIXED" | "FREE";
   fee: number | null;
   feeCurrency: string;
+  discountPercent: number | null;
+  discountStartsAt: string | null;
+  discountEndsAt: string | null;
+  pricing: CoursePricing;
   streams: string[];
   startDate: string | null;
   endDate: string | null;
@@ -1376,8 +1397,12 @@ export interface TrainingCourseInput {
   name: string;
   description: string;
   duration: string;
-  feeType: "FIXED" | "VARIABLE";
+  feeType: "FIXED" | "FREE";
   fee?: number;
+  // null clears a discount on update; omitting the field leaves it untouched.
+  discountPercent?: number | null;
+  discountStartsAt?: string | null;
+  discountEndsAt?: string | null;
   feeCurrency?: string;
   streams?: string[];
   startDate?: string;
