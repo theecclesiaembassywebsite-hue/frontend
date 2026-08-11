@@ -1,5 +1,130 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
+const apiOrigin = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+})();
+
+// The live page opens a socket.io connection to the API with
+// `transports: ["websocket"]` (src/app/live/page.tsx), and a ws:// or wss://
+// URL is not covered by the matching http(s) source — a browser check against
+// the built app blocked it four times over on /live before this was added.
+const apiWebSocketOrigin = apiOrigin
+  ? apiOrigin.replace(/^http/, "ws")
+  : null;
+
+// Verified against the built app in a real browser across 20 routes, not
+// written from a template. Two things that audit found are worth stating,
+// because both look like bugs and neither is:
+//
+//  1. A bundled library probes for eval with `try { Function("") } catch {}`
+//     and caches the answer. Under this policy the probe is refused, the
+//     library takes its non-eval path, and no error reaches the page. It does
+//     report a `script-src` violation, which is the browser working correctly.
+//     Do not add 'unsafe-eval' to silence it — that would re-open the exact
+//     hole this policy exists to close, in order to satisfy a feature test
+//     that is already handling the "no" answer.
+//
+//  2. 'unsafe-inline' in script-src is load-bearing for Next's hydration
+//     bootstrap and cannot simply be dropped. It does weaken the XSS story,
+//     so this policy earns its keep elsewhere: object-src 'none', base-uri
+//     'self', frame-ancestors 'none', and an explicit origin allowlist that
+//     stops an injected script from reaching an attacker's host. Moving to
+//     nonces is the real upgrade, and needs middleware.
+const csp = [
+  "default-src 'self'",
+  [
+    "script-src",
+    "'self'",
+    "'unsafe-inline'",
+    ...(isProd ? [] : ["'unsafe-eval'"]),
+    "https://www.youtube.com",
+    "https://www.youtube-nocookie.com",
+    "https://open.spotify.com",
+    "https://js.paystack.co",
+    "https://checkout.paystack.com",
+    "https://www.paypal.com",
+    "https://www.sandbox.paypal.com",
+    "https://vercel.live",
+    "https://va.vercel-scripts.com",
+  ].join(" "),
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  [
+    "connect-src",
+    "'self'",
+    apiOrigin,
+    apiWebSocketOrigin,
+    "https://api.theecclesiaembassy.org",
+    "wss://api.theecclesiaembassy.org",
+    "https://www.googleapis.com",
+    "https://www.youtube.com",
+    "https://www.youtube-nocookie.com",
+    "https://i.ytimg.com",
+    "https://open.spotify.com",
+    "https://api.spotify.com",
+    "https://checkout.paystack.com",
+    "https://api.paystack.co",
+    "https://www.paypal.com",
+    "https://www.sandbox.paypal.com",
+    "https://vitals.vercel-insights.com",
+    "https://vercel.live",
+  ]
+    .filter(Boolean)
+    .join(" "),
+  "media-src 'self' blob: https:",
+  // google.com is the Maps embed on /contact ("output=embed"), which the
+  // browser audit caught rendering as a blank frame under the first draft of
+  // this policy.
+  [
+    "frame-src",
+    "'self'",
+    "https://www.youtube.com",
+    "https://www.youtube-nocookie.com",
+    "https://open.spotify.com",
+    "https://checkout.paystack.com",
+    "https://www.paypal.com",
+    "https://www.sandbox.paypal.com",
+    "https://www.google.com",
+    "https://maps.google.com",
+  ].join(" "),
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self' https://checkout.paystack.com https://www.paypal.com https://www.sandbox.paypal.com",
+  "frame-ancestors 'none'",
+  ...(isProd ? ["upgrade-insecure-requests"] : []),
+].join("; ");
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  {
+    key: "Permissions-Policy",
+    // A bare `payment=(self)` / `fullscreen=(self)` would block the embedded
+    // third parties that need exactly those two: the Paystack and PayPal
+    // checkout frames use the Payment Request API, and the YouTube/Spotify
+    // players own their fullscreen button. Permissions-Policy applies to
+    // iframes as well as the top document, so the origins have to be named.
+    value: [
+      "camera=()",
+      "microphone=()",
+      "geolocation=()",
+      'payment=(self "https://checkout.paystack.com" "https://www.paypal.com" "https://www.sandbox.paypal.com")',
+      'fullscreen=(self "https://www.youtube.com" "https://www.youtube-nocookie.com" "https://open.spotify.com")',
+    ].join(", "),
+  },
+];
+
 const nextConfig: NextConfig = {
   images: {
     // AVIF first, WebP second, original as the last resort. Both are far
@@ -28,6 +153,10 @@ const nextConfig: NextConfig = {
   // days, or sooner by renaming it.
   async headers() {
     return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
       {
         source: "/:path*.(mp4|webm|jpg|jpeg|png|webp|avif|svg|ico)",
         headers: [
