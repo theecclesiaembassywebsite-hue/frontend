@@ -67,7 +67,12 @@ export default function AboutPage() {
         title="Called out by Christ, sent as His ambassadors."
         subtitle="The Ecclesia Embassy is the assembly of the called-out ones and the dwelling place of those chosen to showcase His beauty and excellence."
         description="We are committed to raising a people with a thriving relationship with God, operating with Kingdom worldview, for societal relevance."
-        backgroundImage="https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1920&q=80"
+        backgroundImage="/about-hero.jpg"
+        // Bright outdoor daylight, so it needs the heavier wash to keep the
+        // eyebrow and body copy legible. Framed below centre to hold the
+        // group rather than the buildings behind them.
+        backgroundPosition="center 60%"
+        wash="deep"
         actions={[
           { href: "/about/leadership", label: "Meet the Lead Brother", variant: "primary" },
           { href: "/about/experience", label: "The Ecclesia Experience", variant: "secondary", onDark: true },

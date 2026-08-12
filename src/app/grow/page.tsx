@@ -42,6 +42,11 @@ export default function GrowPage() {
         eyebrow="Grow"
         title="Take your next intentional step with us."
         description="Whether you are new to The Ecclesia Embassy or ready for a deeper commitment, these pathways help you grow in your faith and be a committed part of this community."
+        backgroundImage="/grow-hero.jpg"
+        // The frame is already low-key stage lighting, so the standard wash is
+        // enough. Biased below centre because the seated congregation — the
+        // part that says "grow with us" — sits in the lower half.
+        backgroundPosition="center 55%"
         actions={[
           { href: "/new-here", label: "Start Here", variant: "primary" },
           { href: "/cith", label: "Find Community", variant: "secondary", onDark: true },
