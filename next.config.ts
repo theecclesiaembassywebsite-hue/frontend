@@ -184,6 +184,47 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // Aliases for the three policy pages, pointing at the canonical paths.
+  //
+  // These exist because a policy URL is written down in places we do not
+  // control and cannot edit quickly: the Play Console listing, the App Store
+  // listing, and the bundle of any installed app — EXPO_PUBLIC_WEB_URL is
+  // inlined at build time, so a phone that has not taken the latest update
+  // still requests whatever URL it shipped with. A 404 on a policy link is an
+  // enforcement trigger rather than a broken page, so the cheap fix is to make
+  // the obvious variants resolve instead of relying on everyone typing the
+  // canonical one.
+  //
+  // Permanent, because these are aliases rather than a migration in progress —
+  // if a path here is ever meant to become a real page, drop its entry first
+  // and let the 308 expire from browser caches before shipping the page.
+  async redirects() {
+    const alias = (from: string, to: string) => ({
+      source: from,
+      destination: to,
+      permanent: true,
+    });
+
+    return [
+      alias("/privacy-policy", "/privacy"),
+      alias("/privacypolicy", "/privacy"),
+      alias("/legal", "/privacy"),
+      alias("/legal/privacy", "/privacy"),
+
+      alias("/terms-of-use", "/terms"),
+      alias("/terms-of-service", "/terms"),
+      alias("/tos", "/terms"),
+      alias("/legal/terms", "/terms"),
+
+      // The deletion URL is the one most likely to be entered from memory, and
+      // Play asks for it in a different part of the console from the policy.
+      alias("/delete-account", "/privacy/delete-account"),
+      alias("/account-deletion", "/privacy/delete-account"),
+      alias("/data-deletion", "/privacy/delete-account"),
+      alias("/privacy/delete", "/privacy/delete-account"),
+    ];
+  },
 };
 
 // Source maps are uploaded only when an auth token is present, so a plain
