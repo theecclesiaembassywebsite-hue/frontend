@@ -65,7 +65,12 @@ const collected = [
   {
     area: "On the mobile app",
     detail:
-      "A push notification token identifying your device, and the platform it runs on, so reminders can reach you. The app asks for camera or photo library access only at the moment you choose to set a profile photo, and does not read your library otherwise.",
+      "A push notification token identifying your device, and the platform it runs on, so reminders can reach you. That is the whole of it — the app has no access to your camera, photo library, contacts, calendar or location, and asks for none of them.",
+  },
+  {
+    area: "Your profile photo",
+    detail:
+      "If you add one, it is uploaded from the website and stored with your profile. Only you and the church team can change it. It is optional, and an account without one works exactly the same.",
   },
   {
     area: "Technical records",
