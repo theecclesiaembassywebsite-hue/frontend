@@ -161,7 +161,7 @@ export default function PrivacyPolicyPage() {
         eyebrow="Privacy"
         title="Privacy Policy"
         subtitle={`Last reviewed ${LAST_REVIEWED}`}
-        description="This policy covers theecclesiaembassy.org and The Ecclesia Embassy mobile app. It is written to be read, not to be survived — if anything here is unclear, ask us and we will fix the wording."
+        description="This policy covers The Ecclesia Embassy website and mobile app, wherever they are hosted. It is written to be read, not to be survived — if anything here is unclear, ask us and we will fix the wording."
         compact
       />
 

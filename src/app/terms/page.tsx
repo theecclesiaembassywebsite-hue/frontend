@@ -91,7 +91,7 @@ export default function TermsOfUsePage() {
         eyebrow="Legal"
         title="Terms of Use"
         subtitle={`Last reviewed ${LAST_REVIEWED}`}
-        description="These terms apply when you use theecclesiaembassy.org or The Ecclesia Embassy mobile app. Using either means you accept them."
+        description="These terms apply when you use The Ecclesia Embassy website or mobile app. Using either means you accept them."
         compact
       />
 
