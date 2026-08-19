@@ -1,9 +1,24 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const isProd = process.env.NODE_ENV === "production";
 
 const apiOrigin = (() => {
   const raw = process.env.NEXT_PUBLIC_API_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+})();
+
+// The browser SDK POSTs events to the DSN's own host
+// (https://<org>.ingest.<region>.sentry.io), which `connect-src 'self'` refuses.
+// Derived from the DSN rather than hard-coded so the policy stays correct when
+// the project moves org or region, and stays absent entirely when Sentry is off.
+const sentryIngestOrigin = (() => {
+  const raw = process.env.NEXT_PUBLIC_SENTRY_DSN;
   if (!raw) return null;
   try {
     return new URL(raw).origin;
@@ -77,6 +92,7 @@ const csp = [
     "https://www.sandbox.paypal.com",
     "https://vitals.vercel-insights.com",
     "https://vercel.live",
+    sentryIngestOrigin,
   ]
     .filter(Boolean)
     .join(" "),
@@ -170,4 +186,31 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Source maps are uploaded only when an auth token is present, so a plain
+// `next build` — local, CI, or a fork without the secret — still succeeds and
+// simply ships without readable stack traces.
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: sentryAuthToken,
+
+  silent: !process.env.CI,
+
+  // Uploads the maps and then deletes them from the deployed output, so the
+  // stack traces are readable in Sentry without publishing our source to
+  // anyone who opens devtools.
+  sourcemaps: {
+    disable: !sentryAuthToken,
+    deleteSourcemapsAfterUpload: true,
+  },
+
+  // Covers the client bundle's chunks as well as the page files, which is what
+  // makes a minified frame inside a shared chunk resolve.
+  widenClientFileUpload: true,
+
+  // No `disableLogger` here: it is deprecated in favour of
+  // `webpack.treeshake.removeDebugLogging`, and neither applies to this build —
+  // the project compiles with Turbopack, which that option does not support.
+});
