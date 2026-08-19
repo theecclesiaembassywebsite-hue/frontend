@@ -25,6 +25,12 @@ const nextSteps = [
   { label: "Share Testimony", href: "/testimonies" },
 ];
 
+const legalLinks = [
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Use", href: "/terms" },
+  { label: "Delete Account", href: "/privacy/delete-account" },
+];
+
 const contactDetails = [
   {
     icon: MapPin,
@@ -152,9 +158,22 @@ export default function Footer() {
         <ShimmerLine className="mx-auto mb-6 mt-14 w-full max-w-sm" />
 
         <FadeIn direction="none" delay={0.35}>
-          <div className="flex flex-col gap-3 text-center text-xs text-white/46 md:flex-row md:items-center md:justify-between md:text-left">
+          <div className="flex flex-col gap-4 text-center text-xs text-white/46 md:flex-row md:items-center md:justify-between md:text-left">
             <p suppressHydrationWarning>&copy; {year} The Ecclesia Embassy. All rights reserved.</p>
-            <p>Raising Word-cultured ambassadors across cities, nations, and generations.</p>
+            {/* Kept in the legal strip rather than the site links column: the app
+                stores and both app store review teams follow these, so they have
+                to be reachable from every page without hunting. */}
+            <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-white/58 underline-offset-4 hover:text-white hover:underline"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
         </FadeIn>
       </div>
