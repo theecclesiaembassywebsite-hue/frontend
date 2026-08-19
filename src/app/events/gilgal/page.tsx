@@ -67,7 +67,7 @@ export default function GilgalPage() {
         ]}
         stats={[
           { value: "4 days", label: "June 5 – 8, 2026" },
-          { value: "Free", label: "Accommodation and meals included" },
+          { value: "Free", label: "Accommodation included" },
           { value: "Tri-annual", label: "Held three times a year" },
         ]}
       />
@@ -154,26 +154,29 @@ export default function GilgalPage() {
 
       {/* ── REGISTER ── */}
       <SectionWrapper variant="brand-ink" id="register" hairline>
-        <div className="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
           <div>
             <Eyebrow>Registration</Eyebrow>
             <h2 className="mt-6 font-heading text-3xl font-bold leading-[1.1] text-white md:text-[42px]">
               Come and camp alone with God.
             </h2>
             <p className="mt-5 font-body text-[15px] leading-8 text-white/66">
-              Registration is free and includes accommodation and meals. Reserve your place and
+              Registration is free and includes accommodation. Reserve your place and
               we&rsquo;ll send the details by email.
             </p>
 
-            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+            {/* Columns are weighted to the label lengths rather than split evenly:
+                "Accommodation" in tracked uppercase is roughly four times the width
+                of "2026", and equal thirds clipped it out of its card. */}
+            <div className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-[0.78fr_1.02fr_1.2fr]">
               {[
                 { value: "June 5 – 8", label: "2026" },
-                { value: "Free", label: "Including meals" },
+                { value: "Free", label: "Registration" },
                 { value: "On-site", label: "Accommodation" },
               ].map((item) => (
-                <div key={item.label} className="brand-card-dark p-5">
+                <div key={item.label} className="brand-card-dark min-w-0 px-4 py-5 lg:px-3 xl:px-4">
                   <p className="font-heading text-lg font-bold text-white">{item.value}</p>
-                  <p className="mt-1 font-body text-[11px] uppercase tracking-[0.16em] text-white/55">
+                  <p className="mt-1 font-body text-[10px] uppercase tracking-[0.1em] text-white/55">
                     {item.label}
                   </p>
                 </div>
@@ -194,7 +197,7 @@ export default function GilgalPage() {
               <>
                 <h3 className="font-heading text-xl font-bold text-white">Reserve your place</h3>
                 <p className="mt-2 font-body text-sm text-white/55">
-                  Free — accommodation and meals included.
+                  Free — accommodation included.
                 </p>
                 <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
                   <Input
