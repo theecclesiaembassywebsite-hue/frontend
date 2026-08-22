@@ -157,6 +157,21 @@ describe('Modal', () => {
     expect(screen.getByRole('dialog')).toHaveClass(expected)
   })
 
+  // The dialog has to outrank the sticky navbar, which is z-[60], and its
+  // mobile menu at z-[120]. It shipped at z-50 and the navbar painted straight
+  // over the panel header. Nothing about that looks broken in the markup, so
+  // pin the layer here rather than rediscovering it from a screenshot.
+  it('stacks above the sticky navbar', () => {
+    render(
+      <Modal isOpen onClose={vi.fn()} title="Edit Service">
+        <p>Body</p>
+      </Modal>
+    )
+
+    const overlay = screen.getByRole('dialog').parentElement!
+    expect(overlay).toHaveClass('z-[130]')
+  })
+
   it('defaults to md when no size is given', () => {
     render(
       <Modal isOpen onClose={vi.fn()} title="Edit Service">

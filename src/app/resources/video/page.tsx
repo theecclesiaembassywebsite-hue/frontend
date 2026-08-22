@@ -42,7 +42,7 @@ function VideoPlayer({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-[130] flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
       <div className="relative w-full max-w-4xl overflow-hidden rounded-[24px] border border-white/12 bg-[var(--brand-ink)] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">

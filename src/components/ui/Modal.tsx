@@ -106,7 +106,11 @@ export function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    // Above the sticky navbar (z-[60]) and its mobile menu (z-[120]). At the
+    // z-50 this used to carry, the navbar painted over the top of the panel —
+    // which is exactly where the header sits. Toasts sit above this again, so
+    // a save or error message raised from inside a dialog stays visible.
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 transition-opacity"
