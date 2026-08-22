@@ -399,7 +399,7 @@ function CoursesTab() {
         isOpen={showFormModal}
         onClose={() => setShowFormModal(false)}
         title={editingCourse ? "Edit Course" : "New Course"}
-        size="lg"
+        size="xl"
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -880,7 +880,7 @@ function EnrollmentsTab() {
       <p className="mt-3 text-body-small">{filteredEnrollments.length} enrollment{filteredEnrollments.length !== 1 ? "s" : ""}</p>
 
       {/* View Enrollment Modal */}
-      <Modal isOpen={!!viewingEnrollment} onClose={() => setViewingEnrollment(null)} title="Enrollment Details">
+      <Modal isOpen={!!viewingEnrollment} onClose={() => setViewingEnrollment(null)} title="Enrollment Details" size="lg">
         {viewingEnrollment && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

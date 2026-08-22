@@ -493,7 +493,7 @@ function AdminResourcesContent() {
       )}
 
       {/* Edit Resource Modal */}
-      <Modal isOpen={!!editingResource} onClose={() => setEditingResource(null)} title="Edit Resource">
+      <Modal isOpen={!!editingResource} onClose={() => setEditingResource(null)} title="Edit Resource" size="xl">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Title *</label>
@@ -666,6 +666,7 @@ function AdminResourcesContent() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         title={activeTab === "video" ? "Add Manual Video Message" : "Add New Resource"}
+        size="xl"
       >
         <div className="space-y-4">
           <div>

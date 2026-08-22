@@ -364,7 +364,7 @@ function AdminEventsContent() {
       <p className="mt-3 text-body-small">{filteredEvents.length} event{filteredEvents.length !== 1 ? "s" : ""}</p>
 
       {/* View Event Modal */}
-      <Modal isOpen={!!viewingEvent} onClose={() => setViewingEvent(null)} title="Event Details">
+      <Modal isOpen={!!viewingEvent} onClose={() => setViewingEvent(null)} title="Event Details" size="lg">
         {viewingEvent && (
           <div className="space-y-4">
             {viewingEvent.imageUrl && (
@@ -414,7 +414,7 @@ function AdminEventsContent() {
       </Modal>
 
       {/* Edit Event Modal */}
-      <Modal isOpen={!!editingEvent} onClose={() => setEditingEvent(null)} title="Edit Event">
+      <Modal isOpen={!!editingEvent} onClose={() => setEditingEvent(null)} title="Edit Event" size="xl">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Title</label>
@@ -526,7 +526,7 @@ function AdminEventsContent() {
       </Modal>
 
       {/* Create Event Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Event">
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Event" size="xl">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Event Title</label>

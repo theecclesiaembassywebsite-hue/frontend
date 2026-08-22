@@ -345,7 +345,7 @@ function AdminContentContent() {
       <p className="mt-3 text-body-small">{filteredContent.length} item{filteredContent.length !== 1 ? "s" : ""}</p>
 
       {/* Create Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Content">
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Content" size="xl">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Content Type</label>
@@ -398,7 +398,7 @@ function AdminContentContent() {
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={!!editItem} onClose={() => setEditItem(null)} title={`Edit ${editItem?.type === "BLOG" ? "Blog Post" : "Announcement"}`}>
+      <Modal isOpen={!!editItem} onClose={() => setEditItem(null)} title={`Edit ${editItem?.type === "BLOG" ? "Blog Post" : "Announcement"}`} size="xl">
         {editItem && (
           <div className="space-y-4">
             {editItem.type === "BLOG" ? (

@@ -616,7 +616,7 @@ function AdminCITHContent() {
       </Modal>
 
       {/* Manage Hub Modal */}
-      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setEditingHub(false); setHubEditData(null); setReassignSearch(""); setSelectedReassignLeader(null); setReassignResults([]); resetMeetingPointForm(); }} title={`Manage: ${managingHub?.name || "Hub"}`}>
+      <Modal isOpen={showManageModal && managingHub !== null} onClose={() => { setShowManageModal(false); setManagingHub(null); setEditingHub(false); setHubEditData(null); setReassignSearch(""); setSelectedReassignLeader(null); setReassignResults([]); resetMeetingPointForm(); }} title={`Manage: ${managingHub?.name || "Hub"}`} size="xl">
         <div className="space-y-4">
           {!editingHub ? (
             <>
@@ -963,7 +963,7 @@ function AdminCITHContent() {
       </Modal>
 
       {/* Create Hub Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => { setShowCreateModal(false); setHubFormData({ name: "", leaderId: "", area: "", city: "", state: "", country: "Nigeria", meetingDay: "", meetingTime: "", capacity: "" }); setLeaderSearch(""); setSelectedLeader(null); setLeaderResults([]); }} title="Create Hub">
+      <Modal isOpen={showCreateModal} onClose={() => { setShowCreateModal(false); setHubFormData({ name: "", leaderId: "", area: "", city: "", state: "", country: "Nigeria", meetingDay: "", meetingTime: "", capacity: "" }); setLeaderSearch(""); setSelectedLeader(null); setLeaderResults([]); }} title="Create Hub" size="xl">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Hub Name</label>

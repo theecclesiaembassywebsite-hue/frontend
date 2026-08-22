@@ -710,7 +710,7 @@ function AdminClassContent() {
       </Modal>
 
       {/* Add Exam Question Modal */}
-      <Modal isOpen={showQuestionModal} onClose={() => setShowQuestionModal(false)} title="Add Exam Question">
+      <Modal isOpen={showQuestionModal} onClose={() => setShowQuestionModal(false)} title="Add Exam Question" size="lg">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-heading font-semibold text-slate mb-1">Question *</label>
