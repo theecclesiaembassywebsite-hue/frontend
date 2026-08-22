@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { firstTimer, squads, cith } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 import {
   Search,
   UserPlus,
   Heart,
   Clock,
-  X,
   CheckCircle,
   Trash2,
   Edit3,
@@ -415,122 +415,110 @@ export default function AdminFirstTimersPage() {
       )}
 
       {/* Edit New Convert Modal */}
-      {editingConvert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-[8px] bg-white p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-heading text-lg font-bold text-slate">
-                Edit: {editingConvert.name}
-              </h3>
-              <button
-                onClick={() => setEditingConvert(null)}
-                className="text-gray-text hover:text-slate"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      <Modal
+        isOpen={!!editingConvert}
+        onClose={() => setEditingConvert(null)}
+        title={`Edit: ${editingConvert?.name ?? ""}`}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+              Growth Track
+            </label>
+            <select
+              value={editData.growthTrack}
+              onChange={(e) =>
+                setEditData({ ...editData, growthTrack: e.target.value })
+              }
+              className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+            >
+              <option value="">Select a growth track</option>
+              <option value="FOUNDATION_CLASS">Foundation Class</option>
+              <option value="GROW_WITH_US">Grow With Us</option>
+              <option value="INTENTIONALITY_CLASS">
+                Intentionality Class
+              </option>
+              <option value="DISCIPLESHIP">Discipleship</option>
+            </select>
+          </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                  Growth Track
-                </label>
-                <select
-                  value={editData.growthTrack}
-                  onChange={(e) =>
-                    setEditData({ ...editData, growthTrack: e.target.value })
-                  }
-                  className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                >
-                  <option value="">Select a growth track</option>
-                  <option value="FOUNDATION_CLASS">Foundation Class</option>
-                  <option value="GROW_WITH_US">Grow With Us</option>
-                  <option value="INTENTIONALITY_CLASS">
-                    Intentionality Class
-                  </option>
-                  <option value="DISCIPLESHIP">Discipleship</option>
-                </select>
-              </div>
+          <div>
+            <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+              Assigned Squad
+            </label>
+            <select
+              value={editData.assignedSquad}
+              onChange={(e) =>
+                setEditData({ ...editData, assignedSquad: e.target.value })
+              }
+              className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+            >
+              <option value="">No squad assigned</option>
+              {squadList.map((s) => (
+                <option key={s.id} value={s.name}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              <div>
-                <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                  Assigned Squad
-                </label>
-                <select
-                  value={editData.assignedSquad}
-                  onChange={(e) =>
-                    setEditData({ ...editData, assignedSquad: e.target.value })
-                  }
-                  className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                >
-                  <option value="">No squad assigned</option>
-                  {squadList.map((s) => (
-                    <option key={s.id} value={s.name}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div>
+            <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+              Assigned CITH Hub
+            </label>
+            <select
+              value={editData.assignedHub}
+              onChange={(e) =>
+                setEditData({ ...editData, assignedHub: e.target.value })
+              }
+              className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+            >
+              <option value="">No hub assigned</option>
+              {hubList.map((h) => (
+                <option key={h.id} value={h.name}>
+                  {h.name} — {h.area}, {h.city}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              <div>
-                <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                  Assigned CITH Hub
-                </label>
-                <select
-                  value={editData.assignedHub}
-                  onChange={(e) =>
-                    setEditData({ ...editData, assignedHub: e.target.value })
-                  }
-                  className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                >
-                  <option value="">No hub assigned</option>
-                  {hubList.map((h) => (
-                    <option key={h.id} value={h.name}>
-                      {h.name} — {h.area}, {h.city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="followUpSent"
-                  checked={editData.followUpSent}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      followUpSent: e.target.checked,
-                    })
-                  }
-                  className="h-4 w-4 accent-purple rounded"
-                />
-                <label
-                  htmlFor="followUpSent"
-                  className="font-body text-sm text-slate"
-                >
-                  Follow-up completed
-                </label>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setEditingConvert(null)}
-                className="flex-1 rounded-[4px] border-2 border-gray-border px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-gray-text hover:bg-off-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateConvert}
-                className="flex-1 rounded-[4px] bg-purple px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-white hover:bg-purple-hover transition-colors"
-              >
-                Save Changes
-              </button>
-            </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="followUpSent"
+              checked={editData.followUpSent}
+              onChange={(e) =>
+                setEditData({
+                  ...editData,
+                  followUpSent: e.target.checked,
+                })
+              }
+              className="h-4 w-4 accent-purple rounded"
+            />
+            <label
+              htmlFor="followUpSent"
+              className="font-body text-sm text-slate"
+            >
+              Follow-up completed
+            </label>
           </div>
         </div>
-      )}
+
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={() => setEditingConvert(null)}
+            className="flex-1 rounded-[4px] border-2 border-gray-border px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-gray-text hover:bg-off-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpdateConvert}
+            className="flex-1 rounded-[4px] bg-purple px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-white hover:bg-purple-hover transition-colors"
+          >
+            Save Changes
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

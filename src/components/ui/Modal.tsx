@@ -13,7 +13,7 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   children: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export function Modal({
@@ -26,6 +26,16 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
+  // Kept in a ref so the effect below depends only on isOpen. Every caller
+  // passes an inline arrow for onClose, so its identity changes on each parent
+  // render — and a form inside the dialog re-renders the parent on every
+  // keystroke. Re-running the effect would hand focus back to the opener and
+  // then into the first control, yanking the caret out of the field.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -36,7 +46,7 @@ export function Modal({
 
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== "Tab") return;
@@ -80,7 +90,7 @@ export function Modal({
       document.body.style.overflow = "unset";
       opener?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -88,10 +98,15 @@ export function Modal({
     sm: "max-w-sm",
     md: "max-w-md",
     lg: "max-w-lg",
+    // For dense dialogs — multi-column field grids, long forms, the hub
+    // manager. Below this, a grid-cols-3 row gets ~150px per column and the
+    // labels wrap onto three lines each. Prose-reading dialogs deliberately
+    // stay narrower: a wide measure hurts readability rather than helping.
+    xl: "max-w-2xl",
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 transition-opacity"
@@ -108,13 +123,13 @@ export function Modal({
         aria-label={title ? undefined : "Dialog"}
         tabIndex={-1}
         className={cn(
-          "surface-light relative bg-white rounded-lg shadow-xl w-full mx-4 max-h-[90vh] overflow-y-auto outline-none",
+          "surface-light relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-lg bg-white shadow-xl outline-none",
           sizes[size]
         )}
       >
         {/* Header */}
         {title && (
-          <div className="sticky top-0 flex items-center justify-between bg-purple px-6 py-4 border-b">
+          <div className="flex shrink-0 items-center justify-between bg-purple px-6 py-4 border-b">
             <h2 id={titleId} className="font-heading text-xl font-bold text-white">
               {title}
             </h2>
@@ -139,7 +154,7 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-6">
           {children}
         </div>
       </div>

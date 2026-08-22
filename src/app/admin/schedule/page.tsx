@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { serviceSchedule } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 import {
   Plus,
   Edit3,
   Trash2,
-  X,
   GripVertical,
   Eye,
   EyeOff,
@@ -261,149 +261,138 @@ export default function AdminSchedulePage() {
       )}
 
       {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-[8px] bg-white p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-lg font-bold text-slate">
-                {editingId ? "Edit Service" : "Add New Service"}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-text hover:text-slate"
-              >
-                <X className="h-5 w-5" />
-              </button>
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title={editingId ? "Edit Service" : "Add New Service"}
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+                Day *
+              </label>
+              <input
+                type="text"
+                value={form.day}
+                onChange={(e) =>
+                  setForm({ ...form, day: e.target.value })
+                }
+                placeholder="e.g. Sunday, Tuesday"
+                className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+              />
             </div>
+            <div>
+              <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+                Day Label (optional)
+              </label>
+              <input
+                type="text"
+                value={form.dayLabel}
+                onChange={(e) =>
+                  setForm({ ...form, dayLabel: e.target.value })
+                }
+                placeholder="e.g. of every month"
+                className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+              />
+            </div>
+          </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                    Day *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.day}
-                    onChange={(e) =>
-                      setForm({ ...form, day: e.target.value })
-                    }
-                    placeholder="e.g. Sunday, Tuesday"
-                    className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                    Day Label (optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={form.dayLabel}
-                    onChange={(e) =>
-                      setForm({ ...form, dayLabel: e.target.value })
-                    }
-                    placeholder="e.g. of every month"
-                    className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                  />
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+                Service Name *
+              </label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) =>
+                  setForm({ ...form, name: e.target.value })
+                }
+                placeholder="e.g. Word & Life Service"
+                className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+                Time <span className="normal-case font-normal">(optional for recurring)</span>
+              </label>
+              <input
+                type="text"
+                value={form.time}
+                onChange={(e) =>
+                  setForm({ ...form, time: e.target.value })
+                }
+                placeholder="e.g. 8:00 AM"
+                className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+              />
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                    Service Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) =>
-                      setForm({ ...form, name: e.target.value })
-                    }
-                    placeholder="e.g. Word & Life Service"
-                    className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                    Time <span className="normal-case font-normal">(optional for recurring)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={form.time}
-                    onChange={(e) =>
-                      setForm({ ...form, time: e.target.value })
-                    }
-                    placeholder="e.g. 8:00 AM"
-                    className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                  />
-                </div>
-              </div>
+          <div>
+            <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+              Description
+            </label>
+            <textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              placeholder="Brief description of this service..."
+              rows={2}
+              className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors resize-none"
+            />
+          </div>
 
-              <div>
-                <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                  Description
-                </label>
-                <textarea
-                  value={form.description}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
+                Display Order
+              </label>
+              <input
+                type="number"
+                value={form.order}
+                onChange={(e) =>
+                  setForm({ ...form, order: parseInt(e.target.value) || 0 })
+                }
+                min={0}
+                className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
+              />
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.active}
                   onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
+                    setForm({ ...form, active: e.target.checked })
                   }
-                  placeholder="Brief description of this service..."
-                  rows={2}
-                  className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors resize-none"
+                  className="h-4 w-4 accent-purple rounded"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-heading text-xs font-semibold text-gray-text mb-1 uppercase tracking-wider">
-                    Display Order
-                  </label>
-                  <input
-                    type="number"
-                    value={form.order}
-                    onChange={(e) =>
-                      setForm({ ...form, order: parseInt(e.target.value) || 0 })
-                    }
-                    min={0}
-                    className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] focus:outline-none focus:border-[#C9A84C] transition-colors"
-                  />
-                </div>
-                <div className="flex items-end pb-2">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.active}
-                      onChange={(e) =>
-                        setForm({ ...form, active: e.target.checked })
-                      }
-                      className="h-4 w-4 accent-purple rounded"
-                    />
-                    <span className="font-body text-sm text-slate">
-                      Visible on website
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowModal(false)}
-                className="flex-1 rounded-[4px] border-2 border-gray-border px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-gray-text hover:bg-off-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="flex-1 rounded-[4px] bg-purple px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-white hover:bg-purple-hover transition-colors"
-              >
-                {editingId ? "Save Changes" : "Add Service"}
-              </button>
+                <span className="font-body text-sm text-slate">
+                  Visible on website
+                </span>
+              </label>
             </div>
           </div>
         </div>
-      )}
+
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={() => setShowModal(false)}
+            className="flex-1 rounded-[4px] border-2 border-gray-border px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-gray-text hover:bg-off-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 rounded-[4px] bg-purple px-4 py-2.5 font-heading text-xs font-semibold uppercase tracking-wider text-white hover:bg-purple-hover transition-colors"
+          >
+            {editingId ? "Save Changes" : "Add Service"}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
