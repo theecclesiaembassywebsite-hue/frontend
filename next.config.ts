@@ -232,6 +232,18 @@ const nextConfig: NextConfig = {
 // simply ships without readable stack traces.
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 
+// Silence here is indistinguishable from success: without a token the upload is
+// skipped, the build still passes, and the first sign of trouble is a minified
+// frame in Sentry weeks later. Say so at build time instead. A warning rather
+// than a hard failure, so a fork or a local build without the secret still
+// builds — the same trade the mobile OTA script makes.
+if (isProd && !sentryAuthToken) {
+  console.warn(
+    "[sentry] SENTRY_AUTH_TOKEN is not set — source maps will NOT be uploaded " +
+      "and production stack traces will stay minified.",
+  );
+}
+
 export default withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
