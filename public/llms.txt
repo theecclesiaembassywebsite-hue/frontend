@@ -1,0 +1,24 @@
+# The Ecclesia Embassy
+
+> The Ecclesia Embassy is a global apostolic and prophetic movement raising Word-cultured ambassadors through worship, teaching, prayer, and community, with a home base in Guzape Hills, Asokoro Extension, Abuja, Nigeria.
+
+Weekly gatherings: Sunday Word & Life Service (8:00 AM), Tuesday Prayer Service (5:30 PM), Thursday Healing Incense Service (9:00 AM), Friday Worship Service (5:30 PM).
+
+## Core sections
+
+- [About](https://ecclesia-iota.vercel.app/about): Who The Ecclesia Embassy is, its core values, and belief system.
+- [New Here](https://ecclesia-iota.vercel.app/new-here): For first-time visitors planning to attend.
+- [Give](https://ecclesia-iota.vercel.app/give): Online giving and financial partnership.
+- [Live](https://ecclesia-iota.vercel.app/live): Watch the current or most recent livestream.
+- [Events](https://ecclesia-iota.vercel.app/events): Upcoming gatherings, including the annual Feast of Tabernacles and the Gilgal Camp Meeting.
+- [Blog](https://ecclesia-iota.vercel.app/blog): Articles and teaching content.
+- [Resources](https://ecclesia-iota.vercel.app/resources): Sermon audio, video, music, and the resource library.
+- [CITH](https://ecclesia-iota.vercel.app/cith): Church-in-the-House hubs and meeting points.
+- [Training](https://ecclesia-iota.vercel.app/training): Discipleship and leadership training programmes.
+- [Prayer](https://ecclesia-iota.vercel.app/prayer): Submit a prayer request.
+- [Contact](https://ecclesia-iota.vercel.app/contact): Address, phone, email, and service times.
+
+## Notes
+
+- `/admin`, `/dashboard`, and `/auth` are private, authenticated application areas and are not part of the public site content.
+- Full machine-readable page listing: [sitemap.xml](https://ecclesia-iota.vercel.app/sitemap.xml)

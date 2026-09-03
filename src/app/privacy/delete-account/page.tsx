@@ -3,12 +3,15 @@ import Link from "next/link";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Delete Your Account | The Ecclesia Embassy",
+export const metadata: Metadata = buildMetadata({
+  title: "Delete Your Account",
   description:
     "How to ask The Ecclesia Embassy to close your account and erase your data, exactly what is removed, what has to be kept, and how long it takes.",
-};
+  path: "/privacy/delete-account",
+});
 
 /**
  * This is the URL given to Google Play as the account deletion link, which is a
@@ -80,6 +83,7 @@ const retained = [
 export default function DeleteAccountPage() {
   return (
     <div className="page-bands">
+      <Breadcrumbs items={[{ label: "Privacy Policy", href: "/privacy" }, { label: "Delete Your Account" }]} />
       <PageHero
         eyebrow="Your data"
         title="Delete your account"

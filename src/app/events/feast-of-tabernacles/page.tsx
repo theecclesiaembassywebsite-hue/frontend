@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
 import Eyebrow from "@/components/ui/Eyebrow";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Link from "next/link";
 import { Calendar, MapPin, Users } from "lucide-react";
+import { buildMetadata, SITE_URL } from "@/lib/seo";
 
 // ── Update these each year ──────────────────────────────────────────────────
 const YEAR = "2026";
@@ -25,9 +28,42 @@ const facts = [
   { icon: Users, label: "Open to all", detail: "No registration required — simply come" },
 ];
 
+export const metadata: Metadata = buildMetadata({
+  title: `Feast of Tabernacles ${YEAR}`,
+  description:
+    "Seven days of joy, community, and reflection — celebrating Christ, His harvest, and His guidance over a people He is building for Himself. Hosted annually in Abuja, open to all.",
+  path: "/events/feast-of-tabernacles",
+});
+
+// Venue isn't named on the page beyond "hosted in Abuja" — city-level
+// location rather than a specific street address, so nothing is invented.
+const eventJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: `Feast of Tabernacles ${YEAR}`,
+  startDate: "2026-09-27",
+  endDate: "2026-10-03",
+  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  eventStatus: "https://schema.org/EventScheduled",
+  location: {
+    "@type": "Place",
+    name: "Abuja, Nigeria",
+    address: { "@type": "PostalAddress", addressLocality: "Abuja", addressCountry: "NG" },
+  },
+  organizer: { "@type": "Organization", name: "The Ecclesia Embassy", url: SITE_URL },
+  description:
+    "Seven days of joy, community, and reflection — celebrating Christ, His harvest, and His guidance over a people He is building for Himself. Open to all, no registration required.",
+};
+
 export default function FeastOfTabernaclesPage() {
   return (
     <div data-brand="events">
+      <script
+        type="application/ld+json"
+         
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
+      <Breadcrumbs items={[{ label: "Events", href: "/events" }, { label: "Feast of Tabernacles" }]} />
       <PageHero
         eyebrow="Annual Anniversary"
         title={`Feast of Tabernacles ${YEAR}`}

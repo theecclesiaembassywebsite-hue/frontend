@@ -3,12 +3,15 @@ import Link from "next/link";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Terms of Use | The Ecclesia Embassy",
+export const metadata: Metadata = buildMetadata({
+  title: "Terms of Use",
   description:
     "The terms that apply when you use The Ecclesia Embassy website and mobile app: your account, giving, what you post, and how disputes are handled.",
-};
+  path: "/terms",
+});
 
 /**
  * Static server component, publicly reachable without signing in — the app
@@ -87,6 +90,7 @@ const contentTerms = [
 export default function TermsOfUsePage() {
   return (
     <div className="page-bands">
+      <Breadcrumbs items={[{ label: "Terms of Use" }]} />
       <PageHero
         eyebrow="Legal"
         title="Terms of Use"

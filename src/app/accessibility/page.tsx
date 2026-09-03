@@ -3,12 +3,15 @@ import Link from "next/link";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Accessibility Statement | The Ecclesia Embassy",
+export const metadata: Metadata = buildMetadata({
+  title: "Accessibility Statement",
   description:
     "How The Ecclesia Embassy website approaches accessibility, what standard it aims for, the areas we know still fall short, and how to report a barrier.",
-};
+  path: "/accessibility",
+});
 
 /**
  * A deliberately plain, honest statement. It is a static server component —
@@ -68,6 +71,7 @@ const limitations = [
 export default function AccessibilityPage() {
   return (
     <div data-brand="embassy">
+      <Breadcrumbs items={[{ label: "Accessibility" }]} />
       <PageHero
         eyebrow="Accessibility"
         title="Everyone should be able to use this site."

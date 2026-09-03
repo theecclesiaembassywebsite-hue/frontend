@@ -3,12 +3,15 @@ import Link from "next/link";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | The Ecclesia Embassy",
+export const metadata: Metadata = buildMetadata({
+  title: "Privacy Policy",
   description:
     "What personal information The Ecclesia Embassy website and mobile app collect, why, who processes it, how long it is kept, and the rights you have over it.",
-};
+  path: "/privacy",
+});
 
 /**
  * Static server component with no client JavaScript and no auth gate.
@@ -162,6 +165,7 @@ const rights = [
 export default function PrivacyPolicyPage() {
   return (
     <div className="page-bands">
+      <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
       <PageHero
         eyebrow="Privacy"
         title="Privacy Policy"

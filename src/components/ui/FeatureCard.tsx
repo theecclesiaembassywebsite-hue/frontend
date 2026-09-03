@@ -1,8 +1,5 @@
-'use client';
-
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 interface FeatureCardProps {
@@ -22,13 +19,11 @@ export default function FeatureCard({
 }: FeatureCardProps) {
   return (
     <Link href={href}>
-      <motion.div
+      <div
         className={cn(
-          "group relative aspect-[4/3] overflow-hidden rounded-[28px] border border-white/10 cursor-pointer shadow-[0_24px_55px_rgba(14,11,30,0.08)]",
+          "group relative aspect-[4/3] overflow-hidden rounded-[28px] border border-white/10 cursor-pointer shadow-[0_24px_55px_rgba(14,11,30,0.08)] transition-transform duration-300 ease-out hover:scale-[1.03]",
           className
         )}
-        whileHover={{ scale: 1.03 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 10 }}
       >
         {/* Background */}
         <div
@@ -61,7 +56,7 @@ export default function FeatureCard({
         </div>
 
         <div className="absolute inset-0 rounded-[28px] border border-white/6 pointer-events-none" />
-      </motion.div>
+      </div>
     </Link>
   );
 }

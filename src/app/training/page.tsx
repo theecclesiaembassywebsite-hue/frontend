@@ -1,9 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Training",
+  description:
+    "Intentional training for serious believers — courses and tracks that deepen conviction, discipline, and ministry readiness.",
+  path: "/training",
+});
 
 const trainingTracks = [
   {
@@ -29,6 +39,7 @@ const trainingTracks = [
 export default function TrainingPage() {
   return (
     <main className="page-bands">
+      <Breadcrumbs items={[{ label: "Training" }]} />
       <PageHero
         eyebrow="Training"
         title="Intentional training for serious believers."

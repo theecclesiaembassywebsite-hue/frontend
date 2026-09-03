@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, Library, Mic2, PlayCircle } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Resources",
+  description:
+    "Sermons, music, and study resources gathered in one place — keep feeding on the Word between gatherings.",
+  path: "/resources",
+});
 
 const resourceCards = [
   {
@@ -34,6 +44,7 @@ const resourceCards = [
 export default function ResourcesPage() {
   return (
     <main className="page-bands">
+      <Breadcrumbs items={[{ label: "Resources" }]} />
       <PageHero
         eyebrow="Resources"
         title="Keep feeding on the Word between gatherings."

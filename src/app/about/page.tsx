@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Award, BookOpen, Crown, Heart, Shield, Sparkles, Wrench } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "About Us",
+  description:
+    "The Ecclesia Embassy is the assembly of the called-out ones — committed to raising a people with a thriving relationship with God, operating with a Kingdom worldview.",
+  path: "/about",
+});
 
 const coreValues = [
   {
@@ -62,6 +72,7 @@ const beliefSystem = [
 export default function AboutPage() {
   return (
     <main className="page-bands">
+      <Breadcrumbs items={[{ label: "About" }]} />
       <PageHero
         eyebrow="About The Ecclesia Embassy"
         title="Called out by Christ, His Ambassadors."

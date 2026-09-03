@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, Users } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeading from "@/components/ui/SectionHeading";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Kingdom Expressions",
+  description:
+    "Faith should shape the way we serve and the way we influence — find the place where your gifts, service, and calling meet.",
+  path: "/kingdom-expressions",
+});
 
 const expressions = [
   {
@@ -22,6 +32,7 @@ const expressions = [
 export default function KingdomPage() {
   return (
     <main className="page-bands">
+      <Breadcrumbs items={[{ label: "Kingdom Expressions" }]} />
       <PageHero
         eyebrow="Kingdom Expressions"
         title="Faith should shape the way we serve and the way we influence."

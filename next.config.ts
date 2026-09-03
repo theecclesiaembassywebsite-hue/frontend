@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === "true" });
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -244,7 +247,7 @@ if (isProd && !sentryAuthToken) {
   );
 }
 
-export default withSentryConfig(nextConfig, {
+export default withBundleAnalyzer(withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: sentryAuthToken,
@@ -266,4 +269,4 @@ export default withSentryConfig(nextConfig, {
   // No `disableLogger` here: it is deprecated in favour of
   // `webpack.treeshake.removeDebugLogging`, and neither applies to this build —
   // the project compiles with Turbopack, which that option does not support.
-});
+}));

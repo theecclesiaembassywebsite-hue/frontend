@@ -1,10 +1,21 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { BookOpen, CalendarDays, Heart, Music, Quote, Sparkles, Users } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Leadership",
+  description:
+    "Victor Oluwadamilare shares the heartbeat and vision behind The Ecclesia Embassy movement.",
+  path: "/about/leadership",
+});
 
 export default function LeadershipPage() {
   return (
     <main className="page-bands">
+      <Breadcrumbs items={[{ label: "About", href: "/about" }, { label: "Leadership" }]} />
       {/* Hero */}
       <section className="relative isolate overflow-hidden py-24 sm:py-28 md:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.18),_transparent_28%),linear-gradient(135deg,_#1B1730_0%,_#0E0B1E_52%,_#130E24_100%)]" />

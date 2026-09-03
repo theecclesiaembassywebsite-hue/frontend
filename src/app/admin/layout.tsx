@@ -1,17 +1,17 @@
-"use client";
+import type { Metadata } from "next";
+import AdminLayoutClient from "./AdminLayoutClient";
 
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+// The admin panel is authenticated-only; search engines should never index
+// it, and the interactive chrome lives in AdminLayoutClient because a
+// metadata export cannot appear in a "use client" file.
+export const metadata: Metadata = {
+  title: {
+    default: "Admin",
+    template: "%s | Admin | The Ecclesia Embassy",
+  },
+  robots: { index: false, follow: false },
+};
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN", "CONTENT_MANAGER", "CHURCH_SERVANT_COORDINATOR"]}>
-      <div className="flex min-h-screen bg-off-white">
-        <AdminSidebar />
-        <div className="flex-1 overflow-x-hidden">
-          {children}
-        </div>
-      </div>
-    </ProtectedRoute>
-  );
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }
