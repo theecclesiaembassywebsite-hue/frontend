@@ -35,7 +35,7 @@ const contactDetails = [
   {
     icon: MapPin,
     label: "Address",
-    value: "Guzape Hills, Asokoro Extension. Abuja. Nigeria",
+    value: "Km 6 Law School Road, New, Bwari 910103, Federal Capital Territory, Nigeria",
   },
   {
     icon: Phone,

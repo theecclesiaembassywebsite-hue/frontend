@@ -190,7 +190,8 @@ export default function PrivacyPolicyPage() {
         </ul>
 
         <p className="mt-8 font-body text-[15px] leading-8 text-[#3A3740]">
-          The Ecclesia Embassy, at Guzape Hills, Asokoro Extension, Abuja, Nigeria, is the
+          The Ecclesia Embassy, at Km 6 Law School Road, New, Bwari 910103, Federal Capital
+          Territory, Nigeria, is the
           data controller for the information described here — meaning we decide why it is
           collected and what happens to it. You can reach us at{" "}
           <a

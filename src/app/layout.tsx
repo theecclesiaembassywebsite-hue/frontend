@@ -87,8 +87,10 @@ const organizationJsonLd = {
     "A worshipping, praying, Kingdom focused global movement with a home base in Abuja, committed to raising Word-cultured ambassadors who carry Christ into every sphere.",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Guzape Hills, Asokoro Extension",
-    addressLocality: "Abuja",
+    streetAddress: "Km 6 Law School Road, New",
+    addressLocality: "Bwari",
+    addressRegion: "Federal Capital Territory",
+    postalCode: "910103",
     addressCountry: "NG",
   },
   telephone: "+234-803-400-7867",

@@ -107,8 +107,8 @@ export default function TermsOfUsePage() {
 
         <div className="mt-8 space-y-5 font-body text-[15px] leading-8 text-[#3A3740]">
           <p>
-            This platform is operated by The Ecclesia Embassy, Guzape Hills, Asokoro Extension,
-            Abuja, Nigeria. It exists to serve the life of the church: to carry teaching, to
+            This platform is operated by The Ecclesia Embassy, Km 6 Law School Road, New, Bwari
+            910103, Federal Capital Territory, Nigeria. It exists to serve the life of the church: to carry teaching, to
             let you give, to connect you to a hub or a class, and to let members pray for and
             encourage one another. It is not a general-purpose social network, and we run it
             accordingly.
