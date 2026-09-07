@@ -227,7 +227,7 @@ const ContactPageClient = () => {
         <FadeIn>
           <div className="overflow-hidden rounded-[28px] shadow-[0_20px_48px_rgba(14,11,30,0.10)] h-[220px] sm:h-[300px] md:h-[400px]">
             <iframe
-              src="https://www.google.com/maps?q=Km+6+Law+School+Road,+New+Bwari,+Federal+Capital+Territory,+Nigeria&z=16&output=embed"
+              src="https://www.google.com/maps?q=The+Ecclesia+Embassy,+Km+6+Law+School+Road,+New+Bwari,+Federal+Capital+Territory,+Nigeria&z=16&output=embed"
               width="100%"
               height="100%"
               style={{ border: 0 }}
