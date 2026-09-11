@@ -10,6 +10,7 @@ import { cith } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -83,6 +84,12 @@ function AdminCITHContent() {
   const [savingMeetingPoint, setSavingMeetingPoint] = useState(false);
   // Meeting point to assign each pending join request to on approval
   const [assignMeetingPoint, setAssignMeetingPoint] = useState<Record<string, string>>({});
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    title: string;
+    description?: string;
+    confirmLabel?: string;
+    onConfirm: () => void | Promise<void>;
+  } | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -286,7 +293,6 @@ function AdminCITHContent() {
   };
 
   const handleDeleteHub = async (hubId: string) => {
-    if (!window.confirm("Are you sure you want to delete this hub? This cannot be undone.")) return;
     try {
       await cith.deleteHub(hubId);
       setHubs(hubs.filter((h) => h.id !== hubId));
@@ -374,7 +380,6 @@ function AdminCITHContent() {
 
   const handleDeleteMeetingPoint = async (id: string) => {
     if (!managingHub) return;
-    if (!window.confirm("Delete this meeting point? This cannot be undone.")) return;
     try {
       await cith.deleteMeetingPoint(id);
       await refreshManagingHub(managingHub.id);
@@ -745,7 +750,12 @@ function AdminCITHContent() {
                           <button className="text-xs font-heading font-semibold text-purple-vivid hover:underline" onClick={() => startEditMeetingPoint(mp)}>
                             Edit
                           </button>
-                          <button className="text-xs font-heading font-semibold text-error hover:underline" onClick={() => handleDeleteMeetingPoint(mp.id)}>
+                          <button className="text-xs font-heading font-semibold text-error hover:underline" onClick={() => setPendingConfirm({
+                            title: "Delete meeting point?",
+                            description: "Delete this meeting point? This cannot be undone.",
+                            confirmLabel: "Delete",
+                            onConfirm: () => handleDeleteMeetingPoint(mp.id),
+                          })}>
                             Delete
                           </button>
                         </div>
@@ -802,7 +812,12 @@ function AdminCITHContent() {
               <div className="flex gap-2 pt-4">
                 <button
                   className="flex items-center justify-center gap-1 rounded-[4px] border border-error/30 bg-error/5 px-3 py-2 text-[11px] font-heading font-semibold text-error hover:bg-error/10 transition-colors"
-                  onClick={() => managingHub && handleDeleteHub(managingHub.id)}
+                  onClick={() => managingHub && setPendingConfirm({
+                    title: "Delete hub?",
+                    description: "Are you sure you want to delete this hub? This cannot be undone.",
+                    confirmLabel: "Delete",
+                    onConfirm: () => handleDeleteHub(managingHub.id),
+                  })}
                   title="Delete hub"
                 >
                   <Trash2 size={13} />
@@ -1118,6 +1133,16 @@ function AdminCITHContent() {
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        open={pendingConfirm !== null}
+        onOpenChange={(open) => !open && setPendingConfirm(null)}
+        title={pendingConfirm?.title ?? ""}
+        description={pendingConfirm?.description}
+        confirmLabel={pendingConfirm?.confirmLabel}
+        destructive
+        onConfirm={() => pendingConfirm?.onConfirm()}
+      />
     </div>
   );
 }

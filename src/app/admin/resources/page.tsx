@@ -8,6 +8,8 @@ import { media, upload } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ResourceTab = "audio" | "video" | "library" | "music";
 
@@ -38,6 +40,7 @@ function AdminResourcesContent() {
   const [editingResource, setEditingResource] = useState<any | null>(null);
   const [editFormData, setEditFormData] = useState<Record<string, string>>({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -195,9 +198,6 @@ function AdminResourcesContent() {
   };
 
   const handleDeleteResource = async (resourceId: string) => {
-    if (!window.confirm("Are you sure you want to delete this resource? This action cannot be undone.")) {
-      return;
-    }
     setDeletingId(resourceId);
     try {
       switch (activeTab) {
@@ -268,7 +268,7 @@ function AdminResourcesContent() {
                 </button>
                 <button
                   className="text-xs font-heading font-semibold text-red-600 hover:underline flex items-center gap-1"
-                  onClick={() => handleDeleteResource(resource.id)}
+                  onClick={() => setPendingDeleteId(resource.id)}
                   disabled={deletingId === resource.id}
                 >
                   <Trash2 size={12} />
@@ -295,39 +295,40 @@ function AdminResourcesContent() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-gray-border">
-        {[
-          { key: "audio", label: "Audio Sermons", icon: Headphones },
-          { key: "video", label: "Video Library", icon: Video },
-          { key: "library", label: "Library", icon: BookOpen },
-          { key: "music", label: "Music", icon: Music },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const count =
-            tab.key === "audio"
-              ? audioSermons.length
-              : tab.key === "video"
-                ? videoMessages.length
-                : tab.key === "library"
-                  ? libraryResources.length
-                  : musicTracks.length;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as ResourceTab)}
-              className={`px-4 py-3 font-heading text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-                activeTab === tab.key
-                  ? "text-purple border-purple"
-                  : "text-gray-text border-transparent hover:text-slate"
-              }`}
-            >
-              <Icon size={16} />
-              {tab.label}
-              <span className="text-[10px] bg-off-white px-2 py-0.5 rounded-full">{count}</span>
-            </button>
-          );
-        })}
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ResourceTab)}>
+        <TabsList
+          variant="line"
+          className="mb-6 h-auto w-fit justify-start gap-2 rounded-none border-b border-gray-border bg-transparent p-0"
+        >
+          {[
+            { key: "audio", label: "Audio Sermons", icon: Headphones },
+            { key: "video", label: "Video Library", icon: Video },
+            { key: "library", label: "Library", icon: BookOpen },
+            { key: "music", label: "Music", icon: Music },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const count =
+              tab.key === "audio"
+                ? audioSermons.length
+                : tab.key === "video"
+                  ? videoMessages.length
+                  : tab.key === "library"
+                    ? libraryResources.length
+                    : musicTracks.length;
+            return (
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className="flex-none gap-2 border-transparent px-4 py-3 font-heading text-sm font-semibold text-gray-text after:bg-purple hover:text-slate data-[state=active]:text-purple"
+              >
+                <Icon size={16} />
+                {tab.label}
+                <span className="rounded-full bg-off-white px-2 py-0.5 text-[10px]">{count}</span>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+      </Tabs>
 
       {/* Tab Content */}
       {activeTab === "audio" && (
@@ -463,7 +464,7 @@ function AdminResourcesContent() {
                         </button>
                         <button
                           className="text-xs font-heading font-semibold text-red-600 hover:underline flex items-center gap-1"
-                          onClick={() => handleDeleteResource(resource.id)}
+                          onClick={() => setPendingDeleteId(resource.id)}
                           disabled={deletingId === resource.id}
                         >
                           <Trash2 size={12} />
@@ -793,6 +794,16 @@ function AdminResourcesContent() {
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+        title="Delete resource?"
+        description="Are you sure you want to delete this resource? This action cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => handleDeleteResource(pendingDeleteId!)}
+      />
     </div>
   );
 }

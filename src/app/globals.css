@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ============================================
    THE ECCLESIA EMBASSY — Design System v2.0
@@ -88,6 +89,67 @@
   --overlay-scrim: rgba(0, 0, 0, 0.3);
   --border-soft: rgba(14, 11, 30, 0.08);
   --shadow-soft: 0 20px 45px rgba(14, 11, 30, 0.08);
+}
+
+/* ============================================
+   SHADCN/UI — semantic tokens
+   ------------------------------------------------
+   shadcn components (alert-dialog, dropdown-menu,
+   tabs, table, …) read these standard variable
+   names. Mapped onto the palette above instead of
+   shadcn's default gray theme so new components
+   stay on-brand. Single light theme only — this
+   site has no dark-mode toggle.
+   ============================================ */
+:root {
+  --radius: 0.5rem;
+
+  --background: var(--color-off-white);
+  --foreground: var(--color-text-primary);
+
+  --card: var(--color-white);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-text-primary);
+
+  --primary: var(--color-gold);
+  --primary-foreground: #0E0B1E;
+  --secondary: var(--color-plum-mist);
+  --secondary-foreground: var(--color-text-primary);
+
+  --muted: var(--color-lavender);
+  --muted-foreground: var(--color-gray-text);
+  --accent: var(--color-plum-mist);
+  --accent-foreground: var(--color-text-primary);
+
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-white);
+
+  --border: var(--color-gray-border);
+  --input: var(--color-gray-border);
+  --ring: var(--color-purple-vivid);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 /* ============================================

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { gallery, upload } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Trash2, Upload, ImagePlus } from "lucide-react";
 
 function AdminGalleryContent() {
@@ -11,6 +12,7 @@ function AdminGalleryContent() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [caption, setCaption] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -39,7 +41,6 @@ function AdminGalleryContent() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this photo?")) return;
     try {
       await gallery.deleteImage(id);
       setImages(images.filter((img) => img.id !== id));
@@ -106,7 +107,7 @@ function AdminGalleryContent() {
                 </div>
               )}
               <button
-                onClick={() => handleDelete(img.id)}
+                onClick={() => setPendingDeleteId(img.id)}
                 className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-error"
                 title="Delete photo"
               >
@@ -117,6 +118,16 @@ function AdminGalleryContent() {
         </div>
       )}
       <p className="mt-3 text-body-small">{images.length} photo{images.length !== 1 ? "s" : ""}</p>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+        title="Delete photo?"
+        description="This photo will be permanently removed from the gallery."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => handleDelete(pendingDeleteId!)}
+      />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
@@ -16,6 +16,14 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { buttonClasses } from "@/components/ui/button-styles";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { label: "HOME", href: "/" },
@@ -102,14 +110,12 @@ interface DesktopAuthSectionProps {
   closeMenus: () => void;
   userMenuOpen: boolean;
   setUserMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  userMenuRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function DesktopAuthSection({
   closeMenus,
   userMenuOpen,
   setUserMenuOpen,
-  userMenuRef,
 }: DesktopAuthSectionProps) {
   const { user, logout } = useAuth();
 
@@ -135,11 +141,8 @@ function DesktopAuthSection({
   }
 
   return (
-    <div className="relative" ref={userMenuRef}>
-      <button
-        onClick={() => setUserMenuOpen((open) => !open)}
-        className="flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-3 py-2 text-white/86 hover:bg-white/10"
-      >
+    <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
+      <DropdownMenuTrigger className="flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-3 py-2 text-white/86 outline-none hover:bg-white/10 data-[state=open]:bg-white/10">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold text-slate">
           <User className="h-4 w-4" />
         </div>
@@ -152,49 +155,44 @@ function DesktopAuthSection({
           </p>
         </div>
         <ChevronDown size={14} />
-      </button>
+      </DropdownMenuTrigger>
 
-      <div
-        inert={!userMenuOpen}
-        className={cn(
-          "absolute right-0 top-full z-50 mt-3 w-60 overflow-hidden rounded-[26px] border border-slate/10 bg-white p-2 shadow-[0_28px_60px_rgba(14,11,30,0.16)]",
-          dropdownPanelClasses,
-          userMenuOpen ? dropdownOpenClasses : dropdownClosedClasses
-        )}
+      <DropdownMenuContent
+        align="end"
+        sideOffset={12}
+        className="w-60 overflow-hidden rounded-[26px] border border-slate/10 bg-white p-2 shadow-[0_28px_60px_rgba(14,11,30,0.16)]"
       >
-        <div className="border-b border-slate/8 px-4 py-3">
+        <DropdownMenuLabel className="px-4 py-3 font-body font-normal">
           <p className="font-heading text-sm font-semibold text-slate">
             {user.profile?.firstName} {user.profile?.lastName}
           </p>
-          <p className="font-body text-xs text-gray-text">{user.email}</p>
-        </div>
+          <p className="mt-0.5 font-body text-xs text-gray-text">{user.email}</p>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="mx-0 bg-slate/8" />
 
         {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
-          <Link
-            href="/admin"
-            onClick={() => setUserMenuOpen(false)}
-            className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate hover:bg-lavender"
-          >
-            <Shield size={14} /> Admin Dashboard
-          </Link>
+          <DropdownMenuItem asChild className="mt-2 gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate focus:bg-lavender focus:text-slate">
+            <Link href="/admin">
+              <Shield size={14} /> Admin Dashboard
+            </Link>
+          </DropdownMenuItem>
         ) : null}
 
-        <Link
-          href="/dashboard"
-          onClick={() => setUserMenuOpen(false)}
-          className="mt-1 flex items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate hover:bg-lavender"
-        >
-          <LayoutDashboard size={14} /> My Dashboard
-        </Link>
+        <DropdownMenuItem asChild className="mt-1 gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate focus:bg-lavender focus:text-slate">
+          <Link href="/dashboard">
+            <LayoutDashboard size={14} /> My Dashboard
+          </Link>
+        </DropdownMenuItem>
 
-        <button
+        <DropdownMenuItem
+          variant="destructive"
+          className="mt-2 gap-2 rounded-2xl px-4 py-3 font-body text-sm"
           onClick={() => { void logout().then(() => { window.location.href = "/"; }); }}
-          className="mt-2 flex w-full items-center gap-2 rounded-2xl px-4 py-3 font-body text-sm text-error hover:bg-error/6"
         >
           <LogOut size={14} /> Sign Out
-        </button>
-      </div>
-    </div>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -241,7 +239,6 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const closeMenus = () => {
     setMobileOpen(false);
@@ -251,23 +248,8 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 12);
-    const handlePointerDown = (event: MouseEvent) => {
-      if (
-        userMenuRef.current &&
-        event.target instanceof Node &&
-        !userMenuRef.current.contains(event.target)
-      ) {
-        setUserMenuOpen(false);
-      }
-    };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
-    document.addEventListener("mousedown", handlePointerDown);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("mousedown", handlePointerDown);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -307,7 +289,6 @@ export default function Navbar() {
                 closeMenus={closeMenus}
                 userMenuOpen={userMenuOpen}
                 setUserMenuOpen={setUserMenuOpen}
-                userMenuRef={userMenuRef}
               />
             </div>
 

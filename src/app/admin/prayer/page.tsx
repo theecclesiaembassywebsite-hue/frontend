@@ -9,6 +9,7 @@ import { prayer } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -31,6 +32,7 @@ function AdminPrayerContent() {
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [viewingRequest, setViewingRequest] = useState<any | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -61,7 +63,6 @@ function AdminPrayerContent() {
   }, [search, statusFilter, requests]);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this prayer request? This cannot be undone.")) return;
     try {
       await prayer.deletePrayerRequest(id);
       setRequests(requests.filter((r) => r.id !== id));
@@ -188,7 +189,7 @@ function AdminPrayerContent() {
                 <button
                   className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
                   title="Delete request"
-                  onClick={() => handleDelete(r.id)}
+                  onClick={() => setPendingDeleteId(r.id)}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -237,6 +238,16 @@ function AdminPrayerContent() {
           </div>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+        title="Delete prayer request?"
+        description="Delete this prayer request? This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => handleDelete(pendingDeleteId!)}
+      />
     </div>
   );
 }

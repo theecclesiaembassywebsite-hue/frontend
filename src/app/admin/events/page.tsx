@@ -10,6 +10,15 @@ import { events as eventsAPI, upload } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -42,6 +51,7 @@ function AdminEventsContent() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [viewingEvent, setViewingEvent] = useState<any>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [editFormData, setEditFormData] = useState({
     title: "",
@@ -153,7 +163,6 @@ function AdminEventsContent() {
   };
 
   const handleDeleteEvent = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this event? This cannot be undone.")) return;
     try {
       await eventsAPI.deleteEvent(id);
       setEventList(eventList.filter((e) => e.id !== id));
@@ -270,41 +279,41 @@ function AdminEventsContent() {
 
       {/* Events Table */}
       <div className="overflow-x-auto rounded-[8px] border border-gray-border bg-white shadow-sm">
-        <table className="w-full min-w-[800px]">
-          <thead>
-            <tr className="border-b border-gray-border bg-off-white">
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Event</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Date</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Location</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Registrations</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-border">
+        <Table className="min-w-[800px]">
+          <TableHeader>
+            <TableRow className="border-gray-border bg-off-white hover:bg-off-white">
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Event</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Date</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Location</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Registrations</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-border">
             {filteredEvents.map((e) => {
               const registered = e._count?.registrations || 0;
               const capacity = e.maxCapacity || 100;
               const status = deriveStatus(e.date);
               const fillPercent = Math.round((registered / capacity) * 100);
               return (
-                <tr key={e.id} className="hover:bg-off-white/50 transition-colors">
-                  <td className="px-4 py-3">
+                <TableRow key={e.id} className="border-gray-border hover:bg-off-white/50">
+                  <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Calendar size={14} className="text-purple/50" />
                       <span className="font-heading text-sm font-semibold text-slate">{e.title}</span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <p className="font-body text-sm text-slate">{e.date}</p>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <MapPin size={12} className="text-gray-text" />
                       <span className="font-body text-sm text-gray-text">{e.location}</span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-16 bg-off-white rounded-full h-1.5">
                         <div
@@ -314,13 +323,13 @@ function AdminEventsContent() {
                       </div>
                       <span className="font-heading text-xs font-semibold text-slate">{registered}/{capacity}</span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${statusBadge[status] || "bg-slate/10 text-slate"}`}>
                       {status}
                     </span>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
                         className="rounded-[4px] p-1.5 text-purple-vivid hover:bg-purple/10 transition-colors"
@@ -349,17 +358,17 @@ function AdminEventsContent() {
                       <button
                         className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
                         title="Delete"
-                        onClick={() => handleDeleteEvent(e.id)}
+                        onClick={() => setPendingDeleteId(e.id)}
                       >
                         <Trash2 size={14} />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       <p className="mt-3 text-body-small">{filteredEvents.length} event{filteredEvents.length !== 1 ? "s" : ""}</p>
 
@@ -649,6 +658,16 @@ function AdminEventsContent() {
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+        title="Delete event?"
+        description="Are you sure you want to delete this event? This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => handleDeleteEvent(pendingDeleteId!)}
+      />
     </div>
   );
 }

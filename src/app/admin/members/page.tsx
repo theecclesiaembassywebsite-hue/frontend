@@ -9,6 +9,15 @@ import { admin } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const roleOptions = [
   { value: "", label: "All Roles" },
@@ -30,6 +39,7 @@ function AdminMembersContent() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<any | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -73,7 +83,6 @@ function AdminMembersContent() {
   };
 
   const handleDeleteMember = async (member: any) => {
-    if (!window.confirm(`Delete ${member.profile?.firstName || member.email}? This permanently removes all their data and cannot be undone.`)) return;
     try {
       await admin.deleteMember(member.id);
       setMembers(members.filter((m) => m.id !== member.id));
@@ -119,29 +128,29 @@ function AdminMembersContent() {
       </div>
 
       <div className="overflow-x-auto rounded-[8px] border border-gray-border bg-white shadow-sm">
-        <table className="w-full min-w-[700px]">
-          <thead>
-            <tr className="border-b border-gray-border bg-off-white">
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Member</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">ID</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Email</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Role</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</th>
-              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-border">
+        <Table className="min-w-[700px]">
+          <TableHeader>
+            <TableRow className="border-gray-border bg-off-white hover:bg-off-white">
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Member</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">ID</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Email</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Role</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Status</TableHead>
+              <TableHead className="px-4 py-3 font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-border">
             {filteredMembers.map((m) => (
-              <tr key={m.id} className="hover:bg-off-white/50 transition-colors">
-                <td className="px-4 py-3">
+              <TableRow key={m.id} className="border-gray-border hover:bg-off-white/50">
+                <TableCell className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-light">
                       <User size={14} className="text-purple/50" />
                     </div>
                     <span className="font-heading text-sm font-semibold text-slate">{m.profile?.firstName} {m.profile?.lastName}</span>
                   </div>
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <code className="font-mono text-xs text-gray-text">{m.id.substring(0, 8)}...</code>
                     <button
@@ -152,9 +161,9 @@ function AdminMembersContent() {
                       <Copy size={14} />
                     </button>
                   </div>
-                </td>
-                <td className="px-4 py-3 font-body text-sm text-gray-text">{m.email}</td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell className="px-4 py-3 font-body text-sm text-gray-text">{m.email}</TableCell>
+                <TableCell className="px-4 py-3">
                   <select
                     className="rounded-[4px] border border-gray-border bg-off-white px-2 py-1 text-xs font-heading font-semibold text-slate disabled:opacity-50"
                     value={m.role}
@@ -165,13 +174,13 @@ function AdminMembersContent() {
                       <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
                   </select>
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${m.emailVerified ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
                     {m.emailVerified ? "Verified" : "Pending"}
                   </span>
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setSelectedMember(m)}
@@ -180,18 +189,18 @@ function AdminMembersContent() {
                       View
                     </button>
                     <button
-                      onClick={() => handleDeleteMember(m)}
+                      onClick={() => setPendingDelete(m)}
                       className="rounded-[4px] p-1.5 text-error hover:bg-error/10 transition-colors"
                       title="Delete member"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       <p className="mt-3 text-body-small">{filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}</p>
 
@@ -264,6 +273,16 @@ function AdminMembersContent() {
           </div>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Delete member?"
+        description={`Delete ${pendingDelete?.profile?.firstName || pendingDelete?.email}? This permanently removes all their data and cannot be undone.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => handleDeleteMember(pendingDelete)}
+      />
     </div>
   );
 }

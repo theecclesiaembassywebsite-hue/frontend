@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { firstTimer, squads, cith } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Search,
   UserPlus,
@@ -181,28 +182,22 @@ export default function AdminFirstTimersPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-gray-100 rounded-[8px] p-1 w-fit">
-        <button
-          onClick={() => setTab("first-timers")}
-          className={`px-4 py-2 rounded-[6px] font-heading text-xs font-semibold uppercase tracking-wider transition-colors ${
-            tab === "first-timers"
-              ? "bg-white text-purple shadow-sm"
-              : "text-gray-text hover:text-slate"
-          }`}
-        >
-          First Timers ({firstTimers.length})
-        </button>
-        <button
-          onClick={() => setTab("new-converts")}
-          className={`px-4 py-2 rounded-[6px] font-heading text-xs font-semibold uppercase tracking-wider transition-colors ${
-            tab === "new-converts"
-              ? "bg-white text-purple shadow-sm"
-              : "text-gray-text hover:text-slate"
-          }`}
-        >
-          New Converts ({newConverts.length})
-        </button>
-      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "first-timers" | "new-converts")}>
+        <TabsList className="mb-4 w-fit rounded-[8px] bg-gray-100 p-1">
+          <TabsTrigger
+            value="first-timers"
+            className="rounded-[6px] font-heading text-xs font-semibold uppercase tracking-wider text-gray-text data-[state=active]:text-purple"
+          >
+            First Timers ({firstTimers.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="new-converts"
+            className="rounded-[6px] font-heading text-xs font-semibold uppercase tracking-wider text-gray-text data-[state=active]:text-purple"
+          >
+            New Converts ({newConverts.length})
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Search */}
       <div className="relative mb-6 max-w-md">

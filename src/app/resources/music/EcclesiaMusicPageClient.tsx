@@ -5,6 +5,7 @@ import SectionWrapper from '@/components/ui/SectionWrapper';
 import { media } from '@/lib/api';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FadeIn } from '@/components/ui/Motion';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExternalLink, Headphones, Music, Pause, Play, Search, Video, X } from 'lucide-react';
 
 interface MusicTrack {
@@ -484,34 +485,35 @@ export default function EcclesiaMusicPageClient() {
             </div>
 
             {/* Tabs */}
-            <div className="mb-8 flex gap-1 border-b border-[#E8E6F0]">
-              {[
-                { key: 'audio' as const, label: 'Audio Tracks', count: audioTracks.length, Icon: Headphones },
-                { key: 'video' as const, label: 'Videos', count: videoTracks.length, Icon: Video },
-              ].map(({ key, label, count, Icon }) => (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  className={`-mb-px flex items-center gap-2 border-b-2 px-1 pb-3 pr-5 font-heading text-[12px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                    tab === key
-                      ? 'border-[#C9A84C] text-[#0E0B1E]'
-                      : 'border-transparent text-[#A8A4B8] hover:text-[#5C5870]'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                  <span
-                    className={`rounded-full px-2 py-0.5 font-body text-[11px] ${
-                      tab === key
-                        ? 'bg-[#C9A84C]/15 text-[#C9A84C]'
-                        : 'bg-[#F0EEF8] text-[#A8A4B8]'
-                    }`}
+            <Tabs value={tab} onValueChange={(v) => setTab(v as 'audio' | 'video')}>
+              <TabsList
+                variant="line"
+                className="mb-8 h-auto w-fit justify-start gap-1 rounded-none border-b border-[#E8E6F0] bg-transparent p-0"
+              >
+                {[
+                  { key: 'audio' as const, label: 'Audio Tracks', count: audioTracks.length, Icon: Headphones },
+                  { key: 'video' as const, label: 'Videos', count: videoTracks.length, Icon: Video },
+                ].map(({ key, label, count, Icon }) => (
+                  <TabsTrigger
+                    key={key}
+                    value={key}
+                    className="flex-none gap-2 border-transparent px-1 pb-3 pr-5 font-heading text-[12px] font-bold uppercase tracking-[0.14em] text-[#A8A4B8] after:bg-[#C9A84C] hover:text-[#5C5870] data-[state=active]:text-[#0E0B1E]"
                   >
-                    {count}
-                  </span>
-                </button>
-              ))}
-            </div>
+                    <Icon className="h-4 w-4" />
+                    {label}
+                    <span
+                      className={`rounded-full px-2 py-0.5 font-body text-[11px] ${
+                        tab === key
+                          ? 'bg-[#C9A84C]/15 text-[#C9A84C]'
+                          : 'bg-[#F0EEF8] text-[#A8A4B8]'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
 
             {/* Content */}
             {isLoading ? (

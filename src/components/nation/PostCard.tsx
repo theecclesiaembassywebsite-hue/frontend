@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Heart, MessageCircle, Flag, Trash2, User } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useAuth } from "@/lib/auth-context";
 import { nation } from "@/lib/api";
 
@@ -48,6 +49,7 @@ export default function PostCard({
   const [commentContent, setCommentContent] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const canDelete = !!user && (user.id === authorId || MODERATOR_ROLES.includes(user.role));
 
@@ -111,8 +113,6 @@ export default function PostCard({
   }
 
   async function deletePost() {
-    if (!window.confirm("Delete this post? This action cannot be undone.")) return;
-
     try {
       setDeleting(true);
       await nation.deleteOwnPost(id);
@@ -191,7 +191,7 @@ export default function PostCard({
 
         {canDelete && (
           <button
-            onClick={deletePost}
+            onClick={() => setConfirmingDelete(true)}
             disabled={deleting}
             className="ml-auto text-gray-text hover:text-error transition-colors disabled:opacity-50"
           >
@@ -240,6 +240,16 @@ export default function PostCard({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title="Delete post?"
+        description="Delete this post? This action cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={deletePost}
+      />
     </div>
   );
 }

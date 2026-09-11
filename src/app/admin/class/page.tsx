@@ -8,6 +8,7 @@ import { intentionalityClass } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const phaseSeedData = [
   {
@@ -59,6 +60,12 @@ const phaseSeedData = [
 function AdminClassContent() {
   const [stats, setStats] = useState<any>(null);
   const [courses, setCourses] = useState<any[]>([]);
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    title: string;
+    description?: string;
+    confirmLabel?: string;
+    onConfirm: () => void | Promise<void>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -112,7 +119,6 @@ function AdminClassContent() {
   }, [fetchData]);
 
   const handleSeedPhases = async () => {
-    if (!window.confirm("This will delete any existing phase courses and recreate them with the correct module structure. Continue?")) return;
     setSeeding(true);
     try {
       const existingPhaseCourses = courses.filter((c) =>
@@ -251,7 +257,6 @@ function AdminClassContent() {
   };
 
   const handleDeleteCourse = async (courseId: string) => {
-    if (!window.confirm("Are you sure you want to delete this course? All modules, questions, and enrollments will be removed.")) return;
     try {
       await intentionalityClass.adminDeleteCourse(courseId);
       setCourses(courses.filter((c) => c.id !== courseId));
@@ -263,10 +268,6 @@ function AdminClassContent() {
   };
 
   const handleDeleteModule = async (moduleId: string) => {
-    if (!window.confirm("Are you sure you want to delete this module? This action cannot be undone.")) {
-      return;
-    }
-
     try {
       await intentionalityClass.adminDeleteModule(moduleId);
       success("Module deleted successfully");
@@ -345,7 +346,12 @@ function AdminClassContent() {
           <Button
             variant="secondary"
             className="text-xs py-2 px-4 min-w-0"
-            onClick={handleSeedPhases}
+            onClick={() => setPendingConfirm({
+              title: "Reseed phase courses?",
+              description: "This will delete any existing phase courses and recreate them with the correct module structure. Continue?",
+              confirmLabel: "Continue",
+              onConfirm: handleSeedPhases,
+            })}
             disabled={seeding}
           >
             <GraduationCap size={14} className="mr-1" />
@@ -422,7 +428,15 @@ function AdminClassContent() {
                   </div>
                 </div>
                 <button
-                  onClick={(e) => { e.stopPropagation(); handleDeleteCourse(c.id); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingConfirm({
+                      title: "Delete course?",
+                      description: "Are you sure you want to delete this course? All modules, questions, and enrollments will be removed.",
+                      confirmLabel: "Delete",
+                      onConfirm: () => handleDeleteCourse(c.id),
+                    });
+                  }}
                   className="ml-2 flex-shrink-0 rounded-[4px] p-1.5 text-gray-text hover:bg-error/10 hover:text-error transition-colors"
                   title="Delete course"
                 >
@@ -470,7 +484,15 @@ function AdminClassContent() {
                                   <Edit size={14} />
                                 </button>
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); handleDeleteModule(mod.id); }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPendingConfirm({
+                                      title: "Delete module?",
+                                      description: "Are you sure you want to delete this module? This action cannot be undone.",
+                                      confirmLabel: "Delete",
+                                      onConfirm: () => handleDeleteModule(mod.id),
+                                    });
+                                  }}
                                   className="p-1.5 rounded-[3px] text-gray-text hover:bg-error/10 hover:text-error transition-colors"
                                   title="Delete module"
                                 >
@@ -792,6 +814,16 @@ function AdminClassContent() {
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        open={pendingConfirm !== null}
+        onOpenChange={(open) => !open && setPendingConfirm(null)}
+        title={pendingConfirm?.title ?? ""}
+        description={pendingConfirm?.description}
+        confirmLabel={pendingConfirm?.confirmLabel}
+        destructive
+        onConfirm={() => pendingConfirm?.onConfirm()}
+      />
     </div>
   );
 }
