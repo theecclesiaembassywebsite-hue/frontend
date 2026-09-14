@@ -160,7 +160,7 @@ function DesktopAuthSection({
       <DropdownMenuContent
         align="end"
         sideOffset={12}
-        className="w-60 overflow-hidden rounded-[26px] border border-slate/10 bg-white p-2 shadow-[0_28px_60px_rgba(14,11,30,0.16)]"
+        className="z-[70] w-60 overflow-hidden rounded-[26px] border border-slate/10 bg-white p-2 shadow-[0_28px_60px_rgba(14,11,30,0.16)]"
       >
         <DropdownMenuLabel className="px-4 py-3 font-body font-normal">
           <p className="font-heading text-sm font-semibold text-slate">

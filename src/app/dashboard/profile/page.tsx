@@ -6,10 +6,150 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import { profile as profileApi, upload } from "@/lib/api";
+import { auth, profile as profileApi, upload } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
+import { useAuth } from "@/lib/auth-context";
+
+const PASSWORD_RULES_MESSAGE =
+  "Must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.";
+
+function isPasswordValid(password: string): boolean {
+  return (
+    password.length >= 8 &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /\d/.test(password)
+  );
+}
+
+interface PasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+function ChangePasswordSection() {
+  const { user } = useAuth();
+  const { success, error: showError } = useToast();
+  const [formData, setFormData] = useState<PasswordFormData>({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  // Google-linked accounts have no password on file — nothing to change.
+  if (user?.provider === "google") {
+    return (
+      <div className="bg-white rounded-[8px] border border-gray-border p-6 shadow-sm md:p-8">
+        <h2 className="font-heading text-lg font-bold text-slate mb-2">
+          Password
+        </h2>
+        <p className="font-body text-sm text-gray-text">
+          Your account signs in with Google, so there&apos;s no password to change here.
+        </p>
+      </div>
+    );
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.currentPassword) {
+      newErrors.currentPassword = "Current password is required";
+    }
+    if (!isPasswordValid(formData.newPassword)) {
+      newErrors.newPassword = PASSWORD_RULES_MESSAGE;
+    }
+    if (formData.confirmPassword !== formData.newPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setSaving(true);
+      await auth.changePassword(formData.currentPassword, formData.newPassword);
+      success("Password changed successfully!");
+      setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setErrors({});
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to change password");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-[8px] border border-gray-border p-6 shadow-sm md:p-8">
+      <h2 className="font-heading text-lg font-bold text-slate mb-4">
+        Password
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          id="currentPassword"
+          name="currentPassword"
+          type="password"
+          label="Current Password"
+          autoComplete="current-password"
+          value={formData.currentPassword}
+          onChange={handleChange}
+          error={errors.currentPassword}
+          required
+        />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Input
+            id="newPassword"
+            name="newPassword"
+            type="password"
+            label="New Password"
+            autoComplete="new-password"
+            value={formData.newPassword}
+            onChange={handleChange}
+            error={errors.newPassword}
+            required
+          />
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            label="Confirm New Password"
+            autoComplete="new-password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+            required
+          />
+        </div>
+        <p className="font-body text-[11px] text-gray-text">{PASSWORD_RULES_MESSAGE}</p>
+        <div className="pt-2">
+          <Button type="submit" variant="primary" loading={saving} disabled={saving}>
+            Change Password
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 interface ProfileData {
   id?: string;
@@ -348,6 +488,10 @@ function ProfileEditContent() {
               </Link>
             </div>
           </form>
+        </div>
+
+        <div className="mt-6">
+          <ChangePasswordSection />
         </div>
       </div>
     </div>

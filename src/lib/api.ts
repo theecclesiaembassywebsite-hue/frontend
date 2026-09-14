@@ -208,6 +208,7 @@ export interface User {
   email: string;
   role: string;
   emailVerified: boolean;
+  provider?: string;
   profile: {
     firstName?: string;
     lastName?: string;
@@ -361,6 +362,12 @@ export const auth = {
     }),
 
   getMe: () => fetchAPI<User>("/auth/me"),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    fetchAPI<{ message: string }>("/auth/change-password", {
+      method: "PUT",
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
 
   // Clears the httpOnly session cookie on the backend, then removes the
   // localStorage token so both auth paths are cleaned up together.
