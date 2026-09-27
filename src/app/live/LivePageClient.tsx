@@ -221,7 +221,7 @@ function StreamPlayer({
       className="fixed inset-0 z-[130] flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      <div className="relative w-full max-w-4xl overflow-hidden rounded-[20px] bg-[#0E0B1E] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+      <div className="relative w-full max-w-4xl max-h-[calc(100vh-3rem)] overflow-y-auto overflow-x-hidden overscroll-contain rounded-[20px] bg-[#0E0B1E] shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
         <div className="flex items-start justify-between gap-4 px-5 py-4">
           <div className="min-w-0">
             <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
