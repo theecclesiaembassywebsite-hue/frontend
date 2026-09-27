@@ -6,19 +6,19 @@ Weekly gatherings: Sunday Word & Life Service (8:00 AM), Tuesday Prayer Service 
 
 ## Core sections
 
-- [About](https://ecclesia-iota.vercel.app/about): Who The Ecclesia Embassy is, its core values, and belief system.
-- [New Here](https://ecclesia-iota.vercel.app/new-here): For first-time visitors planning to attend.
-- [Give](https://ecclesia-iota.vercel.app/give): Online giving and financial partnership.
-- [Live](https://ecclesia-iota.vercel.app/live): Watch the current or most recent livestream.
-- [Events](https://ecclesia-iota.vercel.app/events): Upcoming gatherings, including the annual Feast of Tabernacles and the Gilgal Camp Meeting.
-- [Blog](https://ecclesia-iota.vercel.app/blog): Articles and teaching content.
-- [Resources](https://ecclesia-iota.vercel.app/resources): Sermon audio, video, music, and the resource library.
-- [CITH](https://ecclesia-iota.vercel.app/cith): Church-in-the-House hubs and meeting points.
-- [Training](https://ecclesia-iota.vercel.app/training): Discipleship and leadership training programmes.
-- [Prayer](https://ecclesia-iota.vercel.app/prayer): Submit a prayer request.
-- [Contact](https://ecclesia-iota.vercel.app/contact): Address, phone, email, and service times.
+- [About](https://www.theecclesiaembassy.org/about): Who The Ecclesia Embassy is, its core values, and belief system.
+- [New Here](https://www.theecclesiaembassy.org/new-here): For first-time visitors planning to attend.
+- [Give](https://www.theecclesiaembassy.org/give): Online giving and financial partnership.
+- [Live](https://www.theecclesiaembassy.org/live): Watch the current or most recent livestream.
+- [Events](https://www.theecclesiaembassy.org/events): Upcoming gatherings, including the annual Feast of Tabernacles and the Gilgal Camp Meeting.
+- [Blog](https://www.theecclesiaembassy.org/blog): Articles and teaching content.
+- [Resources](https://www.theecclesiaembassy.org/resources): Sermon audio, video, music, and the resource library.
+- [CITH](https://www.theecclesiaembassy.org/cith): Church-in-the-House hubs and meeting points.
+- [Training](https://www.theecclesiaembassy.org/training): Discipleship and leadership training programmes.
+- [Prayer](https://www.theecclesiaembassy.org/prayer): Submit a prayer request.
+- [Contact](https://www.theecclesiaembassy.org/contact): Address, phone, email, and service times.
 
 ## Notes
 
 - `/admin`, `/dashboard`, and `/auth` are private, authenticated application areas and are not part of the public site content.
-- Full machine-readable page listing: [sitemap.xml](https://ecclesia-iota.vercel.app/sitemap.xml)
+- Full machine-readable page listing: [sitemap.xml](https://www.theecclesiaembassy.org/sitemap.xml)
