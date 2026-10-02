@@ -62,7 +62,13 @@ export function baseSentryOptions(dsn: string): BrowserOptions {
       // leaving, not a fault.
       "AbortError",
       "The user aborted a request",
+      // Android in-app WebViews (social/messaging browsers) inject a native
+      // bridge script that throws when the host view is torn down. Not our code.
+      "Error invoking postMessage: Java object is gone",
     ],
+
+    // Scripts injected by the host app rather than served from this site.
+    denyUrls: [/^app:\/\//i],
 
     beforeSend(event) {
       if (event.request) {
