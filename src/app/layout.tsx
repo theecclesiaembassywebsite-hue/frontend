@@ -87,8 +87,8 @@ const organizationJsonLd = {
     "A worshipping, praying, Kingdom focused global movement with a home base in Abuja, committed to raising Word-cultured ambassadors who carry Christ into every sphere.",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Km 6 Law School Road, New",
-    addressLocality: "Bwari",
+    streetAddress: "KM 5 Nigerian Law School Road",
+    addressLocality: "New Bwari",
     addressRegion: "Federal Capital Territory",
     postalCode: "910103",
     addressCountry: "NG",

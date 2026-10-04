@@ -35,7 +35,7 @@ const contactDetails = [
   {
     icon: MapPin,
     label: "Address",
-    value: "Km 6 Law School Road, New, Bwari 910103, Federal Capital Territory, Nigeria",
+    value: "KM 5 Nigerian Law School Road, New Bwari 910103, Federal Capital Territory, Nigeria",
   },
   {
     icon: Phone,

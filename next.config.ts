@@ -226,6 +226,17 @@ const nextConfig: NextConfig = {
       alias("/account-deletion", "/privacy/delete-account"),
       alias("/data-deletion", "/privacy/delete-account"),
       alias("/privacy/delete", "/privacy/delete-account"),
+
+      // The previous site was WordPress on this same domain, and Google still
+      // has its URLs indexed. These were taken from the Wayback Machine's list
+      // of the old site's HTML pages. Dated posts (/2016/05/some-slug) have no
+      // one-to-one counterpart here, so they land on the blog index.
+      alias("/the-lead-brother", "/about/leadership"),
+      alias("/:year(20\\d{2})/:month(\\d{2})/:slug", "/blog"),
+      alias("/tlgmsp", "/"),
+      alias("/feed", "/blog"),
+      alias("/comments/feed", "/blog"),
+      alias("/home/feed", "/blog"),
     ];
   },
 };

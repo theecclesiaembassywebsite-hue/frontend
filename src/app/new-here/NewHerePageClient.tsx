@@ -33,7 +33,7 @@ const expectCards = [
   {
     icon: MapPin,
     title: "Our Location",
-    description: "Our home base is at Km 6 Law School Road, New, Bwari 910103, Federal Capital Territory, Nigeria, and we look forward to welcoming you in person while staying connected globally.",
+    description: "Our home base is at KM 5 Nigerian Law School Road, New Bwari 910103, Federal Capital Territory, Nigeria, and we look forward to welcoming you in person while staying connected globally.",
   },
 ];
 
