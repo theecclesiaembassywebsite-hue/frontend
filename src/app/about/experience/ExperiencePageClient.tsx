@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
-import { FadeIn } from "@/components/ui/Motion";
 import { gallery } from "@/lib/api";
 
 interface GalleryImage {
@@ -13,21 +11,6 @@ interface GalleryImage {
   url: string;
   caption?: string;
 }
-
-const testimonials = [
-  {
-    text: "The Ecclesia Embassy has transformed my understanding of the Word. I have found a family that truly lives out the kingdom mandate.",
-    name: "Member",
-  },
-  {
-    text: "The worship encounters here are unlike anything I have experienced. There is a tangible presence of God in every gathering.",
-    name: "Member",
-  },
-  {
-    text: "Through the Intentionality Class and squad fellowship, I have grown more in one year than in a decade of church attendance elsewhere.",
-    name: "Member",
-  },
-];
 
 export default function ExperiencePageClient() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -125,32 +108,6 @@ export default function ExperiencePageClient() {
           </div>
         </SectionWrapper>
       )}
-
-      {/* ── TESTIMONIES ── */}
-      <SectionWrapper variant="brand-ink" hairline>
-        <SectionIntro
-          align="center"
-          tone="dark"
-          eyebrow="In their words"
-          title="What our members say"
-        />
-
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <FadeIn key={testimonial.text} direction="up" delay={index * 0.06}>
-              <figure className="brand-card-dark flex h-full flex-col p-7">
-                <Quote className="h-8 w-8 text-[var(--brand-accent-text)]" />
-                <blockquote className="mt-5 flex-1 font-serif text-base italic leading-relaxed text-white/82">
-                  &ldquo;{testimonial.text}&rdquo;
-                </blockquote>
-                <figcaption className="mt-6 font-heading text-[11px] font-bold uppercase tracking-[0.18em] text-white/55">
-                  {testimonial.name}
-                </figcaption>
-              </figure>
-            </FadeIn>
-          ))}
-        </div>
-      </SectionWrapper>
     </div>
   );
 }

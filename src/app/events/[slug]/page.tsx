@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!event?.title) {
     return buildMetadata({
       title: "Event",
-      description: "Gatherings, feasts, and camp meetings at The Ecclesia Embassy.",
+      description: "Gatherings, Feasts, and Camp meetings at The Ecclesia Embassy.",
       path: `/events/${slug}`,
       noIndex: true,
     });

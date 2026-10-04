@@ -125,7 +125,7 @@ export default function EventsPageClient() {
       <PageHero
         eyebrow="Events & Programs"
         title="What's happening at the Embassy"
-        subtitle="Gatherings, feasts, and camp meetings."
+        subtitle="Gatherings, Feasts, and Camp meetings."
         description="Browse the calendar month by month, or go straight to the anniversary Feast of Tabernacles and the Gilgal camp meeting."
         backgroundImage="/site/embassy-building.jpg"
         backgroundPosition="center 82%"
