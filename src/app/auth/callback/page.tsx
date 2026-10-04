@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { GOOGLE_AUTH_CHANNEL } from "@/lib/useGoogleAuthPopup";
 
 function normalizeRedirect(redirect: string | null): string {
   if (!redirect) return '/dashboard';
@@ -40,27 +41,53 @@ export default function AuthCallbackPage() {
     // Passport verified the Google callback server-side.
     const succeeded = status === 'success';
 
+    const message = succeeded
+      ? { type: 'google-auth-success', redirect }
+      : { type: 'google-auth-error', reason: params.get('reason') };
+
     // Opened as a popup from the Google sign-in button: relay the result to
     // the opener window and close, instead of navigating this popup itself.
     if (window.opener && window.opener !== window) {
-      window.opener.postMessage(
-        succeeded
-          ? { type: 'google-auth-success', redirect }
-          : { type: 'google-auth-error', reason: params.get('reason') },
-        window.location.origin
-      );
+      window.opener.postMessage(message, window.location.origin);
       window.close();
       return;
     }
 
-    if (succeeded) {
-      window.location.assign(redirect);
-    } else {
-      const reason = params.get('reason');
-      window.location.assign(
-        `/auth/login?error=google_failed${reason ? `&reason=${encodeURIComponent(reason)}` : ''}`
-      );
+    function navigate() {
+      if (succeeded) {
+        window.location.assign(redirect);
+      } else {
+        const reason = params.get('reason');
+        window.location.assign(
+          `/auth/login?error=google_failed${reason ? `&reason=${encodeURIComponent(reason)}` : ''}`
+        );
+      }
     }
+
+    // window.opener is null when the API's Cross-Origin-Opener-Policy cut the
+    // popup loose. Tell the original tab over a BroadcastChannel instead. It
+    // answers with an ack; with no ack this is the full-page fallback (popup
+    // blocked, nobody is listening), so navigate this window itself.
+    if (typeof BroadcastChannel === 'undefined') {
+      navigate();
+      return;
+    }
+    const channel = new BroadcastChannel(GOOGLE_AUTH_CHANNEL);
+    const fallback = setTimeout(() => {
+      channel.close();
+      navigate();
+    }, 700);
+    channel.onmessage = (event: MessageEvent) => {
+      if ((event.data as { type?: string })?.type !== 'google-auth-ack') return;
+      clearTimeout(fallback);
+      channel.close();
+      window.close();
+    };
+    channel.postMessage(message);
+    return () => {
+      clearTimeout(fallback);
+      channel.close();
+    };
   }, []);
 
   return (
