@@ -65,6 +65,9 @@ export function baseSentryOptions(dsn: string): BrowserOptions {
       // Android in-app WebViews (social/messaging browsers) inject a native
       // bridge script that throws when the host view is torn down. Not our code.
       "Error invoking postMessage: Java object is gone",
+      // Thrown by a script that is not ours (app:///executors/200.js, no
+      // browser or OS context, arrives in bursts). `M_ID` is nowhere in src/.
+      /Cannot read properties of undefined \(reading 'M_ID'\)/,
     ],
 
     // Scripts injected by the host app rather than served from this site.
