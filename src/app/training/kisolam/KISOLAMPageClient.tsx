@@ -24,6 +24,7 @@ import {
 import { training, TrainingCourse } from "@/lib/api";
 import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const isJoinable = (course: TrainingCourse) =>
   getCourseAvailability(course).joinable;
@@ -448,6 +449,7 @@ export default function KISOLAMPageClient() {
           </div>
         ) : (
           <form onSubmit={handleEnrollAndPay} className="space-y-4">
+            <FormGuardFields />
             <div className="rounded-[10px] bg-purple-light/40 px-4 py-3 text-sm">
               <p className="font-heading font-semibold text-slate">{selectedCourse?.name}</p>
               <p className="text-[12px] text-gray-text">Duration: {selectedCourse?.duration}</p>

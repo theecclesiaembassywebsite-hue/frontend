@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/Toast'
 import { FadeIn } from '@/components/ui/Motion'
 import { CheckCircle } from 'lucide-react'
 import { useState } from 'react'
+import { FormGuardFields } from "@/components/forms/FormGuardFields"
 
 export default function PrayerPageClient() {
   const [submitted, setSubmitted] = useState(false)
@@ -100,6 +101,7 @@ export default function PrayerPageClient() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <FormGuardFields />
                   <Input
                     id="fullName"
                     name="fullName"

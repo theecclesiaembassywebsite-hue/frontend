@@ -13,6 +13,7 @@ import { contact } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { FadeIn } from "@/components/ui/Motion";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -104,6 +105,7 @@ const ContactPageClient = () => {
             />
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <FormGuardFields />
               <div>
                 <label className="mb-2 block font-heading text-xs font-semibold uppercase tracking-[0.2em] text-slate">
                   Your Name

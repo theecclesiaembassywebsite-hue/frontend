@@ -72,6 +72,7 @@ const csp = [
     "https://www.sandbox.paypal.com",
     "https://vercel.live",
     "https://va.vercel-scripts.com",
+    "https://challenges.cloudflare.com",
   ].join(" "),
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
@@ -95,6 +96,7 @@ const csp = [
     "https://www.sandbox.paypal.com",
     "https://vitals.vercel-insights.com",
     "https://vercel.live",
+    "https://challenges.cloudflare.com",
     sentryIngestOrigin,
   ]
     .filter(Boolean)
@@ -114,6 +116,7 @@ const csp = [
     "https://www.sandbox.paypal.com",
     "https://www.google.com",
     "https://maps.google.com",
+    "https://challenges.cloudflare.com",
   ].join(" "),
   "object-src 'none'",
   "base-uri 'self'",

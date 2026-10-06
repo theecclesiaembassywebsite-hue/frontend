@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { firstTimer, squads, cith } from "@/lib/api";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 export default function NewConvertPageClient() {
   const { success, error } = useToast();
@@ -254,6 +255,7 @@ export default function NewConvertPageClient() {
             </FadeIn>
           ) : (
             <form onSubmit={handleSubmit} className="text-left">
+              <FormGuardFields />
               {/* Step indicators */}
               <div className="flex items-center justify-center gap-3 mb-8">
                 {[1, 2].map((s) => (

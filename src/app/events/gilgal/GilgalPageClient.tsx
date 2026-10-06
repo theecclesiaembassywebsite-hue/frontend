@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Check, Compass, Flame, ShieldCheck } from "lucide-react";
 import { events as eventsAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const EVENT_ID = "gilgal";
 
@@ -200,6 +201,7 @@ export default function GilgalPageClient() {
                   Free — accommodation included.
                 </p>
                 <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+                  <FormGuardFields />
                   <Input
                     id="name"
                     placeholder="Full Name"

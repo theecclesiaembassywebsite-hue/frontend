@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/Toast";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 interface Event {
   id: string;
@@ -331,6 +332,7 @@ export default function EventDetailPageClient({ params }: { params: Promise<{ sl
 
                   {/* Registration form */}
                   <form onSubmit={handleRegister} className="space-y-4">
+                    <FormGuardFields />
                     <Input
                       id="name"
                       name="name"

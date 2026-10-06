@@ -13,6 +13,7 @@ import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/Motion';
 import { buttonClasses } from '@/components/ui/button-styles';
 import { MapPin, Clock, Shirt, Heart, CheckCircle } from 'lucide-react';
 import { firstTimer } from '@/lib/api';
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const expectCards = [
   {
@@ -138,6 +139,7 @@ export default function NewHerePageClient() {
                 />
 
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  <FormGuardFields />
                   <div>
                     <label className="mb-2 block font-heading text-xs font-semibold uppercase tracking-[0.2em] text-slate">
                       Full Name

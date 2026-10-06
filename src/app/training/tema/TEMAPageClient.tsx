@@ -33,6 +33,7 @@ import {
 import { training, TrainingCourse } from "@/lib/api";
 import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 // Icons are a purely visual, code-driven lookup — new courses an admin creates
 // later just fall back to the generic Sparkles icon.
@@ -601,6 +602,7 @@ export default function TEMAPageClient() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+                <FormGuardFields />
                 <Input id="name" name="name" placeholder="Full Name" required />
                 <Input id="email" name="email" type="email" placeholder="Email Address" required />
                 <Input id="phone" name="phone" type="tel" placeholder="Phone Number" required />

@@ -1,3 +1,4 @@
+import { isGuardedRequest, withFormGuard, resetFormGuard } from "./form-guard";
 import {
   cloneFallback,
   DEFAULT_ANNOUNCEMENTS,
@@ -72,7 +73,23 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const backoffMs = (attempt: number) => Math.min(400 * 2 ** (attempt - 1), 6000) + Math.random() * 200;
 
+// Public forms carry bot-defence fields (honeypot, fill time, captcha token),
+// merged in here so no form can forget them. See lib/form-guard.
 export const fetchAPI = async <T>(
+  endpoint: string,
+  options: FetchOptions = {}
+): Promise<T> => {
+  const method = (options.method || "GET").toUpperCase();
+  if (!isGuardedRequest(endpoint, method)) return doFetchAPI<T>(endpoint, options);
+  const body = withFormGuard(options.body);
+  try {
+    return await doFetchAPI<T>(endpoint, { ...options, body });
+  } finally {
+    resetFormGuard();
+  }
+};
+
+const doFetchAPI = async <T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> => {
