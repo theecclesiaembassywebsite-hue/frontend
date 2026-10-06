@@ -80,6 +80,8 @@ export const fetchAPI = async <T>(
 
   const fetchHeaders: Record<string, string> = {
     "Content-Type": "application/json",
+    // Lets the backend record where a submission came from (analytics only).
+    "X-Client-Platform": "web",
     ...(headers as Record<string, string>),
   };
 

@@ -10,6 +10,7 @@ import { cith } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { SubmittedViaBadge } from "@/components/admin/SubmittedViaBadge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const statusOptions = [
@@ -499,6 +500,7 @@ function AdminCITHContent() {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-heading text-sm font-semibold text-slate">{[app.applicant?.profile?.firstName, app.applicant?.profile?.lastName].filter(Boolean).join(' ') || app.applicant?.email || "Unknown"}</span>
                   <span className="rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-heading font-semibold text-warning">Pending</span>
+                  <SubmittedViaBadge source={app.clientSource} />
                 </div>
                 <p className="font-body text-sm text-gray-text mb-1">
                   <MapPin size={12} className="inline mr-1" />{app.hub?.name || "Unknown Hub"} &middot; Applied {new Date(app.createdAt || Date.now()).toLocaleDateString()}

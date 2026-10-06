@@ -8,6 +8,7 @@ import { testimonies } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
+import { SubmittedViaBadge } from "@/components/admin/SubmittedViaBadge";
 
 function submitterName(t: any): string {
   const profile = t.user?.profile;
@@ -153,6 +154,7 @@ function AdminTestimoniesContent() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h3 className="font-heading text-sm font-semibold text-slate">{t.title}</h3>
                     <ShareNameBadge shareName={t.shareName} />
+                    <SubmittedViaBadge source={t.clientSource} />
                   </div>
                   <p className="font-body text-sm text-gray-text mb-2">{t.content}</p>
                   {t.photoUrl && (
@@ -203,6 +205,7 @@ function AdminTestimoniesContent() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h3 className="font-heading text-sm font-semibold text-slate">{t.title}</h3>
                     <ShareNameBadge shareName={t.shareName} />
+                    <SubmittedViaBadge source={t.clientSource} />
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-heading font-semibold ${
                         t.isPublic ? "bg-success/10 text-success" : "bg-gray-100 text-gray-text"

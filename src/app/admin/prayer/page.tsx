@@ -10,6 +10,7 @@ import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { SubmittedViaBadge } from "@/components/admin/SubmittedViaBadge";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -160,6 +161,7 @@ function AdminPrayerContent() {
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-heading font-semibold ${statusBadge[r.status]}`}>
                     {statusOptions.find((s) => s.value === r.status)?.label || r.status}
                   </span>
+                  <SubmittedViaBadge source={r.clientSource} />
                 </div>
                 <p className="font-body text-sm text-gray-text mb-1">{r.request}</p>
                 <div className="flex items-center gap-3 text-[10px] text-gray-text">
@@ -225,6 +227,10 @@ function AdminPrayerContent() {
             <div>
               <p className="text-sm font-heading font-semibold text-slate">Admin Notes</p>
               <p className="font-body text-sm text-gray-text">{viewingRequest.adminNotes || "No notes yet"}</p>
+            </div>
+            <div>
+              <p className="text-sm font-heading font-semibold text-slate">Submitted via</p>
+              <SubmittedViaBadge source={viewingRequest.clientSource} />
             </div>
             <div>
               <p className="text-sm font-heading font-semibold text-slate">Submitted</p>

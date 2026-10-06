@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { SubmittedViaBadge } from "@/components/admin/SubmittedViaBadge";
 import { useState, useEffect, useCallback } from "react";
 import { firstTimer, squads, cith } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
@@ -238,6 +239,9 @@ export default function AdminFirstTimersPage() {
                     Source
                   </th>
                   <th className="text-left px-4 py-3 font-heading text-xs font-semibold text-gray-text uppercase tracking-wider">
+                    Submitted via
+                  </th>
+                  <th className="text-left px-4 py-3 font-heading text-xs font-semibold text-gray-text uppercase tracking-wider">
                     Date
                   </th>
                   <th className="text-right px-4 py-3 font-heading text-xs font-semibold text-gray-text uppercase tracking-wider">
@@ -249,7 +253,7 @@ export default function AdminFirstTimersPage() {
                 {firstTimers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="text-center py-12 font-body text-sm text-gray-text"
                     >
                       No first-timer records found
@@ -274,6 +278,9 @@ export default function AdminFirstTimersPage() {
                         <span className="inline-block rounded-full bg-purple/10 px-2.5 py-0.5 font-heading text-xs font-semibold text-purple capitalize">
                           {ft.source?.replace("-", " ")}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <SubmittedViaBadge source={ft.clientSource} />
                       </td>
                       <td className="px-4 py-3 font-body text-sm text-gray-text">
                         {new Date(ft.createdAt).toLocaleDateString()}
@@ -322,6 +329,9 @@ export default function AdminFirstTimersPage() {
                     Follow-up
                   </th>
                   <th className="text-left px-4 py-3 font-heading text-xs font-semibold text-gray-text uppercase tracking-wider">
+                    Submitted via
+                  </th>
+                  <th className="text-left px-4 py-3 font-heading text-xs font-semibold text-gray-text uppercase tracking-wider">
                     Date
                   </th>
                   <th className="text-right px-4 py-3 font-heading text-xs font-semibold text-gray-text uppercase tracking-wider">
@@ -333,7 +343,7 @@ export default function AdminFirstTimersPage() {
                 {newConverts.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="text-center py-12 font-body text-sm text-gray-text"
                     >
                       No new convert records found
@@ -376,6 +386,9 @@ export default function AdminFirstTimersPage() {
                             <Clock className="h-3 w-3" /> Pending
                           </button>
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <SubmittedViaBadge source={nc.clientSource} />
                       </td>
                       <td className="px-4 py-3 font-body text-sm text-gray-text">
                         {new Date(nc.createdAt).toLocaleDateString()}

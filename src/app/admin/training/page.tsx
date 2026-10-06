@@ -13,6 +13,7 @@ import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
+import { SubmittedViaBadge } from "@/components/admin/SubmittedViaBadge";
 
 const programOptions = [
   { value: "", label: "All Programs" },
@@ -678,6 +679,7 @@ function EnrollmentsTab() {
       "Payment Status": e.paymentStatus || "",
       "Payment Ref": e.paymentRef || e.paymentReference || "",
       "Tracking Status": e.trackingStatus || "NEW",
+      "Submitted Via": e.clientSource || "UNKNOWN",
       Notes: e.notes || "",
       "Date Applied": e.createdAt ? new Date(e.createdAt).toLocaleString() : "",
     }));
@@ -801,6 +803,7 @@ function EnrollmentsTab() {
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Programme</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Payment</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Tracking</th>
+              <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Submitted via</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Date</th>
               <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-wider text-gray-text">Actions</th>
             </tr>
@@ -836,6 +839,9 @@ function EnrollmentsTab() {
                         {tracking}
                       </span>
                     </td>
+                    <td className="px-4 py-3">
+                      <SubmittedViaBadge source={e.clientSource} />
+                    </td>
                     <td className="px-4 py-3 font-body text-sm text-gray-text">
                       {e.createdAt ? new Date(e.createdAt).toLocaleDateString() : "N/A"}
                     </td>
@@ -869,7 +875,7 @@ function EnrollmentsTab() {
               })
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center font-body text-sm text-gray-text">
+                <td colSpan={8} className="px-4 py-8 text-center font-body text-sm text-gray-text">
                   No enrollments found
                 </td>
               </tr>
