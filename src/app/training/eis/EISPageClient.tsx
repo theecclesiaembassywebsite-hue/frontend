@@ -16,8 +16,9 @@ import {
   Users,
 } from "lucide-react";
 
-// EIS is managed on its own external site. Replace this once that site is live.
-const EIS_WEBSITE_URL = "https://eis.example.com"; // TODO: replace with live EIS site URL once available
+// EIS is managed on its own external site. The visit buttons only render once
+// NEXT_PUBLIC_EIS_WEBSITE_URL is set, so nothing points at a placeholder.
+const EIS_WEBSITE_URL = process.env.NEXT_PUBLIC_EIS_WEBSITE_URL || "";
 
 const admissionsHighlights = [
   {
@@ -130,9 +131,11 @@ export default function EISPageClient() {
         }
         actions={
           <>
-            <Button variant="primary" onClick={openEISWebsite}>
-              Visit the EIS Website
-            </Button>
+            {EIS_WEBSITE_URL && (
+              <Button variant="primary" onClick={openEISWebsite}>
+                Visit the EIS Website
+              </Button>
+            )}
             <Button variant="secondary" onDark onClick={() => scrollToSection("overview")}>
               View Overview
             </Button>
@@ -288,9 +291,15 @@ export default function EISPageClient() {
               website.
             </p>
             <div className="mt-9 flex justify-center">
-              <Button variant="primary" className="gap-2" onClick={openEISWebsite}>
-                Visit the EIS Website <ExternalLink size={15} />
-              </Button>
+              {EIS_WEBSITE_URL ? (
+                <Button variant="primary" className="gap-2" onClick={openEISWebsite}>
+                  Visit the EIS Website <ExternalLink size={15} />
+                </Button>
+              ) : (
+                <Button variant="primary" onClick={() => window.location.assign("/contact")}>
+                  Contact Us
+                </Button>
+              )}
             </div>
           </div>
         </div>

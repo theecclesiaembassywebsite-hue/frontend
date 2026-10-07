@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 // wired up) still emits absolute, crawlable canonical/OG URLs instead of
 // silently pointing at http://localhost.
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://ecclesia-iota.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://theecclesiaembassy.org"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "The Ecclesia Embassy";

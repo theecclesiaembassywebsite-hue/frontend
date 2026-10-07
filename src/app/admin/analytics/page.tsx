@@ -52,7 +52,7 @@ function AdminAnalyticsContent() {
   const metrics = [
     { label: "Registered Members", value: overview?.totalMembers?.toString() || "0", icon: Users, target: "300+", progress: Math.min((overview?.totalMembers / 300) * 100, 100) || 0 },
     { label: "Weekly Active Users", value: overview?.activeUsers?.toString() || "0", icon: Eye, target: "500+", progress: Math.min((overview?.activeUsers / 500) * 100, 100) || 0 },
-    { label: "Online Giving", value: formatMoneyByCurrency(overview?.givingByCurrency), icon: Gift, target: "40%", progress: 0 },
+    { label: "Online Giving", value: formatMoneyByCurrency(overview?.givingByCurrency), icon: Gift, target: null as string | null, progress: 0 },
     { label: "Active CITH Hubs", value: overview?.cithHubs?.toString() || "0", icon: MapPin, target: "30+", progress: Math.min((overview?.cithHubs / 30) * 100, 100) || 0 },
     { label: "Ecclesia Embassy Community (Monthly)", value: overview?.nationPosts?.toString() || "0", icon: MessageCircle, target: "200+", progress: Math.min((overview?.nationPosts / 200) * 100, 100) || 0 },
     { label: "Class Enrollments", value: overview?.classEnrollments?.toString() || "0", icon: GraduationCap, target: "50+", progress: Math.min((overview?.classEnrollments / 50) * 100, 100) || 0 },
@@ -73,19 +73,25 @@ function AdminAnalyticsContent() {
             <div key={m.label} className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <Icon size={18} className="text-purple" />
-                <span className={`text-[10px] font-heading font-bold ${m.progress >= 100 ? "text-success" : "text-warning"}`}>
-                  {m.progress >= 100 ? "Target Met" : "In Progress"}
-                </span>
+                {m.target && (
+                  <span className={`text-[10px] font-heading font-bold ${m.progress >= 100 ? "text-success" : "text-warning"}`}>
+                    {m.progress >= 100 ? "Target Met" : "In Progress"}
+                  </span>
+                )}
               </div>
               <p className="font-heading text-2xl font-bold text-slate">{m.value}</p>
               <p className="text-[11px] text-gray-text">{m.label}</p>
-              <div className="mt-2 h-1.5 rounded-full bg-off-white overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${m.progress >= 100 ? "bg-success" : "bg-warning"}`}
-                  style={{ width: `${Math.min(m.progress, 100)}%` }}
-                />
-              </div>
-              <p className="text-[10px] text-gray-text mt-1">Target: {m.target}</p>
+              {m.target && (
+                <>
+                  <div className="mt-2 h-1.5 rounded-full bg-off-white overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${m.progress >= 100 ? "bg-success" : "bg-warning"}`}
+                      style={{ width: `${Math.min(m.progress, 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-gray-text mt-1">Target: {m.target}</p>
+                </>
+              )}
             </div>
           );
         })}
@@ -127,10 +133,6 @@ function AdminAnalyticsContent() {
             <div>
               <p className="text-[11px] text-gray-text">New Signups</p>
               <p className="font-heading text-2xl font-bold text-slate">{Array.isArray(growth) && growth.length > 0 ? growth[growth.length - 1]?.count || "0" : "0"}</p>
-            </div>
-            <div>
-              <p className="text-[11px] text-gray-text">Retention Rate</p>
-              <p className="font-heading text-2xl font-bold text-info">N/A</p>
             </div>
           </div>
         </div>

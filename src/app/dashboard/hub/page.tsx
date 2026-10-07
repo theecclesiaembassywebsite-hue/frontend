@@ -2,7 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { ArrowLeft, User, MapPin, Clock, Send, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, User, MapPin, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cith } from "@/lib/api";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -13,8 +13,6 @@ function HubDashboardContent() {
   const [hubData, setHubData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [announcement, setAnnouncement] = useState("");
-  const [sent, setSent] = useState(false);
   const [joinRequests, setJoinRequests] = useState<any[]>([]);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [assignMeetingPoint, setAssignMeetingPoint] = useState<Record<string, string>>({});
@@ -79,15 +77,6 @@ function HubDashboardContent() {
       setReviewingId(null);
     }
   };
-
-  function handleSend(e: React.FormEvent) {
-    e.preventDefault();
-    if (!announcement.trim()) return;
-    // TODO: wire to backend when hub announcement endpoint exists
-    setSent(true);
-    setAnnouncement("");
-    setTimeout(() => setSent(false), 3000);
-  }
 
   if (loading) {
     return (
@@ -274,26 +263,6 @@ function HubDashboardContent() {
               </div>
             </div>
           )}
-
-          {/* Send Announcement */}
-          <div className="rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
-            <h3 className="font-heading text-base font-bold text-slate mb-3">Send Announcement</h3>
-            <form onSubmit={handleSend} className="flex flex-col gap-3">
-              <textarea
-                value={announcement}
-                onChange={(e) => setAnnouncement(e.target.value)}
-                placeholder="Type your announcement to hub members..."
-                rows={4}
-                className="w-full rounded-[4px] border border-gray-border bg-off-white px-3 py-2 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:outline-none resize-y"
-              />
-              <Button type="submit" variant="primary" className="text-xs py-2 min-w-0">
-                <Send size={14} className="mr-1" /> Send to Members
-              </Button>
-              {sent && (
-                <p className="text-xs font-heading font-semibold text-success">Announcement sent!</p>
-              )}
-            </form>
-          </div>
         </div>
       </div>
     </div>
