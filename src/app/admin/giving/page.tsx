@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { admin } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { formatMoney, formatMoneyByCurrency } from "@/lib/money";
 
 const periodOptions = [
   { value: "this-month", label: "This Month" },
@@ -62,16 +63,14 @@ function AdminGivingContent() {
     );
   }
 
-  const fmt = (n: number) => `₦${(n || 0).toLocaleString()}`;
+  const totalAmount = formatMoneyByCurrency(analytics?.total?.byCurrency);
+  const paystackTotal = formatMoneyByCurrency(analytics?.paystackByCurrency);
+  const paypalTotal = formatMoneyByCurrency(analytics?.paypalByCurrency);
 
-  const totalAmount = analytics?.total?.amount || 0;
-  const paystackTotal = analytics?.paystackTotal || 0;
-  const paypalTotal = analytics?.paypalTotal || 0;
-
-  const categoryMap: Record<string, number> = {};
-  (analytics?.byCategory || []).forEach((c: any) => {
-    categoryMap[c.category] = c._sum?.amount || 0;
-  });
+  const categoryTotal = (category: string) =>
+    formatMoneyByCurrency(
+      (analytics?.byCategory || []).filter((c: any) => c.category === category),
+    );
 
   return (
     <div className="p-6 md:p-8">
@@ -97,29 +96,29 @@ function AdminGivingContent() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-8">
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">Total</p>
-          <p className="font-heading text-xl font-bold text-slate">{fmt(totalAmount)}</p>
+          <p className="font-heading text-xl font-bold text-slate">{totalAmount}</p>
         </div>
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">Paystack</p>
-          <p className="font-heading text-xl font-bold text-purple">{fmt(paystackTotal)}</p>
+          <p className="font-heading text-xl font-bold text-purple">{paystackTotal}</p>
         </div>
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">PayPal</p>
-          <p className="font-heading text-xl font-bold text-info">{fmt(paypalTotal)}</p>
+          <p className="font-heading text-xl font-bold text-info">{paypalTotal}</p>
         </div>
         <div className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
           <p className="text-[11px] text-gray-text">Tithes</p>
-          <p className="font-heading text-xl font-bold text-success">{fmt(categoryMap["TITHE"] || 0)}</p>
+          <p className="font-heading text-xl font-bold text-success">{categoryTotal("TITHE")}</p>
         </div>
       </div>
 
       {/* By Category */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-8">
         {[
-          { label: "Offerings", value: fmt(categoryMap["OFFERING"] || 0) },
-          { label: "Sow a Seed", value: fmt(categoryMap["SOW_A_SEED"] || 0) },
-          { label: "Project Giving", value: fmt(categoryMap["PROJECT_GIVING"] || 0) },
-          { label: "Special Offering", value: fmt(categoryMap["SPECIAL_OFFERING"] || 0) },
+          { label: "Offerings", value: categoryTotal("OFFERING") },
+          { label: "Sow a Seed", value: categoryTotal("SOW_A_SEED") },
+          { label: "Project Giving", value: categoryTotal("PROJECT_GIVING") },
+          { label: "Special Offering", value: categoryTotal("SPECIAL_OFFERING") },
         ].map((c) => (
           <div key={c.label} className="rounded-[8px] bg-white border border-gray-border p-3 shadow-sm">
             <p className="text-[10px] text-gray-text">{c.label}</p>
@@ -141,10 +140,10 @@ function AdminGivingContent() {
           </thead>
           <tbody className="divide-y divide-gray-border">
             {(analytics?.byMethod || []).map((m: any) => (
-              <tr key={m.paymentMethod} className="hover:bg-off-white/50">
+              <tr key={`${m.paymentMethod}-${m.currency}`} className="hover:bg-off-white/50">
                 <td className="px-4 py-3 font-heading text-sm font-semibold text-slate">{m.paymentMethod?.replace(/_/g, " ")}</td>
-                <td className="px-4 py-3 font-body text-sm text-gray-text">{m._count}</td>
-                <td className="px-4 py-3 font-heading text-sm font-bold text-slate">{fmt(m._sum?.amount || 0)}</td>
+                <td className="px-4 py-3 font-body text-sm text-gray-text">{m.count}</td>
+                <td className="px-4 py-3 font-heading text-sm font-bold text-slate">{formatMoney(m.amount, m.currency)}</td>
               </tr>
             ))}
           </tbody>

@@ -9,6 +9,7 @@ import {
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { admin } from "@/lib/api";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
+import { formatMoneyByCurrency } from "@/lib/money";
 
 const quickActions = [
   { label: "Manage Members", href: "/admin/members", icon: Users },
@@ -48,14 +49,14 @@ function AdminOverviewContent() {
   }
 
   const stats = [
-    { label: "Registered Members", value: overview?.totalMembers?.toString() || "0", icon: Users, color: "text-purple", trend: overview?.membersTrend || "+0 this month" },
-    { label: "Total Giving (Month)", value: overview?.totalGivingMonth || "0", icon: Gift, color: "text-success", trend: overview?.givingTrend || "+0%" },
-    { label: "Weekly Active Users", value: overview?.weeklyActiveUsers?.toString() || "0", icon: Eye, color: "text-info", trend: overview?.activeTrend || "+0%" },
-    { label: "Active CITH Hubs", value: overview?.activeCithHubs?.toString() || "0", icon: MapPin, color: "text-purple-vivid", trend: overview?.hubsTrend || "+0 new" },
-    { label: "Ecclesia Embassy Community Posts", value: overview?.totalPosts?.toString() || "0", icon: MessageCircle, color: "text-warning", trend: "this month" },
-    { label: "Class Enrollments", value: overview?.classEnrollments?.toString() || "0", icon: GraduationCap, color: "text-purple", trend: overview?.classCompleted || "0 completed" },
-    { label: "Event Registrations", value: overview?.eventRegistrations?.toString() || "0", icon: Calendar, color: "text-info", trend: overview?.upcomingEvents || "0 upcoming" },
-    { label: "Avg Watch Streak", value: overview?.avgWatchStreak || "0", icon: Flame, color: "text-warning", trend: "days" },
+    { label: "Registered Members", value: overview?.totalMembers?.toString() || "0", icon: Users, color: "text-purple", trend: "verified accounts" },
+    { label: "Total Giving (Month)", value: formatMoneyByCurrency(overview?.givingMonthByCurrency), icon: Gift, color: "text-success", trend: "this month, by currency" },
+    { label: "Weekly Active Users", value: overview?.activeUsers?.toString() || "0", icon: Eye, color: "text-info", trend: "last 7 days" },
+    { label: "Active CITH Hubs", value: overview?.cithHubs?.toString() || "0", icon: MapPin, color: "text-purple-vivid", trend: "currently active" },
+    { label: "Ecclesia Embassy Community Posts", value: overview?.nationPosts?.toString() || "0", icon: MessageCircle, color: "text-warning", trend: "last 30 days" },
+    { label: "Class Enrollments", value: overview?.classEnrollments?.toString() || "0", icon: GraduationCap, color: "text-purple", trend: "all time" },
+    { label: "Event Registrations", value: overview?.eventRegistrations?.toString() || "0", icon: Calendar, color: "text-info", trend: "all time" },
+    { label: "Total Giving (All Time)", value: formatMoneyByCurrency(overview?.givingByCurrency), icon: Flame, color: "text-warning", trend: "by currency" },
   ];
 
   return (

@@ -20,9 +20,10 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { formatMoneyByCurrency } from '@/lib/money'
 
 interface DashboardStats {
-  totalGiving: number
+  totalGiving: string
   prayerRequestsCount: number
   hubStatus: string
   enrolledClassesCount: number
@@ -54,8 +55,16 @@ export default function DashboardPage() {
 
         setStats({
           totalGiving: Array.isArray(givingData)
-            ? givingData.reduce((sum: number, g: any) => sum + (g.amount || 0), 0)
-            : 0,
+            ? formatMoneyByCurrency(
+                Object.entries(
+                  givingData.reduce((acc: Record<string, number>, g: any) => {
+                    const cur = g.currency || 'NGN'
+                    acc[cur] = (acc[cur] || 0) + (Number(g.amount) || 0)
+                    return acc
+                  }, {}),
+                ).map(([currency, amount]) => ({ currency, amount })),
+              )
+            : formatMoneyByCurrency([]),
           prayerRequestsCount: Array.isArray(prayerData) ? prayerData.length : 0,
           hubStatus,
           enrolledClassesCount: Array.isArray(coursesData) ? coursesData.length : 0,
@@ -122,7 +131,7 @@ export default function DashboardPage() {
                       <Skeleton className="h-8 w-24" />
                     ) : (
                       <p className="text-2xl font-bold text-[#0E0B1E]">
-                        ${stats?.totalGiving || 0}
+                        {stats?.totalGiving || formatMoneyByCurrency([])}
                       </p>
                     )}
                   </div>

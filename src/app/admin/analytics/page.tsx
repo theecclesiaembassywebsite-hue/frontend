@@ -1,4 +1,5 @@
 "use client";
+import { formatMoneyByCurrency } from "@/lib/money";
 
 import { useEffect, useState } from "react";
 import {
@@ -51,7 +52,7 @@ function AdminAnalyticsContent() {
   const metrics = [
     { label: "Registered Members", value: overview?.totalMembers?.toString() || "0", icon: Users, target: "300+", progress: Math.min((overview?.totalMembers / 300) * 100, 100) || 0 },
     { label: "Weekly Active Users", value: overview?.activeUsers?.toString() || "0", icon: Eye, target: "500+", progress: Math.min((overview?.activeUsers / 500) * 100, 100) || 0 },
-    { label: "Online Giving", value: overview?.totalGiving ? `$${Number(overview.totalGiving).toLocaleString()}` : "$0", icon: Gift, target: "40%", progress: 0 },
+    { label: "Online Giving", value: formatMoneyByCurrency(overview?.givingByCurrency), icon: Gift, target: "40%", progress: 0 },
     { label: "Active CITH Hubs", value: overview?.cithHubs?.toString() || "0", icon: MapPin, target: "30+", progress: Math.min((overview?.cithHubs / 30) * 100, 100) || 0 },
     { label: "Ecclesia Embassy Community (Monthly)", value: overview?.nationPosts?.toString() || "0", icon: MessageCircle, target: "200+", progress: Math.min((overview?.nationPosts / 200) * 100, 100) || 0 },
     { label: "Class Enrollments", value: overview?.classEnrollments?.toString() || "0", icon: GraduationCap, target: "50+", progress: Math.min((overview?.classEnrollments / 50) * 100, 100) || 0 },
