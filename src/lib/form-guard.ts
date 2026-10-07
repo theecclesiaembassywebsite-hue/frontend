@@ -22,7 +22,7 @@ export const TURNSTILE_ACTION = "public-form";
 
 // Endpoints whose backend route is behind FormGuard.
 const GUARDED_POST =
-  /^\/(prayer-requests|contact|first-timer|first-timer\/new-convert|events\/[^/]+\/register(-and-pay)?|training\/[^/]+\/enroll|cith\/ehub\/register)$/;
+  /^\/(prayer-requests|contact|first-timer|first-timer\/new-convert|events\/[^/]+\/register(-and-pay)?|training\/[^/]+\/enroll|cith\/ehub\/register|auth\/(register|forgot-password|resend-verification))$/;
 
 type Registration = {
   startedAt: number;

@@ -20,11 +20,15 @@ describe("form guard", () => {
       "/events/abc/register-and-pay",
       "/training/TEMA/enroll",
       "/cith/ehub/register",
+      "/auth/register",
+      "/auth/forgot-password",
+      "/auth/resend-verification",
     ]) {
       expect(g.isGuardedRequest(ep, "POST")).toBe(true);
     }
     expect(g.isGuardedRequest("/prayer-requests", "GET")).toBe(false);
     expect(g.isGuardedRequest("/auth/login", "POST")).toBe(false);
+    expect(g.isGuardedRequest("/auth/reset-password", "POST")).toBe(false);
     expect(g.isGuardedRequest("/prayer-requests/mine", "POST")).toBe(false);
   });
 

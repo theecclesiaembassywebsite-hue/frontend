@@ -13,6 +13,7 @@ import { auth, persistTokenIfEnabled } from '@/lib/api';
 import { useGoogleAuthPopup } from '@/lib/useGoogleAuthPopup';
 import { FadeIn, HeroText } from '@/components/ui/Motion';
 import { motion } from 'framer-motion';
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -187,6 +188,7 @@ export default function LoginPage() {
               <p className="text-error font-body text-sm">{errorMessage}</p>
               {unverifiedEmail && (
                 <div className="mt-3">
+                  <FormGuardFields />
                   {resendState === 'sent' ? (
                     <p className="text-slate font-body text-sm">
                       If that account needs verifying, a new link is on its way — check your inbox.

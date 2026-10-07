@@ -12,6 +12,7 @@ import { auth } from '@/lib/api';
 import { useGoogleAuthPopup } from '@/lib/useGoogleAuthPopup';
 import { FadeIn, HeroText } from '@/components/ui/Motion';
 import { motion } from 'framer-motion';
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const passwordSchema = z
   .string()
@@ -223,6 +224,7 @@ export default function SignupPage() {
           {/* Form */}
           <FadeIn delay={0.2}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <FormGuardFields />
               {/* First Name & Last Name Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

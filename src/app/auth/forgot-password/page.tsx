@@ -9,6 +9,7 @@ import { z } from "zod";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { auth } from "@/lib/api";
+import { FormGuardFields } from "@/components/forms/FormGuardFields";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -122,6 +123,7 @@ export default function ForgotPasswordPage() {
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <FormGuardFields />
                 {/* Error message */}
                 {error && (
                   <div className="rounded-[4px] bg-error/10 border border-error/30 p-4">
