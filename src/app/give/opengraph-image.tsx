@@ -8,7 +8,7 @@ export const contentType = OG_CONTENT_TYPE;
 export default async function Image() {
   const element = await buildOgImageElement({
     eyebrow: "Give / Sow",
-    title: "Your generosity fuels the Kingdom.",
+    title: "Givings",
   });
 
   return new ImageResponse(element, size);

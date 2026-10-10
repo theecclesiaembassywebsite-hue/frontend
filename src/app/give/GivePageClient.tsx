@@ -118,9 +118,9 @@ export default function GivePageClient() {
     <main className="page-bands">
       <PageHero
         eyebrow="Give / Sow"
-        title="Your generosity fuels the Kingdom."
-        subtitle="Give what the Lord has put in your heart."
-        description="Every gift sown is an act of worship and Kingdom partnership."
+        title="Givings"
+        subtitle="Do all your giving in one place."
+        description="Tithes, offerings, missions seeds and every other Kingdom commitment. Choose a category, enter your amount and give."
         backgroundImage="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1920&q=80"
         compact
       />
@@ -134,9 +134,9 @@ export default function GivePageClient() {
                 <Heart className="h-7 w-7 text-purple-vivid" fill="currentColor" />
               </div>
               <SectionHeading
-                eyebrow="Cheerful Giving"
-                title="Give what the Lord has put in your heart."
-                description="The Lord bless you abundantly as you give with a cheerful heart."
+                eyebrow="Give in 3 steps"
+                title="Choose, enter, give."
+                description="Pick where your gift goes, enter your amount, then pay securely. God loves a cheerful giver."
                 align="center"
               />
             </div>
