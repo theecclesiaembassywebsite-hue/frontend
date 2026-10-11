@@ -4,15 +4,17 @@ import { useState, useRef } from "react";
 import { ImageIcon, Send, User, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth-context";
-import { upload } from "@/lib/api";
+import { upload, type MentionRef } from "@/lib/api";
+import MentionInput, { activeMentions } from "./MentionInput";
 
 interface CreatePostProps {
-  onSubmit: (content: string, imageUrl?: string) => Promise<void>;
+  onSubmit: (content: string, imageUrl?: string, mentionedUserIds?: string[]) => Promise<void>;
 }
 
 export default function CreatePost({ onSubmit }: CreatePostProps) {
   useAuth();
   const [content, setContent] = useState("");
+  const [mentions, setMentions] = useState<MentionRef[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,8 +41,13 @@ export default function CreatePost({ onSubmit }: CreatePostProps) {
 
     try {
       setSubmitting(true);
-      await onSubmit(content, imageUrl || undefined);
+      await onSubmit(
+        content,
+        imageUrl || undefined,
+        activeMentions(content, mentions).map((m) => m.userId),
+      );
       setContent("");
+      setMentions([]);
       setImageUrl(null);
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 2000);
@@ -58,14 +65,17 @@ export default function CreatePost({ onSubmit }: CreatePostProps) {
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-light">
           <User className="h-5 w-5 text-purple/50" />
         </div>
-        <textarea
+        <MentionInput
+          multiline
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Share an update, testimony, or encouragement..."
+          onValueChange={setContent}
+          mentions={mentions}
+          onMentionsChange={setMentions}
+          placeholder="Share an update, testimony, or encouragement... Type @ to tag someone"
           maxLength={2000}
           rows={3}
           disabled={submitting}
-          className="flex-1 resize-none rounded-[8px] border border-gray-border bg-off-white px-4 py-3 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:outline-none focus:ring-2 focus:ring-purple-vivid/15 disabled:opacity-50"
+          className="flex-1 resize-none rounded-[8px] border border-gray-border bg-off-white px-4 py-3 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:outline-none focus:ring-2 focus:ring-purple-vivid/15 disabled:opacity-50 w-full"
         />
       </div>
 

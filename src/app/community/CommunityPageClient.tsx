@@ -98,9 +98,9 @@ export default function CommunityPageClient() {
     void loadStreak();
   }, [loadFeed, loadGroups, loadStreak]);
 
-  async function handleCreatePost(content: string, imageUrl?: string) {
+  async function handleCreatePost(content: string, imageUrl?: string, mentionedUserIds?: string[]) {
     try {
-      await nation.createPost({ content, imageUrl });
+      await nation.createPost({ content, imageUrl, mentionedUserIds });
       success("Post created successfully!");
       setPosts([]);
       setPage(0);
@@ -108,14 +108,6 @@ export default function CommunityPageClient() {
     } catch {
       error("Failed to create post");
     }
-  }
-
-  function handleLikePost(postId: string) {
-    // PostCard already called the API internally; just sync parent state.
-    setPosts(posts.map(p => p.id === postId
-      ? { ...p, _count: { likes: (p._count?.likes ?? 0) + 1, comments: p._count?.comments ?? 0 } }
-      : p
-    ));
   }
 
   function handleDeletePost(postId: string) {
@@ -203,15 +195,16 @@ export default function CommunityPageClient() {
                       authorId={post.authorId}
                       content={post.content}
                       imageUrl={post.imageUrl}
-                      likes={post._count?.likes ?? 0}
-                      comments={post._count?.comments ?? 0}
+                      reactions={post.reactions}
+                      myReaction={post.myReaction ?? (post.likedByMe ? "HEART" : null)}
+                      mentions={post.mentions}
+                      comments={post.comments ?? 0}
                       createdAt={post.createdAt}
                       authorName={
                         post.author?.profile?.firstName
                           ? `${post.author.profile.firstName} ${post.author.profile.lastName || ""}`.trim()
                           : "Member"
                       }
-                      onLike={() => handleLikePost(post.id)}
                       onDelete={() => handleDeletePost(post.id)}
                     />
                   ))

@@ -1,3 +1,4 @@
+import type { ReactionType, ReactionCounts } from "./reactions";
 import { isGuardedRequest, withFormGuard, resetFormGuard } from "./form-guard";
 import {
   cloneFallback,
@@ -307,7 +308,25 @@ export interface Post {
     id: string;
     profile?: { firstName?: string; lastName?: string; photoUrl?: string } | null;
   };
-  _count?: { likes: number; comments: number };
+  /** Total reactions of any kind (the API's flattened count). */
+  likes?: number;
+  comments?: number;
+  likedByMe?: boolean;
+  myReaction?: ReactionType | null;
+  reactions?: ReactionCounts;
+  mentions?: MentionRef[];
+}
+
+/** A member tagged in a post or comment. */
+export interface MentionRef {
+  userId: string;
+  name: string;
+}
+
+export interface MemberSuggestion {
+  id: string;
+  name: string;
+  photoUrl: string | null;
 }
 
 export interface Group {
@@ -813,7 +832,7 @@ export const cith = {
 
 // NATION ENDPOINTS
 export const nation = {
-  createPost: (data: { content: string; imageUrl?: string }) =>
+  createPost: (data: { content: string; imageUrl?: string; mentionedUserIds?: string[] }) =>
     fetchAPI<Post>("/nation/posts", {
       method: "POST",
       body: JSON.stringify(data),
@@ -827,10 +846,20 @@ export const nation = {
       method: "POST",
     }),
 
-  addComment: (postId: string, content: string) =>
+  /** Set, swap or (by sending the same type again) clear my reaction. */
+  react: (postId: string, type: ReactionType) =>
+    fetchAPI<{ myReaction: ReactionType | null; reactions: ReactionCounts; likes: number }>(
+      `/nation/posts/${postId}/reaction`,
+      { method: "PUT", body: JSON.stringify({ type }) },
+    ),
+
+  searchMembers: (q: string) =>
+    fetchAPI<MemberSuggestion[]>(`/nation/users/search?q=${encodeURIComponent(q)}`),
+
+  addComment: (postId: string, content: string, mentionedUserIds?: string[]) =>
     fetchAPI<any>(`/nation/posts/${postId}/comments`, {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, mentionedUserIds }),
     }),
 
   getComments: (postId: string) =>
