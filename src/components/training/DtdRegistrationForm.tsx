@@ -316,7 +316,7 @@ export default function DtdRegistrationForm({ feeLabel, submitLabel, onCancel, o
         )}
       </Section>
 
-      <Section title="Declaration and attendance">
+      <Section title="Declaration and attendance" hint="Please read the statement and answer appropriately.">
         <label className="flex cursor-pointer items-start gap-2 font-body text-sm text-slate">
           <input
             type="checkbox"
