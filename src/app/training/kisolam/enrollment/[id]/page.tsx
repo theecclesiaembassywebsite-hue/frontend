@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
-import { CheckCircle, Clock, AlertCircle, ArrowLeft, CreditCard, BookOpen } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, ArrowLeft, CreditCard, BookOpen, Copy } from "lucide-react";
 import { training } from "@/lib/api";
 import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -20,6 +20,35 @@ interface Enrollment {
   name: string;
   paymentStatus?: string;
   createdAt: string;
+  // Present for a KISOLAM fee that has not been confirmed yet. KISOLAM is paid
+  // by bank transfer, never through Paystack.
+  bankTransfer?: {
+    accountName: string;
+    bankName: string;
+    accountNumber: string;
+    amount: number;
+    currency: string;
+    reference: string;
+  } | null;
+}
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      aria-label={`Copy ${label}`}
+      onClick={() => {
+        void navigator.clipboard?.writeText(value).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        });
+      }}
+      className="ml-2 inline-flex items-center gap-1 rounded-[4px] border border-gray-border px-2 py-0.5 font-body text-[11px] text-purple-vivid hover:bg-lavender"
+    >
+      <Copy size={11} /> {copied ? "Copied" : "Copy"}
+    </button>
+  );
 }
 
 export default function EnrollmentStatusPage({ params }: { params: Promise<{ id: string }> }) {
@@ -188,8 +217,56 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        {/* Pay Now (if pending) */}
-        {isPending && (
+        {/* KISOLAM: pay by bank transfer into the school's own account */}
+        {!isPaid && enrollment.bankTransfer && (
+          <div className="rounded-[8px] border border-warning/30 bg-warning/5 p-5 mb-5">
+            <p className="font-heading text-sm font-bold text-slate mb-1">Pay by bank transfer</p>
+            <p className="font-body text-sm text-slate mb-4">
+              Your enrolment is reserved. Transfer the fee below to confirm your spot.
+            </p>
+            <dl className="space-y-3 font-body text-sm">
+              <div>
+                <dt className="text-gray-text">Account name</dt>
+                <dd className="font-semibold text-slate">
+                  {enrollment.bankTransfer.accountName}
+                  <CopyButton value={enrollment.bankTransfer.accountName} label="account name" />
+                </dd>
+              </div>
+              <div>
+                <dt className="text-gray-text">Bank</dt>
+                <dd className="font-semibold text-slate">{enrollment.bankTransfer.bankName}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-text">Account number</dt>
+                <dd className="font-mono text-base font-bold text-slate">
+                  {enrollment.bankTransfer.accountNumber}
+                  <CopyButton value={enrollment.bankTransfer.accountNumber} label="account number" />
+                </dd>
+              </div>
+              <div>
+                <dt className="text-gray-text">Amount</dt>
+                <dd className="font-semibold text-slate">
+                  {enrollment.bankTransfer.currency}
+                  {enrollment.bankTransfer.amount.toLocaleString()}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-gray-text">Use this as your transfer narration / description</dt>
+                <dd className="font-mono text-base font-bold text-slate">
+                  {enrollment.bankTransfer.reference}
+                  <CopyButton value={enrollment.bankTransfer.reference} label="reference" />
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-4 font-body text-xs text-gray-text">
+              Your status changes to Paid once our team sees the transfer. Questions? WhatsApp (only)
+              09167641473 or email kisolam@theecclesiaembassy.org.
+            </p>
+          </div>
+        )}
+
+        {/* Pay Now (if pending) - programmes still on Paystack */}
+        {isPending && !enrollment.bankTransfer && enrollment.program !== "KISOLAM" && (
           <div className="rounded-[8px] border border-warning/30 bg-warning/5 p-5 mb-5">
             <p className="font-body text-sm text-slate mb-3">
               Your enrolment is reserved but your spot is not confirmed until payment is received.

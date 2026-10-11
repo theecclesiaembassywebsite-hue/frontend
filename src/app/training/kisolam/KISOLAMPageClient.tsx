@@ -121,24 +121,15 @@ export default function KISOLAMPageClient() {
         courseId: selectedCourse.id,
       });
 
-      if (isFree) {
-        success("Registration successful. Check your email for details.");
-        setShowModal(false);
-        window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
-        return;
-      }
-
-      // Only the enrollment id is sent. The backend reads the payer's identity
-      // from the enrollment row and the price from the course, so neither the
-      // amount nor the email can be chosen by the browser.
-      const payment = await training.initializePayment({
-        enrollmentId: enrollment.id,
-      });
-
-      window.location.href = payment.authorization_url +
-        `?callback_url=${encodeURIComponent(
-          `${window.location.origin}/training/kisolam/enrollment/${enrollment.id}?ref=${payment.reference}`
-        )}`;
+      // KISOLAM fees are paid by bank transfer, not Paystack: the enrollment
+      // page shows the account, the amount and the narration to use.
+      success(
+        isFree
+          ? "Registration successful. Check your email for details."
+          : "Registration received. Complete your fee by bank transfer."
+      );
+      setShowModal(false);
+      window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
     } catch (err) {
       error(err instanceof Error ? err.message : "Failed to process. Please try again.");
       setStep("form");
@@ -188,18 +179,13 @@ export default function KISOLAMPageClient() {
         return;
       }
 
-      if (isFree) {
-        success("Registration successful. Check your email for details.");
-        setShowModal(false);
-        window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
-        return;
-      }
-
-      const payment = await training.initializePayment({ enrollmentId: enrollment.id });
-      window.location.href = payment.authorization_url +
-        `?callback_url=${encodeURIComponent(
-          `${window.location.origin}/training/kisolam/enrollment/${enrollment.id}?ref=${payment.reference}`
-        )}`;
+      success(
+        isFree
+          ? "Registration successful. Check your email for details."
+          : "Registration received. Complete your fee by bank transfer."
+      );
+      setShowModal(false);
+      window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
     } catch (err) {
       error(err instanceof Error ? err.message : "Failed to process. Please try again.");
       setStep("form");
@@ -516,9 +502,9 @@ export default function KISOLAMPageClient() {
             feeLabel={
               selectedCourse?.pricing.isFree
                 ? "Fee: Free — no payment required"
-                : `Fee: ${selectedCourse ? formatFee(selectedCourse) : ""}`
+                : `Fee: ${selectedCourse ? formatFee(selectedCourse) : ""} — paid by bank transfer after you register`
             }
-            submitLabel={selectedCourse?.pricing.isFree ? "Register Free" : "Register and Pay"}
+            submitLabel={selectedCourse?.pricing.isFree ? "Register Free" : "Register"}
             onCancel={() => setShowModal(false)}
             onSubmit={handleDtdSubmit}
           />
@@ -534,6 +520,7 @@ export default function KISOLAMPageClient() {
                 </p>
               ) : (
                 <>
+                  <p className="text-[12px] text-gray-text">Paid by bank transfer after you register.</p>
                   <p className="mt-1 font-heading text-[13px] font-bold text-purple">
                     Fee: {selectedCourse?.feeCurrency}
                     {selectedCourse?.pricing.effectiveFee.toLocaleString()}
@@ -594,7 +581,7 @@ export default function KISOLAMPageClient() {
               </Button>
               <Button type="submit" variant="giving" className="flex-1 justify-center gap-2">
                 <BadgeCheck size={15} />
-                {selectedCourse?.pricing.isFree ? "Enroll Free" : "Enroll and Pay"}
+                {selectedCourse?.pricing.isFree ? "Enroll Free" : "Enroll"}
               </Button>
             </div>
           </form>

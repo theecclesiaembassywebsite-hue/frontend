@@ -1482,7 +1482,7 @@ export const training = {
   getAdminEnrollments: (program?: string) =>
     fetchAPI<any[]>(`/training/admin/enrollments${program ? `?program=${program}` : ""}`),
 
-  adminUpdateEnrollment: (id: string, data: { trackingStatus?: string; notes?: string }) =>
+  adminUpdateEnrollment: (id: string, data: { trackingStatus?: string; notes?: string; paymentStatus?: string }) =>
     fetchAPI<any>(`/training/admin/enrollments/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),

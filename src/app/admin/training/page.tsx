@@ -51,6 +51,13 @@ const trackingOptions = [
   { value: "DROPPED", label: "Dropped" },
 ];
 
+const paymentOptions = [
+  { value: "PENDING", label: "Pending" },
+  { value: "SUCCESS", label: "Paid (transfer received)" },
+  { value: "FAILED", label: "Failed" },
+  { value: "REFUNDED", label: "Refunded" },
+];
+
 const paymentStatusBadge: Record<string, string> = {
   SUCCESS: "bg-success/10 text-success",
   PENDING: "bg-warning/10 text-warning",
@@ -621,7 +628,7 @@ function EnrollmentsTab() {
   const [loading, setLoading] = useState(true);
   const [viewingEnrollment, setViewingEnrollment] = useState<any>(null);
   const [editingEnrollment, setEditingEnrollment] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ trackingStatus: "NEW", notes: "" });
+  const [editForm, setEditForm] = useState({ trackingStatus: "NEW", notes: "", paymentStatus: "" });
   const { success, error } = useToast();
 
   const reload = async (program?: string) => {
@@ -659,13 +666,19 @@ function EnrollmentsTab() {
     setEditForm({
       trackingStatus: e.trackingStatus || "NEW",
       notes: e.notes || "",
+      paymentStatus: e.paymentStatus || "",
     });
   };
 
   const saveEdit = async () => {
     if (!editingEnrollment) return;
     try {
-      const updated = await training.adminUpdateEnrollment(editingEnrollment.id, editForm);
+      const updated = await training.adminUpdateEnrollment(editingEnrollment.id, {
+        trackingStatus: editForm.trackingStatus,
+        notes: editForm.notes,
+        // Only sent when set, so saving notes never rewrites a payment status.
+        ...(editForm.paymentStatus ? { paymentStatus: editForm.paymentStatus } : {}),
+      });
       setEnrollments(enrollments.map((e) => (e.id === editingEnrollment.id ? { ...e, ...updated } : e)));
       setEditingEnrollment(null);
       success("Enrollment updated");
@@ -942,7 +955,7 @@ function EnrollmentsTab() {
               </div>
               <div>
                 <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Payment Ref</p>
-                <p className="font-body text-sm text-slate break-all">{viewingEnrollment.paymentRef || "-"}</p>
+                <p className="font-body text-sm text-slate break-all">{viewingEnrollment.transferRef || viewingEnrollment.paymentRef || "-"}</p>
               </div>
             </div>
             <div>
@@ -979,6 +992,24 @@ function EnrollmentsTab() {
                 {editingEnrollment.additionalInfo?.program ? ` — ${editingEnrollment.additionalInfo.program}` : ""}
               </p>
             </div>
+            {editingEnrollment.program === "KISOLAM" && (
+              <div>
+                <label className="block text-sm font-heading font-semibold text-slate mb-1">
+                  Payment Status
+                </label>
+                <Select
+                  id="edit-payment"
+                  options={paymentOptions}
+                  value={editForm.paymentStatus || "PENDING"}
+                  onChange={(e) => setEditForm({ ...editForm, paymentStatus: e.target.value })}
+                />
+                <p className="mt-1 font-body text-xs text-gray-text">
+                  KISOLAM is paid by bank transfer. Set to Paid once the transfer
+                  {editingEnrollment.transferRef ? " with narration " + editingEnrollment.transferRef : ""} shows in the
+                  Ecobank account.
+                </p>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-heading font-semibold text-slate mb-1">Tracking Status</label>
               <Select
