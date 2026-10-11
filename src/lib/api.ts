@@ -1446,6 +1446,22 @@ export const training = {
       noAuth: true,
     }),
 
+  // DTD registration's final step: the passport photograph goes to the
+  // backend, which files it in Google Drive and logs the row to the Sheet.
+  attachPassport: async (enrollmentId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch(`${BASE_URL}/training/enrollment/${enrollmentId}/passport`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `Photo upload failed: ${response.status}`);
+    }
+    return response.json() as Promise<{ message: string }>;
+  },
+
   getEnrollment: (id: string) =>
     fetchAPI<any>(`/training/enrollment/${id}`, { noAuth: true }),
 
@@ -1479,6 +1495,21 @@ export const training = {
 
   getCourses: (program?: string) =>
     fetchAPI<TrainingCourse[]>(`/training/courses${program ? `?program=${program}` : ""}`, { noAuth: true }),
+
+  getDriveStatus: (program: string) =>
+    fetchAPI<{
+      connected: boolean;
+      googleEmail?: string;
+      folderUrl?: string;
+      sheetUrl?: string;
+      connectedAt?: string;
+    }>(`/training/admin/${program}/drive`),
+
+  connectDrive: (program: string) =>
+    fetchAPI<{ url: string }>(`/training/admin/${program}/drive/connect`, { method: "POST" }),
+
+  disconnectDrive: (program: string) =>
+    fetchAPI<{ message: string }>(`/training/admin/${program}/drive`, { method: "DELETE" }),
 
   getAdminCourses: (program?: string) =>
     fetchAPI<TrainingCourse[]>(`/training/admin/courses${program ? `?program=${program}` : ""}`),

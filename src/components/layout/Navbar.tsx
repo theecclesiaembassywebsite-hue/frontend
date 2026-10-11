@@ -170,9 +170,9 @@ function DesktopAuthSection({
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="mx-0 bg-slate/8" />
 
-        {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
+        {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role === "KISOLAM_ADMIN" || user.role === "TEMA_ADMIN") ? (
           <DropdownMenuItem asChild className="mt-2 gap-2 rounded-2xl px-4 py-3 font-body text-sm text-slate focus:bg-lavender focus:text-slate">
-            <Link href="/admin">
+            <Link href={user.role === "KISOLAM_ADMIN" || user.role === "TEMA_ADMIN" ? "/admin/training" : "/admin"}>
               <Shield size={14} /> Admin Dashboard
             </Link>
           </DropdownMenuItem>

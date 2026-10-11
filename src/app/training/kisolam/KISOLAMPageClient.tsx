@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import ProgramHero from "@/components/training/ProgramHero";
+import DtdRegistrationForm, { DtdRegistrationValues } from "@/components/training/DtdRegistrationForm";
 import { FadeIn } from "@/components/ui/Motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -25,6 +26,8 @@ import { training, TrainingCourse } from "@/lib/api";
 import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
 import { FormGuardFields } from "@/components/forms/FormGuardFields";
+
+const isDtd = (course: TrainingCourse | null) => course?.code === "DTD";
 
 const isJoinable = (course: TrainingCourse) =>
   getCourseAvailability(course).joinable;
@@ -132,6 +135,67 @@ export default function KISOLAMPageClient() {
         enrollmentId: enrollment.id,
       });
 
+      window.location.href = payment.authorization_url +
+        `?callback_url=${encodeURIComponent(
+          `${window.location.origin}/training/kisolam/enrollment/${enrollment.id}?ref=${payment.reference}`
+        )}`;
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to process. Please try again.");
+      setStep("form");
+    }
+  }
+
+  // DTD uses its own registration form. The answers ride along as
+  // additionalInfo; the passport photo is sent once the enrollment exists, and
+  // the backend files it in Drive and logs the row to the registration Sheet.
+  async function handleDtdSubmit(v: DtdRegistrationValues, photo: File) {
+    if (!selectedCourse) return;
+    const isFree = selectedCourse.pricing.isFree;
+
+    setStep("processing");
+    try {
+      const enrollment = await training.enrollTraining("KISOLAM", {
+        name: v.fullName,
+        email: v.email,
+        phone: v.phone,
+        courseId: selectedCourse.id,
+        additionalInfo: {
+          title: v.title,
+          gender: v.gender,
+          homeAddress: v.homeAddress,
+          isSaved: v.isSaved,
+          savedDate: v.savedDate,
+          localAssembly: v.localAssembly,
+          servesInAssembly: v.servesInAssembly,
+          assemblyCapacity: v.assemblyCapacity,
+          prevBibleSchool: v.prevBibleSchool,
+          prevSchoolsList: v.prevSchoolsList,
+          attendanceMode: v.attendanceMode,
+        },
+      });
+
+      try {
+        await training.attachPassport(enrollment.id, photo);
+      } catch (err) {
+        // The enrollment exists but has no photo, and a retry would create a
+        // duplicate, so say so plainly instead of silently continuing.
+        error(
+          err instanceof Error
+            ? `${err.message}. Your details were saved - please contact kisolam@theecclesiaembassy.org to send your photograph.`
+            : "Photo upload failed. Please contact kisolam@theecclesiaembassy.org."
+        );
+        setShowModal(false);
+        return;
+      }
+
+      if (isFree) {
+        success("Registration successful. Check your email for details.");
+        setShowModal(false);
+        window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
+        return;
+      }
+
+      const payment = await training.initializePayment({ enrollmentId: enrollment.id });
       window.location.href = payment.authorization_url +
         `?callback_url=${encodeURIComponent(
           `${window.location.origin}/training/kisolam/enrollment/${enrollment.id}?ref=${payment.reference}`
@@ -447,6 +511,17 @@ export default function KISOLAMPageClient() {
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple border-t-transparent" />
             <p className="font-body text-sm text-gray-text">Processing your enrollment...</p>
           </div>
+        ) : isDtd(selectedCourse) ? (
+          <DtdRegistrationForm
+            feeLabel={
+              selectedCourse?.pricing.isFree
+                ? "Fee: Free — no payment required"
+                : `Fee: ${selectedCourse ? formatFee(selectedCourse) : ""}`
+            }
+            submitLabel={selectedCourse?.pricing.isFree ? "Register Free" : "Register and Pay"}
+            onCancel={() => setShowModal(false)}
+            onSubmit={handleDtdSubmit}
+          />
         ) : (
           <form onSubmit={handleEnrollAndPay} className="space-y-4">
             <FormGuardFields />

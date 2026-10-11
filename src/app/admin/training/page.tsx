@@ -5,15 +5,31 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import {
-  Search, GraduationCap, CreditCard, Clock, CheckCircle, Download, Eye, Pencil, Trash2, Plus, BookOpen,
+  Search, GraduationCap, CreditCard, Clock, CheckCircle, Download, Eye, Pencil, Trash2, Plus, BookOpen, Link2,
 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { training, TrainingCourse, TrainingCourseInput } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
 import { SubmittedViaBadge } from "@/components/admin/SubmittedViaBadge";
+
+// KISOLAM_ADMIN and TEMA_ADMIN manage only their own programme; ADMIN and
+// SUPER_ADMIN manage both. The backend enforces this too - this only keeps the
+// screen from offering what the API would refuse.
+function useProgramScope(): "KISOLAM" | "TEMA" | "" {
+  const { user } = useAuth();
+  if (user?.role === "KISOLAM_ADMIN") return "KISOLAM";
+  if (user?.role === "TEMA_ADMIN") return "TEMA";
+  return "";
+}
+
+const scopedOptions = (
+  options: { value: string; label: string }[],
+  scope: string
+) => (scope ? options.filter((o) => o.value === scope) : options);
 
 const programOptions = [
   { value: "", label: "All Programs" },
@@ -94,7 +110,8 @@ function toDateInputValue(iso: string | null) {
 function CoursesTab() {
   const [courses, setCourses] = useState<TrainingCourse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [programFilter, setProgramFilter] = useState("");
+  const scope = useProgramScope();
+  const [programFilter, setProgramFilter] = useState<string>(scope);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<TrainingCourse | null>(null);
   const [form, setForm] = useState(emptyCourseForm);
@@ -121,7 +138,7 @@ function CoursesTab() {
 
   function openCreate() {
     setEditingCourse(null);
-    setForm(emptyCourseForm);
+    setForm(scope ? { ...emptyCourseForm, program: scope } : emptyCourseForm);
     setShowFormModal(true);
   }
 
@@ -298,7 +315,7 @@ function CoursesTab() {
         <div className="w-full md:w-56">
           <Select
             id="course-program"
-            options={managedProgramOptions}
+            options={scopedOptions(managedProgramOptions, scope)}
             value={programFilter}
             onChange={(e) => setProgramFilter(e.target.value)}
           />
@@ -408,7 +425,7 @@ function CoursesTab() {
               <label className="block text-sm font-heading font-semibold text-slate mb-1">Program</label>
               <Select
                 id="form-program"
-                options={[{ value: "KISOLAM", label: "KISOLAM" }, { value: "TEMA", label: "TEMA Academy" }]}
+                options={scopedOptions([{ value: "KISOLAM", label: "KISOLAM" }, { value: "TEMA", label: "TEMA Academy" }], scope)}
                 value={form.program}
                 onChange={(e) => setForm({ ...form, program: e.target.value as "KISOLAM" | "TEMA" })}
               />
@@ -598,7 +615,8 @@ function EnrollmentsTab() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [filteredEnrollments, setFilteredEnrollments] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [programFilter, setProgramFilter] = useState("");
+  const scope = useProgramScope();
+  const [programFilter, setProgramFilter] = useState<string>(scope);
   const [trackingFilter, setTrackingFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [viewingEnrollment, setViewingEnrollment] = useState<any>(null);
@@ -779,7 +797,7 @@ function EnrollmentsTab() {
         <div className="w-full md:w-44">
           <Select
             id="program"
-            options={programOptions}
+            options={scopedOptions(programOptions, scope)}
             value={programFilter}
             onChange={(e) => setProgramFilter(e.target.value)}
           />
@@ -991,8 +1009,127 @@ function EnrollmentsTab() {
   );
 }
 
+function DrivePanel() {
+  const scope = useProgramScope();
+  const [program, setProgram] = useState<string>(scope || "KISOLAM");
+  const [status, setStatus] = useState<Awaited<ReturnType<typeof training.getDriveStatus>> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const { success, error } = useToast();
+
+  const load = async (p: string) => {
+    setLoading(true);
+    try {
+      setStatus(await training.getDriveStatus(p));
+    } catch {
+      error("Failed to load Drive status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void load(program);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [program]);
+
+  // Google sends the admin back here with ?drive=connected|failed|cancelled.
+  useEffect(() => {
+    const result = new URLSearchParams(window.location.search).get("drive");
+    if (!result) return;
+    if (result === "connected") success("Google Drive connected.");
+    else if (result === "cancelled") error("Google Drive connection was cancelled.");
+    else error("Could not connect Google Drive. Please try again.");
+    window.history.replaceState(null, "", window.location.pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function connect() {
+    setBusy(true);
+    try {
+      const { url } = await training.connectDrive(program);
+      window.location.href = url;
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Could not start the connection");
+      setBusy(false);
+    }
+  }
+
+  async function disconnect() {
+    setBusy(true);
+    try {
+      await training.disconnectDrive(program);
+      success("Google Drive disconnected. Your existing files stay in your Drive.");
+      await load(program);
+    } catch {
+      error("Could not disconnect");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const label = program === "TEMA" ? "TEMA" : "KISOLAM";
+
+  return (
+    <div className="max-w-2xl space-y-5">
+      {!scope && (
+        <div className="w-full md:w-56">
+          <Select
+            id="drive-program"
+            options={[{ value: "KISOLAM", label: "KISOLAM" }, { value: "TEMA", label: "TEMA Academy" }]}
+            value={program}
+            onChange={(e) => setProgram(e.target.value)}
+          />
+        </div>
+      )}
+
+      {loading ? (
+        <SkeletonGroup count={2} />
+      ) : status?.connected ? (
+        <div className="space-y-3 rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
+          <p className="font-heading text-sm font-bold text-slate">Connected to Google Drive</p>
+          <p className="font-body text-sm text-gray-text">
+            New registrations are saved to the Drive of <strong>{status.googleEmail}</strong>.
+          </p>
+          <div className="flex flex-wrap gap-3 font-body text-sm">
+            <a href={status.sheetUrl} target="_blank" rel="noopener noreferrer" className="text-purple underline">
+              Open registrations Sheet
+            </a>
+            <a href={status.folderUrl} target="_blank" rel="noopener noreferrer" className="text-purple underline">
+              Open folder
+            </a>
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button variant="secondary" className="min-w-0 px-4 py-2 text-xs" disabled={busy} onClick={connect}>
+              Reconnect
+            </Button>
+            <Button variant="secondary" className="min-w-0 px-4 py-2 text-xs" disabled={busy} onClick={disconnect}>
+              Disconnect
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3 rounded-[8px] border border-gray-border bg-white p-5 shadow-sm">
+          <p className="font-heading text-sm font-bold text-slate">Not connected</p>
+          <p className="font-body text-sm text-gray-text">
+            Connect your own Google account and we will create a &quot;{label} Registrations&quot; folder and Sheet in
+            your Drive. Each new registration is added there, with uploaded photographs. We can only see files we
+            create, never the rest of your Drive.
+            {program === "KISOLAM" && " Until this is connected, DTD registrants cannot upload their passport photograph."}
+          </p>
+          <Button variant="primary" className="min-w-0 px-4 py-2 text-xs" disabled={busy} onClick={connect}>
+            Connect Google Drive
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AdminTrainingContent() {
-  const [tab, setTab] = useState<"courses" | "enrollments">("courses");
+  const [tab, setTab] = useState<"courses" | "enrollments" | "drive">(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("drive") ? "drive" : "courses"
+  );
 
   return (
     <div className="p-6 md:p-8">
@@ -1020,16 +1157,25 @@ function AdminTrainingContent() {
         >
           <GraduationCap size={15} /> Enrollments
         </button>
+        <button
+          onClick={() => setTab("drive")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2.5 font-heading text-sm font-semibold border-b-2 -mb-px transition-colors",
+            tab === "drive" ? "border-purple text-purple" : "border-transparent text-gray-text hover:text-slate"
+          )}
+        >
+          <Link2 size={15} /> Google Drive
+        </button>
       </div>
 
-      {tab === "courses" ? <CoursesTab /> : <EnrollmentsTab />}
+      {tab === "courses" ? <CoursesTab /> : tab === "enrollments" ? <EnrollmentsTab /> : <DrivePanel />}
     </div>
   );
 }
 
 export default function AdminTrainingPage() {
   return (
-    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+    <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN", "TEMA_ADMIN"]}>
       <AdminTrainingContent />
     </ProtectedRoute>
   );

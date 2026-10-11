@@ -28,6 +28,8 @@ const roleOptions = [
   { value: "MODERATOR", label: "Moderator" },
   { value: "CONTENT_MANAGER", label: "Content Manager" },
   { value: "CHURCH_SERVANT_COORDINATOR", label: "Church Servant Coordinator" },
+  { value: "KISOLAM_ADMIN", label: "KISOLAM Admin" },
+  { value: "TEMA_ADMIN", label: "TEMA Admin" },
   { value: "ADMIN", label: "Admin" },
 ];
 

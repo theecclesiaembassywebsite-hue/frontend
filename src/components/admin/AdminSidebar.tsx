@@ -23,7 +23,7 @@ const allNavItems = [
   { label: "CITH Hubs",           href: "/admin/cith",         icon: MapPin,          roles: ["ADMIN", "SUPER_ADMIN", "CHURCH_SERVANT_COORDINATOR"] },
   { label: "Squads",              href: "/admin/squads",       icon: Users,           roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Intentionality Class",href: "/admin/class",        icon: GraduationCap,   roles: ["ADMIN", "SUPER_ADMIN"] },
-  { label: "Training",            href: "/admin/training",     icon: Award,           roles: ["ADMIN", "SUPER_ADMIN"] },
+  { label: "Training",            href: "/admin/training",     icon: Award,           roles: ["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN", "TEMA_ADMIN"] },
   { label: "Ecclesia Embassy Community", href: "/admin/community", icon: MessageCircle,   roles: ["ADMIN", "SUPER_ADMIN", "MODERATOR"] },
   { label: "Resources",           href: "/admin/resources",    icon: BookOpen,        roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Service Schedule",    href: "/admin/schedule",     icon: Clock,           roles: ["ADMIN", "SUPER_ADMIN"] },
