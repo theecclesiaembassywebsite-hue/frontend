@@ -50,7 +50,26 @@ async function fetchViaApi(apiKey: string): Promise<string | null> {
 
   consumeQuota(SEARCH_COST);
   const data = await res.json();
-  return data.items?.[0]?.id?.videoId ?? null;
+  const videoId: string | null = data.items?.[0]?.id?.videoId ?? null;
+  if (!videoId) return null;
+  return (await hasBroadcastEnded(apiKey, videoId)) ? null : videoId;
+}
+
+// search.list(eventType=live) keeps returning a broadcast for hours after it ends,
+// so confirm with videos.list (1 unit) that it has no actualEndTime.
+async function hasBroadcastEnded(apiKey: string, videoId: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${apiKey}`,
+      { signal: AbortSignal.timeout(10_000) }
+    );
+    if (!res.ok) return false;
+    consumeQuota(1);
+    const data = await res.json();
+    return Boolean(data.items?.[0]?.liveStreamingDetails?.actualEndTime);
+  } catch {
+    return false;
+  }
 }
 
 // Returns a video ID when confirmed live, "UNCERTAIN" when YouTube redirected to a watch
