@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Users, Plus, Trash2, Pencil, X, Check } from "lucide-react";
+import { Users, Plus, Trash2, Pencil, X, Check, UserPlus, UserMinus } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { squads, admin as adminAPI } from "@/lib/api";
@@ -97,6 +97,150 @@ function SquadForm({
   );
 }
 
+function SquadMembersPanel({
+  squadId,
+  candidates,
+  onChanged,
+}: {
+  squadId: string;
+  candidates: any[];
+  onChanged: () => void;
+}) {
+  const [roster, setRoster] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const [found, setFound] = useState<any[] | null>(null);
+  const { success, error } = useToast();
+
+  const load = useCallback(async () => {
+    try {
+      setRoster((await squads.getSquadMembers(squadId)) || []);
+    } catch {
+      error("Failed to load squad members");
+    } finally {
+      setLoading(false);
+    }
+  }, [squadId, error]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Debounced server-side search so any member can be found, not just page 1.
+  useEffect(() => {
+    const term = query.trim();
+    if (!term) {
+      setFound(null);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await adminAPI.getMembers(1, encodeURIComponent(term));
+        if (!cancelled) setFound(res.members || []);
+      } catch {
+        if (!cancelled) setFound([]);
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+
+  const memberIds = new Set(roster.map((r) => r.userId));
+  const available = (found ?? candidates).filter((c) => !memberIds.has(c.id));
+
+  async function handleAdd() {
+    if (!selected) return;
+    try {
+      setBusy(true);
+      await squads.addSquadMember(squadId, selected);
+      setSelected("");
+      success("Member added");
+      await load();
+      onChanged();
+    } catch {
+      error("Failed to add member");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemove(userId: string) {
+    try {
+      setBusy(true);
+      await squads.removeSquadMember(squadId, userId);
+      success("Member removed");
+      await load();
+      onChanged();
+    } catch {
+      error("Failed to remove member");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 border-t border-gray-border pt-4">
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search members by name or email..."
+        className="mb-2 h-10 w-full rounded-[4px] border border-gray-border bg-white px-3 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:outline-none"
+      />
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <select
+          className="h-10 flex-1 rounded-[4px] border border-gray-border bg-white px-3 font-body text-sm text-slate focus:border-purple-vivid focus:outline-none"
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+        >
+          <option value="">
+            {query.trim() && found && available.length === 0 ? "No matching members" : "Add a member..."}
+          </option>
+          {available.map((m: any) => (
+            <option key={m.id} value={m.id}>
+              {m.profile?.firstName} {m.profile?.lastName} ({m.email})
+            </option>
+          ))}
+        </select>
+        <Button variant="primary" onClick={handleAdd} disabled={!selected || busy}>
+          <UserPlus size={14} className="mr-1" /> Add
+        </Button>
+      </div>
+      {loading ? (
+        <p className="mt-3 text-sm text-gray-text">Loading members...</p>
+      ) : roster.length === 0 ? (
+        <p className="mt-3 text-sm text-gray-text">No members in this squad yet.</p>
+      ) : (
+        <ul className="mt-3 divide-y divide-gray-border">
+          {roster.map((r: any) => (
+            <li key={r.id} className="flex items-center justify-between py-2">
+              <div>
+                <p className="font-body text-sm text-slate">
+                  {r.user?.profile?.firstName} {r.user?.profile?.lastName}
+                </p>
+                <p className="text-[11px] text-gray-text">{r.user?.email}</p>
+              </div>
+              <button
+                onClick={() => handleRemove(r.userId)}
+                disabled={busy}
+                className="p-1 text-gray-text transition-colors hover:text-error"
+                title="Remove from squad"
+              >
+                <UserMinus size={15} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function AdminSquadsContent() {
   const [squadList, setSquadList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +249,7 @@ function AdminSquadsContent() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
+  const [openMembersId, setOpenMembersId] = useState<string | null>(null);
   const [createForm, setCreateForm] = useState<SquadFormData>(EMPTY_FORM);
   const [editForm, setEditForm] = useState<SquadFormData>(EMPTY_FORM);
   const { success, error } = useToast();
@@ -259,6 +404,13 @@ function AdminSquadsContent() {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
+                        onClick={() => setOpenMembersId(openMembersId === squad.id ? null : squad.id)}
+                        className="text-gray-text hover:text-purple transition-colors p-1"
+                        title="Manage members"
+                      >
+                        <Users size={15} />
+                      </button>
+                      <button
                         onClick={() => startEdit(squad)}
                         className="text-gray-text hover:text-purple transition-colors p-1"
                         title="Edit squad"
@@ -279,6 +431,13 @@ function AdminSquadsContent() {
                     <p className="mt-1 text-[11px] text-gray-text">
                       Meets: {squad.meetingDay}{squad.meetingTime ? ` at ${squad.meetingTime}` : ""}
                     </p>
+                  )}
+                  {openMembersId === squad.id && (
+                    <SquadMembersPanel
+                      squadId={squad.id}
+                      candidates={members}
+                      onChanged={() => void loadData()}
+                    />
                   )}
                 </div>
               )}

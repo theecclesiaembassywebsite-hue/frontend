@@ -1316,6 +1316,20 @@ export const squads = {
     fetchAPI<any>(`/admin/squads/${id}`, {
       method: "DELETE",
     }),
+
+  getSquadMembers: (squadId: string) =>
+    fetchAPI<any[]>(`/admin/squads/${squadId}/members`),
+
+  addSquadMember: (squadId: string, userId: string) =>
+    fetchAPI<any>(`/admin/squads/${squadId}/members`, {
+      method: "POST",
+      body: JSON.stringify({ userId }),
+    }),
+
+  removeSquadMember: (squadId: string, userId: string) =>
+    fetchAPI<any>(`/admin/squads/${squadId}/members/${userId}`, {
+      method: "DELETE",
+    }),
 };
 
 // GALLERY ENDPOINTS
