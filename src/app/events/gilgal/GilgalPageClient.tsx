@@ -117,8 +117,8 @@ export default function GilgalPageClient() {
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-slate/8 shadow-[0_28px_70px_rgba(13,9,32,0.16)]">
               <Image
-                src="/site/worship-lead.jpg"
-                alt="Worship at a camp meeting"
+                src="/site/gilgal-camp.jpg"
+                alt="Gilgal Camp"
                 fill
                 sizes="(max-width: 1024px) 100vw, 36vw"
                 className="object-cover"
