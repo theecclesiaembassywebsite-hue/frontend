@@ -104,7 +104,12 @@ export default function SquadDetailPageClient({ params }: { params: Promise<{ id
       success("You have joined the squad!");
       setJoined(true);
     } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to join squad.");
+      const message = err instanceof Error ? err.message : "";
+      showError(
+        /404|not found/i.test(message)
+          ? "This squad isn't open for sign-ups yet. Please check back soon."
+          : message || "Failed to join squad."
+      );
     } finally {
       setJoining(false);
     }

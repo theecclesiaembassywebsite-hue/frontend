@@ -159,6 +159,28 @@ function getRecurringServiceCandidates(
     .filter((service): service is UpcomingService => service !== null);
 }
 
+// The Tuesday prayer service is held on Google Meet rather than streamed, so
+// from its start time (for MEET_WINDOW_MS) the hero tells people to join there
+// instead of counting down to the next service.
+const MEET_WINDOW_MS = 3 * 60 * 60 * 1000;
+
+function getActiveMeetService(services: ServiceScheduleEntry[], now: Date) {
+  for (const service of services) {
+    if (normalizeWeekday(service.day) !== "Tuesday") continue;
+    if (!/prayer|intercession/i.test(service.name)) continue;
+    const parsedTime = parseServiceTime(service.time);
+    if (!parsedTime) continue;
+
+    const startsAt = new Date(now);
+    startsAt.setHours(parsedTime.hours, parsedTime.minutes, 0, 0);
+    const elapsed = now.getTime() - startsAt.getTime();
+    if (now.getDay() === 2 && elapsed >= 0 && elapsed < MEET_WINDOW_MS) {
+      return service;
+    }
+  }
+  return null;
+}
+
 function getNextUpcomingService(
   config: LivestreamConfig | null,
   services: ServiceScheduleEntry[],
@@ -433,6 +455,7 @@ export default function LivePageClient() {
 
   const nextUpcomingService = getNextUpcomingService(config, services, now);
   const countdown = getCountdownParts(nextUpcomingService?.startsAt ?? null, now);
+  const activeMeetService = getActiveMeetService(services, now);
   const isLoadingHero = isLoadingConfig || isLoadingServices;
 
   return (
@@ -470,18 +493,22 @@ export default function LivePageClient() {
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.22),_transparent_45%),linear-gradient(180deg,_#161129_0%,_#0E0B1E_100%)] px-6 text-center text-white">
                   <p className="mb-5 rounded-full border border-gold/35 bg-white/5 px-5 py-1.5 font-heading text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
-                    Next Service Countdown
+                    {activeMeetService ? "Happening Now" : "Next Service Countdown"}
                   </p>
                   <h2 className="font-heading text-3xl font-bold text-gold md:text-4xl">
-                    {nextUpcomingService?.name ?? "We are offline"}
+                    {activeMeetService
+                      ? `Tuesday ${activeMeetService.name}`
+                      : (nextUpcomingService?.name ?? "We are offline")}
                   </h2>
                   <p className="mt-3 max-w-xl font-body text-sm text-white/68 md:text-base">
-                    {nextUpcomingService
-                      ? format(nextUpcomingService.startsAt, "EEEE, MMMM d 'at' h:mm a")
-                      : "Check back during service hours for the next livestream."}
+                    {activeMeetService
+                      ? "Join on Google Meet"
+                      : nextUpcomingService
+                        ? format(nextUpcomingService.startsAt, "EEEE, MMMM d 'at' h:mm a")
+                        : "Check back during service hours for the next livestream."}
                   </p>
 
-                  {countdown && (
+                  {countdown && !activeMeetService && (
                     <div className="mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
                       {[
                         { label: "Days", value: countdown.days },

@@ -112,7 +112,7 @@ export default function CITHPageClient() {
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ background: 'var(--brand-accent)' }}
               />
-              Selected Saturdays · Every Month
+              Selected Sundays · Every Month
             </span>
 
             <h1
@@ -129,7 +129,7 @@ export default function CITHPageClient() {
             </h1>
 
             <p className="mt-7 font-body text-[16px] leading-[1.75] text-white/70 md:text-[17px]">
-              On selected Saturdays each month, believers gather across the city to share
+              On selected Sundays each month, believers gather across the city to share
               the Word, break bread, and grow together in smaller, intentional
               expressions of church. When a home hub isn&apos;t close by, the
               e-Hub keeps you connected.
