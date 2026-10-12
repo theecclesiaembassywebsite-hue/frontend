@@ -44,31 +44,41 @@ function AdminMembersContent() {
   const [pendingDelete, setPendingDelete] = useState<any | null>(null);
   const { success, error } = useToast();
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  // Search and role filtering happen on the server so they cover every member,
+  // not just the 20 on the current page.
   useEffect(() => {
-    const fetchMembers = async () => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
       try {
-        const result = await admin.getMembers(1);
-        setMembers(result.members || result as any);
-        setFilteredMembers(result.members || result as any);
+        const result = await admin.getMembers(
+          page,
+          search ? encodeURIComponent(search) : undefined,
+          roleFilter || undefined,
+        );
+        if (cancelled) return;
+        setMembers(result.members);
+        setTotal(result.total);
+        setTotalPages(Math.max(result.totalPages, 1));
       } catch (err) {
-        error("Failed to load members");
+        if (!cancelled) error("Failed to load members");
         console.error(err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
+    }, search ? 300 : 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
     };
-
-    fetchMembers();
-  }, [error]);
+  }, [page, search, roleFilter, error]);
 
   useEffect(() => {
-    const filtered = members.filter((m) => {
-      const matchesSearch = !search || m.profile?.firstName?.toLowerCase().includes(search.toLowerCase()) || m.email.toLowerCase().includes(search.toLowerCase());
-      const matchesRole = !roleFilter || m.role === roleFilter;
-      return matchesSearch && matchesRole;
-    });
-    setFilteredMembers(filtered);
-  }, [search, roleFilter, members]);
+    setFilteredMembers(members);
+  }, [members]);
 
   const handleRoleChange = async (memberId: string, newRole: string) => {
     setUpdating(memberId);
@@ -121,11 +131,11 @@ function AdminMembersContent() {
 
       <div className="flex flex-col gap-3 md:flex-row md:items-end mb-6">
         <div className="flex-1 relative">
-          <Input id="search" placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input id="search" placeholder="Search by name or email..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
           <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-text pointer-events-none" />
         </div>
         <div className="w-full md:w-48">
-          <Select id="role" options={roleOptions} value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} />
+          <Select id="role" options={roleOptions} value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }} />
         </div>
       </div>
 
@@ -204,7 +214,26 @@ function AdminMembersContent() {
           </TableBody>
         </Table>
       </div>
-      <p className="mt-3 text-body-small">{filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}</p>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-body-small">{total} member{total !== 1 ? "s" : ""}</p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page <= 1}
+            className="rounded-[4px] border border-gray-border px-3 py-1 text-xs font-heading font-semibold text-slate disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-body-small">Page {page} of {totalPages}</span>
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            disabled={page >= totalPages}
+            className="rounded-[4px] border border-gray-border px-3 py-1 text-xs font-heading font-semibold text-slate disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      </div>
 
       {/* Member Detail Modal */}
       <Modal
