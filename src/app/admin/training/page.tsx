@@ -60,6 +60,7 @@ const paymentOptions = [
 
 const paymentStatusBadge: Record<string, string> = {
   SUCCESS: "bg-success/10 text-success",
+  FREE: "bg-info/10 text-info",
   PENDING: "bg-warning/10 text-warning",
   FAILED: "bg-error/10 text-error",
 };
@@ -629,11 +630,21 @@ function EnrollmentsTab() {
   const [viewingEnrollment, setViewingEnrollment] = useState<any>(null);
   const [editingEnrollment, setEditingEnrollment] = useState<any>(null);
   const [editForm, setEditForm] = useState({ trackingStatus: "NEW", notes: "", paymentStatus: "" });
+  const [freeCourseIds, setFreeCourseIds] = useState<Set<string>>(new Set());
   const { success, error } = useToast();
+
+  // Free enrolments are stored with no payment status, which the table used to
+  // show as "UNKNOWN". The list only carries a courseId, so look free courses up.
+  const paymentLabel = (e: any): string =>
+    e.paymentStatus || (e.courseId && freeCourseIds.has(e.courseId) ? "FREE" : "");
 
   const reload = async (program?: string) => {
     try {
-      const list = await training.getAdminEnrollments(program || undefined);
+      const [list, courseList] = await Promise.all([
+        training.getAdminEnrollments(program || undefined),
+        training.getAdminCourses(program || undefined).catch(() => [] as TrainingCourse[]),
+      ]);
+      setFreeCourseIds(new Set(courseList.filter((c) => c.pricing?.isFree).map((c) => c.id)));
       setEnrollments(list || []);
     } catch (err) {
       error("Failed to load training enrollments");
@@ -707,7 +718,7 @@ function EnrollmentsTab() {
       Phone: e.phone || "",
       Program: e.program || "",
       "Sub-Program": e.additionalInfo?.program || "",
-      "Payment Status": e.paymentStatus || "",
+      "Payment Status": paymentLabel(e),
       "Payment Ref": e.paymentRef || e.paymentReference || "",
       "Tracking Status": e.trackingStatus || "NEW",
       "Submitted Via": e.clientSource || "UNKNOWN",
@@ -860,9 +871,9 @@ function EnrollmentsTab() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${paymentStatusBadge[e.paymentStatus] || "bg-gray-text/10 text-gray-text"}`}>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${paymentStatusBadge[paymentLabel(e)] || "bg-gray-text/10 text-gray-text"}`}>
                         {e.paymentStatus && StatusIcon && <StatusIcon size={10} />}
-                        {e.paymentStatus || "UNKNOWN"}
+                        {paymentLabel(e) || "UNKNOWN"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -951,7 +962,7 @@ function EnrollmentsTab() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Payment Status</p>
-                <p className="font-body text-sm text-slate">{viewingEnrollment.paymentStatus || "N/A"}</p>
+                <p className="font-body text-sm text-slate">{paymentLabel(viewingEnrollment) || "N/A"}</p>
               </div>
               <div>
                 <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Payment Ref</p>

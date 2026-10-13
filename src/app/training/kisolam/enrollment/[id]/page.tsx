@@ -154,7 +154,13 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
 
   const programName = enrollment.courseName || enrollment.program;
   const isPaid = enrollment.paymentStatus === "SUCCESS";
-  const isPending = !enrollment.paymentStatus || enrollment.paymentStatus === "PENDING";
+  // A free KISOLAM course is stored with no payment status and gets no bank
+  // details; a paid one is always PENDING (with bankTransfer) until it
+  // settles. So "no status and nothing to pay" means there is no payment step.
+  const isFree =
+    enrollment.program === "KISOLAM" && !enrollment.paymentStatus && !enrollment.bankTransfer;
+  const isConfirmed = isPaid || isFree;
+  const isPending = !isFree && (!enrollment.paymentStatus || enrollment.paymentStatus === "PENDING");
 
   return (
     <div className="min-h-screen bg-off-white">
@@ -166,11 +172,13 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
 
         {/* Status card */}
         <div className="rounded-[8px] border border-gray-border bg-white p-8 shadow-sm text-center mb-6">
-          {isPaid ? (
+          {isConfirmed ? (
             <>
               <CheckCircle className="mx-auto h-14 w-14 text-success mb-4" />
               <h1 className="font-heading text-2xl font-bold text-slate mb-1">Enrolment Confirmed!</h1>
-              <p className="font-body text-sm text-gray-text">Your registration and payment have been received.</p>
+              <p className="font-body text-sm text-gray-text">
+                {isFree ? "Your registration has been received. No payment is required." : "Your registration and payment have been received."}
+              </p>
             </>
           ) : (
             <>
@@ -206,8 +214,8 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-text">Payment Status</span>
-              <span className={`rounded-full px-3 py-0.5 text-[11px] font-heading font-bold ${isPaid ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
-                {isPaid ? "Paid" : "Pending"}
+              <span className={`rounded-full px-3 py-0.5 text-[11px] font-heading font-bold ${isConfirmed ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                {isPaid ? "Paid" : isFree ? "Free" : "Pending"}
               </span>
             </div>
             <div className="flex justify-between">
@@ -277,7 +285,7 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {isPaid && (
+        {isConfirmed && (
           <div className="rounded-[8px] border border-success/20 bg-success/5 p-5 text-center">
             <p className="font-body text-sm text-gray-text">
               A confirmation has been sent to the email address you enrolled with. Our team will be in touch with next steps and session details.
