@@ -77,6 +77,10 @@ export default function KISOLAMPageClient() {
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<"form" | "processing">("form");
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+  // Set when a DTD registration was saved but its photo did not upload. A retry
+  // must only re-send the photo: enrolling again would file a duplicate.
+  const [savedEnrollment, setSavedEnrollment] = useState<{ id: string; photo: File } | null>(null);
+  const [retryPhotoError, setRetryPhotoError] = useState("");
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -95,6 +99,8 @@ export default function KISOLAMPageClient() {
   function openEnroll(course: TrainingCourse) {
     setSelectedCourse(course);
     setFormData({ name: "", email: "", phone: "" });
+    setSavedEnrollment(null);
+    setRetryPhotoError("");
     setStep("form");
     setShowModal(true);
   }
@@ -168,28 +174,52 @@ export default function KISOLAMPageClient() {
       try {
         await training.attachPassport(enrollment.id, photo);
       } catch (err) {
-        // The enrollment exists but has no photo, and a retry would create a
-        // duplicate, so say so plainly instead of silently continuing.
-        error(
-          err instanceof Error
-            ? `${err.message}. Your details were saved - please contact kisolam@theecclesiaembassy.org to send your photograph.`
-            : "Photo upload failed. Please contact kisolam@theecclesiaembassy.org."
-        );
-        setShowModal(false);
+        // The enrollment exists but has no photo, and re-submitting the form
+        // would create a duplicate. Keep the modal open on a retry panel that
+        // re-sends only the photo.
+        error(err instanceof Error ? err.message : "Photo upload failed.");
+        setSavedEnrollment({ id: enrollment.id, photo });
+        setStep("form");
         return;
       }
 
-      success(
-        isFree
-          ? "Registration successful. Check your email for details."
-          : "Registration received. Complete your fee by bank transfer."
-      );
-      setShowModal(false);
-      window.location.href = `/training/kisolam/enrollment/${enrollment.id}`;
+      finishDtd(enrollment.id, isFree);
     } catch (err) {
       error(err instanceof Error ? err.message : "Failed to process. Please try again.");
       setStep("form");
     }
+  }
+
+  function finishDtd(enrollmentId: string, isFree: boolean) {
+    success(
+      isFree
+        ? "Registration successful. Check your email for details."
+        : "Registration received. Complete your fee by bank transfer."
+    );
+    setShowModal(false);
+    window.location.href = `/training/kisolam/enrollment/${enrollmentId}`;
+  }
+
+  async function handleRetryPhoto() {
+    if (!savedEnrollment || !selectedCourse) return;
+    setStep("processing");
+    try {
+      await training.attachPassport(savedEnrollment.id, savedEnrollment.photo);
+      finishDtd(savedEnrollment.id, selectedCourse.pricing.isFree);
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Photo upload failed. Please try again.");
+      setStep("form");
+    }
+  }
+
+  function replaceRetryPhoto(file: File | null) {
+    setRetryPhotoError("");
+    if (!file || !savedEnrollment) return;
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(file.type)) {
+      return setRetryPhotoError("Upload a JPG, PNG, WebP or PDF file.");
+    }
+    if (file.size > 10 * 1024 * 1024) return setRetryPhotoError("File is larger than 10 MB.");
+    setSavedEnrollment({ ...savedEnrollment, photo: file });
   }
 
   return (
@@ -496,6 +526,42 @@ export default function KISOLAMPageClient() {
           <div className="flex flex-col items-center justify-center gap-4 py-10">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple border-t-transparent" />
             <p className="font-body text-sm text-gray-text">Processing your enrollment...</p>
+          </div>
+        ) : savedEnrollment ? (
+          <div className="space-y-4">
+            <div className="rounded-[10px] bg-purple-light/40 px-4 py-3 text-sm">
+              <p className="font-heading font-semibold text-slate">Your details were saved</p>
+              <p className="mt-1 text-[13px] text-gray-text">
+                Your photograph did not upload. Retry below. You do not need to fill the form again.
+              </p>
+              <p className="mt-2 text-[12px] text-gray-text">
+                Selected file: <strong>{savedEnrollment.photo.name}</strong>
+              </p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="dtd-retry-photo" className="font-body text-sm font-medium text-slate">
+                Use a different photograph (optional)
+              </label>
+              <input
+                id="dtd-retry-photo"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                onChange={(e) => replaceRetryPhoto(e.target.files?.[0] ?? null)}
+                className="font-body text-sm text-gray-text"
+              />
+              {retryPhotoError && <span className="font-body text-xs text-error">{retryPhotoError}</span>}
+            </div>
+            <p className="font-body text-xs text-gray-text">
+              Still stuck? Email kisolam@theecclesiaembassy.org.
+            </p>
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="secondary" className="flex-1" onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+              <Button type="button" variant="giving" className="flex-1 justify-center" onClick={handleRetryPhoto}>
+                Retry photo upload
+              </Button>
+            </div>
           </div>
         ) : isDtd(selectedCourse) ? (
           <DtdRegistrationForm
