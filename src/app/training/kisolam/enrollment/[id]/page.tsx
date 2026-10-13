@@ -19,6 +19,8 @@ interface Enrollment {
   courseName?: string | null;
   name: string;
   paymentStatus?: string;
+  // When a bank-transfer receipt was last uploaded; the file itself stays private.
+  receiptUploadedAt?: string | null;
   createdAt: string;
   // Present for a KISOLAM fee that has not been confirmed yet. KISOLAM is paid
   // by bank transfer, never through Paystack.
@@ -58,6 +60,35 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
   const [verifying, setVerifying] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const { success, error } = useToast();
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptError, setReceiptError] = useState("");
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+
+  const pickReceipt = (file: File | null) => {
+    setReceiptError("");
+    setReceiptFile(null);
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(file.type)) {
+      return setReceiptError("Upload a JPG, PNG, WebP or PDF file.");
+    }
+    if (file.size > 10 * 1024 * 1024) return setReceiptError("File is larger than 10 MB.");
+    setReceiptFile(file);
+  };
+
+  const submitReceipt = async () => {
+    if (!receiptFile) return;
+    setUploadingReceipt(true);
+    try {
+      await training.attachReceipt(enrollmentParamId, receiptFile);
+      setEnrollment(await training.getEnrollment(enrollmentParamId));
+      setReceiptFile(null);
+      success("Receipt received. We will confirm your payment shortly.");
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Receipt upload failed. Please try again.");
+    } finally {
+      setUploadingReceipt(false);
+    }
+  };
 
   useEffect(() => {
     const ref = typeof window !== "undefined"
@@ -270,6 +301,41 @@ export default function EnrollmentStatusPage({ params }: { params: Promise<{ id:
               Your status changes to Paid once our team sees the transfer. Questions? WhatsApp (only)
               09167641473 or email kisolam@theecclesiaembassy.org.
             </p>
+          </div>
+        )}
+
+        {/* Receipt upload: the registrant pays, then comes back to this page */}
+        {!isPaid && enrollment.bankTransfer && (
+          <div className="rounded-[8px] border border-gray-border bg-white p-5 mb-5">
+            <p className="font-heading text-sm font-bold text-slate mb-1">Upload your payment receipt</p>
+            <p className="font-body text-[13px] text-gray-text mb-3">
+              Already paid? Upload the transfer receipt (screenshot, photo or PDF) so we can confirm your spot.
+              You can come back to this page any time using the link in your confirmation email.
+            </p>
+            {enrollment.receiptUploadedAt && (
+              <p className="mb-3 rounded-[6px] bg-success/10 px-3 py-2 font-body text-[13px] text-success">
+                Receipt received on{" "}
+                {new Date(enrollment.receiptUploadedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}.
+                We will confirm your payment shortly. You can upload another if needed.
+              </p>
+            )}
+            <input
+              id="receipt-file"
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+              onChange={(e) => pickReceipt(e.target.files?.[0] ?? null)}
+              className="block w-full font-body text-sm text-gray-text"
+            />
+            {receiptError && <p className="mt-1 font-body text-xs text-error">{receiptError}</p>}
+            <Button
+              type="button"
+              variant="primary"
+              className="mt-3 w-full justify-center"
+              disabled={!receiptFile || uploadingReceipt}
+              onClick={submitReceipt}
+            >
+              {uploadingReceipt ? "Uploading..." : enrollment.receiptUploadedAt ? "Upload another receipt" : "Upload receipt"}
+            </Button>
           </div>
         )}
 

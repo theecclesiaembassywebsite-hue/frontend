@@ -720,6 +720,7 @@ function EnrollmentsTab() {
       "Sub-Program": e.additionalInfo?.program || "",
       "Payment Status": paymentLabel(e),
       "Payment Ref": e.paymentRef || e.paymentReference || "",
+      "Receipt": e.receiptUrl || "",
       "Tracking Status": e.trackingStatus || "NEW",
       "Submitted Via": e.clientSource || "UNKNOWN",
       Notes: e.notes || "",
@@ -875,6 +876,9 @@ function EnrollmentsTab() {
                         {e.paymentStatus && StatusIcon && <StatusIcon size={10} />}
                         {paymentLabel(e) || "UNKNOWN"}
                       </span>
+                      {e.receiptUrl && (
+                        <span className="mt-1 block font-body text-[10px] text-success">Receipt uploaded</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-heading font-semibold ${trackingBadge[tracking] || "bg-gray-text/10 text-gray-text"}`}>
@@ -968,6 +972,24 @@ function EnrollmentsTab() {
                 <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Payment Ref</p>
                 <p className="font-body text-sm text-slate break-all">{viewingEnrollment.transferRef || viewingEnrollment.paymentRef || "-"}</p>
               </div>
+              {viewingEnrollment.receiptUrl && (
+                <div className="col-span-2">
+                  <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Payment Receipt</p>
+                  <a
+                    href={viewingEnrollment.receiptUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-body text-sm text-purple-vivid underline"
+                  >
+                    Open receipt in Drive
+                  </a>
+                  {viewingEnrollment.receiptUploadedAt && (
+                    <span className="ml-2 font-body text-[11px] text-gray-text">
+                      uploaded {new Date(viewingEnrollment.receiptUploadedAt).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Tracking Status</p>

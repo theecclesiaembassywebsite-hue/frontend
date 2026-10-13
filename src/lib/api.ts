@@ -1505,6 +1505,22 @@ export const training = {
     return response.json() as Promise<{ message: string }>;
   },
 
+  // After paying by bank transfer, the registrant comes back and uploads the
+  // receipt; the backend files it in the course's "Payment Receipts" folder.
+  attachReceipt: async (enrollmentId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch(`${BASE_URL}/training/enrollment/${enrollmentId}/receipt`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `Receipt upload failed: ${response.status}`);
+    }
+    return response.json() as Promise<{ message: string }>;
+  },
+
   getEnrollment: (id: string) =>
     fetchAPI<any>(`/training/enrollment/${id}`, { noAuth: true }),
 
