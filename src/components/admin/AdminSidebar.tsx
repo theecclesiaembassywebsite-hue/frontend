@@ -39,32 +39,63 @@ export default function AdminSidebar() {
   const navItems = allNavItems.filter((item) => item.roles.includes(role));
 
   return (
-    <aside className="w-60 shrink-0 border-r border-gray-border bg-white min-h-screen hidden lg:block">
-      <div className="p-4 border-b border-gray-border">
-        <h2 className="font-heading text-sm font-bold text-purple">Admin Dashboard</h2>
-        <p className="text-[10px] text-gray-text">The Ecclesia Embassy</p>
-      </div>
-      <nav className="p-2 space-y-0.5">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-[4px] px-3 py-2 text-sm font-body transition-colors",
-                active
-                  ? "bg-purple-light text-purple font-semibold"
-                  : "text-gray-text hover:bg-off-white hover:text-slate"
-              )}
-            >
-              <Icon size={16} />
-              {item.label}
-            </Link>
-          );
-        })}
+    <>
+      {/* Mobile / narrow: horizontally scrollable tab strip */}
+      <nav
+        aria-label="Admin sections"
+        className="lg:hidden border-b border-gray-border bg-white overflow-x-auto"
+      >
+        <div className="flex gap-1 p-2 w-max min-w-full">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-[4px] px-3 py-2 text-sm font-body whitespace-nowrap transition-colors",
+                  active
+                    ? "bg-purple-light text-purple font-semibold"
+                    : "text-gray-text hover:bg-off-white hover:text-slate"
+                )}
+              >
+                <Icon size={16} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
-    </aside>
+
+      <aside className="w-60 shrink-0 border-r border-gray-border bg-white min-h-screen hidden lg:block">
+        <div className="p-4 border-b border-gray-border">
+          <h2 className="font-heading text-sm font-bold text-purple">Admin Dashboard</h2>
+          <p className="text-[10px] text-gray-text">The Ecclesia Embassy</p>
+        </div>
+        <nav className="p-2 space-y-0.5">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-[4px] px-3 py-2 text-sm font-body transition-colors",
+                  active
+                    ? "bg-purple-light text-purple font-semibold"
+                    : "text-gray-text hover:bg-off-white hover:text-slate"
+                )}
+              >
+                <Icon size={16} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }

@@ -7,6 +7,11 @@
    ============================================ */
 
 @theme inline {
+  /* Phones in "Desktop site" mode report a ~980px viewport, which fell just
+     under Tailwind's 64rem default and kept the mobile layout. 60rem lets
+     that mode (and small tablets in landscape) get the desktop layout. */
+  --breakpoint-lg: 60rem;
+
   /* ---- Primary Colors ---- */
   --color-purple: #0E0B1E;
   --color-purple-dark: #0E0B1E;
