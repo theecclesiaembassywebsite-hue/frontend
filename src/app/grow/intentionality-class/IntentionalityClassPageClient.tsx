@@ -202,7 +202,11 @@ function IntentionalityClassContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const { success, error } = useToast();
-  const { config: formConfig, status: formStatus } = useRegistrationForm('INTENTIONALITY_CLASS');
+  const { config: formConfig, status: formStatus } = useRegistrationForm(
+    'INTENTIONALITY_CLASS',
+    selectedCourseId || undefined,
+    { keepPrevious: true },
+  );
 
   useEffect(() => {
     intentionalityClass.getAvailableCourses()

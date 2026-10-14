@@ -80,8 +80,12 @@ export default function KISOLAMPageClient() {
   const [savedEnrollment, setSavedEnrollment] = useState<{ id: string; photo: File } | null>(null);
   const [retryPhotoError, setRetryPhotoError] = useState("");
   const { success, error } = useToast();
-  const { config: stdForm, status: stdStatus } = useRegistrationForm("KISOLAM");
-  const { config: dtdForm, status: dtdStatus } = useRegistrationForm("KISOLAM_DTD");
+  // The form belongs to the course being registered for. DTD must never fall back
+  // to the plain form: without its photograph field the registration is never filed.
+  const { config: form, status: formStatus } = useRegistrationForm("KISOLAM", selectedCourse?.id, {
+    enabled: !!selectedCourse,
+    fallback: !isDtd(selectedCourse),
+  });
 
   useEffect(() => {
     (async () => {
@@ -554,9 +558,10 @@ export default function KISOLAMPageClient() {
             </div>
           </div>
         ) : isDtd(selectedCourse) ? (
-          dtdForm ? (
+          form ? (
             <FormRenderer
-              config={dtdForm}
+              key={selectedCourse?.id}
+              config={form}
               top={
                 <p className="font-heading text-[13px] font-bold text-purple">
                   {selectedCourse?.pricing.isFree
@@ -573,15 +578,16 @@ export default function KISOLAMPageClient() {
             />
           ) : (
             <p className="py-6 text-center font-body text-sm text-gray-text">
-              {dtdStatus === "error"
+              {formStatus === "error"
                 ? "The registration form could not be loaded. Please refresh and try again."
                 : "Loading the registration form..."}
             </p>
           )
-        ) : stdForm ? (
+        ) : form ? (
           <FormRenderer
-            config={stdForm}
-            disabled={stdStatus === "loading"}
+            key={selectedCourse?.id}
+            config={form}
+            disabled={formStatus === "loading"}
             submitLabel={selectedCourse?.pricing.isFree ? "Enroll Free" : "Enroll"}
             submitIcon={<BadgeCheck size={15} />}
             submitVariant="giving"

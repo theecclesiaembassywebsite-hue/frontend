@@ -933,25 +933,30 @@ export const nation = {
     }),
 };
 
-// REGISTRATION FORM CONFIG (admin-editable extras for the enrolment forms)
+// REGISTRATION FORMS (admin-editable, per programme and per course)
+type RegForm = import("./registration-form").RegistrationFormConfig;
+const regFormPath = (program: string, courseId?: string) =>
+  `/registration-forms/${program}${courseId ? `/${courseId}` : ""}`;
+
 export const registrationForms = {
   // Public pages may be served a copy up to a minute old (browser cache); the
   // admin editor asks for `fresh` so it never edits, and saves over, a stale one.
-  get: (key: string, fresh = false) =>
-    fetchAPI<import("./registration-form").RegistrationFormConfig>(`/registration-forms/${key}`, {
+  get: (program: string, courseId?: string, fresh = false) =>
+    fetchAPI<RegForm & { source?: "course" | "program" | "builtin" }>(regFormPath(program, courseId), {
       noAuth: true,
       ...(fresh ? { cache: "no-store" as RequestCache } : {}),
     }),
 
-  save: (key: string, config: import("./registration-form").RegistrationFormConfig) =>
-    fetchAPI<import("./registration-form").RegistrationFormConfig>(`/registration-forms/${key}`, {
+  save: (program: string, courseId: string | undefined, config: RegForm) =>
+    fetchAPI<RegForm>(regFormPath(program, courseId), {
       method: "PUT",
       body: JSON.stringify({ config }),
     }),
 
-  // Back to the built-in version of the form.
-  reset: (key: string) =>
-    fetchAPI<import("./registration-form").RegistrationFormConfig>(`/registration-forms/${key}`, {
+  // A course's own form is removed (it falls back to the programme's); for a
+  // programme the built-in form comes back.
+  reset: (program: string, courseId?: string) =>
+    fetchAPI<RegForm & { source?: "course" | "program" | "builtin" }>(regFormPath(program, courseId), {
       method: "DELETE",
     }),
 };

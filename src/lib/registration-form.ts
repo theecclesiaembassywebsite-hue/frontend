@@ -6,7 +6,8 @@ import { registrationForms } from "@/lib/api";
 // Server-defined registration forms. The backend owns the field list (including
 // name, email and phone); this file only describes its shape and loads it.
 
-export type FormKey = "KISOLAM" | "KISOLAM_DTD" | "TEMA" | "INTENTIONALITY_CLASS";
+// A form belongs to a programme and, optionally, to one course in it.
+export type FormKey = "KISOLAM" | "TEMA" | "INTENTIONALITY_CLASS";
 export type FieldType =
   | "text"
   | "textarea"
@@ -53,7 +54,7 @@ const CORE_FALLBACK: RegistrationFormConfig = {
     { id: "phone", core: "phone", type: "tel", label: "Phone Number", placeholder: "+234...", required: true },
   ],
 };
-const FALLBACKS: Partial<Record<FormKey, RegistrationFormConfig>> = {
+const FALLBACKS: Record<FormKey, RegistrationFormConfig> = {
   KISOLAM: CORE_FALLBACK,
   TEMA: CORE_FALLBACK,
   INTENTIONALITY_CLASS: { fields: [] },
@@ -64,47 +65,70 @@ export type FormStatus = "loading" | "ready" | "error";
 // One fetch per form per minute for the whole page session, however many
 // components or navigations ask. A failed fetch is forgotten so the next ask retries.
 const FORM_TTL_MS = 60_000;
-const loaded = new Map<FormKey, { at: number; request: Promise<RegistrationFormConfig> }>();
+const loaded = new Map<string, { at: number; request: Promise<RegistrationFormConfig> }>();
 
-function loadForm(key: FormKey): Promise<RegistrationFormConfig> {
-  const hit = loaded.get(key);
+function loadForm(program: FormKey, courseId?: string): Promise<RegistrationFormConfig> {
+  const id = `${program}:${courseId ?? ""}`;
+  const hit = loaded.get(id);
   if (hit && Date.now() - hit.at < FORM_TTL_MS) return hit.request;
-  const request = registrationForms.get(key);
-  loaded.set(key, { at: Date.now(), request });
+  const request = registrationForms.get(program, courseId);
+  loaded.set(id, { at: Date.now(), request });
   request.catch(() => {
-    if (loaded.get(key)?.request === request) loaded.delete(key);
+    if (loaded.get(id)?.request === request) loaded.delete(id);
   });
   return request;
 }
 
+interface Options {
+  /** Wait to fetch until this is true, e.g. until a course has been chosen. */
+  enabled?: boolean;
+  /**
+   * Show the standard fields while loading or if the fetch fails. Turn off for a
+   * form that must not appear without its extras (DTD needs its photo field).
+   */
+  fallback?: boolean;
+  /** While a different course's form loads, keep showing the previous one. */
+  keepPrevious?: boolean;
+}
+
 /**
- * Loads the live form. `config` is null only for a form that has no sensible
- * fallback (the DTD form) until it arrives; the others render immediately and
- * update when the server answers.
+ * Loads the live form for a programme, or for one course in it. `config` is
+ * null only when there is no fallback and the form has not arrived yet.
  */
-export function useRegistrationForm(key: FormKey): {
-  config: RegistrationFormConfig | null;
-  status: FormStatus;
-} {
-  const [state, setState] = useState<{ config: RegistrationFormConfig | null; status: FormStatus }>({
-    config: FALLBACKS[key] ?? null,
-    status: "loading",
-  });
+export function useRegistrationForm(
+  program: FormKey,
+  courseId?: string,
+  { enabled = true, fallback = true, keepPrevious = false }: Options = {},
+): { config: RegistrationFormConfig | null; status: FormStatus } {
+  const id = `${program}:${courseId ?? ""}`;
+  const [result, setResult] = useState<{
+    id: string;
+    config: RegistrationFormConfig | null;
+    status: "ready" | "error";
+  } | null>(null);
+
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
-    loadForm(key)
+    loadForm(program, courseId)
       .then((c) => {
-        if (!cancelled && Array.isArray(c?.fields)) setState({ config: { fields: c.fields }, status: "ready" });
-        else if (!cancelled) setState((s) => ({ ...s, status: "error" }));
+        if (cancelled) return;
+        if (Array.isArray(c?.fields)) setResult({ id, config: { fields: c.fields }, status: "ready" });
+        else setResult({ id, config: null, status: "error" });
       })
       .catch(() => {
-        if (!cancelled) setState((s) => ({ ...s, status: "error" }));
+        if (!cancelled) setResult({ id, config: null, status: "error" });
       });
     return () => {
       cancelled = true;
     };
-  }, [key]);
-  return state;
+  }, [id, enabled, program, courseId]);
+
+  const base = fallback ? FALLBACKS[program] : null;
+  if (result && result.id === id) {
+    return { config: result.config ?? base, status: result.status };
+  }
+  return { config: keepPrevious && result?.config ? result.config : base, status: "loading" };
 }
 
 /** Whether a field is shown, given the answers so far. Hidden parents hide their children. */

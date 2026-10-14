@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ClipboardList, Lock, Plus, Trash2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { registrationForms } from "@/lib/api";
+import { intentionalityClass, registrationForms, training } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/Toast";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -17,9 +17,8 @@ import {
 } from "@/lib/registration-form";
 
 const FORMS: { key: FormKey; label: string; roles: string[] }[] = [
-  { key: "KISOLAM", label: "KISOLAM enrolment", roles: ["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN"] },
-  { key: "KISOLAM_DTD", label: "KISOLAM DTD registration", roles: ["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN"] },
-  { key: "TEMA", label: "TEMA enrolment", roles: ["ADMIN", "SUPER_ADMIN", "TEMA_ADMIN"] },
+  { key: "KISOLAM", label: "KISOLAM", roles: ["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN"] },
+  { key: "TEMA", label: "TEMA", roles: ["ADMIN", "SUPER_ADMIN", "TEMA_ADMIN"] },
   { key: "INTENTIONALITY_CLASS", label: "Intentionality Class", roles: ["ADMIN", "SUPER_ADMIN"] },
 ];
 
@@ -242,13 +241,25 @@ function FieldEditor({
   );
 }
 
-function FormEditor({ formKey }: { formKey: FormKey }) {
+type Source = "course" | "program" | "builtin";
+
+function FormEditor({
+  formKey,
+  courseId,
+  courseName,
+}: {
+  formKey: FormKey;
+  /** Undefined edits the programme's default form. */
+  courseId?: string;
+  courseName?: string;
+}) {
   const { success, error } = useToast();
   const [config, setConfig] = useState<RegistrationFormConfig>({ fields: [] });
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [source, setSource] = useState<Source>("builtin");
 
   useEffect(() => {
     let cancelled = false;
@@ -256,9 +267,11 @@ function FormEditor({ formKey }: { formKey: FormKey }) {
     setDirty(false);
     setConfirmReset(false);
     registrationForms
-      .get(formKey, true)
+      .get(formKey, courseId, true)
       .then((c) => {
-        if (!cancelled) setConfig({ fields: c?.fields ?? [] });
+        if (cancelled) return;
+        setConfig({ fields: c?.fields ?? [] });
+        setSource(c?.source ?? "builtin");
       })
       .catch((e) => error(e instanceof Error ? e.message : "Could not load this form."))
       .finally(() => !cancelled && setLoaded(true));
@@ -266,7 +279,7 @@ function FormEditor({ formKey }: { formKey: FormKey }) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formKey]);
+  }, [formKey, courseId]);
 
   const update = (fields: RegistrationFormField[]) => {
     setConfig({ fields });
@@ -299,13 +312,14 @@ function FormEditor({ formKey }: { formKey: FormKey }) {
     }
     setSaving(true);
     try {
-      const saved = await registrationForms.save(formKey, {
+      const saved = await registrationForms.save(formKey, courseId, {
         fields: config.fields.map((f) => ({
           ...f,
           options: isChoice(f.type) ? (f.options ?? []).map((o) => o.trim()).filter(Boolean) : undefined,
         })),
       });
       setConfig({ fields: saved.fields ?? [] });
+      setSource(courseId ? "course" : "program");
       setDirty(false);
       success("Form saved. Changes are live on the website and the app.");
     } catch (e) {
@@ -318,11 +332,12 @@ function FormEditor({ formKey }: { formKey: FormKey }) {
   async function reset() {
     setSaving(true);
     try {
-      const fresh = await registrationForms.reset(formKey);
+      const fresh = await registrationForms.reset(formKey, courseId);
       setConfig({ fields: fresh.fields ?? [] });
+      setSource(fresh.source ?? "builtin");
       setDirty(false);
       setConfirmReset(false);
-      success("Form restored to the original.");
+      success(courseId ? "This course now uses the default form." : "Form restored to the original.");
     } catch (e) {
       error(e instanceof Error ? e.message : "Could not reset the form.");
     } finally {
@@ -334,6 +349,13 @@ function FormEditor({ formKey }: { formKey: FormKey }) {
 
   return (
     <div className="space-y-4">
+      <p className="rounded-[8px] bg-purple-light/40 px-4 py-3 font-body text-sm text-slate">
+        {courseId
+          ? source === "course"
+            ? `${courseName} has its own form.`
+            : `${courseName} is using the ${source === "program" ? "programme's default" : "original"} form. Saving here creates a form just for this course.`
+          : "This is the default form. Every course in this programme uses it unless it has a form of its own."}
+      </p>
       <p className="font-body text-sm text-gray-text">
         This is exactly what people fill in. Standard fields (marked with a lock) can be reworded and moved but not
         removed. Removing a question hides it from new registrations; answers already collected are kept.
@@ -369,14 +391,16 @@ function FormEditor({ formKey }: { formKey: FormKey }) {
           <p className="font-body text-xs text-gray-text">{dirty ? "You have unsaved changes." : "All changes saved."}</p>
           {confirmReset ? (
             <span className="flex items-center gap-2 font-body text-xs">
-              Replace this form with the original?
+              {courseId ? "Remove this course's own form?" : "Replace this form with the original?"}
               <button type="button" onClick={reset} disabled={saving} className="font-semibold text-error">Yes, restore</button>
               <button type="button" onClick={() => setConfirmReset(false)} className="text-gray-text">Cancel</button>
             </span>
           ) : (
-            <button type="button" onClick={() => setConfirmReset(true)} className="font-body text-xs text-gray-text underline">
-              Restore original
-            </button>
+            (courseId ? source === "course" : true) && (
+              <button type="button" onClick={() => setConfirmReset(true)} className="font-body text-xs text-gray-text underline">
+                {courseId ? "Use the default form" : "Restore original"}
+              </button>
+            )
           )}
         </div>
         <Button type="button" variant="primary" onClick={save} disabled={saving || !dirty}>
@@ -392,6 +416,34 @@ function AdminFormsContent() {
   const allowed = useMemo(() => FORMS.filter((f) => f.roles.includes(user?.role ?? "")), [user?.role]);
   const [active, setActive] = useState<FormKey | null>(null);
   const current = active ?? allowed[0]?.key ?? null;
+  const [courses, setCourses] = useState<{ id: string; name: string }[]>([]);
+  const [courseId, setCourseId] = useState("");
+  const { error } = useToast();
+
+  // The courses of the chosen programme: training courses for KISOLAM and TEMA,
+  // class phases for the Intentionality Class.
+  useEffect(() => {
+    if (!current) return;
+    let cancelled = false;
+    setCourseId("");
+    setCourses([]);
+    const load =
+      current === "INTENTIONALITY_CLASS"
+        ? intentionalityClass.adminGetCourses().then((rows) =>
+            (rows ?? []).map((c: { id: string; title: string }) => ({ id: c.id, name: c.title })),
+          )
+        : training
+            .getAdminCourses(current)
+            .then((rows) => rows.map((c) => ({ id: c.id, name: `${c.name} (${c.code})` })));
+    load
+      .then((list) => !cancelled && setCourses(list))
+      .catch(() => !cancelled && error("Could not load the course list."));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current]);
+  const courseName = courses.find((c) => c.id === courseId)?.name;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-4 md:p-8">
@@ -423,7 +475,35 @@ function AdminFormsContent() {
         ))}
       </div>
 
-      {current && <FormEditor key={current} formKey={current} />}
+      {current && (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="form-course" className="font-body text-sm font-medium text-slate">
+            {current === "INTENTIONALITY_CLASS" ? "Phase" : "Course"}
+          </label>
+          <select
+            id="form-course"
+            className={selectClass}
+            value={courseId}
+            onChange={(e) => setCourseId(e.target.value)}
+          >
+            <option value="">All {current === "INTENTIONALITY_CLASS" ? "phases" : "courses"} (default form)</option>
+            {courses.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {current && (
+        <FormEditor
+          key={`${current}:${courseId}`}
+          formKey={current}
+          courseId={courseId || undefined}
+          courseName={courseName}
+        />
+      )}
     </div>
   );
 }

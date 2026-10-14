@@ -92,8 +92,12 @@ const heroStats = [
 export default function TEMAPageClient() {
   const [courses, setCourses] = useState<TrainingCourse[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
-  const { config: formConfig, status: formStatus } = useRegistrationForm("TEMA");
   const [courseId, setCourseId] = useState("");
+  // The form follows the programme picked in the dropdown; until one is picked
+  // (or if it has no form of its own) it is TEMA's general form.
+  const { config: formConfig, status: formStatus } = useRegistrationForm("TEMA", courseId || undefined, {
+    keepPrevious: true,
+  });
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [videoMuted, setVideoMuted] = useState(true);
