@@ -955,11 +955,33 @@ function EnrollmentsTab() {
                 <p className="font-body text-sm text-slate">{viewingEnrollment.phone}</p>
               </div>
             </div>
+            {viewingEnrollment.additionalInfo?.custom &&
+              Object.keys(viewingEnrollment.additionalInfo.custom).length > 0 && (
+                <div>
+                  <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Extra Questions</p>
+                  <dl className="space-y-2 rounded-[4px] bg-off-white p-3">
+                    {Object.entries(viewingEnrollment.additionalInfo.custom as Record<string, { label: string; value: string | boolean }>).map(
+                      ([id, a]) => (
+                        <div key={id}>
+                          <dt className="font-body text-xs text-gray-text">{a.label}</dt>
+                          <dd className="font-body text-sm text-slate">
+                            {typeof a.value === "boolean" ? (a.value ? "Yes" : "No") : a.value}
+                          </dd>
+                        </div>
+                      ),
+                    )}
+                  </dl>
+                </div>
+              )}
             {viewingEnrollment.additionalInfo && (
               <div>
                 <p className="text-xs font-heading font-semibold text-gray-text uppercase tracking-wider mb-1">Additional Info</p>
                 <pre className="font-body text-xs text-slate bg-off-white rounded-[4px] p-3 overflow-x-auto">
-                  {JSON.stringify(viewingEnrollment.additionalInfo, null, 2)}
+                  {JSON.stringify(
+                    Object.fromEntries(Object.entries(viewingEnrollment.additionalInfo).filter(([k]) => k !== "custom")),
+                    null,
+                    2,
+                  )}
                 </pre>
               </div>
             )}

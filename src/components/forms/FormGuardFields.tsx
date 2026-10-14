@@ -58,7 +58,6 @@ function loadTurnstile(): Promise<void> {
  */
 export function FormGuardFields() {
   const honeypotRef = useRef<HTMLInputElement>(null);
-  const widgetHost = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let widgetId: string | undefined;
@@ -75,11 +74,29 @@ export function FormGuardFields() {
     };
     const unregister = registerFormGuard(reg);
 
-    if (TURNSTILE_SITE_KEY && widgetHost.current) {
+    // The widget is only visible when Cloudflare challenges the visitor, and a
+    // challenge belongs next to the submit button, not above the first field.
+    // So it gets its own node, placed just before the submit button's block.
+    // It is created here rather than rendered by React because React would
+    // otherwise try to manage a node that has been moved.
+    let host: HTMLDivElement | null = null;
+    if (TURNSTILE_SITE_KEY && honeypotRef.current) {
+      const form = honeypotRef.current.closest("form");
+      host = document.createElement("div");
+      const submit = form?.querySelector('[type="submit"]');
+      let anchor: Element | null = submit ?? null;
+      while (anchor && anchor.parentElement !== form) anchor = anchor.parentElement;
+      if (form && anchor) form.insertBefore(host, anchor);
+      else if (form) form.appendChild(host);
+      else host = null;
+    }
+
+    if (TURNSTILE_SITE_KEY && host) {
+      const mount = host;
       loadTurnstile()
         .then(() => {
-          if (cancelled || !widgetHost.current || !window.turnstile) return;
-          widgetId = window.turnstile.render(widgetHost.current, {
+          if (cancelled || !window.turnstile) return;
+          widgetId = window.turnstile.render(mount, {
             sitekey: TURNSTILE_SITE_KEY,
             action: TURNSTILE_ACTION,
             // Stays invisible unless Cloudflare needs the visitor to do something.
@@ -107,6 +124,7 @@ export function FormGuardFields() {
       cancelled = true;
       unregister();
       if (widgetId && window.turnstile) window.turnstile.remove(widgetId);
+      host?.remove();
     };
   }, []);
 
@@ -129,7 +147,6 @@ export function FormGuardFields() {
           />
         </label>
       </div>
-      {TURNSTILE_SITE_KEY ? <div ref={widgetHost} /> : null}
     </>
   );
 }

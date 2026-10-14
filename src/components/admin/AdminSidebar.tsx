@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import {
   LayoutDashboard, Users, Gift, FileText, MapPin, GraduationCap,
   MessageCircle, Calendar, BookOpen, HandHeart, Quote, BarChart3,
-  Radio, UserPlus, Clock, Award, Image,
+  Radio, UserPlus, Clock, Award, Image, ClipboardList,
 } from "lucide-react";
 
 const allNavItems = [
@@ -24,6 +24,7 @@ const allNavItems = [
   { label: "Squads",              href: "/admin/squads",       icon: Users,           roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Intentionality Class",href: "/admin/class",        icon: GraduationCap,   roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Training",            href: "/admin/training",     icon: Award,           roles: ["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN", "TEMA_ADMIN"] },
+  { label: "Registration Forms",  href: "/admin/forms",        icon: ClipboardList,   roles: ["ADMIN", "SUPER_ADMIN", "KISOLAM_ADMIN", "TEMA_ADMIN"] },
   { label: "Ecclesia Embassy Community", href: "/admin/community", icon: MessageCircle,   roles: ["ADMIN", "SUPER_ADMIN", "MODERATOR"] },
   { label: "Resources",           href: "/admin/resources",    icon: BookOpen,        roles: ["ADMIN", "SUPER_ADMIN"] },
   { label: "Service Schedule",    href: "/admin/schedule",     icon: Clock,           roles: ["ADMIN", "SUPER_ADMIN"] },

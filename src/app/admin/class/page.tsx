@@ -1,6 +1,8 @@
 "use client";
 
 import Button from "@/components/ui/Button";
+import ClassRegistrations from "@/components/admin/ClassRegistrations";
+import ClassDrivePanel from "@/components/admin/ClassDrivePanel";
 import { useCallback, useEffect, useState } from "react";
 import { GraduationCap, Plus, Users, Award, BookOpen, ChevronDown, ChevronRight, Video, FileText, Trash2, Edit } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -394,6 +396,9 @@ function AdminClassContent() {
           <p className="font-heading text-xl font-bold text-warning">{stats?.avgScore || "0"}%</p>
         </div>
       </div>
+
+      <ClassDrivePanel />
+      <ClassRegistrations />
 
       {/* Courses with Expandable Modules */}
       <h2 className="font-heading text-lg font-bold text-slate mb-3">Courses & Modules</h2>

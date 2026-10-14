@@ -26,6 +26,8 @@ import {
   Users,
 } from 'lucide-react';
 import EditableContent from '@/components/ui/EditableContent';
+import FormRenderer, { type FormSubmission } from '@/components/forms/FormRenderer';
+import { useRegistrationForm } from '@/lib/registration-form';
 
 interface Course {
   id: string;
@@ -200,6 +202,7 @@ function IntentionalityClassContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const { success, error } = useToast();
+  const { config: formConfig, status: formStatus } = useRegistrationForm('INTENTIONALITY_CLASS');
 
   useEffect(() => {
     intentionalityClass.getAvailableCourses()
@@ -235,8 +238,7 @@ function IntentionalityClassContent() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (r: FormSubmission) => {
     setIsLoading(true);
 
     if (!isAuthenticated) {
@@ -252,7 +254,7 @@ function IntentionalityClassContent() {
     }
 
     try {
-      await intentionalityClass.enroll(selectedCourseId);
+      await intentionalityClass.enroll(selectedCourseId, r.answers);
       setIsSuccess(true);
       success('Thank you for enrolling in the Intentionality Class.');
     } catch (err) {
@@ -575,7 +577,16 @@ function IntentionalityClassContent() {
                   </Link>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+                <FormRenderer
+                  config={formConfig ?? { fields: [] }}
+                  guard={false}
+                  className="mt-8 space-y-6"
+                  disabled={isLoading || courses.length === 0 || formStatus === 'loading'}
+                  submitLabel={isLoading ? 'Enrolling...' : 'Enroll Now'}
+                  submitClassName="w-full"
+                  onSubmit={handleSubmit}
+                  top={
+                    <>
                   {isAuthenticated && user ? (
                     <div className="flex items-center gap-4 rounded-[16px] border border-slate/8 bg-off-white px-4 py-4">
                       <div className="brand-tile h-10 w-10 !rounded-full">
@@ -659,14 +670,9 @@ function IntentionalityClassContent() {
                     </select>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={isLoading || courses.length === 0}
-                    className="w-full"
-                  >
-                    {isLoading ? 'Enrolling...' : 'Enroll Now'}
-                  </Button>
-                </form>
+                    </>
+                  }
+                />
               )}
             </div>
           </div>

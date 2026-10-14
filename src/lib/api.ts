@@ -933,14 +933,52 @@ export const nation = {
     }),
 };
 
+// REGISTRATION FORM CONFIG (admin-editable extras for the enrolment forms)
+export const registrationForms = {
+  // Public pages may be served a copy up to a minute old (browser cache); the
+  // admin editor asks for `fresh` so it never edits, and saves over, a stale one.
+  get: (key: string, fresh = false) =>
+    fetchAPI<import("./registration-form").RegistrationFormConfig>(`/registration-forms/${key}`, {
+      noAuth: true,
+      ...(fresh ? { cache: "no-store" as RequestCache } : {}),
+    }),
+
+  save: (key: string, config: import("./registration-form").RegistrationFormConfig) =>
+    fetchAPI<import("./registration-form").RegistrationFormConfig>(`/registration-forms/${key}`, {
+      method: "PUT",
+      body: JSON.stringify({ config }),
+    }),
+
+  // Back to the built-in version of the form.
+  reset: (key: string) =>
+    fetchAPI<import("./registration-form").RegistrationFormConfig>(`/registration-forms/${key}`, {
+      method: "DELETE",
+    }),
+};
+
 // INTENTIONALITY CLASS ENDPOINTS
 export const intentionalityClass = {
   getAvailableCourses: () =>
     fetchAPI<any[]>("/class/courses", { noAuth: true }),
 
-  enroll: (courseId: string) =>
+  getDriveStatus: () =>
+    fetchAPI<{
+      connected: boolean;
+      googleEmail?: string;
+      folderUrl?: string;
+      sheetUrl?: string;
+    }>("/admin/class/drive"),
+
+  connectDrive: () =>
+    fetchAPI<{ url: string }>("/admin/class/drive/connect", { method: "POST" }),
+
+  disconnectDrive: () =>
+    fetchAPI<{ message: string }>("/admin/class/drive", { method: "DELETE" }),
+
+  enroll: (courseId: string, answers?: Record<string, string | boolean>) =>
     fetchAPI<{ success: boolean }>(`/class/enroll/${courseId}`, {
       method: "POST",
+      body: JSON.stringify(answers && Object.keys(answers).length ? { answers } : {}),
     }),
 
   getMyCourses: () =>

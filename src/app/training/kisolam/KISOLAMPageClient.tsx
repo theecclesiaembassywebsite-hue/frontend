@@ -5,12 +5,11 @@ import SectionIntro from "@/components/ui/SectionIntro";
 import Eyebrow from "@/components/ui/Eyebrow";
 import FeatureTile from "@/components/ui/FeatureTile";
 import MediaFrame from "@/components/ui/MediaFrame";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
 import ProgramHero from "@/components/training/ProgramHero";
-import DtdRegistrationForm, { DtdRegistrationValues } from "@/components/training/DtdRegistrationForm";
+import FormRenderer, { type FormSubmission } from "@/components/forms/FormRenderer";
 import { FadeIn } from "@/components/ui/Motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -25,7 +24,7 @@ import {
 import { training, TrainingCourse } from "@/lib/api";
 import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
-import { FormGuardFields } from "@/components/forms/FormGuardFields";
+import { useRegistrationForm } from "@/lib/registration-form";
 
 const isDtd = (course: TrainingCourse | null) => course?.code === "DTD";
 
@@ -76,12 +75,13 @@ export default function KISOLAMPageClient() {
   const [selectedCourse, setSelectedCourse] = useState<TrainingCourse | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<"form" | "processing">("form");
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   // Set when a DTD registration was saved but its photo did not upload. A retry
   // must only re-send the photo: enrolling again would file a duplicate.
   const [savedEnrollment, setSavedEnrollment] = useState<{ id: string; photo: File } | null>(null);
   const [retryPhotoError, setRetryPhotoError] = useState("");
   const { success, error } = useToast();
+  const { config: stdForm, status: stdStatus } = useRegistrationForm("KISOLAM");
+  const { config: dtdForm, status: dtdStatus } = useRegistrationForm("KISOLAM_DTD");
 
   useEffect(() => {
     (async () => {
@@ -98,7 +98,6 @@ export default function KISOLAMPageClient() {
 
   function openEnroll(course: TrainingCourse) {
     setSelectedCourse(course);
-    setFormData({ name: "", email: "", phone: "" });
     setSavedEnrollment(null);
     setRetryPhotoError("");
     setStep("form");
@@ -109,8 +108,7 @@ export default function KISOLAMPageClient() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  async function handleEnrollAndPay(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleEnrollAndPay(r: FormSubmission) {
     if (!selectedCourse) return;
 
     // The enrollee no longer supplies an amount: the course's own price, and
@@ -121,10 +119,11 @@ export default function KISOLAMPageClient() {
     setStep("processing");
     try {
       const enrollment = await training.enrollTraining("KISOLAM", {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
+        name: r.core.name ?? "",
+        email: r.core.email ?? "",
+        phone: r.core.phone ?? "",
         courseId: selectedCourse.id,
+        additionalInfo: { custom: r.answers },
       });
 
       // KISOLAM fees are paid by bank transfer, not Paystack: the enrollment
@@ -145,33 +144,24 @@ export default function KISOLAMPageClient() {
   // DTD uses its own registration form. The answers ride along as
   // additionalInfo; the passport photo is sent once the enrollment exists, and
   // the backend files it in Drive and logs the row to the registration Sheet.
-  async function handleDtdSubmit(v: DtdRegistrationValues, photo: File) {
+  async function handleDtdSubmit(r: FormSubmission) {
     if (!selectedCourse) return;
     const isFree = selectedCourse.pricing.isFree;
+    // The photograph is the form's one file field.
+    const photo = Object.values(r.files)[0];
 
     setStep("processing");
     try {
       const enrollment = await training.enrollTraining("KISOLAM", {
-        name: v.fullName,
-        email: v.email,
-        phone: v.phone,
+        name: r.core.name ?? "",
+        email: r.core.email ?? "",
+        phone: r.core.phone ?? "",
         courseId: selectedCourse.id,
-        additionalInfo: {
-          title: v.title,
-          gender: v.gender,
-          homeAddress: v.homeAddress,
-          isSaved: v.isSaved,
-          savedDate: v.savedDate,
-          localAssembly: v.localAssembly,
-          servesInAssembly: v.servesInAssembly,
-          assemblyCapacity: v.assemblyCapacity,
-          prevBibleSchool: v.prevBibleSchool,
-          prevSchoolsList: v.prevSchoolsList,
-          attendanceMode: v.attendanceMode,
-        },
+        additionalInfo: { custom: r.answers },
       });
 
       try {
+        if (!photo) throw new Error("Please upload your passport photograph.");
         await training.attachPassport(enrollment.id, photo);
       } catch (err) {
         // The enrollment exists but has no photo, and re-submitting the form
@@ -564,94 +554,74 @@ export default function KISOLAMPageClient() {
             </div>
           </div>
         ) : isDtd(selectedCourse) ? (
-          <DtdRegistrationForm
-            feeLabel={
-              selectedCourse?.pricing.isFree
-                ? "Fee: Free — no payment required"
-                : `Fee: ${selectedCourse ? formatFee(selectedCourse) : ""} — paid by bank transfer after you register`
-            }
-            submitLabel={selectedCourse?.pricing.isFree ? "Register Free" : "Register"}
-            onCancel={() => setShowModal(false)}
-            onSubmit={handleDtdSubmit}
-          />
-        ) : (
-          <form onSubmit={handleEnrollAndPay} className="space-y-4">
-            <FormGuardFields />
-            <div className="rounded-[10px] bg-purple-light/40 px-4 py-3 text-sm">
-              <p className="font-heading font-semibold text-slate">{selectedCourse?.name}</p>
-              <p className="text-[12px] text-gray-text">Duration: {selectedCourse?.duration}</p>
-              {selectedCourse?.pricing.isFree ? (
-                <p className="mt-1 font-heading text-[13px] font-bold text-purple">
-                  Fee: Free — no payment required
+          dtdForm ? (
+            <FormRenderer
+              config={dtdForm}
+              top={
+                <p className="font-heading text-[13px] font-bold text-purple">
+                  {selectedCourse?.pricing.isFree
+                    ? "Fee: Free — no payment required"
+                    : `Fee: ${selectedCourse ? formatFee(selectedCourse) : ""} — paid by bank transfer after you register`}
                 </p>
-              ) : (
-                <>
-                  <p className="text-[12px] text-gray-text">Paid by bank transfer after you register.</p>
+              }
+              className="space-y-5"
+              submitLabel={selectedCourse?.pricing.isFree ? "Register Free" : "Register"}
+              submitIcon={<BadgeCheck size={15} />}
+              submitVariant="giving"
+              onCancel={() => setShowModal(false)}
+              onSubmit={handleDtdSubmit}
+            />
+          ) : (
+            <p className="py-6 text-center font-body text-sm text-gray-text">
+              {dtdStatus === "error"
+                ? "The registration form could not be loaded. Please refresh and try again."
+                : "Loading the registration form..."}
+            </p>
+          )
+        ) : stdForm ? (
+          <FormRenderer
+            config={stdForm}
+            disabled={stdStatus === "loading"}
+            submitLabel={selectedCourse?.pricing.isFree ? "Enroll Free" : "Enroll"}
+            submitIcon={<BadgeCheck size={15} />}
+            submitVariant="giving"
+            onCancel={() => setShowModal(false)}
+            onSubmit={handleEnrollAndPay}
+            top={
+              <div className="rounded-[10px] bg-purple-light/40 px-4 py-3 text-sm">
+                <p className="font-heading font-semibold text-slate">{selectedCourse?.name}</p>
+                <p className="text-[12px] text-gray-text">Duration: {selectedCourse?.duration}</p>
+                {selectedCourse?.pricing.isFree ? (
                   <p className="mt-1 font-heading text-[13px] font-bold text-purple">
-                    Fee: {selectedCourse?.feeCurrency}
-                    {selectedCourse?.pricing.effectiveFee.toLocaleString()}
-                    {selectedCourse?.pricing.isDiscountActive && (
-                      <span className="ml-2 font-body text-[12px] font-normal text-gray-text line-through">
-                        {selectedCourse.feeCurrency}
-                        {(selectedCourse.pricing.baseFee ?? 0).toLocaleString()}
-                      </span>
-                    )}
+                    Fee: Free — no payment required
                   </p>
-                  {selectedCourse?.pricing.isDiscountActive && (
-                    <p className="text-[12px] text-purple">
-                      {selectedCourse.pricing.activeDiscountPercent}% off
-                      {selectedCourse.pricing.discountEndsAt
-                        ? ` until ${new Date(selectedCourse.pricing.discountEndsAt).toLocaleDateString()}`
-                        : ""}
+                ) : (
+                  <>
+                    <p className="text-[12px] text-gray-text">Paid by bank transfer after you register.</p>
+                    <p className="mt-1 font-heading text-[13px] font-bold text-purple">
+                      Fee: {selectedCourse?.feeCurrency}
+                      {selectedCourse?.pricing.effectiveFee.toLocaleString()}
+                      {selectedCourse?.pricing.isDiscountActive && (
+                        <span className="ml-2 font-body text-[12px] font-normal text-gray-text line-through">
+                          {selectedCourse.feeCurrency}
+                          {(selectedCourse.pricing.baseFee ?? 0).toLocaleString()}
+                        </span>
+                      )}
                     </p>
-                  )}
-                </>
-              )}
-            </div>
-
-            <Input
-              id="name"
-              label="Full Name"
-              placeholder="Your full name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-            <Input
-              id="email"
-              label="Email Address"
-              type="email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-            />
-            <Input
-              id="phone"
-              label="Phone Number"
-              type="tel"
-              placeholder="+234..."
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              required
-            />
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                className="flex-1"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="giving" className="flex-1 justify-center gap-2">
-                <BadgeCheck size={15} />
-                {selectedCourse?.pricing.isFree ? "Enroll Free" : "Enroll"}
-              </Button>
-            </div>
-          </form>
-        )}
+                    {selectedCourse?.pricing.isDiscountActive && (
+                      <p className="text-[12px] text-purple">
+                        {selectedCourse.pricing.activeDiscountPercent}% off
+                        {selectedCourse.pricing.discountEndsAt
+                          ? ` until ${new Date(selectedCourse.pricing.discountEndsAt).toLocaleDateString()}`
+                          : ""}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            }
+          />
+        ) : null}
       </Modal>
     </div>
   );

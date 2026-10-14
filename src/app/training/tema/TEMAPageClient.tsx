@@ -4,7 +4,6 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionIntro from "@/components/ui/SectionIntro";
 import Eyebrow from "@/components/ui/Eyebrow";
 import MediaFrame from "@/components/ui/MediaFrame";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/Motion";
 import { SkeletonGroup } from "@/components/ui/Skeleton";
@@ -33,7 +32,8 @@ import {
 import { training, TrainingCourse } from "@/lib/api";
 import { getCourseAvailability } from "@/lib/training-availability";
 import { useToast } from "@/components/ui/Toast";
-import { FormGuardFields } from "@/components/forms/FormGuardFields";
+import FormRenderer, { type FormSubmission } from "@/components/forms/FormRenderer";
+import { useRegistrationForm } from "@/lib/registration-form";
 
 // Icons are a purely visual, code-driven lookup — new courses an admin creates
 // later just fall back to the generic Sparkles icon.
@@ -92,6 +92,8 @@ const heroStats = [
 export default function TEMAPageClient() {
   const [courses, setCourses] = useState<TrainingCourse[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
+  const { config: formConfig, status: formStatus } = useRegistrationForm("TEMA");
+  const [courseId, setCourseId] = useState("");
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [videoMuted, setVideoMuted] = useState(true);
@@ -174,20 +176,19 @@ export default function TEMAPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(r: FormSubmission) {
     setLoading(true);
     try {
-      const formData = new FormData(e.currentTarget);
       await training.enrollTraining("TEMA", {
-        name: formData.get("name") as string,
-        email: formData.get("email") as string,
-        phone: formData.get("phone") as string,
-        courseId: formData.get("course") as string,
+        name: r.core.name ?? "",
+        email: r.core.email ?? "",
+        phone: r.core.phone ?? "",
+        courseId,
+        additionalInfo: { custom: r.answers },
       });
       success("Enrollment successful! Welcome to TEMA.");
       setEnrolled(true);
-      (e.target as HTMLFormElement).reset();
+      setCourseId("");
     } catch (err) {
       error(err instanceof Error ? err.message : "Failed to enroll. Please try again.");
     } finally {
@@ -601,35 +602,43 @@ export default function TEMAPageClient() {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
-                <FormGuardFields />
-                <Input id="name" name="name" placeholder="Full Name" required />
-                <Input id="email" name="email" type="email" placeholder="Email Address" required />
-                <Input id="phone" name="phone" type="tel" placeholder="Phone Number" required />
-                <select
-                  id="course"
-                  name="course"
-                  // The disabled first option is a placeholder, not a name —
-                  // screen readers announced this control as unlabelled.
-                  aria-label="Select a program"
-                  required
-                  defaultValue=""
-                  className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] transition-colors placeholder:text-[#8A8A90] focus:border-[#C9A84C] focus:outline-none"
-                >
-                  <option value="" disabled>
-                    Select a program...
-                  </option>
-                  {courses.map((course) => (
-                    <option key={course.id} value={course.id} disabled={!isJoinable(course)}>
-                      {course.name}
-                      {!isJoinable(course) ? ` (${getCourseAvailability(course).shortLabel})` : ""}
-                    </option>
-                  ))}
-                </select>
-                <Button type="submit" variant="giving" className="mt-1 w-full" disabled={loading}>
-                  {loading ? "Submitting..." : "Take the Step"}
-                </Button>
-              </form>
+              formConfig && (
+                <FormRenderer
+                  config={formConfig}
+                  compact
+                  className="mt-7 flex flex-col gap-4"
+                  disabled={loading || formStatus === "loading"}
+                  submitLabel={loading ? "Submitting..." : "Take the Step"}
+                  submitVariant="giving"
+                  submitClassName="mt-1 w-full"
+                  onSubmit={handleSubmit}
+                  after={{
+                    phone: (
+                      <select
+                        id="course"
+                        name="course"
+                        // The disabled first option is a placeholder, not a name —
+                        // screen readers announced this control as unlabelled.
+                        aria-label="Select a program"
+                        required
+                        value={courseId}
+                        onChange={(e) => setCourseId(e.target.value)}
+                        className="w-full rounded-[8px] border-2 border-[#E8E6F0] bg-white px-4 py-2.5 font-body text-sm text-[#0E0B1E] transition-colors placeholder:text-[#8A8A90] focus:border-[#C9A84C] focus:outline-none"
+                      >
+                        <option value="" disabled>
+                          Select a program...
+                        </option>
+                        {courses.map((course) => (
+                          <option key={course.id} value={course.id} disabled={!isJoinable(course)}>
+                            {course.name}
+                            {!isJoinable(course) ? ` (${getCourseAvailability(course).shortLabel})` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    ),
+                  }}
+                />
+              )
             )}
           </div>
         </div>
