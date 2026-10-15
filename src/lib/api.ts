@@ -1062,8 +1062,11 @@ export const intentionalityClass = {
       method: "DELETE",
     }),
 
-  adminGetEnrollments: (courseId?: string) =>
-    fetchAPI<any[]>(`/admin/class/enrollments${courseId ? `?courseId=${courseId}` : ""}`),
+  adminGetEnrollments: (courseId?: string, page = 1, limit = 100) => {
+    const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (courseId) qs.set("courseId", courseId);
+    return fetchAPI<any[]>(`/admin/class/enrollments?${qs.toString()}`);
+  },
 
   adminDeleteCourse: (courseId: string) =>
     fetchAPI<{ message: string }>(`/admin/class/courses/${courseId}`, { method: "DELETE" }),
