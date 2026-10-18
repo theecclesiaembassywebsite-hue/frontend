@@ -16,7 +16,8 @@ const safeEqual = (a: string, b: string) => {
 };
 
 export async function POST(request: Request) {
-  const secret = process.env.REVALIDATE_SECRET;
+  // Trimmed: a secret piped in through a shell can carry a trailing newline.
+  const secret = process.env.REVALIDATE_SECRET?.trim();
   const provided = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
   if (!secret || !safeEqual(provided, secret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

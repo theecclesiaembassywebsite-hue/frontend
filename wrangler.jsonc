@@ -13,6 +13,12 @@
     "binding": "ASSETS"
   },
 
+  // Page + tag cache for ISR and on-demand revalidation (see open-next.config.ts).
+  "kv_namespaces": [
+    { "binding": "NEXT_INC_CACHE_KV", "id": "2c11bc3484d14a849600dc52018f513b" },
+    { "binding": "NEXT_TAG_CACHE_KV", "id": "e20aa19dfcc0472c87e7d448d02bc05e" }
+  ],
+
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
