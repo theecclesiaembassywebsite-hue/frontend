@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { auth, persistTokenIfEnabled, removeToken, type User } from "./api";
+import { auth, persistTokenIfEnabled, removeToken, setCacheScope, type User } from "./api";
 
 interface AuthContextType {
   user: User | null;
@@ -42,9 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initAuth = async () => {
       try {
         const currentUser = await auth.getMe();
+        setCacheScope(currentUser?.id ?? null);
         setUser(currentUser);
       } catch {
         removeToken();
+        setCacheScope(null);
         setUser(null);
       } finally {
         setLoading(false);
@@ -61,9 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // when NEXT_PUBLIC_STORE_TOKEN is on. persistTokenIfEnabled owns that
       // decision for every sign-in path.
       persistTokenIfEnabled(response.access_token || response.token);
+      setCacheScope(response.user?.id ?? null);
       setUser(response.user);
     } catch (error) {
       removeToken();
+      setCacheScope(null);
       setUser(null);
       throw error;
     }
@@ -78,9 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await auth.register(data);
       persistTokenIfEnabled(response.access_token || response.token);
+      setCacheScope(response.user?.id ?? null);
       setUser(response.user);
     } catch (error) {
       removeToken();
+      setCacheScope(null);
       setUser(null);
       throw error;
     }
@@ -89,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Calls backend to clear the httpOnly cookie, then wipes localStorage token
   const logout = async () => {
     await auth.logout();
+    setCacheScope(null);
     setUser(null);
   };
 

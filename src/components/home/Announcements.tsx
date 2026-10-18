@@ -19,12 +19,22 @@ interface Announcement {
   createdAt: string;
 }
 
-export default function Announcements() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Announcements({
+  initialAnnouncements = null,
+}: {
+  // The server-rendered, cached list. When absent (the server's fetch failed)
+  // the component fetches for itself.
+  initialAnnouncements?: Announcement[] | null;
+}) {
+  const hasInitial = Array.isArray(initialAnnouncements);
+  const [announcements, setAnnouncements] = useState<Announcement[]>(
+    hasInitial ? initialAnnouncements.slice(0, 3) : []
+  );
+  const [loading, setLoading] = useState(!hasInitial);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (hasInitial) return;
     const fetchAnnouncements = async () => {
       try {
         setLoading(true);
@@ -40,7 +50,7 @@ export default function Announcements() {
     };
 
     fetchAnnouncements();
-  }, []);
+  }, [hasInitial]);
 
   const formatDate = (announcement: Announcement) => {
     const dateStr = announcement.publishDate || announcement.createdAt;

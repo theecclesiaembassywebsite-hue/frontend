@@ -74,6 +74,56 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const backoffMs = (attempt: number) => Math.min(400 * 2 ** (attempt - 1), 6000) + Math.random() * 200;
 
+// ---------------------------------------------------------------------------
+// GET cache (public + per-user)
+//
+// Identical GETs within a short window share one response, and concurrent ones
+// share one in-flight request, so components and tab navigation don't each call
+// the backend.
+//
+//  - Anonymous GETs (noAuth) are the same for everyone: shared, 30s.
+//  - Signed-in GETs are cached per user: keyed by the id set via setCacheScope,
+//    20s. With no scope (not signed in, or identity not yet known) they are
+//    never cached, so one user's data can't be served to another.
+//  - /auth/me is cached 60s: the auth provider re-checks it on every route change.
+//
+// Any non-GET request clears everything, so a user's own edits show up at once;
+// signing in or out changes the scope, which drops the previous user's entries.
+// ---------------------------------------------------------------------------
+const PUBLIC_CACHE_TTL_MS = 30_000;
+const PRIVATE_CACHE_TTL_MS = 20_000;
+const ME_CACHE_TTL_MS = 60_000;
+// Time-sensitive or single-use responses must always be fetched fresh.
+const UNCACHEABLE_PATH =
+  /\/(download|access|verify|stream)\b|^\/livestream|^\/payments?\b|^\/nation\/(messages|notifications)/;
+const getCache = new Map<string, { at: number; ttl: number; promise: Promise<unknown> }>();
+let cacheScope: string | null = null;
+
+/** Call with the signed-in user's id, or null on sign-out / unknown identity. */
+export const setCacheScope = (scope: string | null): void => {
+  if (scope === cacheScope) return;
+  cacheScope = scope;
+  for (const key of getCache.keys()) {
+    if (key.startsWith("u:")) getCache.delete(key);
+  }
+  // Signing out invalidates the cached "who am I" too.
+  if (scope === null) getCache.delete("me");
+};
+
+const cachedGet = <T>(key: string, ttl: number, run: () => Promise<T>): Promise<T> => {
+  const hit = getCache.get(key);
+  if (hit && Date.now() - hit.at < hit.ttl) {
+    return (hit.promise as Promise<T>).then((value) => cloneFallback(value));
+  }
+  const promise = run();
+  getCache.set(key, { at: Date.now(), ttl, promise });
+  // Never keep a failure: the next caller should retry.
+  promise.catch(() => {
+    if (getCache.get(key)?.promise === promise) getCache.delete(key);
+  });
+  return promise.then((value) => cloneFallback(value));
+};
+
 // Public forms carry bot-defence fields (honeypot, fill time, captcha token),
 // merged in here so no form can forget them. See lib/form-guard.
 export const fetchAPI = async <T>(
@@ -81,6 +131,13 @@ export const fetchAPI = async <T>(
   options: FetchOptions = {}
 ): Promise<T> => {
   const method = (options.method || "GET").toUpperCase();
+  if (method !== "GET") getCache.clear();
+  if (method === "GET" && !UNCACHEABLE_PATH.test(endpoint)) {
+    const run = () => doFetchAPI<T>(endpoint, options);
+    if (options.noAuth) return cachedGet(`p:${endpoint}`, PUBLIC_CACHE_TTL_MS, run);
+    if (endpoint === "/auth/me") return cachedGet("me", ME_CACHE_TTL_MS, run);
+    if (cacheScope) return cachedGet(`u:${cacheScope}:${endpoint}`, PRIVATE_CACHE_TTL_MS, run);
+  }
   if (!isGuardedRequest(endpoint, method)) return doFetchAPI<T>(endpoint, options);
   const body = withFormGuard(options.body);
   try {
@@ -412,6 +469,7 @@ export const auth = {
   logout: async () => {
     await fetchAPI<void>("/auth/logout", { method: "POST" }).catch(() => {});
     removeToken();
+    setCacheScope(null);
   },
 };
 

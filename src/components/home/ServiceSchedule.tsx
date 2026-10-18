@@ -163,10 +163,18 @@ function ServiceTabButton({
   );
 }
 
-export default function ServiceSchedule() {
+export default function ServiceSchedule({
+  initialServices = null,
+}: {
+  // The server-rendered, cached schedule. When it is absent (the server's
+  // fetch failed) the component fetches for itself.
+  initialServices?: ServiceEntry[] | null;
+}) {
   // null until the backend answers, so a hidden service is never flashed or
   // baked into the prerendered HTML. Defaults are only for a failed request.
-  const [serviceList, setServices] = useState<ServiceEntry[] | null>(null);
+  const [serviceList, setServices] = useState<ServiceEntry[] | null>(() =>
+    Array.isArray(initialServices) ? mergeServices(initialServices) : null
+  );
   const services = serviceList ?? [];
   const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -182,6 +190,7 @@ export default function ServiceSchedule() {
   }, []);
 
   useEffect(() => {
+    if (Array.isArray(initialServices)) return;
     serviceSchedule
       .getPublicStrict()
       .then((data) => {
@@ -192,7 +201,7 @@ export default function ServiceSchedule() {
       .catch(() => {
         setServices(DEFAULT_SERVICES);
       });
-  }, []);
+  }, [initialServices]);
 
   const activeServiceKey =
     selectedServiceKey !== null &&
