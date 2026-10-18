@@ -77,11 +77,11 @@ const waitForMerge = () =>
 describe('ServiceSchedule', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('renders the default tabs immediately, before the API resolves', () => {
+  it('renders no tabs before the API resolves, so a hidden service never flashes', () => {
     // Never resolves — simulates slow network
     ;(serviceSchedule.getPublicStrict as Mock).mockReturnValue(new Promise(() => {}))
     render(<ServiceSchedule />)
-    expectTabsToBe(DEFAULT_SERVICE_NAMES)
+    expect(screen.queryAllByRole('button')).toHaveLength(0)
   })
 
   it('falls back to the default tabs when the API errors', async () => {

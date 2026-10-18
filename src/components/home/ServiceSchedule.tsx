@@ -164,7 +164,10 @@ function ServiceTabButton({
 }
 
 export default function ServiceSchedule() {
-  const [services, setServices] = useState<ServiceEntry[]>(DEFAULT_SERVICES);
+  // null until the backend answers, so a hidden service is never flashed or
+  // baked into the prerendered HTML. Defaults are only for a failed request.
+  const [serviceList, setServices] = useState<ServiceEntry[] | null>(null);
+  const services = serviceList ?? [];
   const [selectedServiceKey, setSelectedServiceKey] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 

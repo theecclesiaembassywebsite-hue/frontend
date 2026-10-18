@@ -59,7 +59,7 @@ const contactDetails = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const [weeklyRhythm, setWeeklyRhythm] = useState<string[]>(DEFAULT_WEEKLY_RHYTHM);
+  const [weeklyRhythm, setWeeklyRhythm] = useState<string[]>([]);
 
   useEffect(() => {
     // Mirror the admin schedule so hidden services don't linger here.
@@ -77,7 +77,7 @@ export default function Footer() {
             )
         );
       })
-      .catch(() => {});
+      .catch(() => setWeeklyRhythm(DEFAULT_WEEKLY_RHYTHM));
   }, []);
 
   return (
