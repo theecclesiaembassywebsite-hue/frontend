@@ -82,52 +82,28 @@ const getFallbackRank = (service: ServiceEntry) => {
   return index === -1 ? Number.MAX_SAFE_INTEGER : index;
 };
 
-const getSlotKey = (service: ServiceEntry) =>
-  `${(service.day || "").trim().toLowerCase()}|${(service.time || "").trim().toLowerCase()}`;
-
-const mergeServices = (incoming: ServiceEntry[]) => {
-  const merged = new Map<string, ServiceEntry>();
-
-  for (const service of DEFAULT_SERVICES) {
-    merged.set(getLookupKey(service.name), service);
-  }
-
-  const matchedDefaultKeys = new Set<string>();
-
-  for (const rawService of incoming) {
-    if (!rawService?.name) continue;
-
-    const lookupKey = getLookupKey(rawService.name);
-    const fallback = merged.get(lookupKey);
-    if (fallback) matchedDefaultKeys.add(lookupKey);
-
-    merged.set(lookupKey, {
-      ...fallback,
-      ...rawService,
-      id: rawService.id || fallback?.id,
-      day: rawService.day || fallback?.day || "",
-      dayLabel: rawService.dayLabel ?? fallback?.dayLabel,
-      name: rawService.name || fallback?.name || "",
-      time: rawService.time != null ? rawService.time : (fallback?.time ?? ""),
-      description: rawService.description || fallback?.description || "",
-      note: rawService.note ?? fallback?.note,
-      order: rawService.order ?? fallback?.order,
-    });
-  }
-
-  // A backend entry saved under a different name than its matching default
-  // (e.g. an admin created a new record instead of editing the original)
-  // still occupies the same day/time slot — drop the stale, unmatched
-  // default so the same service doesn't render as two separate tabs.
-  const incomingSlots = new Set(
-    incoming.filter((s) => s?.name).map(getSlotKey)
-  );
-
-  return Array.from(merged.values())
-    .filter((service) => {
-      const isUnmatchedDefault = !matchedDefaultKeys.has(getLookupKey(service.name))
-        && !incoming.some((s) => s?.name && getLookupKey(s.name) === getLookupKey(service.name));
-      return !(isUnmatchedDefault && incomingSlots.has(getSlotKey(service)));
+// The backend list is authoritative: a service an admin hides is simply absent
+// from it, so defaults only fill in details (note, fallback copy) for services
+// the backend returned — they never resurrect missing ones.
+const mergeServices = (incoming: ServiceEntry[]) =>
+  incoming
+    .filter((service) => service?.name)
+    .map((rawService): ServiceEntry => {
+      const fallback = DEFAULT_SERVICES.find(
+        (service) => getLookupKey(service.name) === getLookupKey(rawService.name)
+      );
+      return {
+        ...fallback,
+        ...rawService,
+        id: rawService.id || fallback?.id,
+        day: rawService.day || fallback?.day || "",
+        dayLabel: rawService.dayLabel ?? fallback?.dayLabel,
+        name: rawService.name,
+        time: rawService.time != null ? rawService.time : (fallback?.time ?? ""),
+        description: rawService.description || fallback?.description || "",
+        note: rawService.note ?? fallback?.note,
+        order: rawService.order ?? fallback?.order,
+      };
     })
     .sort((left, right) => {
       const leftOrder = left.order ?? getFallbackRank(left);
@@ -136,7 +112,6 @@ const mergeServices = (incoming: ServiceEntry[]) => {
         ? leftOrder - rightOrder
         : left.name.localeCompare(right.name);
     });
-};
 
 function ServiceTabButton({
   service,
@@ -205,9 +180,9 @@ export default function ServiceSchedule() {
 
   useEffect(() => {
     serviceSchedule
-      .getPublic()
+      .getPublicStrict()
       .then((data) => {
-        if (data && data.length > 0) {
+        if (Array.isArray(data)) {
           setServices(mergeServices(data as ServiceEntry[]));
         }
       })
@@ -225,6 +200,8 @@ export default function ServiceSchedule() {
   const selectedService = activeServiceKey
     ? services.find((service) => getServiceKey(service) === activeServiceKey)
     : null;
+
+  if (services.length === 0) return null;
 
   return (
     <SectionWrapper variant="dark-slate">

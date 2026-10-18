@@ -49,7 +49,7 @@ export default function CommunityPageClient() {
   const [upcomingServices, setUpcomingServices] = useState<{ name: string; time: string; date: Date }[]>([]);
 
   useEffect(() => {
-    serviceSchedule.getPublic().then((data) => {
+    serviceSchedule.getPublicStrict().then((data) => {
       if (!data?.length) return;
       const now = new Date();
       const mapped = (data as any[])

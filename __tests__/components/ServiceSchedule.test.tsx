@@ -12,7 +12,7 @@ vi.mock('@/components/ui/Motion', () => ({
 }))
 
 vi.mock('@/lib/api', () => ({
-  serviceSchedule: { getPublic: vi.fn() },
+  serviceSchedule: { getPublicStrict: vi.fn() },
 }))
 
 // Import after mocks are registered
@@ -79,51 +79,47 @@ describe('ServiceSchedule', () => {
 
   it('renders the default tabs immediately, before the API resolves', () => {
     // Never resolves — simulates slow network
-    ;(serviceSchedule.getPublic as Mock).mockReturnValue(new Promise(() => {}))
+    ;(serviceSchedule.getPublicStrict as Mock).mockReturnValue(new Promise(() => {}))
     render(<ServiceSchedule />)
     expectTabsToBe(DEFAULT_SERVICE_NAMES)
   })
 
   it('falls back to the default tabs when the API errors', async () => {
-    ;(serviceSchedule.getPublic as Mock).mockRejectedValue(new Error('network'))
+    ;(serviceSchedule.getPublicStrict as Mock).mockRejectedValue(new Error('network'))
     render(<ServiceSchedule />)
     // Defaults render synchronously; after rejection they should be unchanged
     await waitFor(() => expectTabsToBe(DEFAULT_SERVICE_NAMES))
   })
 
-  it('merges the backend services over the defaults without duplicating a tab', async () => {
-    ;(serviceSchedule.getPublic as Mock).mockResolvedValue(BACKEND_SERVICES)
+  it('shows exactly the backend services, not the defaults', async () => {
+    ;(serviceSchedule.getPublicStrict as Mock).mockResolvedValue(BACKEND_SERVICES)
     render(<ServiceSchedule />)
 
-    // Wait for the merged data specifically, not just for "some tabs".
-    //
-    // The component renders DEFAULT_SERVICES synchronously, so a bare
-    // `waitFor(() => expectTabsToBe(...))` is satisfied by the very first
-    // render and returns before the API promise has even resolved — it would
-    // pass identically with the merge logic deleted. The backend's "As Unto
-    // The Lord" carries a time the default deliberately leaves blank, so that
-    // label appearing is proof the payload actually landed.
+    // The backend "As Unto The Lord" has a time the default leaves blank, so
+    // this label only exists once the payload has landed.
     await waitForMerge()
 
-    // Every backend service matches a default by name, so each must collapse
-    // into one tab rather than rendering alongside the default it replaces.
-    expectTabsToBe(DEFAULT_SERVICE_NAMES)
+    expectTabsToBe(['Word & Life Service', 'Prayer Service', 'Worship Service', 'As Unto The Lord'])
   })
 
-  it('keeps a default service the backend payload omits', async () => {
-    // BACKEND_SERVICES has no Healing Incense entry. An admin editing the four
-    // services they curate must not silently drop a service the backend simply
-    // doesn't know about — the defaults are a floor, not a placeholder.
-    ;(serviceSchedule.getPublic as Mock).mockResolvedValue(BACKEND_SERVICES)
+  it('does not resurrect a default the admin hid (absent from the backend list)', async () => {
+    ;(serviceSchedule.getPublicStrict as Mock).mockResolvedValue(BACKEND_SERVICES)
     render(<ServiceSchedule />)
 
     await waitForMerge()
 
-    expect(screen.getAllByText(/^Healing Incense Service$/i)).toHaveLength(1)
+    expect(screen.queryByText(/^Healing Incense Service$/i)).toBeNull()
+  })
+
+  it('hides the whole section when every service is hidden', async () => {
+    ;(serviceSchedule.getPublicStrict as Mock).mockResolvedValue([])
+    render(<ServiceSchedule />)
+
+    await waitFor(() => expect(screen.queryAllByRole('button')).toHaveLength(0))
   })
 
   it('does not duplicate Worship Service when backend name matches default', async () => {
-    ;(serviceSchedule.getPublic as Mock).mockResolvedValue(BACKEND_SERVICES)
+    ;(serviceSchedule.getPublicStrict as Mock).mockResolvedValue(BACKEND_SERVICES)
     render(<ServiceSchedule />)
     // Should appear exactly once — in the tab button, not also as a second entry
     await waitFor(() => {
@@ -133,7 +129,7 @@ describe('ServiceSchedule', () => {
   })
 
   it('clicking a tab updates the detail card heading', async () => {
-    ;(serviceSchedule.getPublic as Mock).mockResolvedValue(BACKEND_SERVICES)
+    ;(serviceSchedule.getPublicStrict as Mock).mockResolvedValue(BACKEND_SERVICES)
     render(<ServiceSchedule />)
     await waitFor(() => screen.getAllByRole('button'))
 
@@ -143,7 +139,7 @@ describe('ServiceSchedule', () => {
   })
 
   it('clicking Word & Life Service marks it active and shows it in the detail card', async () => {
-    ;(serviceSchedule.getPublic as Mock).mockResolvedValue(BACKEND_SERVICES)
+    ;(serviceSchedule.getPublicStrict as Mock).mockResolvedValue(BACKEND_SERVICES)
     render(<ServiceSchedule />)
     await waitFor(() => screen.getAllByRole('button'))
 

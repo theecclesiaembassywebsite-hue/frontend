@@ -1,9 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FadeIn, ShimmerLine } from "@/components/ui/Motion";
 import { Heart, Mail, MapPin, Phone } from "lucide-react";
+import { serviceSchedule } from "@/lib/api";
+
+const DEFAULT_WEEKLY_RHYTHM = [
+  "Sunday Word and Life Service · 8:00 AM",
+  "Tuesday Prayer Service · 5:30 PM",
+  "Friday Worship Service · 5:30 PM",
+];
 
 const siteLinks = [
   { label: "Home", href: "/" },
@@ -51,6 +59,26 @@ const contactDetails = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [weeklyRhythm, setWeeklyRhythm] = useState<string[]>(DEFAULT_WEEKLY_RHYTHM);
+
+  useEffect(() => {
+    // Mirror the admin schedule so hidden services don't linger here.
+    serviceSchedule
+      .getPublicStrict()
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        setWeeklyRhythm(
+          [...data]
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+            .map(
+              (svc) =>
+                `${[svc.day, svc.dayLabel].filter(Boolean).join(" ")} ${svc.name}` +
+                (svc.time ? ` · ${svc.time}` : "")
+            )
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <footer className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.16),_transparent_30%),linear-gradient(180deg,_#120F20_0%,_#09071A_100%)] py-18 text-white">
@@ -125,9 +153,14 @@ export default function Footer() {
                     <p className="font-heading text-xs uppercase tracking-[0.18em] text-white/42">
                       Weekly Rhythm
                     </p>
-                    <p className="mt-2 font-body text-sm text-white/74">Sunday Word and Life Service · 8:00 AM</p>
-                    <p className="font-body text-sm text-white/74">Tuesday Prayer Service · 5:30 PM</p>
-                    <p className="font-body text-sm text-white/74">Friday Worship Service · 5:30 PM</p>
+                    {weeklyRhythm.map((line, index) => (
+                      <p
+                        key={line}
+                        className={`font-body text-sm text-white/74${index === 0 ? " mt-2" : ""}`}
+                      >
+                        {line}
+                      </p>
+                    ))}
                   </div>
 
                   <div className="space-y-3 border-t border-white/10 pt-4">

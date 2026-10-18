@@ -338,7 +338,7 @@ export default function LivePageClient() {
 
     const fetchServices = async () => {
       try {
-        const data = await serviceSchedule.getPublic();
+        const data = await serviceSchedule.getPublicStrict();
         if (!isMounted) return;
         setServices(data ?? []);
       } catch {

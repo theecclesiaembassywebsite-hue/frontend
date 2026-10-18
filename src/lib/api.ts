@@ -537,6 +537,11 @@ export const serviceSchedule = {
       DEFAULT_SERVICE_SCHEDULE
     ),
 
+  // Authoritative list: no fallback, so an empty array (every service hidden)
+  // stays empty and a failed request rejects. Callers decide what to show.
+  getPublicStrict: () =>
+    fetchAPI<any[]>("/service-schedule", { noAuth: true }),
+
   adminGetAll: () =>
     fetchAPI<any[]>("/service-schedule/admin"),
 
