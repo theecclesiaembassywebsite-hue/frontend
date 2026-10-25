@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Radio, Calendar, Wifi, WifiOff, RefreshCw } from "lucide-react";
+import { Radio, Calendar, Wifi, WifiOff, RefreshCw, Tv } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import HlsPlayer from "@/components/live/HlsPlayer";
+import RadioPlayer from "@/components/live/RadioPlayer";
 import { livestream } from "@/lib/api";
+import { normalizeStreamUrl } from "@/lib/streams";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { normalizeEmbedUrl } from "@/lib/utils";
@@ -80,6 +83,12 @@ function AdminLiveStreamContent() {
   const [isLive, setIsLive] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
   const [nextService, setNextService] = useState("");
+  const [tvUrl, setTvUrl] = useState("");
+  // The preview follows the field on blur, not on every keystroke: each valid-
+  // looking intermediate value would otherwise reload the stream.
+  const [tvPreviewUrl, setTvPreviewUrl] = useState("");
+  const [radioUrl, setRadioUrl] = useState("");
+  const [savingChannels, setSavingChannels] = useState(false);
   const [saving, setSaving] = useState(false);
   const { success, error } = useToast();
 
@@ -90,6 +99,9 @@ function AdminLiveStreamContent() {
         setIsLive(data?.isLive || false);
         setEmbedUrl(data?.embedUrl || "");
         setNextService(data?.nextService || "");
+        setTvUrl(data?.tvUrl || "");
+        setTvPreviewUrl(normalizeStreamUrl(data?.tvUrl));
+        setRadioUrl(data?.radioUrl || "");
       } catch (err) {
         error("Failed to load livestream config");
         console.error(err);
@@ -151,6 +163,32 @@ function AdminLiveStreamContent() {
       console.error(err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Blank is allowed (it switches that channel off); anything else must be a
+  // usable https URL, because the public pages and the app ignore the rest.
+  const tvValid = normalizeStreamUrl(tvUrl);
+  const radioValid = normalizeStreamUrl(radioUrl);
+  const tvInvalid = tvUrl.trim() !== "" && !tvValid;
+  const radioInvalid = radioUrl.trim() !== "" && !radioValid;
+
+  const handleSaveChannels = async () => {
+    if (tvInvalid || radioInvalid) {
+      error("Stream links must start with https://");
+      return;
+    }
+    setSavingChannels(true);
+    try {
+      await livestream.updateChannels({ tvUrl: tvValid, radioUrl: radioValid });
+      setTvUrl(tvValid);
+      setRadioUrl(radioValid);
+      success("Ecclesia TV & Radio saved");
+    } catch (err) {
+      error("Failed to save Ecclesia TV & Radio");
+      console.error(err);
+    } finally {
+      setSavingChannels(false);
     }
   };
 
@@ -283,6 +321,85 @@ function AdminLiveStreamContent() {
             <p className="font-body text-sm text-error">Manual fallback is currently active</p>
           </div>
         )}
+      </div>
+
+      {/* Ecclesia TV & Radio */}
+      <div className="mt-10 rounded-[8px] border border-gray-border bg-white p-6 shadow-sm">
+        <h2 className="font-heading text-lg font-bold text-slate mb-1 flex items-center gap-2">
+          <Tv size={20} className="text-info" />
+          Ecclesia TV &amp; Radio
+        </h2>
+        <p className="text-body-small mb-6">
+          Our own 24/7 channels. Once a link is saved, the website and the app show
+          the matching Watch / Listen buttons; clear a link to switch that channel off.
+        </p>
+
+        <div className="space-y-6">
+          <div>
+            <label htmlFor="tv-url" className="block text-sm font-heading font-semibold text-slate mb-2">
+              Ecclesia TV link (HLS)
+            </label>
+            <input
+              id="tv-url"
+              type="url"
+              inputMode="url"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-3 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="https://tv.theecclesiaembassy.org/ecclesia-tv.m3u8"
+              value={tvUrl}
+              onChange={(e) => setTvUrl(e.target.value)}
+              onBlur={() => setTvPreviewUrl(normalizeStreamUrl(tvUrl))}
+              aria-invalid={tvInvalid}
+            />
+            {tvInvalid && (
+              <p className="mt-2 text-[11px] font-body text-error">
+                Must be a full https:// link to the .m3u8 playlist.
+              </p>
+            )}
+            {tvPreviewUrl && (
+              <div className="mt-3 max-w-xl">
+                <p className="text-[11px] text-gray-text mb-2">Preview (plays here, not saved until you press Save):</p>
+                <HlsPlayer src={tvPreviewUrl} title="Ecclesia TV preview" />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="radio-url" className="block text-sm font-heading font-semibold text-slate mb-2">
+              Ecclesia Radio link (audio stream)
+            </label>
+            <input
+              id="radio-url"
+              type="url"
+              inputMode="url"
+              className="w-full rounded-[4px] border border-gray-border bg-white px-3 py-3 font-body text-sm text-slate placeholder:text-gray-text focus:border-purple-vivid focus:ring-2 focus:ring-purple-vivid/15 focus:outline-none"
+              placeholder="https://radio.theecclesiaembassy.org/listen/ecclesia/radio.mp3"
+              value={radioUrl}
+              onChange={(e) => setRadioUrl(e.target.value)}
+              aria-invalid={radioInvalid}
+            />
+            {radioInvalid && (
+              <p className="mt-2 text-[11px] font-body text-error">
+                Must be a full https:// link to the audio stream.
+              </p>
+            )}
+            {radioValid && (
+              <div className="mt-3 max-w-xl rounded-[8px] bg-slate p-4">
+                <RadioPlayer key={radioValid} src={radioValid} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <Button
+            variant="primary"
+            className="px-6 py-2.5"
+            onClick={handleSaveChannels}
+            disabled={savingChannels || tvInvalid || radioInvalid}
+          >
+            {savingChannels ? "Saving..." : "Save TV & Radio"}
+          </Button>
+        </div>
       </div>
 
       {/* Quick Info */}

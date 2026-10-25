@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { io } from "socket.io-client";
-import { ExternalLink, Flame, Heart, Radio, Share2, X } from "lucide-react";
+import { ExternalLink, Flame, Heart, Radio, Share2, Tv, X } from "lucide-react";
 import { engagement, livestream, serviceSchedule } from "@/lib/api";
+import { normalizeStreamUrl } from "@/lib/streams";
 import { useAuth } from "@/lib/auth-context";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -17,6 +18,8 @@ interface LivestreamConfig {
   isLive?: boolean;
   embedUrl?: string;
   nextService?: string;
+  tvUrl?: string | null;
+  radioUrl?: string | null;
 }
 
 interface ServiceScheduleEntry {
@@ -642,6 +645,43 @@ export default function LivePageClient() {
           </div>
         </div>
       </section>
+
+      {/* Ecclesia TV & Radio — only once the channels are switched on */}
+      {(normalizeStreamUrl(config?.tvUrl) || normalizeStreamUrl(config?.radioUrl)) && (
+        <section className="bg-slate py-14 border-t border-white/8">
+          <div className="mx-auto max-w-[1240px] px-4 sm:px-6 md:px-8 text-center">
+            <p className="font-heading text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+              Between services
+            </p>
+            <h3 className="mt-4 font-heading text-2xl font-bold text-white md:text-3xl">
+              Ecclesia TV &amp; Radio
+            </h3>
+            <p className="mt-3 font-body text-sm text-white/60 max-w-lg mx-auto">
+              Programmes and worship, around the clock.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              {normalizeStreamUrl(config?.tvUrl) && (
+                <Link
+                  href="/tv"
+                  className="inline-flex items-center gap-2 rounded-full bg-gold px-8 py-3 font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-slate transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark"
+                >
+                  <Tv size={16} />
+                  Watch Ecclesia TV
+                </Link>
+              )}
+              {normalizeStreamUrl(config?.radioUrl) && (
+                <Link
+                  href="/radio"
+                  className="inline-flex items-center gap-2 rounded-full border border-gold/60 px-8 py-3 font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-gold transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold/10"
+                >
+                  <Radio size={16} />
+                  Listen to Ecclesia Radio
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Ecclesia Embassy Community CTA */}
       <section className="bg-[radial-gradient(circle_at_top,_rgba(201,168,76,0.18),_transparent_42%),linear-gradient(180deg,_#161129_0%,_#0E0B1E_100%)] py-14">

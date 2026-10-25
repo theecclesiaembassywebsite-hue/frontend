@@ -317,6 +317,8 @@ export const DEFAULT_LIVESTREAM_CONFIG = {
   isLive: false,
   embedUrl: "",
   nextService: null,
+  tvUrl: "",
+  radioUrl: "",
 };
 
 

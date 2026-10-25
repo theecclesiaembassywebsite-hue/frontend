@@ -1502,6 +1502,17 @@ export const livestream = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
+
+  // Ecclesia TV (HLS) and Ecclesia Radio stream URLs. An empty string clears
+  // one; leaving a field out keeps what is stored.
+  updateChannels: (data: { tvUrl?: string; radioUrl?: string }) =>
+    fetchAPI<{ tvUrl: string | null; radioUrl: string | null }>(
+      "/livestream/channels",
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    ),
 };
 
 // ENGAGEMENT ENDPOINTS

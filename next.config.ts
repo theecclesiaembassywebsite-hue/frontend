@@ -84,6 +84,10 @@ const csp = [
     apiWebSocketOrigin,
     "https://api.theecclesiaembassy.org",
     "wss://api.theecclesiaembassy.org",
+    // Ecclesia TV (tv.*): hls.js fetches the playlist and segments with
+    // fetch(), which connect-src governs even though media-src already allows
+    // https. Any subdomain of our own domain, so the stream host can move.
+    "https://*.theecclesiaembassy.org",
     "https://www.googleapis.com",
     "https://www.youtube.com",
     "https://www.youtube-nocookie.com",
