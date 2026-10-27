@@ -36,6 +36,7 @@ function AdminCITHContent() {
   const [hubs, setHubs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [joinRequests, setJoinRequests] = useState<any[]>([]);
+  const [ehubRegistrations, setEhubRegistrations] = useState<any[]>([]);
   const [filteredHubs, setFilteredHubs] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -96,15 +97,17 @@ function AdminCITHContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [hubsList, appsList, joinRequestsList] = await Promise.all([
+        const [hubsList, appsList, joinRequestsList, ehubList] = await Promise.all([
           cith.getAdminHubs(),
           cith.getAdminApplications(),
           cith.getAdminJoinRequests(),
+          cith.getAdminEhubRegistrations(),
         ]);
         setHubs(hubsList);
         setFilteredHubs(hubsList);
         setApplications(appsList);
         setJoinRequests(joinRequestsList || []);
+        setEhubRegistrations(ehubList || []);
       } catch (err) {
         error("Failed to load CITH data");
         console.error(err);
@@ -169,6 +172,17 @@ function AdminCITHContent() {
       success(approved ? "Join request approved" : "Join request rejected");
     } catch (err) {
       error(err instanceof Error ? err.message : "Failed to update join request");
+      console.error(err);
+    }
+  };
+
+  const handleReviewEhubRegistration = async (id: string, approved: boolean) => {
+    try {
+      await cith.reviewEhubRegistration(id, approved);
+      setEhubRegistrations(ehubRegistrations.filter((r) => r.id !== id));
+      success(approved ? "Marked as contacted" : "Registration dismissed");
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Failed to update registration");
       console.error(err);
     }
   };
@@ -587,6 +601,47 @@ function AdminCITHContent() {
         ))}
         {joinRequests.length === 0 && (
           <p className="font-body text-sm text-gray-text">No pending join requests.</p>
+        )}
+      </div>
+
+      {/* E-Hub Registrations */}
+      <h2 className="font-heading text-lg font-bold text-slate mt-8 mb-3">E-Hub Registrations</h2>
+      <div className="space-y-3">
+        {ehubRegistrations.map((reg) => (
+          <div key={reg.id} className="rounded-[8px] border border-gray-border bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-heading text-sm font-semibold text-slate">{reg.name}</span>
+                  <span className="rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-heading font-semibold text-warning">New</span>
+                  <SubmittedViaBadge source={reg.clientSource} />
+                </div>
+                <p className="font-body text-sm text-gray-text mb-1">
+                  <MapPin size={12} className="inline mr-1" />{reg.location} &middot; Registered {new Date(reg.createdAt || Date.now()).toLocaleDateString()}
+                </p>
+                <p className="font-body text-sm text-slate">{reg.email} &middot; {reg.phone}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="primary"
+                  className="text-[11px] py-1.5 px-3 min-w-0"
+                  onClick={() => handleReviewEhubRegistration(reg.id, true)}
+                >
+                  <CheckCircle size={12} className="mr-1" /> Mark Contacted
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="text-[11px] py-1.5 px-3 min-w-0 border text-error border-error hover:bg-error/10"
+                  onClick={() => handleReviewEhubRegistration(reg.id, false)}
+                >
+                  <XCircle size={12} className="mr-1" /> Dismiss
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {ehubRegistrations.length === 0 && (
+          <p className="font-body text-sm text-gray-text">No new e-Hub registrations.</p>
         )}
       </div>
 

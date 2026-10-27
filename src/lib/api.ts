@@ -807,6 +807,14 @@ export const cith = {
       noAuth: true,
     }),
 
+  getAdminEhubRegistrations: () => fetchAPI<any[]>("/admin/cith/ehub-registrations"),
+
+  reviewEhubRegistration: (id: string, approved: boolean) =>
+    fetchAPI<any>(`/admin/cith/ehub-registrations/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: approved ? "APPROVED" : "REJECTED" }),
+    }),
+
   applyHub: (data: {
     address: string;
     area: string;
