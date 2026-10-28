@@ -13,6 +13,8 @@ interface AuthContextType {
     password: string;
     firstName: string;
     lastName: string;
+    policyConsent: boolean;
+    policyVersion: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -78,6 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string;
     firstName: string;
     lastName: string;
+    policyConsent: boolean;
+    policyVersion: string;
   }) => {
     try {
       const response = await auth.register(data);

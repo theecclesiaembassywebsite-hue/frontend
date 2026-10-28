@@ -21,6 +21,11 @@ const passwordSchema = z
   .regex(/[0-9]/, 'Password must contain at least one number')
   .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
 
+// Bump whenever the Privacy Policy or Terms of Use change materially — must
+// match CURRENT_POLICY_VERSION in backend-main's auth.service.ts, and the
+// "Last reviewed" date on /privacy and /terms.
+const POLICY_VERSION = '2026-08-19';
+
 const signupSchema = z
   .object({
     firstName: z.string().min(1, 'First name is required'),
@@ -28,6 +33,9 @@ const signupSchema = z
     email: z.string().email('Please enter a valid email address'),
     password: passwordSchema,
     confirmPassword: z.string(),
+    policyConsent: z.literal(true, {
+      message: 'You must accept the Privacy Policy and Terms of Use',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -65,6 +73,8 @@ export default function SignupPage() {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
+        policyConsent: data.policyConsent,
+        policyVersion: POLICY_VERSION,
       });
 
       setIsSuccess(true);
@@ -400,6 +410,31 @@ export default function SignupPage() {
                 </div>
                 {errors.confirmPassword && (
                   <p className="text-error text-xs font-body mt-1">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+
+              {/* Consent */}
+              <div>
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-lavender text-purple-vivid focus:ring-purple-vivid"
+                    {...register('policyConsent')}
+                  />
+                  <span className="text-sm font-body text-gray-text leading-relaxed">
+                    I agree to the{' '}
+                    <Link href="/terms" target="_blank" className="text-purple-vivid underline underline-offset-2">
+                      Terms of Use
+                    </Link>{' '}
+                    and{' '}
+                    <Link href="/privacy" target="_blank" className="text-purple-vivid underline underline-offset-2">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </span>
+                </label>
+                {errors.policyConsent && (
+                  <p className="text-error text-xs font-body mt-1">{errors.policyConsent.message}</p>
                 )}
               </div>
 

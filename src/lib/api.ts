@@ -419,6 +419,8 @@ export const auth = {
     password: string;
     firstName: string;
     lastName: string;
+    policyConsent: boolean;
+    policyVersion: string;
   }) => fetchAPI<AuthResponse>("/auth/register", { method: "POST", body: JSON.stringify(data), noAuth: true }),
 
   login: (email: string, password: string) =>
@@ -499,6 +501,15 @@ export const profile = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
+
+  // "See what we hold" — see /privacy. Returns everything attached to the
+  // signed-in member's own account.
+  exportMyData: () => fetchAPI<Record<string, unknown>>("/profile/export-data"),
+
+  // "Delete it" — see /privacy/delete-account. Erases the account and
+  // everything the policy doesn't separately promise to retain.
+  deleteMyAccount: () =>
+    fetchAPI<{ message: string }>("/profile", { method: "DELETE" }),
 };
 
 // CONTACT ENDPOINTS

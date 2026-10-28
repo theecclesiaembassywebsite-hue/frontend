@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
@@ -11,6 +12,7 @@ import { useToast } from "@/components/ui/Toast";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 import { useAuth } from "@/lib/auth-context";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const PASSWORD_RULES_MESSAGE =
   "Must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.";
@@ -493,7 +495,101 @@ function ProfileEditContent() {
         <div className="mt-6">
           <ChangePasswordSection />
         </div>
+
+        <div className="mt-6">
+          <PrivacyDataSection />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function PrivacyDataSection() {
+  const { logout } = useAuth();
+  const router = useRouter();
+  const { success, error: showError } = useToast();
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      const data = await profileApi.exportMyData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ecclesia-embassy-my-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      success("Your data has been downloaded.");
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to export your data");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+      await profileApi.deleteMyAccount();
+      await logout();
+      router.push("/");
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to delete your account");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-[8px] border border-gray-border p-6 shadow-sm md:p-8">
+      <h2 className="font-heading text-lg font-bold text-slate mb-2">
+        Your data
+      </h2>
+      <p className="font-body text-sm text-gray-text mb-6">
+        See the{" "}
+        <Link href="/privacy" className="underline">
+          Privacy Policy
+        </Link>{" "}
+        for what each of these does and what&apos;s kept afterward.
+      </p>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => void handleExport()}
+          disabled={exporting}
+        >
+          {exporting ? "Preparing download..." : "Download my data"}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          className="border-error text-error hover:bg-error/5"
+          onClick={() => setConfirmOpen(true)}
+          disabled={deleting}
+        >
+          Delete my account
+        </Button>
+      </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete your account?"
+        description="This erases your account and profile right away and cannot be undone. Giving records are kept, anonymized, for seven years as required by law, and any testimony you published publicly stays up unless you ask us to remove it separately."
+        confirmLabel="Delete my account"
+        destructive
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
