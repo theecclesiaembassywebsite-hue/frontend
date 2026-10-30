@@ -28,6 +28,16 @@ const eslintConfig = defineConfig([
       ],
       "@next/next/no-img-element": "off",
       "react/no-unescaped-entities": "off",
+      // Turned on by the eslint-config-next minor bump (Oct 2026). They
+      // flagged 52 existing call sites at once: setState in effects, Date.now()
+      // during render, and deliberate full-page navigations (the auth callback
+      // reloads so new cookies apply). Off rather than "fixed" inside a
+      // dependency update; adopt them one at a time, each with its own change.
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/incompatible-library": "off",
+      "react-hooks/immutability": "off",
+      "@next/next/no-location-assign-relative-destination": "off",
     },
   },
   // Override default ignores of eslint-config-next.
