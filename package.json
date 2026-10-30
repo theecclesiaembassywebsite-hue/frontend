@@ -21,7 +21,7 @@
     "backend:test": "npm --prefix backend run test"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^5.9.2",
     "@radix-ui/react-alert-dialog": "^1.2.1",
     "@radix-ui/react-dropdown-menu": "^2.2.1",
     "@radix-ui/react-tabs": "^1.2.1",
@@ -30,7 +30,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "dompurify": "^3.4.11",
-    "framer-motion": "^12.38.0",
+    "framer-motion": "^12.43.0",
     "hls.js": "^1.7.3",
     "lucide-react": "^1.62.0",
     "next": "^16.2.3",
