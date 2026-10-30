@@ -1,0 +1,24 @@
+# Weekly dependency updates. PRs target staging, which is where changes land
+# before `git push origin staging:main` promotes them; a PR against main would
+# skip staging. Minor and patch bumps come as one grouped PR so the weekly
+# review is a single CI run; majors arrive one per package.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: staging
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # Workflow actions are pinned to SHAs; Dependabot keeps the SHA and the
+  # version comment in step.
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: staging
+    schedule:
+      interval: monthly

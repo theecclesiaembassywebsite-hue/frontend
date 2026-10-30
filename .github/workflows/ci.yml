@@ -1,0 +1,45 @@
+# Lint, typecheck and unit tests on every push and pull request.
+#
+# Vercel builds and deploys staging and main on push whether or not this
+# passes; it is a signal, not a gate, until branch protection requires it.
+# Production goes out as `git push origin staging:main`, so a red run on
+# staging is the cue not to promote.
+#
+# The Playwright suite (test:e2e) needs a running app and backend and stays
+# out of here.
+
+name: CI
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to commit SHAs, not tags: a tag can be moved, a SHA
+      # cannot.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Matches the Vercel project's Node version.
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint -- --max-warnings 0
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm test

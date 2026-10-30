@@ -222,10 +222,10 @@ export default function PostCard({
                 <button
                   key={r.type}
                   type="button"
-                  role="menuitem"
+                  role="menuitemradio"
                   title={r.label}
                   aria-label={r.label}
-                  aria-pressed={myReaction === r.type}
+                  aria-checked={myReaction === r.type}
                   onClick={() => react(r.type)}
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-xl transition-transform hover:scale-125 ${
                     myReaction === r.type ? "bg-lavender" : ""
