@@ -11,6 +11,13 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    # Majors are breaking by definition (@sentry/nextjs 11 removed the
+    # withSentryConfig export next.config.ts uses), so they are upgraded by hand
+    # rather than arriving as weekly PRs that cannot merge. Security fixes for
+    # any version still come through Dependabot security updates.
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
     groups:
       minor-and-patch:
         update-types: [minor, patch]
