@@ -54,8 +54,13 @@ const apiWebSocketOrigin = apiOrigin
 //     bootstrap and cannot simply be dropped. It does weaken the XSS story,
 //     so this policy earns its keep elsewhere: object-src 'none', base-uri
 //     'self', frame-ancestors 'none', and an explicit origin allowlist that
-//     stops an injected script from reaching an attacker's host. Moving to
-//     nonces is the real upgrade, and needs middleware.
+//     stops an injected script from reaching an attacker's host. Nonces would
+//     close it, but the Next docs are explicit that they force every page to
+//     render per request (no static pages, ISR or CDN caching), which is too
+//     high a price for this site. script-src-attr 'none' takes the cheaper
+//     half: inline <script> blocks stay allowed for the bootstrap, but inline
+//     event-handler attributes (onerror="…", the usual injected-markup
+//     payload) are refused. React never emits those, it attaches listeners.
 const csp = [
   "default-src 'self'",
   [
@@ -74,6 +79,7 @@ const csp = [
     "https://va.vercel-scripts.com",
     "https://challenges.cloudflare.com",
   ].join(" "),
+  "script-src-attr 'none'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
@@ -103,7 +109,7 @@ const csp = [
     "https://challenges.cloudflare.com",
     sentryIngestOrigin,
   ]
-    .filter(Boolean)
+    .filter((s, i, all) => s && all.indexOf(s) === i)
     .join(" "),
   "media-src 'self' blob: https:",
   // google.com is the Maps embed on /contact ("output=embed"), which the
