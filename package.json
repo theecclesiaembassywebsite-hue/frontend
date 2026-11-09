@@ -31,9 +31,9 @@
     "date-fns": "^4.4.0",
     "dompurify": "^3.4.11",
     "framer-motion": "^12.43.0",
-    "hls.js": "^1.7.3",
-    "lucide-react": "^1.62.0",
-    "next": "^16.2.3",
+    "hls.js": "^1.7.4",
+    "lucide-react": "^1.70.0",
+    "next": "^16.4.5",
     "radix-ui": "^1.8.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -45,9 +45,9 @@
   },
   "devDependencies": {
     "@eslint/compat": "2.1.1",
-    "@next/bundle-analyzer": "^16.4.3",
-    "@opennextjs/cloudflare": "^1.20.13",
-    "@playwright/test": "^1.64.1",
+    "@next/bundle-analyzer": "^16.4.5",
+    "@opennextjs/cloudflare": "^1.20.16",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.9.1",
@@ -56,14 +56,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-react": "^6.2.1",
     "axe-core": "^4.14.0",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.5",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.7",
-    "wrangler": "^4.114.0"
+    "wrangler": "^4.158.0"
   }
 }
