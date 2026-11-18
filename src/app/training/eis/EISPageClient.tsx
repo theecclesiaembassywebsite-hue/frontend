@@ -29,7 +29,7 @@ const admissionsHighlights = [
   {
     icon: Calendar,
     title: "Structured School Year",
-    desc: "Three terms per academic year, with clear rhythms for learning, breaks, and family planning.",
+    desc: "Three terms per academic year, with a clear schedule for learning, breaks, and family planning.",
   },
   {
     icon: Phone,

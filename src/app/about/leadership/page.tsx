@@ -252,7 +252,7 @@ export default function LeadershipPage() {
                 },
                 {
                   icon: Heart,
-                  text: "A consistent rhythm of prayer, discipleship, and care.",
+                  text: "A consistent walk of prayer, discipleship, and care.",
                 },
               ].map(({ icon: Icon, text }) => (
                 <article

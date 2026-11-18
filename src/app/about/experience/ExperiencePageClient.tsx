@@ -25,7 +25,7 @@ export default function ExperiencePageClient() {
         eyebrow="The Ecclesia Experience"
         title="What makes this community different"
         subtitle="Word, Warfare, and Worship — held together."
-        description="A nation with systems, language, and rhythms that help believers grow together, and a culture you can feel from the first gathering."
+        description="A nation with systems, language, and customs that help believers grow together, and a culture you can feel from the first gathering."
         backgroundImage="/site/experience-gathering.jpg"
         backgroundPosition="center 30%"
         compact
@@ -45,12 +45,12 @@ export default function ExperiencePageClient() {
 
           <div className="mt-10 space-y-6 font-body text-base leading-[1.8] text-gray-text md:text-[17px]">
             <p>
-              The Ecclesia Embassy is a nation with systems, language, and rhythms that help
+              The Ecclesia Embassy is a nation with systems, language, and culture that help
               believers grow together. At the centre of the movement are the three foundations
               God gave in 2016: the Word, Warfare (Prayer), and Worship.
             </p>
             <p>
-              That foundation shapes our weekly rhythm. Sundays give priority to the Word in our{" "}
+              That foundation shapes our weekly life. Sundays give priority to the Word in our{" "}
               <span className="font-semibold text-slate">Word &amp; Life Service</span>, Tuesdays
               to Prayer and Warfare in the{" "}
               <span className="font-semibold text-slate">Prayer Service</span>, and Fridays to

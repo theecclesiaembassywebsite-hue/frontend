@@ -334,7 +334,7 @@ function IntentionalityClassContent() {
             <SectionIntro
               eyebrow="Built for purposeful growth"
               title="Growth that is chosen, not drifted into"
-              description="The Intentionality Class is a foundational journey designed to help believers live with purpose and clarity. It strengthens spiritual foundation, shapes daily decisions, and forms a healthy rhythm of service and community."
+              description="The Intentionality Class is a foundational journey designed to help believers live with purpose and clarity. It strengthens spiritual foundation, shapes daily decisions, and forms a healthy pattern of kingdom service and community."
             />
             <div className="mt-9 grid gap-4 sm:grid-cols-3">
               {outcomeCards.map((card) => (

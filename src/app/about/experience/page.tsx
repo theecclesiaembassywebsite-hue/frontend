@@ -6,7 +6,7 @@ import ExperiencePageClient from "./ExperiencePageClient";
 export const metadata: Metadata = buildMetadata({
   title: "The Ecclesia Experience",
   description:
-    "Word, Warfare, and Worship held together — a nation with systems, language, and rhythms that help believers grow together.",
+    "Word, Warfare, and Worship held together — a nation with systems, language, and culture that help believers grow together.",
   path: "/about/experience",
 });
 

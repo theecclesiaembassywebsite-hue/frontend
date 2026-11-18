@@ -492,7 +492,7 @@ export default function KISOLAMPageClient() {
                 </div>
                 <div>
                   <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
-                    Academic rhythm
+                    Training season
                   </p>
                   <h2 className="font-heading text-[28px] font-bold text-white">DTD calendar</h2>
                 </div>

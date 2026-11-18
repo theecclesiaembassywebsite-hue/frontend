@@ -151,7 +151,7 @@ export default function Footer() {
                 <div className="space-y-4">
                   <div>
                     <p className="font-heading text-xs uppercase tracking-[0.18em] text-white/42">
-                      Weekly Rhythm
+                      Weekly Gatherings
                     </p>
                     {weeklyRhythm.map((line, index) => (
                       <p

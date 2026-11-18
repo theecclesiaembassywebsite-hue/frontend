@@ -95,7 +95,7 @@ export default function GrowPageClient() {
           <div className="mx-auto max-w-3xl text-center">
             <SectionHeading
               eyebrow="Ready?"
-              title="Let Sunday become the start of a deeper rhythm."
+              title="Let Sunday become the start of a deeper walk with God."
               description="Join us in person, meet the people of the house, and start building the kind of habits that sustain long-term growth."
               align="center"
               className="mx-auto"
