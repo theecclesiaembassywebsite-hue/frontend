@@ -4,6 +4,7 @@ import { buildMetadata, SITE_URL } from "@/lib/seo";
 import { blog } from "@/lib/api";
 import BlogDetailPageClient from "./BlogDetailPageClient";
 
+
 type Props = { params: Promise<{ slug: string }> };
 
 function excerptFrom(post: any): string {

@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import TEMAPageClient from "./TEMAPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "TEMA Academy",
   description:

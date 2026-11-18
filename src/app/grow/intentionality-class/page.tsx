@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buildMetadata } from "@/lib/seo";
 import IntentionalityClassPageClient from "./IntentionalityClassPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "The Intentionality Class",
   description:

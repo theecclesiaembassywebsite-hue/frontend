@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buildMetadata } from "@/lib/seo";
 import EISPageClient from "./EISPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "EIS — Ecclesia International School",
   description:

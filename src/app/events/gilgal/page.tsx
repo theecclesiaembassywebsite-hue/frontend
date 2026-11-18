@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buildMetadata, SITE_URL } from "@/lib/seo";
 import GilgalPageClient from "./GilgalPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Gilgal Camp Meeting",
   description:

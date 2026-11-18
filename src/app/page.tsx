@@ -5,6 +5,7 @@ import QuickLinks from "@/components/home/QuickLinks";
 import Announcements from "@/components/home/Announcements";
 import LatestMessage from "@/components/home/LatestMessage";
 
+
 export default function HomePage() {
   return (
     <>

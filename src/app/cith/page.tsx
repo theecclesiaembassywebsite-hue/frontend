@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import CITHPageClient from "./CITHPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "CITH Hubs",
   description:

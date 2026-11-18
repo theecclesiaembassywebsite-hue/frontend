@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buildMetadata } from "@/lib/seo";
 import KISOLAMPageClient from "./KISOLAMPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "KISOLAM — Kingdom International School of Life and Ministry",
   description:

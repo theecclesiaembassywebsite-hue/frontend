@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import VideoMessagesPageClient from "./VideoMessagesPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Video Messages",
   description: "Watch teachings and messages from The Ecclesia Embassy again, on demand.",

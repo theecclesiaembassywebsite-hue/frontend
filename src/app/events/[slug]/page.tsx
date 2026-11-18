@@ -4,6 +4,7 @@ import { buildMetadata, SITE_URL } from "@/lib/seo";
 import { events } from "@/lib/api";
 import EventDetailPageClient from "./EventDetailPageClient";
 
+
 type Props = { params: Promise<{ slug: string }> };
 
 function descriptionFrom(event: any): string {

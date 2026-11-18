@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { buildMetadata, SITE_URL } from "@/lib/seo";
 
+
 // ── Update these each year ──────────────────────────────────────────────────
 const YEAR = "2026";
 const DATE_RANGE = "September 27 — October 3, 2026";

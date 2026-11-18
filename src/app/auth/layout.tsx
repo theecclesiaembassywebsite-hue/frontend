@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MotionConfig } from "framer-motion";
 
+
 export const metadata: Metadata = {
   title: {
     default: "Authentication",

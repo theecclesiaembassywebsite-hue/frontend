@@ -6,6 +6,7 @@ import SectionIntro from "@/components/ui/SectionIntro";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buildMetadata } from "@/lib/seo";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Accessibility Statement",
   description:

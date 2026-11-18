@@ -4,6 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 import { cith } from "@/lib/api";
 import HubDetailPageClient from "./HubDetailPageClient";
 
+
 type Props = { params: Promise<{ id: string }> };
 
 function locationOf(hub: any): string {

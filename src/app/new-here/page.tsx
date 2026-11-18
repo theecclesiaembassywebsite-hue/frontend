@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import NewHerePageClient from "./NewHerePageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "New Here?",
   description:
