@@ -193,7 +193,14 @@ export default function ProgramHero({
 
         {stats.length > 0 && (
           <FadeIn direction="up" delay={0.2}>
-            <dl className="mt-14 grid gap-px overflow-hidden rounded-[26px] border border-white/10 bg-white/10 sm:grid-cols-3">
+            <dl
+              className={cn(
+                "mt-14 grid gap-px overflow-hidden rounded-[26px] border border-white/10 bg-white/10",
+                stats.length >= 3
+                  ? "sm:grid-cols-3"
+                  : "mx-auto sm:w-max sm:grid-cols-[repeat(2,max-content)]"
+              )}
+            >
               {stats.map((stat) => (
                 // Value above caption, matching the TEMA hero and PageHero so
                 // every stat rail on the site reads the same way round. The
@@ -205,7 +212,7 @@ export default function ProgramHero({
                   <dt className="order-2 mt-2 font-body text-[11px] uppercase tracking-[0.2em] text-white/55">
                     {stat.label}
                   </dt>
-                  <dd className="order-1 font-heading text-2xl font-bold text-white">
+                  <dd className="order-1 whitespace-nowrap font-heading text-2xl font-bold text-white">
                     {stat.value}
                   </dd>
                 </div>

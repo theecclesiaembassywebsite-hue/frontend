@@ -43,17 +43,17 @@ const formatFee = (course: TrainingCourse) => {
 const trainingPillars = [
   {
     title: "Doctrine and Identity",
-    desc: "Courses are built to establish a strong biblical foundation and kingdom consciousness.",
+    desc: "Every man, his mandate, his message, and his mission are refined on a foundation of sound scriptural doctrine.",
     icon: BookOpen,
   },
   {
     title: "Ministerial Training",
-    desc: "Students are trained in service, leadership, and responsible ministry expression.",
+    desc: "The fire of the call to ministry is fanned to flame, with a drive for excellence and exploits in every endeavour.",
     icon: GraduationCap,
   },
   {
     title: "Community Journey",
-    desc: "Learning happens within a living community that encourages accountability and growth.",
+    desc: "Young ministers are guided against missing or losing their ministry and destiny, within a community built for accountability.",
     icon: User,
   },
 ];
@@ -61,11 +61,11 @@ const trainingPillars = [
 const facultyRoles = ["Lead Faculty", "Associate Faculty", "Guest Faculty"];
 
 const academicCalendar = [
-  { title: "Session 1", detail: "January to June 2026" },
-  { title: "Session 2", detail: "July to December 2026" },
+  { title: "Batch A", detail: "First Discipleship Training Deluge of the season" },
+  { title: "Batch B", detail: "Second Discipleship Training Deluge of the season" },
   {
-    title: "Application window",
-    detail: "Closes two weeks before each session begins",
+    title: "Two batches a season",
+    detail: "We have two batches of DTD in a season.",
   },
 ];
 
@@ -222,7 +222,7 @@ export default function KISOLAMPageClient() {
         eyebrow="Kingdom Training"
         title="KISOLAM"
         subtitle="Kingdom International School of Life and Ministry"
-        description="Equipping kingdom citizens for life, leadership, and ministry through structured training, doctrinal depth, and apostolic impartation."
+        description="The Kingdom Knowledge Training Arm of The Ecclesia Embassy, ordained of God to arm men and women with the requisite knowledge and training in different fields of endeavour for the Takeover Mandate — raising Ambassadors of sound scriptural foundation and foresight for life and ministry endeavours."
         logoSrc="/kisolam-logo.png"
         logoAlt="KISOLAM"
         logoWidth={422}
@@ -242,9 +242,9 @@ export default function KISOLAMPageClient() {
             </p>
             <div className="mt-4 space-y-3">
               {[
-                "Structured modules for doctrine, devotion, and kingdom service.",
-                "Tracks that serve both entry-level learners and emerging leaders.",
-                "Flexible options for intensive sessions and short workshops.",
+                "Raising Ambassadors of sound scriptural foundation and foresight for life and ministry.",
+                "Moulding men and women who are exclusively kingdom-driven as they fulfil destiny.",
+                "Establishing the Divine Pathway to Ministry for 21st-century ministers.",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
                   <span
@@ -258,9 +258,8 @@ export default function KISOLAMPageClient() {
           </div>
         }
         stats={[
-          { value: String(courses.length || 5), label: "Program tracks" },
-          { value: "Jan / Jul", label: "Session starts" },
-          { value: "3–6 months", label: "Core duration" },
+          { value: String(courses.length || 7), label: "Program tracks" },
+          { value: "1 Day – 6 Months", label: "Core duration" },
         ]}
         actions={
           <>
@@ -317,8 +316,8 @@ export default function KISOLAMPageClient() {
         <SectionIntro
           align="center"
           eyebrow="The KISOLAM model"
-          title="A training pathway with depth and direction"
-          description="KISOLAM is designed to move learners from conviction to competence — strengthening scriptural understanding, shaping character, and preparing people for faithful kingdom expression."
+          title="Ordained for the Takeover Mandate"
+          description="Many lives and ministries experience avoidable pains and pitfalls because proper attention is not paid to important aspects of life and ministry. KISOLAM exists to close that gap — moving learners from conviction to competence through kingdom knowledge."
         />
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -449,6 +448,16 @@ export default function KISOLAMPageClient() {
               experience to guide learners with clarity and accountability.
             </p>
 
+            <blockquote className="mt-6 border-l-2 border-[var(--brand-accent)] pl-4 font-body text-sm italic leading-7 text-gray-text">
+              &ldquo;No matter who you are or where you are, life cannot be lived to the fullest
+              without these relevant and applicable kingdom knowledges. It is time to adjust your
+              schedule to prepare yourself for what God has prepared for you in life and ministry.
+              Be earnest!&rdquo;
+              <footer className="mt-2 font-heading text-xs font-semibold not-italic uppercase tracking-[0.14em] text-slate">
+                — The Lead Brother
+              </footer>
+            </blockquote>
+
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {facultyRoles.map((role) => (
                 <div
@@ -485,7 +494,7 @@ export default function KISOLAMPageClient() {
                   <p className="font-heading text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
                     Academic rhythm
                   </p>
-                  <h2 className="font-heading text-[28px] font-bold text-white">2026 calendar</h2>
+                  <h2 className="font-heading text-[28px] font-bold text-white">DTD calendar</h2>
                 </div>
               </div>
 
