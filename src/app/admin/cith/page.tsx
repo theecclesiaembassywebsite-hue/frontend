@@ -187,35 +187,31 @@ function AdminCITHContent() {
     }
   };
 
-  // Search leaders for Create Modal
-  const handleLeaderSearch = async (query: string) => {
-    setLeaderSearch(query);
+  const searchLeaders = async (
+    query: string,
+    setQuery: (query: string) => void,
+    setResults: (results: Awaited<ReturnType<typeof cith.searchMembers>>) => void,
+  ) => {
+    setQuery(query);
     if (!query.trim()) {
-      setLeaderResults([]);
+      setResults([]);
       return;
     }
     try {
       const results = await cith.searchMembers(query);
-      setLeaderResults(results);
+      setResults(results);
     } catch (err) {
       console.error("Failed to search members:", err);
     }
   };
 
+  // Search leaders for Create Modal
+  const handleLeaderSearch = (query: string) =>
+    searchLeaders(query, setLeaderSearch, setLeaderResults);
+
   // Search leaders for Manage Modal
-  const handleReassignSearch = async (query: string) => {
-    setReassignSearch(query);
-    if (!query.trim()) {
-      setReassignResults([]);
-      return;
-    }
-    try {
-      const results = await cith.searchMembers(query);
-      setReassignResults(results);
-    } catch (err) {
-      console.error("Failed to search members:", err);
-    }
-  };
+  const handleReassignSearch = (query: string) =>
+    searchLeaders(query, setReassignSearch, setReassignResults);
 
   const handleCreateHub = async () => {
     if (!hubFormData.name || !hubFormData.area || !hubFormData.city || !hubFormData.state) {

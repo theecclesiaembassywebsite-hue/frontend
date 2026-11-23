@@ -4,6 +4,7 @@
 // Public pages should only autoplay a confirmed live broadcast video ID from this channel.
 // When confirmation is uncertain, we report "not live" so the player never drifts into
 // unrelated YouTube recommendations or another channel's fallback content.
+// Mirrored independently in ecclesia-nation-mobile/services/youtube-videos.service.ts — keep both in sync.
 import { isQuotaSafe, consumeQuota } from "@/lib/youtube-quota";
 
 const CHANNEL_ID = "UCrvZyTocoH926b_wv81bpzA";

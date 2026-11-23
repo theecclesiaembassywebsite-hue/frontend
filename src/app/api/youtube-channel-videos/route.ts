@@ -1,3 +1,4 @@
+// Mirrored independently in ecclesia-nation-mobile/services/youtube-videos.service.ts — keep both in sync.
 import { consumeQuota, isQuotaSafe } from "@/lib/youtube-quota";
 
 const CHANNELS = [

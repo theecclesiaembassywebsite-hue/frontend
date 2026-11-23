@@ -21,8 +21,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 // Token management
 // The primary auth mechanism is an httpOnly cookie set by the backend on login
 // (not readable by JS, immune to XSS). The localStorage token is kept as a
-// fallback for the Authorization header so the mobile app and any existing
-// sessions continue working without a forced re-login.
+// fallback for clients that need an Authorization header.
 // ---------------------------------------------------------------------------
 export const getToken = (): string | null => {
   if (typeof window === "undefined") return null;
@@ -163,7 +162,7 @@ const doFetchAPI = async <T>(
   if (!noAuth) {
     const token = getToken();
     if (token) {
-      // Header fallback — used by mobile app and existing web sessions.
+      // Header fallback for clients that need an Authorization header.
       // The httpOnly cookie is sent automatically via credentials: 'include'.
       fetchHeaders.Authorization = `Bearer ${token}`;
     }
