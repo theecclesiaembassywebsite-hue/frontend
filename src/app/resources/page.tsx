@@ -7,6 +7,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { buildMetadata } from "@/lib/seo";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Resources",
   description:

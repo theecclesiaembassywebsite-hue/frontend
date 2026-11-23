@@ -4,6 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 import { squads } from "@/lib/api";
 import SquadDetailPageClient from "./SquadDetailPageClient";
 
+
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

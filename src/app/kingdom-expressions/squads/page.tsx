@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import SquadsPageClient from "./SquadsPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Kingdom Life Squads",
   description:

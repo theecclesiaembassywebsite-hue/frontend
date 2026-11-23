@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import PrayerPageClient from "./PrayerPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Prayer Request",
   description:

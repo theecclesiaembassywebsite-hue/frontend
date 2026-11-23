@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import GivePageClient from "./GivePageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Give",
   description:

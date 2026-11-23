@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import ExperiencePageClient from "./ExperiencePageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "The Ecclesia Experience",
   description:

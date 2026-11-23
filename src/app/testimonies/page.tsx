@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import TestimoniesPageClient from "./TestimoniesPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Testimonies",
   description:

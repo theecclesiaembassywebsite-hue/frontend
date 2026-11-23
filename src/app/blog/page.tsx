@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import BlogPageClient from "./BlogPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Blog & Insights",
   description: "Thoughts, teachings, and testimonials from The Ecclesia Embassy.",

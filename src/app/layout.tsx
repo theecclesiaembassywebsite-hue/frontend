@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
+
 const montserrat = Montserrat({
   variable: "--font-heading",
   subsets: ["latin"],

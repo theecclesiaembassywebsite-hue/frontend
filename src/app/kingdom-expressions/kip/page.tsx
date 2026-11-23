@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import KIPPageClient from "./KIPPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Kingdom Influencing Platform (KIP)",
   description:

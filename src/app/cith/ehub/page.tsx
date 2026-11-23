@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import EHubPageClient from "./EHubPageClient";
 
+
 export const metadata: Metadata = buildMetadata({
   title: "Join the e-Hub",
   description:

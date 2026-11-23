@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import AdminLayoutClient from "./AdminLayoutClient";
 
+
 // The admin panel is authenticated-only; search engines should never index
 // it, and the interactive chrome lives in AdminLayoutClient because a
 // metadata export cannot appear in a "use client" file.

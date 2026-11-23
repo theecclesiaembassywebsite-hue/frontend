@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+
 // Member dashboard is authenticated-only; search engines should never index it.
 export const metadata: Metadata = {
   title: {
