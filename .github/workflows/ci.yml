@@ -43,3 +43,8 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+      # Gated on production dependencies only: dev-tooling (eslint, etc.) has
+      # moderate advisories with no fix available and isn't shipped to users.
+      - name: Dependency audit (production deps, high+)
+        run: npm audit --omit=dev --audit-level=high
